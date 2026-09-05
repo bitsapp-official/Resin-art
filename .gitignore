@@ -46,3 +46,7 @@ Thumbs.db
 *.docx
 *Stripe*Compliance*
 *Stripe*Activation*
+
+# Archives and Local Database Dumps
+*.zip
+*.sql

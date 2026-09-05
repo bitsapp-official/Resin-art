@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('eyebrow')->default('OUR PROCESS');
             $table->string('title')->default('Six weeks, one object.');
-            $table->text('description')->default('From timber selection to the final hand-polish, nothing here is hurried.');
+            $table->text('description')->nullable();
             $table->string('cta_title')->default('Have a custom piece in mind?');
             $table->string('cta_button_text')->default('SUBMIT YOUR REQUIREMENTS');
             $table->string('cta_url')->default('/custom');
