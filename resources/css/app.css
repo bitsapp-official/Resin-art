@@ -1,0 +1,295 @@
+@import 'tailwindcss/base';
+@import 'tailwindcss/components';
+@import 'tailwindcss/utilities';
+
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500;1,600&family=Plus+Jakarta+Sans:wght@300;400;500;600&display=swap');
+
+/* Prevent Alpine.js x-cloak flash of unstyled content on page load */
+[x-cloak] {
+    display: none !important;
+}
+
+/* ── Resin Fluid Organic Movement for Site Loader ── */
+@keyframes resinBlobMove1 {
+    0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
+    50% { transform: translate3d(35px, -25px, 0) scale(1.15); }
+}
+
+@keyframes resinBlobMove2 {
+    0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
+    50% { transform: translate3d(-35px, 25px, 0) scale(1.12); }
+}
+
+.animate-resin-blob-1 {
+    animation: resinBlobMove1 8s ease-in-out infinite;
+    will-change: transform;
+}
+
+.animate-resin-blob-2 {
+    animation: resinBlobMove2 10s ease-in-out infinite;
+    will-change: transform;
+}
+
+/* ── Brand Reveal Keyframe ── */
+@keyframes brandReveal {
+    0% {
+        opacity: 0;
+        transform: translateY(14px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.animate-brand-reveal {
+    animation: brandReveal 0.85s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    will-change: opacity, transform;
+}
+
+.animate-brand-reveal-sub {
+    animation: brandReveal 0.85s cubic-bezier(0.16, 1, 0.3, 1) 0.15s forwards;
+    opacity: 0;
+    will-change: opacity, transform;
+}
+
+/* ── Hero Staggered Entrance Reveal Classes ── */
+.hero-reveal-item {
+    opacity: 0;
+    transform: translateY(16px);
+    transition: opacity 0.85s cubic-bezier(0.16, 1, 0.3, 1), transform 0.85s cubic-bezier(0.16, 1, 0.3, 1);
+    will-change: opacity, transform;
+}
+
+.hero-reveal-active .hero-reveal-item,
+body.preloader-done .hero-reveal-item {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.hero-reveal-delay-1 { transition-delay: 80ms; }
+.hero-reveal-delay-2 { transition-delay: 180ms; }
+.hero-reveal-delay-3 { transition-delay: 280ms; }
+
+/* ── Reduced Motion Accessibility ── */
+@media (prefers-reduced-motion: reduce) {
+    .animate-resin-blob-1,
+    .animate-resin-blob-2,
+    .animate-brand-reveal,
+    .animate-brand-reveal-sub {
+        animation: none !important;
+        opacity: 1 !important;
+        transform: none !important;
+    }
+    
+    .hero-reveal-item {
+        opacity: 1 !important;
+        transform: none !important;
+        transition: none !important;
+    }
+}
+
+@layer base {
+    html {
+        scroll-behavior: smooth;
+        font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+        background-color: #FAF8F5;
+        color: #1C1917;
+        -webkit-font-smoothing: antialiased;
+        font-feature-settings: "ss01", "cv11";
+        letter-spacing: -0.005em;
+    }
+
+    body {
+        font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+        -webkit-font-smoothing: antialiased;
+        font-feature-settings: "ss01", "cv11";
+        letter-spacing: -0.005em;
+    }
+
+    h1, h2, h3, h4, .font-editorial {
+        font-family: 'Cormorant Garamond', Georgia, serif;
+        letter-spacing: 0; /* reset editorial fonts */
+    }
+}
+
+/* Luxury entrance keyframe animations */
+@keyframes fadeUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+.animate-fade-up {
+    animation: fadeUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-fade-in {
+    animation: fadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Stagger animation delays */
+.delay-100 { animation-delay: 100ms; }
+.delay-200 { animation-delay: 200ms; }
+.delay-300 { animation-delay: 300ms; }
+
+/* Custom input pill styles */
+.input-pill {
+    background-color: oklch(98.5% 0.008 85);
+    border: 1px solid #DFD9CE;
+    border-radius: 9999px;
+    padding: 0.75rem 1.25rem;
+    font-size: 0.875rem;
+    color: #1C1917;
+    transition: all 0.2s ease-in-out;
+}
+
+.input-pill:focus {
+    outline: none;
+    background-color: oklch(98.5% 0.008 85);
+    border-color: #8E877D;
+    box-shadow: none;
+}
+
+.textarea-rounded {
+    background-color: oklch(98.5% 0.008 85);
+    border: 1px solid #DFD9CE;
+    border-radius: 1.25rem;
+    padding: 1rem 1.25rem;
+    font-size: 0.875rem;
+    color: #1C1917;
+    transition: all 0.2s ease-in-out;
+}
+
+.textarea-rounded:focus {
+    outline: none;
+    background-color: oklch(98.5% 0.008 85);
+    border-color: #8E877D;
+    box-shadow: none;
+}
+
+.bg-noise {
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.035'/%3E%3C/svg%3E");
+    pointer-events: none;
+}
+
+:root {
+    --ivory: #FAF8F5;
+    --shadow-glass:
+        0 8px 32px -4px rgba(28, 25, 23, 0.10),
+        0 2px 12px -2px rgba(28, 25, 23, 0.06),
+        0 0 0 1px rgba(255,255,255,0.18) inset,
+        0 32px 64px -16px rgba(139, 120, 100, 0.08);
+}
+
+/* Glassmorphism Navigation capsule */
+.glass-nav {
+    background-color: rgba(250, 248, 245, 0.55) !important;
+    backdrop-filter: blur(20px) saturate(1.3) !important;
+    -webkit-backdrop-filter: blur(20px) saturate(1.3) !important;
+    border: 1px solid rgba(255, 255, 255, 0.5) !important;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.03) !important;
+}
+
+/* Glassmorphism Quote Overlay Card */
+.glass-quote {
+    background-color: rgba(250, 248, 245, 0.55);
+    backdrop-filter: blur(24px) saturate(1.4);
+    -webkit-backdrop-filter: blur(24px) saturate(1.4);
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.06);
+}
+
+.glass {
+    background: var(--ivory);
+    backdrop-filter: blur(20px) saturate(140%);
+    -webkit-backdrop-filter: blur(20px) saturate(140%);
+    box-shadow: var(--shadow-glass);
+    border: 1px solid oklch(100% 0 0 / .5);
+}
+
+.glass-pill {
+    background-color: rgba(250, 248, 245, 0.65);
+    backdrop-filter: blur(16px) saturate(1.2);
+    -webkit-backdrop-filter: blur(16px) saturate(1.2);
+    border: 1px solid rgba(255, 255, 255, 0.85);
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+}
+
+@supports (color:color-mix(in lab, red, red)) {
+    .glass {
+        background: color-mix(in oklab, var(--ivory) 60%, transparent);
+    }
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+    width: 6px;
+}
+::-webkit-scrollbar-track {
+    background: #FAF8F5;
+}
+::-webkit-scrollbar-thumb {
+    background: #D9D2C5;
+    border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: #A89F90;
+}
+
+/* Global & Input Text Selection Highlight (Prevents default blue selection) */
+::selection {
+    background-color: #E5DFD3 !important;
+    color: #1C1917 !important;
+}
+
+::-moz-selection {
+    background-color: #E5DFD3 !important;
+    color: #1C1917 !important;
+}
+
+input::selection,
+textarea::selection {
+    background-color: #DCD5C7 !important;
+    color: #1C1917 !important;
+}
+
+/* Browser Autofill Styling (Prevents Chrome/Edge default blue background #e8f0fe) */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active,
+textarea:-webkit-autofill,
+textarea:-webkit-autofill:hover,
+textarea:-webkit-autofill:focus,
+textarea:-webkit-autofill:active {
+    -webkit-text-fill-color: #1C1917 !important;
+    -webkit-box-shadow: 0 0 0px 1000px oklch(98.5% 0.008 85) inset !important;
+    box-shadow: 0 0 0px 1000px oklch(98.5% 0.008 85) inset !important;
+    background-color: oklch(98.5% 0.008 85) !important;
+    transition: background-color 5000s ease-in-out 0s;
+}
+
+/* Hide scrollbar for Chrome, Safari and Opera */
+.no-scrollbar::-webkit-scrollbar {
+    display: none !important;
+}
+/* Hide scrollbar for IE, Edge and Firefox */
+.no-scrollbar {
+    -ms-overflow-style: none !important;  /* IE and Edge */
+    scrollbar-width: none !important;  /* Firefox */
+}
