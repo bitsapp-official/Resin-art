@@ -12,7 +12,9 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('contact_page_contents', function (Blueprint $table) {
-            //
+            if (!Schema::hasColumn('contact_page_contents', 'studio_intro')) {
+                $table->text('studio_intro')->nullable()->after('studio_phone');
+            }
         });
     }
 
@@ -22,7 +24,9 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('contact_page_contents', function (Blueprint $table) {
-            //
+            if (Schema::hasColumn('contact_page_contents', 'studio_intro')) {
+                $table->dropColumn('studio_intro');
+            }
         });
     }
 };
