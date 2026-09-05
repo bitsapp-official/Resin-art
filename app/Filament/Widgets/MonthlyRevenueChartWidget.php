@@ -26,10 +26,14 @@ class MonthlyRevenueChartWidget extends ChartWidget
     {
         $twelveMonthsAgo = Carbon::now()->subMonths(11)->startOfMonth();
 
+        $driver = strtolower(Order::query()->getConnection()->getDriverName());
+        $isMysql = in_array($driver, ['mysql', 'mariadb']);
+        $monthExpr = $isMysql ? "DATE_FORMAT(created_at, '%Y-%m')" : "strftime('%Y-%m', created_at)";
+
         // Single query for monthly order intake and fulfillment
         $monthlyRecords = Order::where('created_at', '>=', $twelveMonthsAgo)
             ->selectRaw("
-                strftime('%Y-%m', created_at) as month_key,
+                {$monthExpr} as month_key,
                 COUNT(*) as total_orders,
                 COUNT(CASE WHEN status IN ('SHIPPED', 'DELIVERED', 'completed') THEN 1 END) as fulfilled_orders
             ")

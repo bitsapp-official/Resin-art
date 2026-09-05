@@ -67,7 +67,7 @@
                             <a href="{{ route('account.notifications.index') }}" 
                                class="flex items-center justify-between px-4 py-2 rounded-full text-[13px] transition-all {{ request()->routeIs('account.notifications.*') ? 'bg-[#1C1917] text-white font-semibold shadow-sm' : 'text-[#66615C] hover:text-[#1C1917] hover:bg-white/70 font-medium' }}">
                                 <span>Notifications</span>
-                                @php $unread = Auth::user()->notifications()->where('is_read', false)->count(); @endphp
+                                @php $unread = Auth::user()->customerNotifications()->where('is_read', false)->count(); @endphp
                                 @if($unread > 0)
                                     <span class="px-2 py-0.5 rounded-full bg-amber-600 text-white font-bold text-[9.5px]">{{ $unread }}</span>
                                 @endif
