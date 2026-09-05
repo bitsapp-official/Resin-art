@@ -11,13 +11,17 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('cart_items', function (Blueprint $table) {
-            $table->json('options')->nullable()->after('price');
-        });
+        if (!Schema::hasColumn('cart_items', 'options')) {
+            Schema::table('cart_items', function (Blueprint $table) {
+                $table->json('options')->nullable()->after('price');
+            });
+        }
         
-        Schema::table('order_items', function (Blueprint $table) {
-            $table->json('options')->nullable()->after('price');
-        });
+        if (!Schema::hasColumn('order_items', 'options')) {
+            Schema::table('order_items', function (Blueprint $table) {
+                $table->json('options')->nullable()->after('unit_price');
+            });
+        }
     }
 
     /**
@@ -26,11 +30,15 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('cart_items', function (Blueprint $table) {
-            $table->dropColumn('options');
+            if (Schema::hasColumn('cart_items', 'options')) {
+                $table->dropColumn('options');
+            }
         });
         
         Schema::table('order_items', function (Blueprint $table) {
-            $table->dropColumn('options');
+            if (Schema::hasColumn('order_items', 'options')) {
+                $table->dropColumn('options');
+            }
         });
     }
 };
