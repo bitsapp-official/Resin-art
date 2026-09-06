@@ -315,7 +315,7 @@
          x-cloak 
          x-effect="document.body.classList.toggle('overflow-hidden', searchModalOpen)"
          @keydown.escape.window="searchModalOpen = false" 
-         class="fixed inset-0 z-[99999] bg-black/60 backdrop-blur-xs flex items-start justify-center pt-24 px-4">
+         class="fixed inset-0 z-[99999] bg-black/60 backdrop-blur-xs flex items-start justify-center pt-24 px-4 pointer-events-auto">
         <div @click.away="searchModalOpen = false" class="bg-white rounded-3xl p-6 max-w-lg w-full shadow-2xl space-y-4">
             <div class="flex items-center justify-between pb-1">
                 <h3 class="text-sm font-semibold uppercase tracking-wider text-[#1C1917]">Search Atelier</h3>

@@ -14,7 +14,9 @@
 {{-- Cart Drawer Overlay --}}
 <div x-show="cartOpen"
      x-cloak
-     class="fixed inset-0 z-[100] overflow-hidden"
+     @keydown.escape.window="cartOpen = false"
+     x-effect="document.body.classList.toggle('overflow-hidden', cartOpen)"
+     class="fixed inset-0 z-[100] overflow-hidden pointer-events-auto"
      role="dialog"
      aria-modal="true">
 
@@ -27,10 +29,10 @@
          x-transition:leave-start="opacity-100"
          x-transition:leave-end="opacity-0"
          @click="cartOpen = false"
-         class="fixed inset-0 bg-black/30 transition-opacity"></div>
+         class="fixed inset-0 bg-black/30 transition-opacity cursor-pointer pointer-events-auto"></div>
 
     {{-- Panel --}}
-    <div class="fixed inset-y-0 right-0 max-w-full flex">
+    <div class="fixed inset-y-0 right-0 max-w-full flex pointer-events-auto">
         <div x-show="cartOpen"
              x-transition:enter="transform transition ease-in-out duration-300"
              x-transition:enter-start="translate-x-full"

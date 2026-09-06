@@ -112,7 +112,7 @@
                             @endphp
 
                             {{-- Floating Action Buttons (Top Right): Hover Animated with Glass Border --}}
-                            <div class="absolute top-4 right-4 flex flex-col space-y-2 z-20 opacity-0 group-hover:opacity-100 translate-x-2 group-hover:translate-x-0 transition-all duration-300 ease-out">
+                            <div class="absolute top-4 right-4 flex flex-col space-y-2 z-20 opacity-0 group-hover:opacity-100 translate-x-2 group-hover:translate-x-0 transition-all duration-300 ease-out pointer-events-none group-hover:pointer-events-auto">
                                 {{-- Wishlist Toggle Button --}}
                                 <form method="POST" action="{{ route('wishlist.toggle') }}" class="wishlist-toggle-form" data-product-id="{{ $product->id }}">
                                     @csrf
