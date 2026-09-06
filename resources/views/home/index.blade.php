@@ -1,6 +1,6 @@
 <x-app-layout title="Maison Résine — Handcrafted Resin Art & Objects">
 
-    <div class="min-h-screen bg-transparent space-y-24 md:space-y-36 pb-24 overflow-hidden">
+    <div class="min-h-screen bg-transparent space-y-24 md:space-y-36 pb-24 overflow-x-clip">
 
         {{-- ══════════════════════════════════════════════════════════════════
              1. HERO SECTION (Full 100vh Widescreen Carousel Slider)
@@ -19,7 +19,7 @@
                     'tag' => 'HANDCRAFTED & MADE TO ORDER',
                     'title' => 'The quiet language of resin.',
                     'desc' => 'Poured slowly, one piece at a time. Each work is a still moment — a river held between hands, a landscape suspended in glass.',
-                    'image' => asset('storage/gallery/segre_river_table.png'),
+                    'image' => asset('storage/gallery/segre_river_table.webp'),
                     'link' => route('collections.show', 'river-tables'),
                 ]
             ];
@@ -169,12 +169,14 @@
                  x-init="$nextTick(() => checkScroll())">
             
             <div class="relative">
+                <h2 class="sr-only">Browse by Category</h2>
 
                 {{-- Left Side Floating Arrow --}}
                 <button type="button" 
                         x-show="canScrollLeft"
                         x-transition
                         @click.prevent="scrollLeft()"
+                        aria-label="Scroll categories left"
                         class="absolute -left-4 sm:-left-6 top-[42%] -translate-y-1/2 z-20 w-11 h-11 rounded-full bg-white shadow-[0_2px_16px_rgba(0,0,0,0.12)] border border-[#E8E2D8] flex items-center justify-center text-[#1C1917] hover:bg-[#1C1917] hover:text-white hover:border-[#1C1917] active:scale-95 transition-all duration-200 cursor-pointer">
                     <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5"/>
@@ -186,6 +188,7 @@
                         x-show="canScrollRight"
                         x-transition
                         @click.prevent="scrollRight()"
+                        aria-label="Scroll categories right"
                         class="absolute -right-4 sm:-right-6 top-[42%] -translate-y-1/2 z-20 w-11 h-11 rounded-full bg-white shadow-[0_2px_16px_rgba(0,0,0,0.12)] border border-[#E8E2D8] flex items-center justify-center text-[#1C1917] hover:bg-[#1C1917] hover:text-white hover:border-[#1C1917] active:scale-95 transition-all duration-200 cursor-pointer">
                     <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5"/>
@@ -209,8 +212,10 @@
                             <div class="w-40 h-40 sm:w-44 sm:h-44 lg:w-52 lg:h-52 rounded-full bg-[#F3ECE2] p-3 sm:p-3.5 group-hover:bg-[#E6DCD0] group-hover:-translate-y-1.5 group-hover:shadow-lg transition-all duration-300 ease-out">
                                 <div class="w-full h-full rounded-full overflow-hidden bg-white">
                                     <img src="{{ $imageUrl }}" 
-                                         alt="{{ $category->name }}" 
+                                         alt="" 
+                                         aria-hidden="true"
                                          loading="lazy"
+                                         decoding="async"
                                          class="w-full h-full object-cover object-center group-hover:scale-110 transition-transform duration-500 ease-out">
                                 </div>
                             </div>
@@ -237,11 +242,11 @@
             
             <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-6 border-b border-[#E5DFD3]/80 pb-6">
                 <div class="space-y-2">
-                    <span class="text-[10px] uppercase tracking-[0.28em] font-bold text-[#8E877D]">
+                    <span class="text-[10px] uppercase tracking-[0.28em] font-bold text-[#6E675E]">
                         Most Loved
                     </span>
                     <h2 class="font-editorial text-3xl sm:text-4xl lg:text-5xl text-[#1C1917] font-light">
-                        Small pieces, <em class="italic text-[#AD9575]">quietly loved.</em>
+                        Small pieces, <em class="italic text-[#846B49]">quietly loved.</em>
                     </h2>
                 </div>
                 <a href="{{ route('shop.index') }}" class="inline-flex items-center space-x-2 text-[10.5px] uppercase tracking-[0.22em] font-semibold text-[#1C1917] hover:text-[#AD9575] transition-colors">
@@ -265,7 +270,7 @@
              5b. BESTSELLERS (Products marked as bestseller in admin)
              ══════════════════════════════════════════════════════════════════ --}}
         @if($bestsellers->isNotEmpty())
-        <section class="max-w-[1400px] mx-auto px-6 lg:px-12 xl:px-16 space-y-10">
+        <section class="max-w-[1400px] mx-auto px-6 lg:px-12 xl:px-16 space-y-10" aria-labelledby="bestsellers-heading">
             
             <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-6 border-b border-[#E5DFD3]/80 pb-6">
                 <div class="space-y-2">
@@ -301,11 +306,11 @@
             
             <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-6 border-b border-[#E5DFD3]/80 pb-6">
                 <div class="space-y-2">
-                    <span class="text-[10px] uppercase tracking-[0.28em] font-bold text-[#8E877D]">
+                    <span class="text-[10px] uppercase tracking-[0.28em] font-bold text-[#6E675E]">
                         NEW ARRIVALS
                     </span>
                     <h2 class="font-editorial text-3xl sm:text-4xl lg:text-5xl text-[#1C1917] font-light">
-                        Fresh from the <em class="italic text-[#AD9575]">atelier.</em>
+                        Fresh from the <em class="italic text-[#846B49]">atelier.</em>
                     </h2>
                 </div>
                 <a href="{{ route('shop.index') }}" class="inline-flex items-center space-x-2 text-[10.5px] uppercase tracking-[0.22em] font-semibold text-[#1C1917] hover:text-[#AD9575] transition-colors group">
@@ -334,11 +339,11 @@
             {{-- Header --}}
             <div class="flex flex-col md:flex-row md:items-end justify-between gap-6 border-b border-[#E5DFD3]/80 pb-6">
                 <div class="space-y-2">
-                    <span class="text-[10px] uppercase tracking-[0.28em] font-bold text-[#8E877D]">
+                    <span class="text-[10px] uppercase tracking-[0.28em] font-bold text-[#6E675E]">
                         CURATED COLLECTIONS
                     </span>
                     <h2 class="font-editorial text-3xl sm:text-4xl lg:text-5xl text-[#1C1917] font-light">
-                        From centrepiece tables to <em class="italic text-[#AD9575]">quiet objects.</em>
+                        From centrepiece tables to <em class="italic text-[#846B49]">quiet objects.</em>
                     </h2>
                 </div>
                 <a href="{{ route('collections.index') }}" class="inline-flex items-center space-x-2 text-[10.5px] uppercase tracking-[0.22em] font-semibold text-[#1C1917] hover:text-[#AD9575] transition-colors group">
@@ -354,7 +359,7 @@
                 @if(isset($featuredCollections[0]))
                     @php 
                         $col1 = $featuredCollections[0]; 
-                        $col1Img = $col1->effective_cover_image ? (str_starts_with($col1->effective_cover_image, 'http') || str_starts_with($col1->effective_cover_image, '/') ? $col1->effective_cover_image : asset('storage/' . $col1->effective_cover_image)) : asset('storage/gallery/segre_river_table.png');
+                        $col1Img = $col1->effective_cover_image ? (str_starts_with($col1->effective_cover_image, 'http') || str_starts_with($col1->effective_cover_image, '/') ? $col1->effective_cover_image : asset('storage/' . $col1->effective_cover_image)) : asset('storage/gallery/segre_river_table.webp');
                     @endphp
                     <a href="{{ route('collections.show', $col1->slug) }}" 
                        class="lg:col-span-7 group relative rounded-[2.5rem] overflow-hidden min-h-[480px] lg:min-h-[580px] bg-[#EBE5DB] border border-[#DFD9CE]/60 flex flex-col justify-between p-8 sm:p-10 shadow-sm transition-all duration-500 hover:shadow-xl">
@@ -394,7 +399,7 @@
                     @if(isset($featuredCollections[1]))
                         @php 
                             $col2 = $featuredCollections[1]; 
-                            $col2Img = $col2->effective_cover_image ? (str_starts_with($col2->effective_cover_image, 'http') || str_starts_with($col2->effective_cover_image, '/') ? $col2->effective_cover_image : asset('storage/' . $col2->effective_cover_image)) : asset('storage/gallery/mira_wall.png');
+                            $col2Img = $col2->effective_cover_image ? (str_starts_with($col2->effective_cover_image, 'http') || str_starts_with($col2->effective_cover_image, '/') ? $col2->effective_cover_image : asset('storage/' . $col2->effective_cover_image)) : asset('storage/gallery/mira_wall.webp');
                         @endphp
                         <a href="{{ route('collections.show', $col2->slug) }}" 
                            class="group relative rounded-[2.25rem] overflow-hidden min-h-[260px] sm:min-h-[275px] bg-[#EBE5DB] border border-[#DFD9CE]/60 flex flex-col justify-between p-7 sm:p-8 shadow-sm transition-all duration-500 hover:shadow-lg">
@@ -429,7 +434,7 @@
                     @if(isset($featuredCollections[2]))
                         @php 
                             $col3 = $featuredCollections[2]; 
-                            $col3Img = $col3->effective_cover_image ? (str_starts_with($col3->effective_cover_image, 'http') || str_starts_with($col3->effective_cover_image, '/') ? $col3->effective_cover_image : asset('storage/' . $col3->effective_cover_image)) : asset('storage/gallery/tray.png');
+                            $col3Img = $col3->effective_cover_image ? (str_starts_with($col3->effective_cover_image, 'http') || str_starts_with($col3->effective_cover_image, '/') ? $col3->effective_cover_image : asset('storage/' . $col3->effective_cover_image)) : asset('storage/gallery/tray.webp');
                         @endphp
                         <a href="{{ route('collections.show', $col3->slug) }}" 
                            class="group relative rounded-[2.25rem] overflow-hidden min-h-[260px] sm:min-h-[275px] bg-[#EBE5DB] border border-[#DFD9CE]/60 flex flex-col justify-between p-7 sm:p-8 shadow-sm transition-all duration-500 hover:shadow-lg">
@@ -472,11 +477,11 @@
              ══════════════════════════════════════════════════════════════════ --}}
         <section class="max-w-4xl mx-auto px-6 text-center py-4">
             <div class="space-y-6">
-                <span class="inline-block w-12 h-[1px] bg-[#AD9575]"></span>
+                <span class="inline-block w-12 h-[1px] bg-[#846B49]"></span>
                 <blockquote class="font-editorial text-2xl sm:text-3xl md:text-4xl text-[#1C1917] font-light italic leading-relaxed">
                     &ldquo;{{ $homeQuoteText }}&rdquo;
                 </blockquote>
-                <p class="text-[11px] uppercase tracking-[0.28em] font-semibold text-[#8E877D]">
+                <p class="text-[11px] uppercase tracking-[0.28em] font-semibold text-[#6E675E]">
                     — {{ $homeQuoteAuthor }}
                 </p>
             </div>
@@ -493,10 +498,12 @@
                 <div class="lg:col-span-6 relative">
                     <div class="relative aspect-[4/3.2] max-h-[440px] rounded-[2.25rem] lg:rounded-[2.5rem] overflow-hidden bg-[#F0EBE1] border border-[#DFD9CE]/70 shadow-lg">
                         @php
-                            $storyImgSrc = $homeStoryImage ? (str_starts_with($homeStoryImage, 'http') || str_starts_with($homeStoryImage, '/') ? $homeStoryImage : asset('storage/' . $homeStoryImage)) : asset('storage/about/artist_workshop.png');
+                            $storyImgSrc = $homeStoryImage ? (str_starts_with($homeStoryImage, 'http') || str_starts_with($homeStoryImage, '/') ? $homeStoryImage : asset('storage/' . $homeStoryImage)) : asset('storage/homepage/story_artwork.webp');
                         @endphp
                         <img src="{{ $storyImgSrc }}" 
                              alt="{{ $homeStoryTitle }}" 
+                             loading="lazy"
+                             decoding="async"
                              class="w-full h-full object-cover">
                         <div class="absolute bottom-6 left-6 z-10">
                             <span class="glass-pill bg-white/90 backdrop-blur-md border border-white/80 text-[#1C1917] text-[9.5px] uppercase tracking-[0.24em] font-semibold px-4 py-2 rounded-full shadow-sm">
@@ -508,7 +515,7 @@
 
                 {{-- Right Narrative --}}
                 <div class="lg:col-span-6 space-y-7">
-                    <div class="flex items-center space-x-3 text-[10px] uppercase tracking-[0.28em] font-bold text-[#8E877D]">
+                    <div class="flex items-center space-x-3 text-[10px] uppercase tracking-[0.28em] font-bold text-[#6E675E]">
                         <span class="w-6 h-[1px] bg-[#D9D2C5] inline-block"></span>
                         <span>{{ $homeStoryTag }}</span>
                     </div>
@@ -517,12 +524,12 @@
                         {{ $homeStoryTitle }}
                     </h2>
 
-                    <p class="text-[15px] sm:text-[16px] text-[#78716C] font-light leading-relaxed">
+                    <p class="text-[15px] sm:text-[16px] text-[#57534E] font-light leading-relaxed">
                         {{ $homeStoryParagraph1 }}
                     </p>
 
                     @if($homeStoryParagraph2)
-                    <p class="text-[14px] text-[#8E877D] font-light leading-relaxed italic">
+                    <p class="text-[14px] text-[#6E675E] font-light leading-relaxed italic">
                         {{ $homeStoryParagraph2 }}
                     </p>
                     @endif
@@ -553,8 +560,10 @@
             <div class="rounded-[2.5rem] bg-[#1C1917] text-white p-8 sm:p-12 lg:p-16 relative overflow-hidden shadow-2xl">
                 
                 {{-- Atmospheric Background Glow --}}
-                <div class="absolute -top-32 -right-32 w-96 h-96 bg-[#AD9575]/20 rounded-full blur-3xl pointer-events-none"></div>
-                <div class="absolute -bottom-32 -left-32 w-96 h-96 bg-[#0D5C75]/20 rounded-full blur-3xl pointer-events-none"></div>
+                <div class="absolute -top-32 -right-32 w-96 h-96 rounded-full pointer-events-none"
+                     style="background: radial-gradient(circle, rgba(173, 149, 117, 0.28) 0%, rgba(173, 149, 117, 0.16) 40%, rgba(173, 149, 117, 0.05) 65%, transparent 80%);"></div>
+                <div class="absolute -bottom-32 -left-32 w-96 h-96 rounded-full pointer-events-none"
+                     style="background: radial-gradient(circle, rgba(13, 92, 117, 0.28) 0%, rgba(13, 92, 117, 0.16) 40%, rgba(13, 92, 117, 0.05) 65%, transparent 80%);"></div>
 
                 <div class="relative z-10 space-y-12">
                     
@@ -588,10 +597,10 @@
                         <div class="rounded-[2rem] bg-white/5 border border-white/10 p-7 sm:p-8 space-y-4 backdrop-blur-sm">
                             <div class="flex items-center justify-between text-[#AD9575]">
                                 <span class="font-mono text-sm">01</span>
-                                <span class="text-[9px] uppercase tracking-[0.2em] font-semibold text-white/40">Step 1</span>
+                                <span class="text-[9px] uppercase tracking-[0.2em] font-semibold text-white/75">Step 1</span>
                             </div>
                             <h3 class="font-editorial text-2xl text-white font-normal">{{ $homeCustomStep1Title }}</h3>
-                            <p class="text-xs text-white/60 font-light leading-relaxed">
+                            <p class="text-xs text-white/75 font-light leading-relaxed">
                                 {{ $homeCustomStep1Desc }}
                             </p>
                         </div>
@@ -600,10 +609,10 @@
                         <div class="rounded-[2rem] bg-white/5 border border-white/10 p-7 sm:p-8 space-y-4 backdrop-blur-sm">
                             <div class="flex items-center justify-between text-[#AD9575]">
                                 <span class="font-mono text-sm">02</span>
-                                <span class="text-[9px] uppercase tracking-[0.2em] font-semibold text-white/40">Step 2</span>
+                                <span class="text-[9px] uppercase tracking-[0.2em] font-semibold text-white/75">Step 2</span>
                             </div>
                             <h3 class="font-editorial text-2xl text-white font-normal">{{ $homeCustomStep2Title }}</h3>
-                            <p class="text-xs text-white/60 font-light leading-relaxed">
+                            <p class="text-xs text-white/75 font-light leading-relaxed">
                                 {{ $homeCustomStep2Desc }}
                             </p>
                         </div>
@@ -612,10 +621,10 @@
                         <div class="rounded-[2rem] bg-white/5 border border-white/10 p-7 sm:p-8 space-y-4 backdrop-blur-sm">
                             <div class="flex items-center justify-between text-[#AD9575]">
                                 <span class="font-mono text-sm">03</span>
-                                <span class="text-[9px] uppercase tracking-[0.2em] font-semibold text-white/40">Step 3</span>
+                                <span class="text-[9px] uppercase tracking-[0.2em] font-semibold text-white/75">Step 3</span>
                             </div>
                             <h3 class="font-editorial text-2xl text-white font-normal">{{ $homeCustomStep3Title }}</h3>
-                            <p class="text-xs text-white/60 font-light leading-relaxed">
+                            <p class="text-xs text-white/75 font-light leading-relaxed">
                                 {{ $homeCustomStep3Desc }}
                             </p>
                         </div>
@@ -674,16 +683,18 @@
                  }"
                  x-init="$nextTick(() => { checkScroll(); startAutoScroll(); })"
                  @mouseenter="stopAutoScroll()"
-                 @mouseleave="startAutoScroll()">
+                 @mouseleave="startAutoScroll()"
+                 @touchstart.passive="stopAutoScroll()"
+                 @touchend.passive="startAutoScroll()">
             
             {{-- Header with Nav Arrows --}}
             <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-6 border-b border-[#E5DFD3]/80 pb-6">
                 <div class="space-y-2">
-                    <span class="text-[10px] uppercase tracking-[0.28em] font-bold text-[#8E877D]">
+                    <span class="text-[10px] uppercase tracking-[0.28em] font-bold text-[#6E675E]">
                         Words from our clients
                     </span>
                     <h2 class="font-editorial text-3xl sm:text-4xl lg:text-5xl text-[#1C1917] font-light">
-                        Trusted by <em class="italic text-[#AD9575]">collectors.</em>
+                        Trusted by <em class="italic text-[#846B49]">collectors.</em>
                     </h2>
                 </div>
 
@@ -732,9 +743,9 @@
                             </div>
 
                             {{-- Title & Body --}}
-                            <h4 class="font-editorial text-xl sm:text-2xl text-[#1C1917] font-normal leading-snug">
+                            <h3 class="font-editorial text-xl sm:text-2xl text-[#1C1917] font-normal leading-snug">
                                 {{ $review->title ?: 'Unbelievable craftsmanship' }}
-                            </h4>
+                            </h3>
                             <p class="text-sm text-[#5C554E] font-light leading-relaxed italic line-clamp-4">
                                 &ldquo;{{ $review->comment }}&rdquo;
                             </p>
@@ -751,7 +762,7 @@
                                         {{ $review->reviewer_name }}
                                     </p>
                                     @if($review->created_at)
-                                        <p class="text-[10px] text-[#A8A29E] tracking-wide">
+                                        <p class="text-[10px] text-[#6E6963] tracking-wide">
                                             {{ $review->created_at->format('M Y') }}
                                         </p>
                                     @endif
@@ -784,7 +795,7 @@
             
             <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-6 border-b border-[#E5DFD3]/80 pb-6">
                 <div class="space-y-2">
-                    <span class="text-[10px] uppercase tracking-[0.28em] font-bold text-[#8E877D]">
+                    <span class="text-[10px] uppercase tracking-[0.28em] font-bold text-[#6E675E]">
                         Interior Inspiration
                     </span>
                     <h2 class="font-editorial text-3xl sm:text-4xl lg:text-5xl text-[#1C1917] font-light">
@@ -864,9 +875,9 @@
                             <p class="text-[9px] uppercase tracking-widest text-[#AD9575] font-semibold">
                                 {{ $item->location ?? 'Private Collection' }}
                             </p>
-                            <h4 class="font-editorial text-xl font-normal text-white truncate">
+                            <h3 class="font-editorial text-xl font-normal text-white truncate">
                                 {{ $item->title }}
-                            </h4>
+                            </h3>
                         </div>
                     </div>
                 @endforeach

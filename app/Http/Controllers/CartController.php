@@ -40,6 +40,9 @@ class CartController extends Controller
         $product = Product::published()->findOrFail($request->product_id);
 
         if (!$product->is_available) {
+            if ($request->wantsJson() || $request->ajax() || $request->expectsJson() || $request->header('X-Requested-With') === 'XMLHttpRequest') {
+                return response()->json(['success' => false, 'message' => 'This piece is currently unavailable or sold out.'], 422);
+            }
             return back()->with('error', 'This piece is currently unavailable or sold out.');
         }
 
@@ -92,6 +95,18 @@ class CartController extends Controller
         }
 
         $cart->recalculateTotal();
+        $cart->load('items.product');
+        $cartItems = $cart->items;
+
+        if ($request->wantsJson() || $request->ajax() || $request->expectsJson() || $request->header('X-Requested-With') === 'XMLHttpRequest') {
+            return response()->json([
+                'success' => true,
+                'message' => 'Piece added to your bag.',
+                'cart_total' => number_format($cart->total),
+                'cart_count' => $cartItems->count(),
+                'drawer_html' => view('components.cart-drawer-content', compact('cart', 'cartItems'))->render(),
+            ]);
+        }
 
         if ($request->headers->has('referer')) {
             return redirect()->back()->with('cart_open', true)->with('success', 'Piece added to your bag.');
@@ -192,13 +207,17 @@ class CartController extends Controller
         }
 
         $cart->recalculateTotal();
+        $cart->load('items.product');
+        $cartItems = $cart->items;
 
-        if ($request->wantsJson() || $request->ajax()) {
+        if ($request->wantsJson() || $request->ajax() || $request->expectsJson() || $request->header('X-Requested-With') === 'XMLHttpRequest') {
             return response()->json([
                 'success' => true,
                 'message' => 'Bag updated.',
-                'cart_total' => $cart->total,
-                'cart_count' => $cart->items->count(),
+                'item_id' => (int) $request->item_id,
+                'cart_total' => number_format($cart->total),
+                'cart_count' => $cartItems->count(),
+                'drawer_html' => view('components.cart-drawer-content', compact('cart', 'cartItems'))->render(),
             ]);
         }
 
@@ -215,13 +234,17 @@ class CartController extends Controller
         CartItem::where('cart_id', $cart->id)->where('id', $request->item_id)->delete();
 
         $cart->recalculateTotal();
+        $cart->load('items.product');
+        $cartItems = $cart->items;
 
-        if ($request->wantsJson() || $request->ajax()) {
+        if ($request->wantsJson() || $request->ajax() || $request->expectsJson() || $request->header('X-Requested-With') === 'XMLHttpRequest') {
             return response()->json([
                 'success' => true,
                 'message' => 'Item removed.',
-                'cart_total' => $cart->total,
-                'cart_count' => $cart->items->count(),
+                'item_id' => (int) $request->item_id,
+                'cart_total' => number_format($cart->total),
+                'cart_count' => $cartItems->count(),
+                'drawer_html' => view('components.cart-drawer-content', compact('cart', 'cartItems'))->render(),
             ]);
         }
 

@@ -1,6 +1,11 @@
-@props(['product', 'wishlistIds' => []])
+@props(['product', 'wishlistIds' => null])
 
 @php
+    if ($wishlistIds === null) {
+        $wishlistIds = Auth::check()
+            ? \App\Models\Wishlist::where('user_id', Auth::id())->pluck('product_id')->toArray()
+            : session('guest_wishlist', []);
+    }
     $isWishlisted = in_array($product->id, $wishlistIds ?? []);
     $subtitle = $product->dimensions 
         ?: ($product->materials 
@@ -14,6 +19,8 @@
             @if(!empty($product->images) && isset($product->images[0]))
                 <img src="{{ $product->images[0] }}"
                      alt="{{ $product->name }}"
+                     loading="lazy"
+                     decoding="async"
                      class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out">
             @else
                 <div class="w-full h-full flex items-center justify-center text-[#C4BDB4]">
@@ -24,13 +31,17 @@
 
         {{-- Top-Right Floating Wishlist Button --}}
         <div class="absolute top-4 right-4 z-20">
-            <form method="POST" action="{{ route('wishlist.toggle') }}">
+            <form method="POST" action="{{ route('wishlist.toggle') }}" class="wishlist-toggle-form" data-product-id="{{ $product->id }}">
                 @csrf
                 <input type="hidden" name="product_id" value="{{ $product->id }}">
                 <button type="submit"
                         title="{{ $isWishlisted ? 'Remove from Wishlist' : 'Add to Wishlist' }}"
-                        class="glass-pill w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center text-[#1C1917] hover:bg-white transition-all duration-300 shadow-xs cursor-pointer">
-                    <svg class="w-4 h-4 {{ $isWishlisted ? 'fill-[#B87333] stroke-[#B87333]' : 'fill-none stroke-[#1C1917]' }}" viewBox="0 0 24 24" stroke-width="1.5">
+                        aria-label="{{ $isWishlisted ? 'Remove from Wishlist' : 'Add to Wishlist' }}"
+                        class="wishlist-btn glass-pill w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center text-[#1C1917] hover:bg-white transition-all duration-300 shadow-xs cursor-pointer"
+                        data-product-id="{{ $product->id }}"
+                        data-wishlisted="{{ $isWishlisted ? 'true' : 'false' }}"
+                        data-style-type="product-card">
+                    <svg class="wishlist-icon w-4 h-4 transition-all duration-200 {{ $isWishlisted ? 'fill-[#B87333] stroke-[#B87333]' : 'fill-none stroke-[#1C1917]' }}" viewBox="0 0 24 24" stroke-width="1.5">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
                     </svg>
                 </button>
@@ -64,7 +75,7 @@
             </span>
         </div>
 
-        <p class="text-[9.5px] sm:text-[10px] uppercase tracking-[0.2em] font-medium text-[#8E877D] truncate">
+        <p class="text-[9.5px] sm:text-[10px] uppercase tracking-[0.2em] font-medium text-[#6E675E] truncate">
             {{ $subtitle }}
         </p>
     </div>

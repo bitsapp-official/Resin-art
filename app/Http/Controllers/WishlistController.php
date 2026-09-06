@@ -34,7 +34,7 @@ class WishlistController extends Controller
             'product_id' => ['required', 'exists:products,id'],
         ]);
 
-        $productId = $request->product_id;
+        $productId = (int) $request->product_id;
 
         if (Auth::check()) {
             $userId = Auth::id();
@@ -49,6 +49,7 @@ class WishlistController extends Controller
                 $added = true;
                 $message = 'Saved to your wishlist.';
             }
+            $count = Wishlist::where('user_id', $userId)->count();
         } else {
             $guestWishlist = session('guest_wishlist', []);
             if (in_array($productId, $guestWishlist)) {
@@ -61,10 +62,17 @@ class WishlistController extends Controller
                 $message = 'Saved to your wishlist.';
             }
             session(['guest_wishlist' => $guestWishlist]);
+            $count = count($guestWishlist);
         }
 
-        if ($request->wantsJson()) {
-            return response()->json(['added' => $added, 'message' => $message]);
+        if ($request->wantsJson() || $request->ajax() || $request->expectsJson() || $request->header('X-Requested-With') === 'XMLHttpRequest') {
+            return response()->json([
+                'success' => true,
+                'added' => $added,
+                'count' => $count,
+                'product_id' => $productId,
+                'message' => $message,
+            ]);
         }
 
         return back();

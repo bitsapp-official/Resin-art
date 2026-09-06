@@ -79,12 +79,14 @@ class HomeController extends Controller
             ->take(5)
             ->get();
 
-        // 6. Get wishlist IDs for the current user
+        // 6. Get wishlist IDs for the current user (Auth or Guest)
         $wishlistIds = [];
         if (Auth::check()) {
             $wishlistIds = Wishlist::where('user_id', Auth::id())
                 ->pluck('product_id')
                 ->toArray();
+        } else {
+            $wishlistIds = session('guest_wishlist', []);
         }
 
         // 7. Fetch top reviews from database (prioritize is_featured_on_home, then high-rated reviews)

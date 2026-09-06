@@ -55,13 +55,22 @@ class Product extends Model
             return array_values(array_filter($images));
         }
 
-        // On customer-facing frontend, return web asset URLs
+        // On customer-facing frontend, return web asset URLs (auto-upgrading to WebP when available)
         return array_values(array_filter(array_map(function ($img) {
             if (empty($img)) return '';
-            if (str_starts_with($img, 'http://') || str_starts_with($img, 'https://') || str_starts_with($img, '/')) {
-                return $img;
+            $url = $img;
+            if (!str_starts_with($img, 'http://') && !str_starts_with($img, 'https://') && !str_starts_with($img, '/')) {
+                $url = asset('storage/' . $img);
             }
-            return asset('storage/' . $img);
+            $path = parse_url($url, PHP_URL_PATH);
+            if ($path && str_starts_with($path, '/storage/')) {
+                $relPath = substr($path, strlen('/storage/'));
+                $webpRelPath = preg_replace('/\.(png|jpe?g)$/i', '.webp', $relPath);
+                if (file_exists(storage_path('app/public/' . $webpRelPath))) {
+                    return asset('storage/' . $webpRelPath);
+                }
+            }
+            return $url;
         }, $images)));
     }
 
