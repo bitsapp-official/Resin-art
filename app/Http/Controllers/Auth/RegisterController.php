@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Models\UserSetting;
+use App\Services\GuestSessionMigrationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -57,36 +58,18 @@ class RegisterController extends Controller
             'is_read' => false,
         ]);
 
+        // Capture guest state BEFORE login and session regeneration
+        $guestSessionId = session()->getId();
+        $guestWishlist = session('guest_wishlist', []);
+
         Auth::login($user);
         $request->session()->regenerate();
 
+        // Senior-level migration: merge guest cart, wishlist, and recently viewed into user account
+        GuestSessionMigrationService::migrate($user, $guestSessionId, $guestWishlist);
+
         // Send email verification notification immediately
         $user->sendEmailVerificationNotification();
-
-        // Safe cart merging from guest session to authenticated user cart
-        $guestSessionId = session()->getId();
-        $guestCart = \App\Models\Cart::where('session_id', $guestSessionId)->whereNull('user_id')->first();
-        if ($guestCart && $guestCart->items->count() > 0) {
-            $userCart = \App\Models\Cart::firstOrCreate(['user_id' => Auth::id()]);
-            foreach ($guestCart->items as $item) {
-                $existingItem = \App\Models\CartItem::where('cart_id', $userCart->id)
-                    ->where('product_id', $item->product_id)
-                    ->first();
-                if ($existingItem) {
-                    $existingItem->quantity += $item->quantity;
-                    $existingItem->save();
-                } else {
-                    \App\Models\CartItem::create([
-                        'cart_id' => $userCart->id,
-                        'product_id' => $item->product_id,
-                        'quantity' => $item->quantity,
-                        'price' => $item->price,
-                    ]);
-                }
-            }
-            $userCart->recalculateTotal();
-            $guestCart->delete();
-        }
 
         // Redirect to email verification notice (verified middleware will block dashboard until verified)
         return redirect()->route('verification.notice');

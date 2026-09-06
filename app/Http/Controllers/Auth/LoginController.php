@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use App\Models\Cart;
 use App\Models\CartItem;
+use App\Services\GuestSessionMigrationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\RateLimiter;
@@ -54,32 +55,15 @@ class LoginController extends Controller
         }
 
         RateLimiter::clear($throttleKey);
+
+        // Capture guest state BEFORE session regeneration
+        $guestSessionId = session()->getId();
+        $guestWishlist = session('guest_wishlist', []);
+
         $request->session()->regenerate();
 
-        // Safe cart merging from guest session to authenticated user cart
-        $guestSessionId = session()->getId();
-        $guestCart = Cart::where('session_id', $guestSessionId)->whereNull('user_id')->first();
-        if ($guestCart && $guestCart->items->count() > 0) {
-            $userCart = Cart::firstOrCreate(['user_id' => Auth::id()]);
-            foreach ($guestCart->items as $item) {
-                $existingItem = CartItem::where('cart_id', $userCart->id)
-                    ->where('product_id', $item->product_id)
-                    ->first();
-                if ($existingItem) {
-                    $existingItem->quantity += $item->quantity;
-                    $existingItem->save();
-                } else {
-                    CartItem::create([
-                        'cart_id' => $userCart->id,
-                        'product_id' => $item->product_id,
-                        'quantity' => $item->quantity,
-                        'price' => $item->price,
-                    ]);
-                }
-            }
-            $userCart->recalculateTotal();
-            $guestCart->delete();
-        }
+        // Senior-level migration: merge guest cart, wishlist, and recently viewed into user account
+        GuestSessionMigrationService::migrate(Auth::user(), $guestSessionId, $guestWishlist);
 
         return redirect()->intended(route('account.dashboard'));
     }
