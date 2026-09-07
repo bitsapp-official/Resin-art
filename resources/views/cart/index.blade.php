@@ -1,16 +1,16 @@
 <x-app-layout title="Your Bag — Maison Résine">
     <div class="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-12 py-10">
 
-        <!-- Flash Messages -->
+        <!-- Alerts -->
         @if(session('success'))
-            <div class="mb-6 p-4 bg-emerald-50 border border-emerald-200 rounded-2xl text-emerald-800 text-xs flex items-center justify-between">
-                <span>{{ session('success') }}</span>
+            <div class="mb-6">
+                <x-alert type="success" :message="session('success')" />
             </div>
         @endif
 
-        @if(session('error'))
-            <div class="mb-6 p-4 bg-red-50 border border-red-200 rounded-2xl text-red-800 text-xs flex items-center justify-between">
-                <span>{{ session('error') }}</span>
+        @if(session('error') && !str_contains(strtolower(session('error')), 'empty'))
+            <div class="mb-6">
+                <x-alert type="error" :message="session('error')" />
             </div>
         @endif
 
@@ -73,31 +73,58 @@
                 </div>
 
                 <!-- Summary Panel -->
-                <div class="lg:col-span-4 bg-[#FAF8F5] border border-[#E6E1D7] rounded-3xl p-6 sm:p-8 space-y-6 shadow-xs">
-                    <h3 class="font-editorial text-xl text-[#1C1917] italic border-b border-[#E6E1D7] pb-3">Bag summary</h3>
+                <div class="lg:col-span-4 sticky top-8">
+                    <div class="bg-[#FAF8F5] border border-[#E6E1D7] rounded-[2rem] p-7 sm:p-8 space-y-6 shadow-xs">
+                        
+                        {{-- Header --}}
+                        <div class="flex items-center justify-between border-b border-[#E6E1D7] pb-4">
+                            <div>
+                                <span class="text-[9.5px] uppercase tracking-[0.22em] font-semibold text-[#8E877D] block">ORDER OVERVIEW</span>
+                                <h3 class="font-editorial text-2xl text-[#1C1917] font-normal mt-0.5">Bag <em class="italic">summary</em></h3>
+                            </div>
+                            <span class="text-[10px] uppercase tracking-[0.18em] font-medium text-[#78716C] bg-white border border-[#E6E1D7] px-3 py-1 rounded-full">
+                                {{ $cart->items->sum('quantity') }} {{ Str::plural('piece', $cart->items->sum('quantity')) }}
+                            </span>
+                        </div>
 
-                    <div class="space-y-3 text-xs text-[#78716C]">
-                        <div class="flex justify-between">
-                            <span>Subtotal</span>
-                            <span class="font-semibold text-[#1C1917]">₹ {{ number_format($cart->total) }}</span>
+                        {{-- Line breakdown --}}
+                        <div class="space-y-3.5 text-xs text-[#78716C]">
+                            <div class="flex justify-between items-center">
+                                <span class="font-light">Subtotal</span>
+                                <span class="font-medium text-sm text-[#1C1917]">₹ {{ number_format($cart->total) }}</span>
+                            </div>
+
+                            <div class="flex justify-between items-center">
+                                <span class="font-light">Insured Crate Delivery</span>
+                                <span class="font-medium text-xs text-[#1C1917]">Complimentary</span>
+                            </div>
+
+                            <div class="border-t border-[#E6E1D7] pt-4 mt-2">
+                                <div class="flex justify-between items-baseline">
+                                    <div class="space-y-0.5">
+                                        <span class="text-xs uppercase tracking-[0.2em] font-bold text-[#1C1917] block">Estimated Total</span>
+                                        <span class="text-[10px] text-[#8E877D] font-light block">Taxes &amp; crate shipping included</span>
+                                    </div>
+                                    <span class="font-editorial text-2xl sm:text-3xl text-[#1C1917] font-normal tracking-tight">₹ {{ number_format($cart->total) }}</span>
+                                </div>
+                            </div>
                         </div>
-                        <div class="flex justify-between">
-                            <span>Insured Crate Delivery</span>
-                            <span class="text-emerald-800 font-semibold">Complimentary</span>
+
+                        {{-- Actions --}}
+                        <div class="space-y-3 pt-1">
+                            <a href="{{ route('checkout.index') }}" class="w-full bg-[#1A1615] hover:bg-[#2C2724] text-white text-[11px] uppercase tracking-[0.25em] font-semibold py-4 rounded-full transition-all duration-300 shadow-sm hover:shadow-md flex items-center justify-center space-x-2 group">
+                                <span>PROCEED TO CHECKOUT</span>
+                                <svg class="w-3.5 h-3.5 text-white/70 group-hover:text-white group-hover:translate-x-0.5 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                                </svg>
+                            </a>
+
+                            <a href="{{ route('shop.index') }}" class="block text-center text-[10.5px] text-[#78716C] hover:text-[#1C1917] uppercase tracking-[0.2em] font-medium py-2 transition-colors">
+                                ← Continue Shopping
+                            </a>
                         </div>
-                        <div class="flex justify-between border-t border-[#E6E1D7] pt-3 text-base">
-                            <span class="font-editorial text-[#1C1917] italic">TOTAL</span>
-                            <span class="font-editorial font-bold text-[#1C1917]">₹ {{ number_format($cart->total) }}</span>
-                        </div>
+
                     </div>
-
-                    <a href="{{ route('checkout.index') }}" class="block w-full bg-[#1C1917] hover:bg-[#2D2825] text-white text-center text-xs uppercase tracking-[0.25em] font-semibold py-4 rounded-full transition-all duration-300 shadow-sm">
-                        PROCEED TO CHECKOUT
-                    </a>
-
-                    <a href="{{ route('shop.index') }}" class="block text-center text-xs text-[#8E7558] hover:underline uppercase tracking-wider font-semibold">
-                        ← Continue Shopping
-                    </a>
                 </div>
 
             </div>

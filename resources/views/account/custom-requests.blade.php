@@ -102,15 +102,7 @@
 
                             <div class="flex items-center space-x-3">
                                 @if($isClosed)
-                                    <span class="bg-red-100 text-red-800 px-3 py-1 rounded-full text-[9px] uppercase font-semibold tracking-widest border border-red-200">
-                                        {{ $customerLabel }}
-                                    </span>
-                                @elseif($stepIndex >= 5)
-                                    <span class="bg-emerald-100 text-emerald-900 px-3 py-1 rounded-full text-[9px] uppercase font-semibold tracking-widest border border-emerald-300">
-                                        {{ $customerLabel }}
-                                    </span>
-                                @elseif($stepIndex >= 3)
-                                    <span class="bg-[#1C1917] text-white px-3 py-1 rounded-full text-[9px] uppercase font-semibold tracking-widest">
+                                    <span class="bg-red-50 text-red-800 border border-red-200/80 px-3 py-1 rounded-full text-[9px] uppercase font-semibold tracking-widest">
                                         {{ $customerLabel }}
                                     </span>
                                 @else
@@ -142,11 +134,11 @@
                                 <div class="flex items-center gap-2 pt-1">
                                     <span class="text-[10px] uppercase tracking-wider text-[#8E877D] font-medium mr-1">References:</span>
                                     @foreach($req->images as $img)
-                                        <a href="{{ asset('storage/' . $img->file_path) }}" 
+                                        <a href="{{ $img->url }}" 
                                            target="_blank" 
                                            class="w-10 h-10 rounded-lg overflow-hidden border border-[#E6E1D7] bg-white shrink-0 hover:scale-105 transition-transform inline-block"
                                            title="View reference photo">
-                                            <img src="{{ asset('storage/' . $img->file_path) }}" 
+                                            <img src="{{ $img->url }}" 
                                                  alt="Reference" 
                                                  class="w-full h-full object-cover">
                                         </a>

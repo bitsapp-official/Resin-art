@@ -60,7 +60,6 @@
                     <li><a href="{{ route('about.index') }}" class="text-[#CCC5B9] hover:text-white hover:translate-x-1 transition-all duration-200 inline-block">About</a></li>
                     <li><a href="{{ route('our-process.index') }}" class="text-[#CCC5B9] hover:text-white hover:translate-x-1 transition-all duration-200 inline-block">Our process</a></li>
                     <li><a href="{{ route('blog.index') }}" class="text-[#CCC5B9] hover:text-white hover:translate-x-1 transition-all duration-200 inline-block">Journal</a></li>
-                    <li><a href="{{ route('contact.index') }}" class="text-[#CCC5B9] hover:text-white hover:translate-x-1 transition-all duration-200 inline-block">Contact</a></li>
                 </ul>
             </div>
 

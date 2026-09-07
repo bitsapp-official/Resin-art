@@ -16,19 +16,15 @@
                             </div>
 
                             <div class="flex items-center space-x-3">
-                                @php
-                                    $badgeStyle = match(strtoupper((string) $order->status)) {
-                                        'CONFIRMED'  => 'background-color: #e0f2fe; color: #0369a1; border: 1px solid #bae6fd;',
-                                        'PROCESSING', 'CRAFTING', 'QUALITY_CHECK', 'PACKED' => 'background-color: #fef3c7; color: #b45309; border: 1px solid #fde68a;',
-                                        'SHIPPED'    => 'background-color: #e0e7ff; color: #4338ca; border: 1px solid #c7d2fe;',
-                                        'DELIVERED'  => 'background-color: #dcfce7; color: #15803d; border: 1px solid #bbf7d0;',
-                                        'CANCELLED'  => 'background-color: #fee2e2; color: #b91c1c; border: 1px solid #fecaca;',
-                                        default      => 'background-color: #f5f5f4; color: #44403c; border: 1px solid #e7e5e4;',
-                                    };
-                                @endphp
-                                <span class="px-3 py-1 rounded-full text-[9.5px] uppercase font-bold tracking-wider inline-block" style="{{ $badgeStyle }}">
-                                    {{ $order->status_label }}
-                                </span>
+                                @if(strtoupper((string) $order->status) === 'CANCELLED')
+                                    <span class="bg-red-50 text-red-800 border border-red-200/80 px-3 py-1 rounded-full text-[9px] uppercase font-semibold tracking-widest">
+                                        {{ $order->status_label }}
+                                    </span>
+                                @else
+                                    <span class="bg-[#EFECE6] text-[#1C1917] border border-[#DDD6CA] px-3 py-1 rounded-full text-[9px] uppercase font-semibold tracking-widest">
+                                        {{ $order->status_label }}
+                                    </span>
+                                @endif
                                 <span class="font-normal text-sm text-[#1C1917]">₹ {{ number_format($order->grand_total) }}</span>
                             </div>
                         </div>

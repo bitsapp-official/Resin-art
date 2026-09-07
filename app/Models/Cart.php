@@ -64,4 +64,39 @@ class Cart extends Model
         $this->total = $total;
         $this->save();
     }
+
+    /**
+     * Get the active cart for the current session or authenticated user.
+     * Automatically merges any existing guest session cart into user cart if authenticated.
+     */
+    public static function current(): self
+    {
+        $sessionId = session()->getId();
+
+        if (\Illuminate\Support\Facades\Auth::check()) {
+            $user = \Illuminate\Support\Facades\Auth::user();
+            $userCart = self::firstOrCreate(['user_id' => $user->id]);
+
+            // If an unmerged guest cart exists for this session, merge it into user cart!
+            if ($sessionId) {
+                $guestCart = self::where('session_id', $sessionId)
+                    ->whereNull('user_id')
+                    ->where('id', '!=', $userCart->id)
+                    ->with('items.product')
+                    ->first();
+
+                if ($guestCart && $guestCart->items->isNotEmpty()) {
+                    \App\Services\GuestSessionMigrationService::mergeCart($user, $sessionId);
+                    $userCart->load('items.product');
+                }
+            }
+
+            $userCart->load('items.product');
+            return $userCart;
+        }
+
+        $cart = self::firstOrCreate(['session_id' => $sessionId, 'user_id' => null]);
+        $cart->load('items.product');
+        return $cart;
+    }
 }

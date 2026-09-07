@@ -15,6 +15,8 @@
             </button>
         </div>
 
+
+
         <!-- View Mode -->
         <div x-show="!editMode" class="space-y-4 text-xs">
             <!-- Row 1: Name -->
@@ -81,34 +83,34 @@
                 @csrf
                 @method('PUT')
 
-                <div>
-                    <label class="block text-[10px] uppercase tracking-[0.2em] font-bold text-[#8E877D] mb-1.5">FULL NAME *</label>
+                <div class="space-y-1.5">
+                    <label class="block text-[9.5px] uppercase tracking-[0.2em] font-medium text-[#8E877D]">FULL NAME *</label>
                     <input type="text" name="name" value="{{ old('name', $user->name) }}" required 
-                           class="w-full px-5 py-3 bg-transparent border @error('name') border-red-400 @else border-[#DFD9CE] @enderror rounded-full text-xs font-medium focus:outline-none focus:border-[#1C1917]">
+                           class="w-full px-5 py-3.5 bg-[#FAF8F5] border @error('name') border-red-400 @else border-[#DFD9CE] @enderror rounded-[1.125rem] text-xs text-[#1C1917] placeholder-[#A89F90] focus:outline-none hover:border-[#BCB5A8] focus:border-[#1C1917] focus:ring-0 transition-all duration-300">
                     @error('name')
-                        <p class="text-[10px] text-red-500 pl-3 pt-1 font-medium">{{ $message }}</p>
+                        <p class="text-[10px] text-red-600 pl-2 pt-0.5 font-medium">{{ $message }}</p>
                     @enderror
                 </div>
 
-                <div>
-                    <label class="block text-[10px] uppercase tracking-[0.2em] font-bold text-[#8E877D] mb-1.5">EMAIL ADDRESS (CANNOT BE CHANGED)</label>
-                    <input type="email" value="{{ $user->email }}" readonly disabled class="w-full px-5 py-3 bg-[#E6E1D7]/20 border border-[#DFD9CE]/60 rounded-full text-xs font-medium focus:outline-none opacity-70 cursor-not-allowed">
+                <div class="space-y-1.5">
+                    <label class="block text-[9.5px] uppercase tracking-[0.2em] font-medium text-[#8E877D]">EMAIL ADDRESS (CANNOT BE CHANGED)</label>
+                    <input type="email" value="{{ $user->email }}" readonly disabled class="w-full px-5 py-3.5 bg-[#E6E1D7]/20 border border-[#DFD9CE]/60 rounded-[1.125rem] text-xs text-[#78716C] focus:outline-none opacity-70 cursor-not-allowed">
                 </div>
 
-                <div>
-                    <label class="block text-[10px] uppercase tracking-[0.2em] font-bold text-[#8E877D] mb-1.5">PHONE NUMBER</label>
+                <div class="space-y-1.5">
+                    <label class="block text-[9.5px] uppercase tracking-[0.2em] font-medium text-[#8E877D]">PHONE NUMBER</label>
                     <input type="text" name="phone" value="{{ old('phone', $user->phone) }}" placeholder="+91 98201 45678" 
-                           class="w-full px-5 py-3 bg-transparent border @error('phone') border-red-400 @else border-[#DFD9CE] @enderror rounded-full text-xs font-medium focus:outline-none focus:border-[#1C1917]">
+                           class="w-full px-5 py-3.5 bg-[#FAF8F5] border @error('phone') border-red-400 @else border-[#DFD9CE] @enderror rounded-[1.125rem] text-xs text-[#1C1917] placeholder-[#A89F90] focus:outline-none hover:border-[#BCB5A8] focus:border-[#1C1917] focus:ring-0 transition-all duration-300">
                     @error('phone')
-                        <p class="text-[10px] text-red-500 pl-3 pt-1 font-medium">{{ $message }}</p>
+                        <p class="text-[10px] text-red-600 pl-2 pt-0.5 font-medium">{{ $message }}</p>
                     @enderror
                 </div>
 
                 <div class="pt-2 flex items-center space-x-3">
-                    <button type="submit" class="border border-[#1C1917] bg-[#1C1917] text-white text-[9.5px] uppercase tracking-[0.25em] font-semibold py-3 px-6 rounded-full transition-all duration-300 cursor-pointer">
+                    <button type="submit" class="bg-[#1C1917] hover:bg-[#2C2724] text-white text-[10px] uppercase tracking-[0.25em] font-semibold py-3.5 px-7 rounded-full transition-all duration-300 shadow-xs cursor-pointer">
                         SAVE CHANGES
                     </button>
-                    <button @click="editMode = false" type="button" class="text-[9.5px] uppercase tracking-[0.2em] font-semibold text-[#8E877D] hover:text-[#1C1917] transition-colors cursor-pointer">
+                    <button @click="editMode = false" type="button" class="text-[9.5px] uppercase tracking-[0.2em] font-semibold text-[#8E877D] hover:text-[#1C1917] transition-colors cursor-pointer px-3 py-2">
                         CANCEL
                     </button>
                 </div>

@@ -1,14 +1,6 @@
 @php
-    $cart = null;
-    $cartItems = collect();
-    if (Auth::check()) {
-        $cart = \App\Models\Cart::where('user_id', Auth::id())->with('items.product')->first();
-    } else {
-        $cart = \App\Models\Cart::where('session_id', session()->getId())->whereNull('user_id')->with('items.product')->first();
-    }
-    if ($cart) {
-        $cartItems = $cart->items;
-    }
+    $cart = \App\Models\Cart::current();
+    $cartItems = $cart ? $cart->items : collect();
 @endphp
 
 {{-- Cart Drawer Overlay --}}

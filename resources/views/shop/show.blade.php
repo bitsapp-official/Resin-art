@@ -193,7 +193,7 @@
                 </template>
 
                 {{-- Quantity + Add to Bag + Wishlist Row (Un-nested Clean Forms) --}}
-                <div class="space-y-2.5 pt-1" x-data="{ showShareModal: false }">
+                <div class="space-y-2.5 pt-1" x-data="{ showShareModal: false, copied: false }">
                     <div class="flex items-center gap-3">
                         {{-- Add to Bag Form --}}
                         <form method="POST" action="{{ route('cart.add') }}" class="flex items-center gap-3 flex-1">
@@ -266,38 +266,79 @@
 
                         {{-- Native Share Button / Modal Trigger --}}
                         <button type="button"
-                                @click="if (navigator.share) { navigator.share({ title: '{{ $product->name }}', url: window.location.href }); } else { showShareModal = true; }"
+                                @click="
+                                    const sharePayload = {
+                                        title: {{ Js::from($product->name) }},
+                                        text: {{ Js::from('Discover ' . $product->name . ' — handcrafted resin art at Maison Résine.') }},
+                                        url: window.location.href
+                                    };
+                                    if (navigator.share) {
+                                        navigator.share(sharePayload).catch(err => {
+                                            if (err.name !== 'AbortError') {
+                                                showShareModal = true;
+                                            }
+                                        });
+                                    } else {
+                                        showShareModal = true;
+                                    }
+                                "
                                 class="border border-[#DFD9CE] hover:border-[#1C1917] bg-white text-[#1C1917] text-[10px] uppercase tracking-[0.25em] font-semibold py-3 px-6 rounded-full transition-all duration-300 shadow-2xs cursor-pointer">
                             SHARE
                         </button>
                     </div>
 
-                    {{-- ── SHARE POPUP MODAL ────────────────────────── --}}
+                    {{-- ── SHARE POPUP MODAL (Clean Atelier Luxury Design) ────────────────────────── --}}
                     <div x-show="showShareModal" x-cloak
                          @keydown.escape.window="showShareModal = false"
                          class="fixed inset-0 z-[99999] bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
                         <div @click.away="showShareModal = false"
-                             class="bg-white rounded-[1.75rem] p-6 max-w-sm w-full space-y-4 text-center shadow-xl">
-                            <div class="flex justify-between items-center pb-2 border-b border-[#DFD9CE]/60">
-                                <h3 class="text-sm font-semibold text-[#1C1917]">Share this artwork</h3>
-                                <button type="button" @click="showShareModal = false" class="text-gray-400 hover:text-black text-lg">&times;</button>
+                             class="bg-[#FAF8F5] border border-[#E6E1D7] rounded-[2rem] p-6 sm:p-7 max-w-sm w-full space-y-4 shadow-2xl text-left">
+                            
+                            {{-- Modal Header --}}
+                            <div class="flex items-center justify-between pb-3 border-b border-[#E6E1D7]">
+                                <div>
+                                    <span class="text-[9px] uppercase tracking-[0.2em] font-semibold text-[#8E877D] block">SHARE PIECE</span>
+                                    <h3 class="font-editorial text-xl text-[#1C1917] font-normal mt-0.5">Share this <em class="italic">artwork</em></h3>
+                                </div>
+                                <button type="button" @click="showShareModal = false" 
+                                        class="w-7 h-7 rounded-full border border-[#DFD9CE] flex items-center justify-center text-[#78716C] hover:text-[#1C1917] hover:border-[#1C1917] transition-colors text-sm font-light cursor-pointer">
+                                    &times;
+                                </button>
                             </div>
-                            <div class="grid grid-cols-2 gap-3 pt-2">
-                                <a :href="'https://api.whatsapp.com/send?text=' + encodeURIComponent('Check out ' + '{{ $product->name }}' + ' on Maison Résine: ' + window.location.href)"
-                                   target="_blank" class="flex items-center justify-center gap-2 bg-emerald-50 text-emerald-800 text-xs font-semibold py-2.5 rounded-xl hover:bg-emerald-100 transition-colors">
+
+                            {{-- Social Share Options --}}
+                            <div class="grid grid-cols-2 gap-2.5 pt-1">
+                                <a :href="'https://api.whatsapp.com/send?text=' + encodeURIComponent('Check out ' + {{ Js::from($product->name) }} + ' on Maison Résine: ' + window.location.href)"
+                                   target="_blank" 
+                                   class="flex items-center justify-center gap-2 bg-white hover:bg-[#F5F2EB] border border-[#DFD9CE] text-[#1C1917] text-xs font-semibold py-3 rounded-xl transition-all shadow-2xs">
+                                    <svg class="w-4 h-4 text-[#25D366]" fill="currentColor" viewBox="0 0 24 24"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.711 2.598 2.664-.699c.971.53 1.83.81 2.805.81h.001c3.182 0 5.768-2.587 5.769-5.766.001-3.182-2.585-5.796-5.77-5.796zm0 10.427c-.881 0-1.683-.243-2.378-.669l-.17-.104-1.58.414.422-1.54-.112-.178c-.469-.747-.717-1.464-.716-2.584.001-2.433 1.979-4.411 4.414-4.411 2.435 0 4.413 1.979 4.413 4.412 0 2.434-1.977 4.66-4.413 4.66z"/></svg>
                                     <span>WhatsApp</span>
                                 </a>
-                                <a :href="'https://twitter.com/intent/tweet?text=' + encodeURIComponent('{{ $product->name }}') + '&url=' + encodeURIComponent(window.location.href)"
-                                   target="_blank" class="flex items-center justify-center gap-2 bg-sky-50 text-sky-800 text-xs font-semibold py-2.5 rounded-xl hover:bg-sky-100 transition-colors">
+
+                                <a :href="'https://twitter.com/intent/tweet?text=' + encodeURIComponent({{ Js::from($product->name) }}) + '&url=' + encodeURIComponent(window.location.href)"
+                                   target="_blank" 
+                                   class="flex items-center justify-center gap-2 bg-white hover:bg-[#F5F2EB] border border-[#DFD9CE] text-[#1C1917] text-xs font-semibold py-3 rounded-xl transition-all shadow-2xs">
+                                    <svg class="w-3.5 h-3.5 text-[#1C1917]" fill="currentColor" viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
                                     <span>Twitter / X</span>
                                 </a>
+
                                 <a :href="'https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(window.location.href)"
-                                   target="_blank" class="flex items-center justify-center gap-2 bg-blue-50 text-blue-800 text-xs font-semibold py-2.5 rounded-xl hover:bg-blue-100 transition-colors">
+                                   target="_blank" 
+                                   class="flex items-center justify-center gap-2 bg-white hover:bg-[#F5F2EB] border border-[#DFD9CE] text-[#1C1917] text-xs font-semibold py-3 rounded-xl transition-all shadow-2xs">
+                                    <svg class="w-4 h-4 text-[#1877F2]" fill="currentColor" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
                                     <span>Facebook</span>
                                 </a>
-                                <button type="button" @click="navigator.clipboard.writeText(window.location.href); alert('Link copied to clipboard!'); showShareModal = false;"
-                                        class="flex items-center justify-center gap-2 bg-gray-100 text-[#1C1917] text-xs font-semibold py-2.5 rounded-xl hover:bg-gray-200 transition-colors cursor-pointer">
-                                    <span>Copy Link</span>
+
+                                <button type="button" 
+                                        @click="
+                                            navigator.clipboard.writeText(window.location.href);
+                                            copied = true;
+                                            setTimeout(() => { copied = false; showShareModal = false; }, 1400);
+                                        "
+                                        class="flex items-center justify-center gap-2 bg-[#1A1615] hover:bg-[#2C2724] text-white text-xs font-semibold py-3 rounded-xl transition-all shadow-2xs cursor-pointer">
+                                    <svg x-show="!copied" class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+                                    <svg x-show="copied" class="w-3.5 h-3.5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                                    <span x-text="copied ? 'Copied!' : 'Copy Link'"></span>
                                 </button>
                             </div>
                         </div>
@@ -495,9 +536,8 @@
         {{-- ── CUSTOMER REVIEWS (INTERLINKED & DYNAMIC) ── --}}
         <div id="customer-reviews" class="pt-14 mb-20" x-data="{ showReviewForm: false, newRating: 5, visibleReviews: 6 }">
             @if(session('success'))
-                <div class="mb-6 p-4 rounded-2xl bg-emerald-50 text-emerald-800 text-sm font-medium flex items-center justify-between">
-                    <span>{{ session('success') }}</span>
-                    <button type="button" onclick="this.parentElement.remove()" class="text-emerald-600 hover:text-emerald-900">&times;</button>
+                <div class="mb-6">
+                    <x-alert type="success" :message="session('success')" />
                 </div>
             @endif
 

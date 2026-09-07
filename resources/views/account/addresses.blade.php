@@ -51,6 +51,8 @@
             </button>
         </div>
 
+
+
         <!-- Add Address Form -->
         <div x-show="showAddForm" x-cloak class="glass border border-[#DFD9CE]/80 rounded-[1.75rem] p-7 shadow-sm space-y-6">
             <h3 class="font-editorial text-xl italic text-[#1C1917] pb-1">New Address Details</h3>
@@ -59,67 +61,67 @@
                 <input type="hidden" name="type" value="shipping">
                 
                 {{-- Recipient Full Name --}}
-                <div>
-                    <label class="block font-medium text-[#1C1917] mb-1">Recipient Full Name *</label>
+                <div class="space-y-1.5">
+                    <label class="block text-[9.5px] uppercase tracking-[0.2em] font-medium text-[#8E877D]">Recipient Full Name *</label>
                     <input type="text" name="full_name" value="{{ old('full_name', Auth::user()->name) }}" required placeholder="e.g. {{ Auth::user()->name }} (or Gift Recipient)" 
-                           class="w-full px-4 py-2.5 bg-transparent border @error('full_name') border-red-400 @else border-[#DFD9CE] @enderror rounded-full focus:outline-none focus:border-[#1C1917]">
+                           class="w-full px-5 py-3.5 bg-[#FAF8F5] border @error('full_name') border-red-400 @else border-[#DFD9CE] @enderror rounded-[1.125rem] text-xs text-[#1C1917] placeholder-[#A89F90] focus:outline-none hover:border-[#BCB5A8] focus:border-[#1C1917] focus:ring-0 transition-all duration-300">
                     @error('full_name')
-                        <p class="text-[10px] text-red-500 pl-3 pt-1 font-medium">{{ $message }}</p>
+                        <p class="text-[10px] text-red-600 pl-2 pt-0.5 font-medium">{{ $message }}</p>
                     @enderror
                 </div>
 
                 {{-- Phone Number --}}
-                <div>
-                    <label class="block font-medium text-[#1C1917] mb-1">Phone Number *</label>
+                <div class="space-y-1.5">
+                    <label class="block text-[9.5px] uppercase tracking-[0.2em] font-medium text-[#8E877D]">Phone Number *</label>
                     <input type="text" name="phone" value="{{ old('phone', Auth::user()->phone) }}" required placeholder="e.g. +91 98201 45678" 
-                           class="w-full px-4 py-2.5 bg-transparent border @error('phone') border-red-400 @else border-[#DFD9CE] @enderror rounded-full focus:outline-none focus:border-[#1C1917]">
+                           class="w-full px-5 py-3.5 bg-[#FAF8F5] border @error('phone') border-red-400 @else border-[#DFD9CE] @enderror rounded-[1.125rem] text-xs text-[#1C1917] placeholder-[#A89F90] focus:outline-none hover:border-[#BCB5A8] focus:border-[#1C1917] focus:ring-0 transition-all duration-300">
                     @error('phone')
-                        <p class="text-[10px] text-red-500 pl-3 pt-1 font-medium">{{ $message }}</p>
+                        <p class="text-[10px] text-red-600 pl-2 pt-0.5 font-medium">{{ $message }}</p>
                     @enderror
                 </div>
 
                 {{-- Street Address --}}
-                <div class="sm:col-span-2">
-                    <label class="block font-medium text-[#1C1917] mb-1">Flat / House No., Building, Society *</label>
-                    <input type="text" name="address_line_1" value="{{ old('address_line_1') }}" required placeholder="e.g. Flat 402, Royal Palms, MG Road" class="w-full px-4 py-2.5 bg-transparent border border-[#DFD9CE] rounded-full focus:outline-none focus:border-[#1C1917]">
+                <div class="sm:col-span-2 space-y-1.5">
+                    <label class="block text-[9.5px] uppercase tracking-[0.2em] font-medium text-[#8E877D]">Flat / House No., Building, Society *</label>
+                    <input type="text" name="address_line_1" value="{{ old('address_line_1') }}" required placeholder="e.g. Flat 402, Royal Palms, MG Road" class="w-full px-5 py-3.5 bg-[#FAF8F5] border border-[#DFD9CE] rounded-[1.125rem] text-xs text-[#1C1917] placeholder-[#A89F90] focus:outline-none hover:border-[#BCB5A8] focus:border-[#1C1917] focus:ring-0 transition-all duration-300">
                 </div>
 
                 {{-- Landmark / Locality --}}
-                <div class="sm:col-span-2">
-                    <label class="block font-medium text-[#1C1917] mb-1">Area, Locality, Landmark (Optional)</label>
-                    <input type="text" name="address_line_2" value="{{ old('address_line_2') }}" placeholder="e.g. Near Phoenix Mall, Andheri West" class="w-full px-4 py-2.5 bg-transparent border border-[#DFD9CE] rounded-full focus:outline-none focus:border-[#1C1917]">
+                <div class="sm:col-span-2 space-y-1.5">
+                    <label class="block text-[9.5px] uppercase tracking-[0.2em] font-medium text-[#8E877D]">Area, Locality, Landmark (Optional)</label>
+                    <input type="text" name="address_line_2" value="{{ old('address_line_2') }}" placeholder="e.g. Near Phoenix Mall, Andheri West" class="w-full px-5 py-3.5 bg-[#FAF8F5] border border-[#DFD9CE] rounded-[1.125rem] text-xs text-[#1C1917] placeholder-[#A89F90] focus:outline-none hover:border-[#BCB5A8] focus:border-[#1C1917] focus:ring-0 transition-all duration-300">
                 </div>
 
                 {{-- City & State --}}
-                <div>
-                    <label class="block font-medium text-[#1C1917] mb-1">City / Town *</label>
-                    <input type="text" name="city" value="{{ old('city') }}" required placeholder="e.g. Mumbai" class="w-full px-4 py-2.5 bg-transparent border border-[#DFD9CE] rounded-full focus:outline-none focus:border-[#1C1917]">
+                <div class="space-y-1.5">
+                    <label class="block text-[9.5px] uppercase tracking-[0.2em] font-medium text-[#8E877D]">City / Town *</label>
+                    <input type="text" name="city" value="{{ old('city') }}" required placeholder="e.g. Mumbai" class="w-full px-5 py-3.5 bg-[#FAF8F5] border border-[#DFD9CE] rounded-[1.125rem] text-xs text-[#1C1917] placeholder-[#A89F90] focus:outline-none hover:border-[#BCB5A8] focus:border-[#1C1917] focus:ring-0 transition-all duration-300">
                 </div>
-                <div>
-                    <label class="block font-medium text-[#1C1917] mb-1">State *</label>
-                    <input type="text" name="state" value="{{ old('state') }}" required placeholder="e.g. Maharashtra" class="w-full px-4 py-2.5 bg-transparent border border-[#DFD9CE] rounded-full focus:outline-none focus:border-[#1C1917]">
+                <div class="space-y-1.5">
+                    <label class="block text-[9.5px] uppercase tracking-[0.2em] font-medium text-[#8E877D]">State *</label>
+                    <input type="text" name="state" value="{{ old('state') }}" required placeholder="e.g. Maharashtra" class="w-full px-5 py-3.5 bg-[#FAF8F5] border border-[#DFD9CE] rounded-[1.125rem] text-xs text-[#1C1917] placeholder-[#A89F90] focus:outline-none hover:border-[#BCB5A8] focus:border-[#1C1917] focus:ring-0 transition-all duration-300">
                 </div>
 
                 {{-- PIN Code & Country --}}
-                <div>
-                    <label class="block font-medium text-[#1C1917] mb-1">PIN Code *</label>
-                    <input type="text" name="postal_code" value="{{ old('postal_code') }}" required placeholder="e.g. 400 053" class="w-full px-4 py-2.5 bg-transparent border border-[#DFD9CE] rounded-full focus:outline-none focus:border-[#1C1917]">
+                <div class="space-y-1.5">
+                    <label class="block text-[9.5px] uppercase tracking-[0.2em] font-medium text-[#8E877D]">PIN Code *</label>
+                    <input type="text" name="postal_code" value="{{ old('postal_code') }}" required placeholder="e.g. 400 053" class="w-full px-5 py-3.5 bg-[#FAF8F5] border border-[#DFD9CE] rounded-[1.125rem] text-xs text-[#1C1917] placeholder-[#A89F90] focus:outline-none hover:border-[#BCB5A8] focus:border-[#1C1917] focus:ring-0 transition-all duration-300">
                 </div>
-                <div>
-                    <label class="block font-medium text-[#1C1917] mb-1">Country *</label>
-                    <input type="text" name="country" value="India" required placeholder="e.g. India" class="w-full px-4 py-2.5 bg-transparent border border-[#DFD9CE] rounded-full focus:outline-none focus:border-[#1C1917]">
+                <div class="space-y-1.5">
+                    <label class="block text-[9.5px] uppercase tracking-[0.2em] font-medium text-[#8E877D]">Country *</label>
+                    <input type="text" name="country" value="India" required placeholder="e.g. India" class="w-full px-5 py-3.5 bg-[#FAF8F5] border border-[#DFD9CE] rounded-[1.125rem] text-xs text-[#1C1917] placeholder-[#A89F90] focus:outline-none hover:border-[#BCB5A8] focus:border-[#1C1917] focus:ring-0 transition-all duration-300">
                 </div>
-                <div class="sm:col-span-2 flex items-center space-x-2">
-                    <input type="checkbox" name="is_default" value="1" id="is_default" class="accent-[#1C1917] rounded">
-                    <label for="is_default" class="text-[#78716C]">Set as my default delivery address</label>
+                <div class="sm:col-span-2 flex items-center space-x-2 pt-1">
+                    <input type="checkbox" name="is_default" value="1" id="is_default" class="accent-[#1C1917] rounded w-4 h-4">
+                    <label for="is_default" class="text-xs text-[#78716C] cursor-pointer">Set as my default delivery address</label>
                 </div>
                 <div class="sm:col-span-2 flex items-center space-x-3 pt-2">
-                    <button type="submit" class="bg-[#1C1917] text-white px-6 py-2.5 rounded-full uppercase tracking-widest font-semibold text-[10px] cursor-pointer">
-                        Save Address
+                    <button type="submit" class="bg-[#1C1917] hover:bg-[#2C2724] text-white px-7 py-3.5 rounded-full uppercase tracking-[0.25em] font-semibold text-[10px] cursor-pointer shadow-xs transition-all">
+                        SAVE ADDRESS
                     </button>
 
-                    <button type="button" @click="showAddForm = false" class="border border-[#E6E1D7] text-[#78716C] px-6 py-2.5 rounded-full uppercase tracking-widest font-medium text-[10px] cursor-pointer">
-                        Cancel
+                    <button type="button" @click="showAddForm = false" class="border border-[#DFD9CE] hover:border-[#1C1917] text-[#78716C] hover:text-[#1C1917] px-6 py-3 rounded-full uppercase tracking-[0.2em] font-semibold text-[9.5px] cursor-pointer transition-all">
+                        CANCEL
                     </button>
                 </div>
             </form>
@@ -140,61 +142,62 @@
                 <input type="hidden" name="type" value="shipping">
                 
                 {{-- Recipient Full Name --}}
-                <div>
-                    <label class="block font-medium text-[#1C1917] mb-1">Recipient Full Name *</label>
+                {{-- Recipient Full Name --}}
+                <div class="space-y-1.5">
+                    <label class="block text-[9.5px] uppercase tracking-[0.2em] font-medium text-[#8E877D]">Recipient Full Name *</label>
                     <input type="text" name="full_name" x-model="editData.full_name" required placeholder="e.g. Sandip Sharma" 
-                           class="w-full px-4 py-2.5 bg-transparent border border-[#DFD9CE] rounded-full focus:outline-none focus:border-[#1C1917]">
+                           class="w-full px-5 py-3.5 bg-[#FAF8F5] border border-[#DFD9CE] rounded-[1.125rem] text-xs text-[#1C1917] placeholder-[#A89F90] focus:outline-none hover:border-[#BCB5A8] focus:border-[#1C1917] focus:ring-0 transition-all duration-300">
                 </div>
 
                 {{-- Phone Number --}}
-                <div>
-                    <label class="block font-medium text-[#1C1917] mb-1">Phone Number *</label>
+                <div class="space-y-1.5">
+                    <label class="block text-[9.5px] uppercase tracking-[0.2em] font-medium text-[#8E877D]">Phone Number *</label>
                     <input type="text" name="phone" x-model="editData.phone" required placeholder="e.g. +91 98201 45678" 
-                           class="w-full px-4 py-2.5 bg-transparent border border-[#DFD9CE] rounded-full focus:outline-none focus:border-[#1C1917]">
+                           class="w-full px-5 py-3.5 bg-[#FAF8F5] border border-[#DFD9CE] rounded-[1.125rem] text-xs text-[#1C1917] placeholder-[#A89F90] focus:outline-none hover:border-[#BCB5A8] focus:border-[#1C1917] focus:ring-0 transition-all duration-300">
                 </div>
 
                 {{-- Street Address --}}
-                <div class="sm:col-span-2">
-                    <label class="block font-medium text-[#1C1917] mb-1">Flat / House No., Building, Society *</label>
-                    <input type="text" name="address_line_1" x-model="editData.address_line_1" required placeholder="e.g. Flat 402, Royal Palms, MG Road" class="w-full px-4 py-2.5 bg-transparent border border-[#DFD9CE] rounded-full focus:outline-none focus:border-[#1C1917]">
+                <div class="sm:col-span-2 space-y-1.5">
+                    <label class="block text-[9.5px] uppercase tracking-[0.2em] font-medium text-[#8E877D]">Flat / House No., Building, Society *</label>
+                    <input type="text" name="address_line_1" x-model="editData.address_line_1" required placeholder="e.g. Flat 402, Royal Palms, MG Road" class="w-full px-5 py-3.5 bg-[#FAF8F5] border border-[#DFD9CE] rounded-[1.125rem] text-xs text-[#1C1917] placeholder-[#A89F90] focus:outline-none hover:border-[#BCB5A8] focus:border-[#1C1917] focus:ring-0 transition-all duration-300">
                 </div>
 
                 {{-- Landmark / Locality --}}
-                <div class="sm:col-span-2">
-                    <label class="block font-medium text-[#1C1917] mb-1">Area, Locality, Landmark (Optional)</label>
-                    <input type="text" name="address_line_2" x-model="editData.address_line_2" placeholder="e.g. Near Phoenix Mall, Andheri West" class="w-full px-4 py-2.5 bg-transparent border border-[#DFD9CE] rounded-full focus:outline-none focus:border-[#1C1917]">
+                <div class="sm:col-span-2 space-y-1.5">
+                    <label class="block text-[9.5px] uppercase tracking-[0.2em] font-medium text-[#8E877D]">Area, Locality, Landmark (Optional)</label>
+                    <input type="text" name="address_line_2" x-model="editData.address_line_2" placeholder="e.g. Near Phoenix Mall, Andheri West" class="w-full px-5 py-3.5 bg-[#FAF8F5] border border-[#DFD9CE] rounded-[1.125rem] text-xs text-[#1C1917] placeholder-[#A89F90] focus:outline-none hover:border-[#BCB5A8] focus:border-[#1C1917] focus:ring-0 transition-all duration-300">
                 </div>
 
                 {{-- City & State --}}
-                <div>
-                    <label class="block font-medium text-[#1C1917] mb-1">City / Town *</label>
-                    <input type="text" name="city" x-model="editData.city" required placeholder="e.g. Mumbai" class="w-full px-4 py-2.5 bg-transparent border border-[#DFD9CE] rounded-full focus:outline-none focus:border-[#1C1917]">
+                <div class="space-y-1.5">
+                    <label class="block text-[9.5px] uppercase tracking-[0.2em] font-medium text-[#8E877D]">City / Town *</label>
+                    <input type="text" name="city" x-model="editData.city" required placeholder="e.g. Mumbai" class="w-full px-5 py-3.5 bg-[#FAF8F5] border border-[#DFD9CE] rounded-[1.125rem] text-xs text-[#1C1917] placeholder-[#A89F90] focus:outline-none hover:border-[#BCB5A8] focus:border-[#1C1917] focus:ring-0 transition-all duration-300">
                 </div>
-                <div>
-                    <label class="block font-medium text-[#1C1917] mb-1">State *</label>
-                    <input type="text" name="state" x-model="editData.state" required placeholder="e.g. Maharashtra" class="w-full px-4 py-2.5 bg-transparent border border-[#DFD9CE] rounded-full focus:outline-none focus:border-[#1C1917]">
+                <div class="space-y-1.5">
+                    <label class="block text-[9.5px] uppercase tracking-[0.2em] font-medium text-[#8E877D]">State *</label>
+                    <input type="text" name="state" x-model="editData.state" required placeholder="e.g. Maharashtra" class="w-full px-5 py-3.5 bg-[#FAF8F5] border border-[#DFD9CE] rounded-[1.125rem] text-xs text-[#1C1917] placeholder-[#A89F90] focus:outline-none hover:border-[#BCB5A8] focus:border-[#1C1917] focus:ring-0 transition-all duration-300">
                 </div>
 
                 {{-- PIN Code & Country --}}
-                <div>
-                    <label class="block font-medium text-[#1C1917] mb-1">PIN Code *</label>
-                    <input type="text" name="postal_code" x-model="editData.postal_code" required placeholder="e.g. 400 053" class="w-full px-4 py-2.5 bg-transparent border border-[#DFD9CE] rounded-full focus:outline-none focus:border-[#1C1917]">
+                <div class="space-y-1.5">
+                    <label class="block text-[9.5px] uppercase tracking-[0.2em] font-medium text-[#8E877D]">PIN Code *</label>
+                    <input type="text" name="postal_code" x-model="editData.postal_code" required placeholder="e.g. 400 053" class="w-full px-5 py-3.5 bg-[#FAF8F5] border border-[#DFD9CE] rounded-[1.125rem] text-xs text-[#1C1917] placeholder-[#A89F90] focus:outline-none hover:border-[#BCB5A8] focus:border-[#1C1917] focus:ring-0 transition-all duration-300">
                 </div>
-                <div>
-                    <label class="block font-medium text-[#1C1917] mb-1">Country *</label>
-                    <input type="text" name="country" x-model="editData.country" required placeholder="e.g. India" class="w-full px-4 py-2.5 bg-transparent border border-[#DFD9CE] rounded-full focus:outline-none focus:border-[#1C1917]">
+                <div class="space-y-1.5">
+                    <label class="block text-[9.5px] uppercase tracking-[0.2em] font-medium text-[#8E877D]">Country *</label>
+                    <input type="text" name="country" x-model="editData.country" required placeholder="e.g. India" class="w-full px-5 py-3.5 bg-[#FAF8F5] border border-[#DFD9CE] rounded-[1.125rem] text-xs text-[#1C1917] placeholder-[#A89F90] focus:outline-none hover:border-[#BCB5A8] focus:border-[#1C1917] focus:ring-0 transition-all duration-300">
                 </div>
-                <div class="sm:col-span-2 flex items-center space-x-2">
-                    <input type="checkbox" name="is_default" value="1" id="edit_is_default" :checked="editData.is_default" class="accent-[#1C1917] rounded">
-                    <label for="edit_is_default" class="text-[#78716C]">Set as my default delivery address</label>
+                <div class="sm:col-span-2 flex items-center space-x-2 pt-1">
+                    <input type="checkbox" name="is_default" value="1" id="edit_is_default" :checked="editData.is_default" class="accent-[#1C1917] rounded w-4 h-4">
+                    <label for="edit_is_default" class="text-xs text-[#78716C] cursor-pointer">Set as my default delivery address</label>
                 </div>
                 <div class="sm:col-span-2 flex items-center space-x-3 pt-2">
-                    <button type="submit" class="bg-[#1C1917] text-white px-6 py-2.5 rounded-full uppercase tracking-widest font-semibold text-[10px] cursor-pointer">
-                        Update Address
+                    <button type="submit" class="bg-[#1C1917] hover:bg-[#2C2724] text-white px-7 py-3.5 rounded-full uppercase tracking-[0.25em] font-semibold text-[10px] cursor-pointer shadow-xs transition-all">
+                        UPDATE ADDRESS
                     </button>
 
-                    <button type="button" @click="cancelEdit()" class="border border-[#E6E1D7] text-[#78716C] px-6 py-2.5 rounded-full uppercase tracking-widest font-medium text-[10px] cursor-pointer">
-                        Cancel
+                    <button type="button" @click="cancelEdit()" class="border border-[#DFD9CE] hover:border-[#1C1917] text-[#78716C] hover:text-[#1C1917] px-6 py-3 rounded-full uppercase tracking-[0.2em] font-semibold text-[9.5px] cursor-pointer transition-all">
+                        CANCEL
                     </button>
                 </div>
             </form>

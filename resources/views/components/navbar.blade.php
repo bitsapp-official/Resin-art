@@ -87,14 +87,8 @@
 
                     <!-- Shopping Bag Pill (with Teal Badge) -->
                     @php
-                        $cartItemCount = 0;
-                        if (Auth::check()) {
-                            $cart = \App\Models\Cart::where('user_id', Auth::id())->withCount('items')->first();
-                            $cartItemCount = $cart ? $cart->items_count : 0;
-                        } else {
-                            $cart = \App\Models\Cart::where('session_id', session()->getId())->whereNull('user_id')->withCount('items')->first();
-                            $cartItemCount = $cart ? $cart->items_count : 0;
-                        }
+                        $cart = \App\Models\Cart::current();
+                        $cartItemCount = $cart ? $cart->items->count() : 0;
                     @endphp
                     <button @click="cartOpen = true" type="button" class="flex items-center space-x-2 border border-[#DFD9CE] rounded-full px-3.5 py-1 text-[10.5px] tracking-[0.18em] font-medium text-[oklch(18%_0.012_50)] bg-white/80 hover:bg-white hover:border-[#1C1917] transition-all duration-200 cursor-pointer">
                         <svg class="w-3.5 h-3.5 stroke-[1.75]" fill="none" viewBox="0 0 24 24" stroke="currentColor">

@@ -47,6 +47,10 @@ class LoginController extends Controller
             ]);
         }
 
+        // Capture guest state BEFORE Auth::attempt() regenerates the session ID
+        $guestSessionId = session()->getId();
+        $guestWishlist = session('guest_wishlist', []);
+
         if (!Auth::attempt($request->only('email', 'password'), $request->boolean('remember'))) {
             RateLimiter::hit($throttleKey);
             throw ValidationException::withMessages([
@@ -55,12 +59,6 @@ class LoginController extends Controller
         }
 
         RateLimiter::clear($throttleKey);
-
-        // Capture guest state BEFORE session regeneration
-        $guestSessionId = session()->getId();
-        $guestWishlist = session('guest_wishlist', []);
-
-        $request->session()->regenerate();
 
         // Senior-level migration: merge guest cart, wishlist, and recently viewed into user account
         GuestSessionMigrationService::migrate(Auth::user(), $guestSessionId, $guestWishlist);

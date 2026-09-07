@@ -30,16 +30,17 @@
                             </div>
                             <h2 class="font-editorial text-3xl lg:text-[32px] text-[#1C1917] font-light">Check your inbox.</h2>
                             <p class="text-[13px] text-[#78716C] font-normal leading-relaxed pb-6">
-                                A password reset link has been sent to your email.<br>
+                                A password reset link has been sent to your email address.<br>
                                 <span class="text-[11px] text-[#A89F91]">The link expires in 30 minutes. Check your spam folder if you don't see it.</span>
                             </p>
-                            {{-- This opens the user's default email app --}}
-                            <a href="mailto:" class="w-full block bg-[#1A1615] hover:bg-[#2C2724] text-white text-center text-[10px] uppercase tracking-[0.25em] font-semibold py-4 rounded-full shadow-md transition-all">
-                                OPEN EMAIL APP
+                            
+                            <a href="{{ route('login') }}" class="w-full block bg-[#1A1615] hover:bg-[#2C2724] text-white text-center text-[10px] uppercase tracking-[0.25em] font-semibold py-4 rounded-full shadow-md transition-all">
+                                RETURN TO SIGN IN
                             </a>
                         </div>
-                        <div class="border-t border-[#E6E1D7]/60 pt-4 flex items-center justify-start text-xs text-[#78716C] font-normal">
-                            <a href="{{ route('login') }}" class="text-[#1C1917] hover:text-[#A89F91] transition-colors font-medium">Back to sign in</a>
+                        <div class="border-t border-[#E6E1D7]/60 pt-4 flex items-center justify-between text-xs text-[#78716C] font-normal">
+                            <span>Didn't receive the email?</span>
+                            <a href="{{ route('password.request') }}" class="text-[#1C1917] hover:underline font-medium">Resend link</a>
                         </div>
                     @else
                         {{-- 📧 Form State: Enter email --}}
@@ -52,8 +53,8 @@
 
                             <div class="space-y-2">
                                 <label class="block text-[9px] uppercase tracking-[0.2em] font-bold text-[#8E877D]">EMAIL</label>
-                                <input type="email" name="email" value="{{ old('email') }}" required autofocus placeholder=""
-                                       class="w-full px-5 py-3.5 bg-transparent border border-[#DFD9CE] rounded-full text-xs text-[#1C1917] focus:outline-none hover:border-[#BCB5A8] focus:border-[#1C1917] focus:ring-0 transition-all duration-300">
+                                <input type="email" name="email" value="{{ old('email') }}" required autofocus placeholder="you@email.com"
+                                       class="w-full px-5 py-3.5 bg-transparent border border-[#DFD9CE] rounded-full text-xs text-[#1C1917] placeholder-[#A89F90] focus:outline-none hover:border-[#BCB5A8] focus:border-[#1C1917] focus:ring-0 transition-all duration-300">
                             </div>
 
                             <div class="pt-2">

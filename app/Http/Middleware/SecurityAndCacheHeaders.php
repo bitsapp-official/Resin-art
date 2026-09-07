@@ -19,8 +19,10 @@ class SecurityAndCacheHeaders
         $response->headers->set('X-Content-Type-Options', 'nosniff');
         $response->headers->set('X-Frame-Options', 'SAMEORIGIN');
         $response->headers->set('Referrer-Policy', 'strict-origin-when-cross-origin');
-        $response->headers->set('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
-        $response->headers->set('Cross-Origin-Opener-Policy', 'same-origin');
+        // Cross-Origin-Opener-Policy is only accepted by browsers on secure contexts (HTTPS or localhost)
+        if ($request->isSecure() || in_array($request->getHost(), ['localhost', '127.0.0.1'])) {
+            $response->headers->set('Cross-Origin-Opener-Policy', 'same-origin');
+        }
 
         // Efficient Caching for static assets served through Laravel
         $uri = $request->getRequestUri();

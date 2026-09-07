@@ -48,7 +48,7 @@ class GuestSessionMigrationService
     /**
      * Merge guest cart items into authenticated user cart.
      */
-    protected static function mergeCart(User $user, string $guestSessionId): void
+    public static function mergeCart(User $user, string $guestSessionId): void
     {
         $guestCart = Cart::where('session_id', $guestSessionId)
             ->whereNull('user_id')

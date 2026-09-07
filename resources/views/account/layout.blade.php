@@ -26,17 +26,7 @@
             </button>
         </div>
 
-        <!-- Flash Notifications -->
-        @if(session('success'))
-            <div class="mb-6 p-4 bg-emerald-50 border border-emerald-200 text-emerald-900 rounded-2xl text-xs">
-                {{ session('success') }}
-            </div>
-        @endif
-        @if(session('error'))
-            <div class="mb-6 p-4 bg-red-50 border border-red-200 text-red-900 rounded-2xl text-xs">
-                {{ session('error') }}
-            </div>
-        @endif
+
 
         <style>
             @media (min-width: 1024px) {
@@ -68,9 +58,7 @@
                                class="flex items-center justify-between px-4 py-2 rounded-full text-[13px] transition-all {{ request()->routeIs('account.notifications.*') ? 'bg-[#1C1917] text-white font-semibold shadow-sm' : 'text-[#66615C] hover:text-[#1C1917] hover:bg-white/70 font-medium' }}">
                                 <span>Notifications</span>
                                 @php $unread = Auth::user()->customerNotifications()->where('is_read', false)->count(); @endphp
-                                @if($unread > 0)
-                                    <span class="px-2 py-0.5 rounded-full bg-amber-600 text-white font-bold text-[9.5px]">{{ $unread }}</span>
-                                @endif
+                                <span class="text-[10.5px] opacity-75 font-normal">({{ $unread }})</span>
                             </a>
                             <a href="{{ route('account.recently-viewed.index') }}" 
                                class="block px-4 py-2 rounded-full text-[13px] transition-all {{ request()->routeIs('account.recently-viewed.*') ? 'bg-[#1C1917] text-white font-semibold shadow-sm' : 'text-[#66615C] hover:text-[#1C1917] hover:bg-white/70 font-medium' }}">
@@ -144,7 +132,17 @@
             </aside>
 
             <!-- Main Content Area -->
-            <main class="flex-1 min-w-0 w-full">
+            <main class="flex-1 min-w-0 w-full space-y-6">
+                @if(session('success'))
+                    <x-alert type="success" :message="session('success')" />
+                @endif
+                @if(session('error'))
+                    <x-alert type="error" :message="session('error')" />
+                @endif
+                @if(session('status'))
+                    <x-alert type="info" :message="session('status')" />
+                @endif
+
                 {{ $slot }}
             </main>
 

@@ -19,7 +19,7 @@
                     'tag' => 'HANDCRAFTED & MADE TO ORDER',
                     'title' => 'The quiet language of resin.',
                     'desc' => 'Poured slowly, one piece at a time. Each work is a still moment — a river held between hands, a landscape suspended in glass.',
-                    'image' => asset('storage/gallery/segre_river_table.webp'),
+                    'image' => asset('images/segre_river_table.webp'),
                     'link' => route('collections.show', 'river-tables'),
                 ]
             ];
@@ -359,7 +359,7 @@
                 @if(isset($featuredCollections[0]))
                     @php 
                         $col1 = $featuredCollections[0]; 
-                        $col1Img = $col1->effective_cover_image ? (str_starts_with($col1->effective_cover_image, 'http') || str_starts_with($col1->effective_cover_image, '/') ? $col1->effective_cover_image : asset('storage/' . $col1->effective_cover_image)) : asset('storage/gallery/segre_river_table.webp');
+                        $col1Img = $col1->effective_cover_image ? (str_starts_with($col1->effective_cover_image, 'http') || str_starts_with($col1->effective_cover_image, '/') ? $col1->effective_cover_image : asset('storage/' . $col1->effective_cover_image)) : asset('images/segre_river_table.webp');
                     @endphp
                     <a href="{{ route('collections.show', $col1->slug) }}" 
                        class="lg:col-span-7 group relative rounded-[2.5rem] overflow-hidden min-h-[480px] lg:min-h-[580px] bg-[#EBE5DB] border border-[#DFD9CE]/60 flex flex-col justify-between p-8 sm:p-10 shadow-sm transition-all duration-500 hover:shadow-xl">

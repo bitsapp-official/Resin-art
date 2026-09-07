@@ -189,6 +189,17 @@
             <h1 class="font-editorial text-5xl sm:text-6xl text-[#1C1917] font-light">Checkout.</h1>
         </div>
 
+        @if(session('error'))
+            <div class="mb-6">
+                <x-alert type="error" :message="session('error')" />
+            </div>
+        @endif
+        @if(session('success'))
+            <div class="mb-6">
+                <x-alert type="success" :message="session('success')" />
+            </div>
+        @endif
+
         <form method="POST" action="{{ route('checkout.process') }}">
             @csrf
 

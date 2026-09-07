@@ -1,15 +1,15 @@
 <x-app-layout title="Saved Wishlist — Maison Résine">
     <div class="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-12 py-10">
 
-        <!-- Flash Messages -->
+        <!-- Alerts -->
         @if(session('success'))
-            <div class="mb-6 p-4 bg-emerald-50 border border-emerald-200 text-emerald-900 rounded-2xl text-xs flex items-center justify-between">
-                <span>{{ session('success') }}</span>
+            <div class="mb-6">
+                <x-alert type="success" :message="session('success')" />
             </div>
         @endif
         @if(session('error'))
-            <div class="mb-6 p-4 bg-red-50 border border-red-200 text-red-900 rounded-2xl text-xs flex items-center justify-between">
-                <span>{{ session('error') }}</span>
+            <div class="mb-6">
+                <x-alert type="error" :message="session('error')" />
             </div>
         @endif
 

@@ -19,14 +19,9 @@ use Stripe\StripeClient;
 
 class CheckoutController extends Controller
 {
-    private function getCart(): ?Cart
+    private function getCart(): Cart
     {
-        if (Auth::check()) {
-            return Cart::where('user_id', Auth::id())->with('items.product')->first();
-        }
-
-        $sessionId = session()->getId();
-        return Cart::where('session_id', $sessionId)->whereNull('user_id')->with('items.product')->first();
+        return Cart::current();
     }
 
     public function index()
@@ -34,7 +29,7 @@ class CheckoutController extends Controller
         $cart = $this->getCart();
 
         if (!$cart || $cart->items->count() === 0) {
-            return redirect()->route('cart.index')->with('error', 'Your bag is empty.');
+            return redirect()->route('cart.index');
         }
 
         $cart->recalculateTotal();
@@ -57,7 +52,7 @@ class CheckoutController extends Controller
         $cart = $this->getCart();
 
         if (!$cart || $cart->items->count() === 0) {
-            return redirect()->route('cart.index')->with('error', 'Your bag is empty.');
+            return redirect()->route('cart.index');
         }
 
         // Validate Checkout Fields (Strictly online payment via Stripe - No Cash on Delivery)

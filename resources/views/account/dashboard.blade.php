@@ -34,13 +34,13 @@
                 </div>
             </a>
 
-            <!-- Card 4: Unread Notifications -->
+            <!-- Card 4: Notifications -->
             <a href="{{ route('account.notifications.index') }}" class="glass rounded-[1.75rem] p-7 hover:bg-white/80 transition-all block">
                 <div class="font-editorial text-4xl text-[#1C1917] font-light leading-none mb-2">
                     {{ $unreadNotificationsCount }}
                 </div>
                 <div class="text-[9px] uppercase tracking-[0.2em] font-bold text-[#8E877D]">
-                    UNREAD
+                    NOTIFICATIONS
                 </div>
             </a>
 
@@ -192,9 +192,15 @@
                         </span>
                         <span class="text-xs text-[#78716C] ml-3">&bull; {{ ($latestCustomRequest->submitted_at ?? $latestCustomRequest->created_at)->format('d M Y') }}</span>
                     </div>
-                    <span class="inline-flex items-center px-3.5 py-1 rounded-full text-xs font-semibold uppercase tracking-wider bg-[#1C1917] text-white">
-                        {{ $crStatusEnum->customerLabel() }}
-                    </span>
+                    @if(in_array($crStatusEnum, [\App\Enums\CustomRequestStatus::DECLINED, \App\Enums\CustomRequestStatus::EXPIRED]))
+                        <span class="bg-red-50 text-red-800 border border-red-200/80 px-3 py-1 rounded-full text-[9px] uppercase font-semibold tracking-widest">
+                            {{ $crStatusEnum->customerLabel() }}
+                        </span>
+                    @else
+                        <span class="bg-[#EFECE6] text-[#1C1917] border border-[#DDD6CA] px-3 py-1 rounded-full text-[9px] uppercase font-semibold tracking-widest">
+                            {{ $crStatusEnum->customerLabel() }}
+                        </span>
+                    @endif
                 </div>
 
                 <!-- 5 Segment Progress Bar (Universal Flexbox) -->

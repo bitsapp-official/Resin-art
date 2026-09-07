@@ -63,15 +63,23 @@ class RegisterController extends Controller
         $guestWishlist = session('guest_wishlist', []);
 
         Auth::login($user);
-        $request->session()->regenerate();
 
         // Senior-level migration: merge guest cart, wishlist, and recently viewed into user account
         GuestSessionMigrationService::migrate($user, $guestSessionId, $guestWishlist);
 
-        // Send email verification notification immediately
-        $user->sendEmailVerificationNotification();
+        // Send email verification notification
+        try {
+            $user->sendEmailVerificationNotification();
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::warning('Email verification notice failed: ' . $e->getMessage());
+        }
 
-        // Redirect to email verification notice (verified middleware will block dashboard until verified)
+        // If user was heading to checkout or an intended page, proceed directly there
+        if (session()->has('url.intended')) {
+            return redirect()->intended(route('checkout.index'));
+        }
+
+        // Redirect to email verification notice for general signups
         return redirect()->route('verification.notice');
     }
 }

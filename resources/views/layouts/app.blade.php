@@ -21,10 +21,6 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500;1,600&family=Plus+Jakarta+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 
-    @if(request()->is('/'))
-        <link rel="preload" as="image" href="{{ asset('storage/gallery/segre_river_table.webp') }}" type="image/webp" fetchpriority="high">
-    @endif
-
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @stack('head')
 </head>
@@ -305,7 +301,8 @@
                 const form = e.target;
                 if (!form) return;
 
-                const action = form.getAttribute('action') || '';
+                const rawAction = form.getAttribute('action') || '';
+                const action = new URL(rawAction, window.location.origin).pathname;
                 const isUpdate = form.classList.contains('cart-drawer-update-form') || (form.closest('#cart-drawer-content-area') && action.includes('cart/update'));
                 const isRemove = form.classList.contains('cart-drawer-remove-form') || (form.closest('#cart-drawer-content-area') && action.includes('cart/remove'));
                 const isAdd = action.includes('cart/add') && !action.includes('buy-now');
@@ -333,6 +330,7 @@
 
                 fetch(action, {
                     method: 'POST',
+                    credentials: 'same-origin',
                     headers: {
                         'Accept': 'application/json',
                         'X-Requested-With': 'XMLHttpRequest',

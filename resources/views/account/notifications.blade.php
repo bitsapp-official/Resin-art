@@ -24,7 +24,7 @@
             @forelse($notifications as $notif)
                 <div class="flex items-start justify-between pb-4 border-b border-[#E6E1D7]/60 last:border-none last:pb-0">
                     <div class="flex items-start space-x-3.5">
-                        <span class="mt-1.5 w-2 h-2 rounded-full shrink-0 {{ !$notif->is_read ? 'bg-[#2D6A54]' : 'bg-[#A8A29E]' }}"></span>
+                        <span class="mt-1.5 w-2 h-2 rounded-full shrink-0 {{ !$notif->is_read ? 'bg-[#8E7558]' : 'bg-[#DFD9CE]' }}"></span>
                         <div class="space-y-1">
                             <h4 class="text-xs font-semibold text-[#1C1917]">
                                 {{ $notif->title }}

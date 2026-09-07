@@ -19,14 +19,18 @@
             {{-- Right column reset password form card --}}
             <div class="lg:col-span-6 flex justify-center lg:justify-end">
                 <div class="w-full max-w-[480px] glass rounded-[2.25rem] p-8 sm:p-12 space-y-6">
-                    <!-- Validation Errors -->
                     @if($errors->any())
-                        <div class="p-4 bg-[#FAF5F2] border border-[#EADED9] text-[#8C5E50] rounded-[1.125rem] text-[11px] font-normal leading-relaxed space-y-1 tracking-normal">
-                            <div class="font-semibold uppercase tracking-wider text-[10px] text-[#703D30] mb-1">Atelier Notice</div>
-                            @foreach($errors->all() as $error)
-                                <div class="text-[#8C5E50]">• {{ $error }}</div>
-                            @endforeach
-                        </div>
+                        <x-alert type="error">
+                            @if($errors->count() === 1)
+                                {{ $errors->first() }}
+                            @else
+                                <div class="space-y-1">
+                                    @foreach($errors->all() as $error)
+                                        <div>• {{ $error }}</div>
+                                    @endforeach
+                                </div>
+                            @endif
+                        </x-alert>
                     @endif
 
                     <form method="POST" action="{{ route('password.update') }}" class="space-y-5 text-[11px] uppercase tracking-wider font-semibold text-[#1C1917]">

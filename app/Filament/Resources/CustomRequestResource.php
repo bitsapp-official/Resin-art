@@ -79,7 +79,7 @@ class CustomRequestResource extends Resource
                                 }
                                 $html = '<div style="display: flex; gap: 14px; flex-wrap: wrap; margin-top: 8px;">';
                                 foreach ($record->images as $img) {
-                                    $url = asset('storage/' . $img->file_path);
+                                    $url = $img->url;
                                     $html .= '<a href="' . $url . '" target="_blank" style="display: block; border: 2px solid #3F3F46; border-radius: 12px; overflow: hidden; background: #18181B; transition: transform 0.2s;" title="Click to view full image">';
                                     $html .= '<img src="' . $url . '" style="width: 120px; height: 120px; object-fit: cover; display: block;" />';
                                     $html .= '</a>';

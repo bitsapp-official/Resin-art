@@ -20,21 +20,8 @@
             <div class="lg:col-span-6 flex justify-center lg:justify-end">
                 <div class="w-full max-w-[480px] glass rounded-[2.25rem] p-8 sm:p-12 space-y-6">
                     
-                    <!-- Validation Errors -->
-                    @if($errors->any())
-                        <div class="p-4 bg-[#FAF5F2] border border-[#EADED9] text-[#8C5E50] rounded-[1.125rem] text-[11px] font-normal leading-relaxed space-y-1 tracking-normal">
-                            <div class="font-semibold uppercase tracking-wider text-[10px] text-[#703D30] mb-1">Atelier Notice</div>
-                            @foreach($errors->all() as $error)
-                                <div class="text-[#8C5E50]">• {{ $error }}</div>
-                            @endforeach
-                        </div>
-                    @endif
-
                     @if(session('status'))
-                        <div class="p-4 bg-[#F2F7F4] border border-[#D5E3DC] text-[#3D6A54] rounded-[1.125rem] text-[11px] font-normal leading-relaxed tracking-normal">
-                            <div class="font-semibold uppercase tracking-wider text-[10px] text-[#29503C] mb-1">Atelier System</div>
-                            {{ session('status') }}
-                        </div>
+                        <x-alert type="success" :message="session('status')" />
                     @endif
 
                     <form method="POST" action="{{ route('register') }}" class="space-y-5 text-[11px] uppercase tracking-wider font-semibold text-[#1C1917]">
@@ -43,32 +30,55 @@
                         <div class="space-y-1.5">
                             <label class="block text-[9px] uppercase tracking-[0.2em] font-medium text-[#8E877D]">FULL NAME</label>
                             <input type="text" name="name" value="{{ old('name') }}" required autofocus placeholder="Your full name" 
-                                    class="w-full px-5 py-3.5 bg-[#FAF8F5] border border-[#DFD9CE] rounded-[1.125rem] text-xs text-[#1C1917] placeholder-[#A89F90] focus:outline-none hover:border-[#BCB5A8] focus:border-[#1C1917] focus:ring-0 transition-all duration-300">
+                                   class="w-full px-5 py-3.5 bg-[#FAF8F5] border {{ $errors->has('name') ? 'border-red-400 focus:border-red-500' : 'border-[#DFD9CE] hover:border-[#BCB5A8] focus:border-[#1C1917]' }} rounded-[1.125rem] text-xs text-[#1C1917] placeholder-[#A89F90] focus:outline-none focus:ring-0 transition-all duration-300">
+                            @error('name')
+                                <p class="text-[11px] text-red-600 font-medium tracking-normal normal-case pl-1">{{ $message }}</p>
+                            @enderror
                         </div>
 
                         <div class="space-y-1.5">
                             <label class="block text-[9px] uppercase tracking-[0.2em] font-medium text-[#8E877D]">EMAIL</label>
                             <input type="email" name="email" value="{{ old('email') }}" required placeholder="you@email.com" 
-                                    class="w-full px-5 py-3.5 bg-[#FAF8F5] border border-[#DFD9CE] rounded-[1.125rem] text-xs text-[#1C1917] placeholder-[#A89F90] focus:outline-none hover:border-[#BCB5A8] focus:border-[#1C1917] focus:ring-0 transition-all duration-300">
+                                   class="w-full px-5 py-3.5 bg-[#FAF8F5] border {{ $errors->has('email') ? 'border-red-400 focus:border-red-500' : 'border-[#DFD9CE] hover:border-[#BCB5A8] focus:border-[#1C1917]' }} rounded-[1.125rem] text-xs text-[#1C1917] placeholder-[#A89F90] focus:outline-none focus:ring-0 transition-all duration-300">
+                            @error('email')
+                                <p class="text-[11px] text-red-600 font-medium tracking-normal normal-case pl-1">{{ $message }}</p>
+                            @enderror
                         </div>
 
                         <div class="space-y-1.5">
                             <label class="block text-[9px] uppercase tracking-[0.2em] font-medium text-[#8E877D]">PASSWORD</label>
                             <input type="password" name="password" required 
-                                   class="w-full px-5 py-3.5 bg-[#FAF8F5] border border-[#DFD9CE] rounded-[1.125rem] text-xs text-[#1C1917] focus:outline-none hover:border-[#BCB5A8] focus:border-[#1C1917] focus:ring-0 transition-all duration-300">
+                                   class="w-full px-5 py-3.5 bg-[#FAF8F5] border {{ $errors->has('password') ? 'border-red-400 focus:border-red-500' : 'border-[#DFD9CE] hover:border-[#BCB5A8] focus:border-[#1C1917]' }} rounded-[1.125rem] text-xs text-[#1C1917] focus:outline-none focus:ring-0 transition-all duration-300">
+                            @if($errors->has('password'))
+                                @foreach($errors->get('password') as $err)
+                                    @if(!str_contains(strtolower($err), 'confirmation'))
+                                        <p class="text-[11px] text-red-600 font-medium tracking-normal normal-case pl-1">{{ $err }}</p>
+                                    @endif
+                                @endforeach
+                            @endif
                         </div>
 
                         <div class="space-y-1.5">
                             <label class="block text-[9px] uppercase tracking-[0.2em] font-medium text-[#8E877D]">CONFIRM PASSWORD</label>
                             <input type="password" name="password_confirmation" required 
-                                   class="w-full px-5 py-3.5 bg-[#FAF8F5] border border-[#DFD9CE] rounded-[1.125rem] text-xs text-[#1C1917] focus:outline-none hover:border-[#BCB5A8] focus:border-[#1C1917] focus:ring-0 transition-all duration-300">
+                                   class="w-full px-5 py-3.5 bg-[#FAF8F5] border {{ ($errors->has('password_confirmation') || ($errors->has('password') && str_contains(strtolower($errors->first('password')), 'confirmation'))) ? 'border-red-400 focus:border-red-500' : 'border-[#DFD9CE] hover:border-[#BCB5A8] focus:border-[#1C1917]' }} rounded-[1.125rem] text-xs text-[#1C1917] focus:outline-none focus:ring-0 transition-all duration-300">
+                            @if($errors->has('password_confirmation'))
+                                <p class="text-[11px] text-red-600 font-medium tracking-normal normal-case pl-1">{{ $errors->first('password_confirmation') }}</p>
+                            @elseif($errors->has('password') && str_contains(strtolower($errors->first('password')), 'confirmation'))
+                                <p class="text-[11px] text-red-600 font-medium tracking-normal normal-case pl-1">{{ $errors->first('password') }}</p>
+                            @endif
                         </div>
 
-                        <div class="flex items-center space-x-2.5 pt-1">
-                            <input type="checkbox" name="terms" id="terms" required class="accent-[#1C1917] rounded border-[#DFD9CE] w-4 h-4 cursor-pointer">
-                            <label for="terms" class="cursor-pointer leading-none text-[9px] uppercase tracking-[0.22em] font-medium text-[#8E877D]">
-                                I agree to the <a href="{{ route('legal.terms') }}" target="_blank" class="font-bold text-[#1C1917] hover:underline">terms</a> and <a href="{{ route('legal.privacy') }}" target="_blank" class="font-bold text-[#1C1917] hover:underline">privacy policy.</a>
-                            </label>
+                        <div class="pt-1">
+                            <div class="flex items-center space-x-2.5">
+                                <input type="checkbox" name="terms" id="terms" required class="accent-[#1C1917] rounded border-[#DFD9CE] w-4 h-4 cursor-pointer">
+                                <label for="terms" class="cursor-pointer leading-none text-[9px] uppercase tracking-[0.22em] font-medium text-[#8E877D]">
+                                    I agree to the <a href="{{ route('legal.terms') }}" target="_blank" class="font-bold text-[#1C1917] hover:underline">terms</a> and <a href="{{ route('legal.privacy') }}" target="_blank" class="font-bold text-[#1C1917] hover:underline">privacy policy.</a>
+                                </label>
+                            </div>
+                            @error('terms')
+                                <p class="text-[11px] text-red-600 font-medium tracking-normal normal-case pl-1 mt-1.5">{{ $message }}</p>
+                            @enderror
                         </div>
 
                         <div class="pt-2">

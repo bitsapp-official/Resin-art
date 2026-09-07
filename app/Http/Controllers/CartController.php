@@ -12,12 +12,7 @@ class CartController extends Controller
 {
     private function getCart(): Cart
     {
-        if (Auth::check()) {
-            return Cart::firstOrCreate(['user_id' => Auth::id()]);
-        }
-
-        $sessionId = session()->getId();
-        return Cart::firstOrCreate(['session_id' => $sessionId, 'user_id' => null]);
+        return Cart::current();
     }
 
     public function index()
@@ -169,11 +164,10 @@ class CartController extends Controller
         ]);
 
         $cart->recalculateTotal();
-
-        // If user is not authenticated, redirect to login and then back to checkout
+        
         if (!Auth::check()) {
             session()->put('url.intended', route('checkout.index'));
-            return redirect()->route('login')->with('info', 'Please sign in to complete your purchase.');
+            return redirect()->route('login');
         }
 
         return redirect()->route('checkout.index');

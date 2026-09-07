@@ -24,16 +24,14 @@
                     <div class="absolute -top-24 -right-24 w-64 h-64 bg-[#F2EDE4]/60 rounded-full blur-3xl -z-10 pointer-events-none"></div>
 
                     @if (session('message'))
-                        <div class="p-4 bg-[#F2F7F4] border border-[#C8DDD4] text-[#2D5A45] rounded-2xl text-[12px] font-medium flex items-center space-x-3">
-                            <svg class="w-5 h-5 text-[#3D7A5E] flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                            <span>A new secure verification link has been sent to your inbox.</span>
+                        <div class="mb-4">
+                            <x-alert type="success" :message="session('message')" />
                         </div>
                     @endif
 
                     @if (session('smtp_error'))
-                        <div class="p-4 bg-[#FEF8F0] border border-[#F5D9B0] text-[#8B4E10] rounded-2xl text-[12px] font-medium flex items-center space-x-3">
-                            <svg class="w-5 h-5 text-[#C97B35] flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 9v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/></svg>
-                            <span>Mail server is temporarily busy. Please wait a moment and try again.</span>
+                        <div class="mb-4">
+                            <x-alert type="warning" :message="session('smtp_error')" />
                         </div>
                     @endif
 
