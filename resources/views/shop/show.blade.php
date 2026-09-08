@@ -1,142 +1,152 @@
 <x-app-layout :title="$product->name . ' — Maison Résine Atelier'">
 <div class="min-h-screen bg-transparent w-full min-w-0">
-    <div class="max-w-[1320px] mx-auto px-4 sm:px-6 lg:px-12 xl:px-16 pt-6 sm:pt-8 pb-16 sm:pb-24 w-full min-w-0"
-         x-data="{ 
-            activeImage: 0, 
-            selectedSize: '{{ !empty($product->attributes['size_variants']) ? ($product->attributes['size_variants'][0]['size'] ?? '') : (!empty($product->attributes['sizes']) ? $product->attributes['sizes'][0] : '') }}', 
-            qty: 1, 
-            showLightbox: false, 
-            productImages: {{ json_encode($product->images ?? []) }},
-            sizeVariants: {{ json_encode($product->attributes['size_variants'] ?? []) }},
-            basePrice: {{ (float) $product->effective_price }},
-            
-            // Lightbox cut-free zoom & pan
-            lightboxZoom: 1,
-            lightboxPanX: 0,
-            lightboxPanY: 0,
-            isDragging: false,
-            dragStartX: 0,
-            dragStartY: 0,
-            
-            init() {
-                window.addEventListener('touchmove', (e) => {
-                    if (this.showLightbox && (this.lightboxZoom <= 1 || !e.target.closest('[x-ref="lightboxImg"]'))) {
-                        e.preventDefault();
+    <script>
+        function productDetail(config) {
+            return {
+                activeImage: 0,
+                selectedSize: config.selectedSize || '',
+                qty: 1,
+                showLightbox: false,
+                productImages: config.productImages || [],
+                sizeVariants: config.sizeVariants || [],
+                basePrice: config.basePrice || 0,
+                
+                // Lightbox cut-free zoom & pan
+                lightboxZoom: 1,
+                lightboxPanX: 0,
+                lightboxPanY: 0,
+                isDragging: false,
+                dragStartX: 0,
+                dragStartY: 0,
+                
+                init() {
+                    window.addEventListener('touchmove', (e) => {
+                        if (this.showLightbox && (this.lightboxZoom <= 1 || !e.target.closest('[x-ref="lightboxImg"]'))) {
+                            e.preventDefault();
+                        }
+                    }, { passive: false });
+                },
+                
+                openLightbox() {
+                    this.showLightbox = true;
+                    this.resetLightboxZoom();
+                    document.documentElement.classList.add('overflow-hidden', 'touch-none');
+                    document.body.classList.add('overflow-hidden', 'touch-none');
+                    document.documentElement.style.overflow = 'hidden';
+                    document.documentElement.style.overscrollBehavior = 'none';
+                    document.body.style.overflow = 'hidden';
+                    document.body.style.overscrollBehavior = 'none';
+                    document.body.style.touchAction = 'none';
+                },
+                closeLightbox() {
+                    this.showLightbox = false;
+                    this.resetLightboxZoom();
+                    document.documentElement.classList.remove('overflow-hidden', 'touch-none');
+                    document.body.classList.remove('overflow-hidden', 'touch-none');
+                    document.documentElement.style.overflow = '';
+                    document.documentElement.style.overscrollBehavior = '';
+                    document.body.style.overflow = '';
+                    document.body.style.overscrollBehavior = '';
+                    document.body.style.touchAction = '';
+                },
+                resetLightboxZoom() {
+                    this.lightboxZoom = 1;
+                    this.lightboxPanX = 0;
+                    this.lightboxPanY = 0;
+                    this.isDragging = false;
+                },
+                zoomIn() {
+                    if (this.lightboxZoom < 3) {
+                        this.lightboxZoom = +(this.lightboxZoom + 0.5).toFixed(1);
                     }
-                }, { passive: false });
-            },
-            
-            openLightbox() {
-                this.showLightbox = true;
-                this.resetLightboxZoom();
-                document.documentElement.classList.add('overflow-hidden', 'touch-none');
-                document.body.classList.add('overflow-hidden', 'touch-none');
-                document.documentElement.style.overflow = 'hidden';
-                document.documentElement.style.overscrollBehavior = 'none';
-                document.body.style.overflow = 'hidden';
-                document.body.style.overscrollBehavior = 'none';
-                document.body.style.touchAction = 'none';
-            },
-            closeLightbox() {
-                this.showLightbox = false;
-                this.resetLightboxZoom();
-                document.documentElement.classList.remove('overflow-hidden', 'touch-none');
-                document.body.classList.remove('overflow-hidden', 'touch-none');
-                document.documentElement.style.overflow = '';
-                document.documentElement.style.overscrollBehavior = '';
-                document.body.style.overflow = '';
-                document.body.style.overscrollBehavior = '';
-                document.body.style.touchAction = '';
-            },
-            resetLightboxZoom() {
-                this.lightboxZoom = 1;
-                this.lightboxPanX = 0;
-                this.lightboxPanY = 0;
-                this.isDragging = false;
-            },
-            zoomIn() {
-                if (this.lightboxZoom < 3) {
-                    this.lightboxZoom = +(this.lightboxZoom + 0.5).toFixed(1);
-                }
-            },
-            zoomOut() {
-                if (this.lightboxZoom > 1) {
-                    this.lightboxZoom = +(this.lightboxZoom - 0.5).toFixed(1);
-                    if (this.lightboxZoom <= 1) {
+                },
+                zoomOut() {
+                    if (this.lightboxZoom > 1) {
+                        this.lightboxZoom = +(this.lightboxZoom - 0.5).toFixed(1);
+                        if (this.lightboxZoom <= 1) {
+                            this.resetLightboxZoom();
+                        }
+                    }
+                },
+                toggleLightboxZoom() {
+                    if (this.lightboxZoom === 1) {
+                        this.lightboxZoom = 2;
+                    } else {
                         this.resetLightboxZoom();
                     }
-                }
-            },
-            toggleLightboxZoom() {
-                if (this.lightboxZoom === 1) {
-                    this.lightboxZoom = 2;
-                } else {
+                },
+                handleWheel(e) {
+                    if (!this.showLightbox) return;
+                    e.preventDefault();
+                    if (e.deltaY < 0) {
+                        this.zoomIn();
+                    } else {
+                        this.zoomOut();
+                    }
+                },
+                startDrag(e) {
+                    if (this.lightboxZoom <= 1) return;
+                    this.isDragging = true;
+                    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+                    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+                    this.dragStartX = clientX - this.lightboxPanX;
+                    this.dragStartY = clientY - this.lightboxPanY;
+                },
+                onDrag(e) {
+                    if (!this.isDragging || this.lightboxZoom <= 1) return;
+                    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+                    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+                    const img = this.$refs.lightboxImg;
+                    const w = img ? img.offsetWidth : 600;
+                    const h = img ? img.offsetHeight : 600;
+                    // Generous pan limits so every edge and corner is easily reachable without cutting off
+                    const maxPanX = Math.max(120, ((w * this.lightboxZoom) - w) / 2 + 100);
+                    const maxPanY = Math.max(120, ((h * this.lightboxZoom) - h) / 2 + 100);
+                    const newX = clientX - this.dragStartX;
+                    const newY = clientY - this.dragStartY;
+                    this.lightboxPanX = Math.max(-maxPanX, Math.min(maxPanX, newX));
+                    this.lightboxPanY = Math.max(-maxPanY, Math.min(maxPanY, newY));
+                },
+                stopDrag() {
+                    this.isDragging = false;
+                },
+                
+                get currentPrice() {
+                    if (this.sizeVariants.length > 0) {
+                        const variant = this.sizeVariants.find(v => v.size === this.selectedSize);
+                        return variant ? variant.price : this.basePrice;
+                    }
+                    return this.basePrice;
+                },
+                formatPrice(price) {
+                    return new Intl.NumberFormat('en-IN').format(price);
+                },
+                nextImage() {
+                    if (this.productImages.length > 0) {
+                        this.activeImage = (this.activeImage + 1) % this.productImages.length;
+                        this.resetLightboxZoom();
+                    }
+                },
+                prevImage() {
+                    if (this.productImages.length > 0) {
+                        this.activeImage = (this.activeImage - 1 + this.productImages.length) % this.productImages.length;
+                        this.resetLightboxZoom();
+                    }
+                },
+                selectImage(idx) {
+                    this.activeImage = idx;
                     this.resetLightboxZoom();
                 }
-            },
-            handleWheel(e) {
-                if (!this.showLightbox) return;
-                e.preventDefault();
-                if (e.deltaY < 0) {
-                    this.zoomIn();
-                } else {
-                    this.zoomOut();
-                }
-            },
-            startDrag(e) {
-                if (this.lightboxZoom <= 1) return;
-                this.isDragging = true;
-                const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-                const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-                this.dragStartX = clientX - this.lightboxPanX;
-                this.dragStartY = clientY - this.lightboxPanY;
-            },
-            onDrag(e) {
-                if (!this.isDragging || this.lightboxZoom <= 1) return;
-                const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-                const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-                const img = this.$refs.lightboxImg;
-                const w = img ? img.offsetWidth : 600;
-                const h = img ? img.offsetHeight : 600;
-                // Generous pan limits so every edge and corner is easily reachable without cutting off
-                const maxPanX = Math.max(120, ((w * this.lightboxZoom) - w) / 2 + 100);
-                const maxPanY = Math.max(120, ((h * this.lightboxZoom) - h) / 2 + 100);
-                const newX = clientX - this.dragStartX;
-                const newY = clientY - this.dragStartY;
-                this.lightboxPanX = Math.max(-maxPanX, Math.min(maxPanX, newX));
-                this.lightboxPanY = Math.max(-maxPanY, Math.min(maxPanY, newY));
-            },
-            stopDrag() {
-                this.isDragging = false;
-            },
-            
-            get currentPrice() {
-                if (this.sizeVariants.length > 0) {
-                    const variant = this.sizeVariants.find(v => v.size === this.selectedSize);
-                    return variant ? variant.price : this.basePrice;
-                }
-                return this.basePrice;
-            },
-            formatPrice(price) {
-                return new Intl.NumberFormat('en-IN').format(price);
-            },
-            nextImage() {
-                if (this.productImages.length > 0) {
-                    this.activeImage = (this.activeImage + 1) % this.productImages.length;
-                    this.resetLightboxZoom();
-                }
-            },
-            prevImage() {
-                if (this.productImages.length > 0) {
-                    this.activeImage = (this.activeImage - 1 + this.productImages.length) % this.productImages.length;
-                    this.resetLightboxZoom();
-                }
-            },
-            selectImage(idx) {
-                this.activeImage = idx;
-                this.resetLightboxZoom();
-            }
-         }">
+            };
+        }
+    </script>
+    <div class="max-w-[1320px] mx-auto px-4 sm:px-6 lg:px-12 xl:px-16 pt-6 sm:pt-8 pb-16 sm:pb-24 w-full min-w-0"
+         x-data="productDetail({
+            productImages: @js($product->images ?? []),
+            sizeVariants: @js($product->attributes['size_variants'] ?? []),
+            basePrice: {{ (float) $product->effective_price }},
+            selectedSize: @js(!empty($product->attributes['size_variants']) ? ($product->attributes['size_variants'][0]['size'] ?? '') : (!empty($product->attributes['sizes']) ? $product->attributes['sizes'][0] : ''))
+         })">
 
         {{-- ── FULL-SCREEN LIGHTBOX MODAL WITH CUT-FREE ZOOM & PAN ── --}}
         <div x-show="showLightbox" x-cloak
