@@ -1,14 +1,14 @@
 <x-app-layout title="Set New Password — Maison Résine">
-    <div class="min-h-[75vh] flex items-center justify-center py-16 px-6 lg:px-12 xl:px-20">
-        <div class="max-w-[1060px] w-full grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center">
+    <div class="min-h-[75vh] flex items-center justify-center py-10 sm:py-16 px-4 sm:px-6 lg:px-12 xl:px-20 w-full min-w-0">
+        <div class="max-w-[1060px] w-full grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-16 items-center">
             
             {{-- Left column welcome text --}}
-            <div class="lg:col-span-6 space-y-4 text-left">
+            <div class="lg:col-span-6 space-y-3 sm:space-y-4 text-left">
                 <div class="flex items-center space-x-2 text-[10px] uppercase tracking-[0.2em] font-medium text-[#8E877D]">
                     <span class="w-6 h-[1px] bg-[#8E877D] inline-block"></span>
                     <span>RECOVERY</span>
                 </div>
-                <h1 class="font-editorial text-5xl sm:text-6xl lg:text-[64px] text-[#1C1917] font-light leading-[1.05] tracking-tight">
+                <h1 class="font-editorial text-3xl sm:text-5xl lg:text-[64px] text-[#1C1917] font-light leading-[1.08] sm:leading-[1.05] tracking-tight">
                     Set a new <em class="italic font-normal">password.</em>
                 </h1>
                 <p class="text-[13.5px] text-[#78716C] font-light leading-relaxed max-w-md pt-1">
@@ -17,8 +17,8 @@
             </div>
 
             {{-- Right column reset password form card --}}
-            <div class="lg:col-span-6 flex justify-center lg:justify-end">
-                <div class="w-full max-w-[480px] glass rounded-[2.25rem] p-8 sm:p-12 space-y-6">
+            <div class="lg:col-span-6 flex justify-center lg:justify-end w-full min-w-0">
+                <div class="w-full max-w-[480px] glass rounded-[1.5rem] sm:rounded-[2.25rem] p-5 sm:p-8 md:p-12 space-y-6">
                     @if($errors->any())
                         <x-alert type="error">
                             @if($errors->count() === 1)
@@ -33,7 +33,7 @@
                         </x-alert>
                     @endif
 
-                    <form method="POST" action="{{ route('password.update') }}" class="space-y-5 text-[11px] uppercase tracking-wider font-semibold text-[#1C1917]">
+                    <form method="POST" action="{{ route('password.update') }}" class="space-y-4 sm:space-y-5 text-[11px] uppercase tracking-wider font-semibold text-[#1C1917]">
                         @csrf
                         <input type="hidden" name="token" value="{{ $token }}">
                         <input type="hidden" name="email" value="{{ $email }}">
@@ -41,17 +41,17 @@
                         <div class="space-y-1.5">
                             <label class="block text-[9px] uppercase tracking-[0.2em] font-medium text-[#8E877D]">NEW PASSWORD</label>
                             <input type="password" name="password" required autofocus
-                                   class="w-full px-5 py-3.5 bg-[#FAF8F5] border border-[#DFD9CE] rounded-[1.125rem] text-xs text-[#1C1917] focus:outline-none hover:border-[#BCB5A8] focus:border-[#1C1917] focus:ring-0 transition-all duration-300">
+                                   class="w-full px-4 sm:px-5 py-3 sm:py-3.5 bg-[#FAF8F5] border border-[#DFD9CE] rounded-xl sm:rounded-[1.125rem] text-xs text-[#1C1917] focus:outline-none hover:border-[#BCB5A8] focus:border-[#1C1917] focus:ring-0 transition-all duration-300">
                         </div>
 
                         <div class="space-y-1.5">
                             <label class="block text-[9px] uppercase tracking-[0.2em] font-medium text-[#8E877D]">CONFIRM NEW PASSWORD</label>
                             <input type="password" name="password_confirmation" required 
-                                   class="w-full px-5 py-3.5 bg-[#FAF8F5] border border-[#DFD9CE] rounded-[1.125rem] text-xs text-[#1C1917] focus:outline-none hover:border-[#BCB5A8] focus:border-[#1C1917] focus:ring-0 transition-all duration-300">
+                                   class="w-full px-4 sm:px-5 py-3 sm:py-3.5 bg-[#FAF8F5] border border-[#DFD9CE] rounded-xl sm:rounded-[1.125rem] text-xs text-[#1C1917] focus:outline-none hover:border-[#BCB5A8] focus:border-[#1C1917] focus:ring-0 transition-all duration-300">
                         </div>
 
                         <div class="pt-2">
-                            <button type="submit" class="w-full bg-[#1C1917] hover:bg-[#2D2825] text-white text-[10px] uppercase tracking-[0.25em] font-semibold py-4 rounded-full transition-all shadow-xs cursor-pointer">
+                            <button type="submit" class="w-full bg-[#1C1917] hover:bg-[#2D2825] text-white text-[10px] uppercase tracking-[0.25em] font-semibold py-3.5 sm:py-4 rounded-full transition-all shadow-xs cursor-pointer">
                                 SAVE PASSWORD
                             </button>
                         </div>

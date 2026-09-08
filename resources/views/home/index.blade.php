@@ -75,35 +75,35 @@
                 <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-black/30 pointer-events-none"></div>
 
                 {{-- Hero Content Overlay (Aligned with Site Container) --}}
-                <div class="relative z-10 max-w-[1400px] w-full mx-auto px-6 lg:px-12 xl:px-16 pt-24 sm:pt-28 lg:pt-32">
-                    <div class="max-w-2xl lg:max-w-3xl space-y-6 text-white">
+                <div class="relative z-10 max-w-[1400px] w-full mx-auto px-4 sm:px-6 lg:px-12 xl:px-16 pt-20 sm:pt-28 lg:pt-32 min-w-0">
+                    <div class="max-w-2xl lg:max-w-3xl space-y-5 sm:space-y-6 text-white min-w-0">
                         
                         {{-- Tag Badge --}}
-                        <div class="inline-flex items-center space-x-2.5 bg-white/15 backdrop-blur-md border border-white/20 px-4 py-1.5 rounded-full shadow-sm animate-fade-up">
+                        <div class="inline-flex items-center space-x-2.5 bg-white/15 backdrop-blur-md border border-white/20 px-3.5 sm:px-4 py-1.5 rounded-full shadow-sm animate-fade-up">
                             <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-                            <span class="text-[9.5px] sm:text-[10px] uppercase tracking-[0.25em] font-semibold text-white" x-text="slides[currentSlide].tag"></span>
+                            <span class="text-[9px] sm:text-[10px] uppercase tracking-[0.25em] font-semibold text-white truncate" x-text="slides[currentSlide].tag"></span>
                         </div>
 
                         {{-- Big Editorial Headline --}}
-                        <h1 class="font-editorial text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-light leading-[1.08] tracking-tight text-white drop-shadow-sm min-h-[2.2em] sm:min-h-[2em] flex items-center" x-text="slides[currentSlide].title">
+                        <h1 class="font-editorial text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-light leading-[1.12] sm:leading-[1.08] tracking-tight text-white drop-shadow-sm min-h-[2.2em] sm:min-h-[2em] flex items-center" x-text="slides[currentSlide].title">
                         </h1>
 
                         {{-- Subtitle Paragraph --}}
-                        <p class="text-sm sm:text-base lg:text-lg text-white/85 font-light leading-relaxed max-w-xl drop-shadow-xs" x-text="slides[currentSlide].desc">
+                        <p class="text-xs sm:text-base lg:text-lg text-white/85 font-light leading-relaxed max-w-xl drop-shadow-xs" x-text="slides[currentSlide].desc">
                         </p>
 
                         {{-- Action Buttons --}}
-                        <div class="pt-4 flex flex-wrap items-center gap-4 sm:gap-5">
+                        <div class="pt-3 sm:pt-4 flex flex-wrap items-center gap-3 sm:gap-5">
                             <a :href="slides[currentSlide].link" 
-                               class="inline-flex items-center justify-center rounded-full bg-white text-[#1C1917] hover:bg-[#AD9575] hover:text-white px-8 sm:px-10 py-4 text-[10.5px] uppercase tracking-[0.25em] font-semibold transition-all duration-300 shadow-xl group/btn">
+                               class="inline-flex items-center justify-center rounded-full bg-white text-[#1C1917] hover:bg-[#AD9575] hover:text-white px-6 sm:px-10 py-3.5 sm:py-4 text-[10px] sm:text-[10.5px] uppercase tracking-[0.22em] sm:tracking-[0.25em] font-semibold transition-all duration-300 shadow-xl group/btn whitespace-nowrap">
                                 <span>Explore Collection</span>
-                                <svg class="w-3.5 h-3.5 ml-2.5 group-hover/btn:translate-x-1 transition-transform stroke-[2]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <svg class="w-3.5 h-3.5 ml-2 group-hover/btn:translate-x-1 transition-transform stroke-[2]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"/>
                                 </svg>
                             </a>
 
                             <a href="{{ route('custom.index') }}" 
-                               class="inline-flex items-center justify-center rounded-full bg-white/10 hover:bg-white/20 text-white border border-white/30 backdrop-blur-md px-8 sm:px-9 py-4 text-[10.5px] uppercase tracking-[0.25em] font-semibold transition-all duration-300 shadow-lg">
+                               class="inline-flex items-center justify-center rounded-full bg-white/10 hover:bg-white/20 text-white border border-white/30 backdrop-blur-md px-6 sm:px-9 py-3.5 sm:py-4 text-[10px] sm:text-[10.5px] uppercase tracking-[0.22em] sm:tracking-[0.25em] font-semibold transition-all duration-300 shadow-lg whitespace-nowrap">
                                 <span>Custom Request</span>
                             </a>
                         </div>
@@ -154,16 +154,35 @@
              1.5 EXPLORE BY CATEGORY (Horizontal Scroll Carousel with Side Arrows)
              ══════════════════════════════════════════════════════════════════ --}}
         @if($categories->isNotEmpty())
-        <section class="max-w-[1400px] mx-auto px-6 lg:px-12 xl:px-16 py-8"
+        <section class="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-12 xl:px-16 py-6 sm:py-8 w-full min-w-0"
                  x-data="{
-                     scrollLeft() { this.$refs.catSlider.scrollBy({ left: -300, behavior: 'smooth' }); },
-                     scrollRight() { this.$refs.catSlider.scrollBy({ left: 300, behavior: 'smooth' }); },
+                     activeMobileIndex: 0,
+                     scrollLeft() { 
+                         const el = this.$refs.catSlider;
+                         const step = window.innerWidth < 640 ? el.clientWidth : 300;
+                         el.scrollBy({ left: -step, behavior: 'smooth' }); 
+                     },
+                     scrollRight() { 
+                         const el = this.$refs.catSlider;
+                         const step = window.innerWidth < 640 ? el.clientWidth : 300;
+                         el.scrollBy({ left: step, behavior: 'smooth' }); 
+                     },
                      canScrollLeft: false,
-                     canScrollRight: false,
+                     canScrollRight: true,
                      checkScroll() {
                          const el = this.$refs.catSlider;
+                         if (!el) return;
                          this.canScrollLeft = el.scrollLeft > 10;
                          this.canScrollRight = el.scrollLeft < (el.scrollWidth - el.clientWidth - 10);
+                         if (window.innerWidth < 640 && el.clientWidth > 0) {
+                             this.activeMobileIndex = Math.min(Math.max(0, Math.round(el.scrollLeft / el.clientWidth)), {{ $categories->count() - 1 }});
+                         }
+                     },
+                     scrollToIndex(index) {
+                         const el = this.$refs.catSlider;
+                         if (el) {
+                             el.scrollTo({ left: index * el.clientWidth, behavior: 'smooth' });
+                         }
                      }
                  }"
                  x-init="$nextTick(() => checkScroll())">
@@ -177,8 +196,8 @@
                         x-transition
                         @click.prevent="scrollLeft()"
                         aria-label="Scroll categories left"
-                        class="absolute -left-4 sm:-left-6 top-[42%] -translate-y-1/2 z-20 w-11 h-11 rounded-full bg-white shadow-[0_2px_16px_rgba(0,0,0,0.12)] border border-[#E8E2D8] flex items-center justify-center text-[#1C1917] hover:bg-[#1C1917] hover:text-white hover:border-[#1C1917] active:scale-95 transition-all duration-200 cursor-pointer">
-                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                        class="flex absolute left-1 sm:-left-4 lg:-left-6 top-[42%] -translate-y-1/2 z-20 w-9 h-9 sm:w-11 sm:h-11 rounded-full bg-white shadow-[0_2px_16px_rgba(0,0,0,0.12)] border border-[#E8E2D8] items-center justify-center text-[#1C1917] hover:bg-[#1C1917] hover:text-white hover:border-[#1C1917] active:scale-95 transition-all duration-200 cursor-pointer">
+                    <svg class="w-4 h-4 stroke-[2.5]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5"/>
                     </svg>
                 </button>
@@ -189,42 +208,53 @@
                         x-transition
                         @click.prevent="scrollRight()"
                         aria-label="Scroll categories right"
-                        class="absolute -right-4 sm:-right-6 top-[42%] -translate-y-1/2 z-20 w-11 h-11 rounded-full bg-white shadow-[0_2px_16px_rgba(0,0,0,0.12)] border border-[#E8E2D8] flex items-center justify-center text-[#1C1917] hover:bg-[#1C1917] hover:text-white hover:border-[#1C1917] active:scale-95 transition-all duration-200 cursor-pointer">
-                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                        class="flex absolute right-1 sm:-right-4 lg:-right-6 top-[42%] -translate-y-1/2 z-20 w-9 h-9 sm:w-11 sm:h-11 rounded-full bg-white shadow-[0_2px_16px_rgba(0,0,0,0.12)] border border-[#E8E2D8] items-center justify-center text-[#1C1917] hover:bg-[#1C1917] hover:text-white hover:border-[#1C1917] active:scale-95 transition-all duration-200 cursor-pointer">
+                    <svg class="w-4 h-4 stroke-[2.5]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5"/>
                     </svg>
                 </button>
 
-                {{-- Scrollable Row (No visible scrollbar) --}}
+                {{-- Scrollable Row (On mobile: 1 item per slide w-full with snap; on desktop: flex items gap-8 sm:gap-10 lg:gap-12) --}}
                 <div x-ref="catSlider"
                      @scroll.passive="checkScroll()"
-                     style="-ms-overflow-style:none; scrollbar-width:none;"
-                     class="flex items-start gap-8 sm:gap-10 lg:gap-12 overflow-x-auto scroll-smooth py-4 [&::-webkit-scrollbar]:hidden">
+                     style="-ms-overflow-style:none; scrollbar-width:none; -webkit-overflow-scrolling:touch;"
+                     class="flex items-start overflow-x-auto scroll-smooth snap-x snap-mandatory py-4 sm:gap-10 lg:gap-12 [&::-webkit-scrollbar]:hidden">
                     @foreach($categories as $category)
                         @php
                             $imageUrl = $category->image_url;
                         @endphp
 
                         <a href="{{ route('shop.index', ['category' => $category->slug]) }}" 
-                           class="group flex flex-col items-center shrink-0 text-center cursor-pointer">
+                           class="w-full sm:w-auto shrink-0 flex flex-col items-center text-center snap-center cursor-pointer group px-4 sm:px-0">
                             
-                            {{-- Uniform Round Circle (Bigger - same for ALL) --}}
-                            <div class="w-40 h-40 sm:w-44 sm:h-44 lg:w-52 lg:h-52 rounded-full bg-[#F3ECE2] p-3 sm:p-3.5 group-hover:bg-[#E6DCD0] group-hover:-translate-y-1.5 group-hover:shadow-lg transition-all duration-300 ease-out">
+                            {{-- Uniform Round Circle (Exact existing style: big luxury circle with beige padding) --}}
+                            <div class="w-44 h-44 sm:w-44 sm:h-44 lg:w-52 lg:h-52 rounded-full bg-[#F3ECE2] p-3 sm:p-3.5 group-hover:bg-[#E6DCD0] group-hover:-translate-y-1.5 group-hover:shadow-lg transition-all duration-300 ease-out">
                                 <div class="w-full h-full rounded-full overflow-hidden bg-white">
                                     <img src="{{ $imageUrl }}" 
-                                         alt="" 
-                                         aria-hidden="true"
+                                         alt="{{ $category->name }}" 
                                          loading="lazy"
                                          decoding="async"
                                          class="w-full h-full object-cover object-center group-hover:scale-110 transition-transform duration-500 ease-out">
                                 </div>
                             </div>
 
-                            {{-- Category Name --}}
-                            <h3 class="mt-3.5 text-[14px] sm:text-[15px] lg:text-base font-semibold text-[#1C1917] group-hover:text-[#8E7558] transition-colors leading-snug">
+                            {{-- Category Name (Exact existing style) --}}
+                            <h3 class="mt-3.5 text-[15px] sm:text-[15px] lg:text-base font-semibold text-[#1C1917] group-hover:text-[#8E7558] transition-colors leading-snug">
                                 {{ $category->name }}
                             </h3>
                         </a>
+                    @endforeach
+                </div>
+
+                {{-- Mobile Slide Dots Indicator --}}
+                <div class="flex sm:hidden items-center justify-center space-x-1.5 mt-2">
+                    @foreach($categories as $dIndex => $dCat)
+                        <button type="button" 
+                                @click="scrollToIndex({{ $dIndex }})"
+                                :class="activeMobileIndex === {{ $dIndex }} ? 'w-5 bg-[#846B49]' : 'w-1.5 bg-[#DFD9CE]'"
+                                class="h-1.5 rounded-full transition-all duration-300 cursor-pointer"
+                                aria-label="Go to {{ $dCat->name }}">
+                        </button>
                     @endforeach
                 </div>
 
@@ -238,14 +268,14 @@
              5. MOST LOVED (Curated Published Products & Bestsellers)
              ══════════════════════════════════════════════════════════════════ --}}
         @if($mostLoved->isNotEmpty())
-        <section class="max-w-[1400px] mx-auto px-6 lg:px-12 xl:px-16 space-y-10">
+        <section class="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-12 xl:px-16 space-y-8 sm:space-y-10 w-full min-w-0">
             
-            <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-6 border-b border-[#E5DFD3]/80 pb-6">
-                <div class="space-y-2">
+            <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 sm:gap-6 border-b border-[#E5DFD3]/80 pb-4 sm:pb-6">
+                <div class="space-y-1.5 sm:space-y-2">
                     <span class="text-[10px] uppercase tracking-[0.28em] font-bold text-[#6E675E]">
                         Most Loved
                     </span>
-                    <h2 class="font-editorial text-3xl sm:text-4xl lg:text-5xl text-[#1C1917] font-light">
+                    <h2 class="font-editorial text-2xl sm:text-4xl lg:text-5xl text-[#1C1917] font-light">
                         Small pieces, <em class="italic text-[#846B49]">quietly loved.</em>
                     </h2>
                 </div>
@@ -270,18 +300,18 @@
              5b. BESTSELLERS (Products marked as bestseller in admin)
              ══════════════════════════════════════════════════════════════════ --}}
         @if($bestsellers->isNotEmpty())
-        <section class="max-w-[1400px] mx-auto px-6 lg:px-12 xl:px-16 space-y-10" aria-labelledby="bestsellers-heading">
+        <section class="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-12 xl:px-16 space-y-8 sm:space-y-10 w-full min-w-0" aria-labelledby="bestsellers-heading">
             
-            <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-6 border-b border-[#E5DFD3]/80 pb-6">
-                <div class="space-y-2">
+            <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 sm:gap-6 border-b border-[#E5DFD3]/80 pb-4 sm:pb-6">
+                <div class="space-y-1.5 sm:space-y-2">
                     <span class="text-[10px] uppercase tracking-[0.28em] font-bold text-[#8E877D]">
                         BESTSELLERS
                     </span>
-                    <h2 class="font-editorial text-3xl sm:text-4xl lg:text-5xl text-[#1C1917] font-light">
+                    <h2 class="font-editorial text-2xl sm:text-4xl lg:text-5xl text-[#1C1917] font-light">
                         Pieces the world <em class="italic text-[#AD9575]">keeps choosing.</em>
                     </h2>
                 </div>
-                <a href="{{ route('shop.index') }}" class="inline-flex items-center space-x-2 text-[10.5px] uppercase tracking-[0.22em] font-semibold text-[#1C1917] hover:text-[#AD9575] transition-colors group">
+                <a href="{{ route('shop.best-sellers') }}" class="inline-flex items-center space-x-2 text-[10.5px] uppercase tracking-[0.22em] font-semibold text-[#1C1917] hover:text-[#AD9575] transition-colors group">
                     <span>Shop bestsellers</span>
                     <span class="group-hover:translate-x-1 transition-transform">&rarr;</span>
                 </a>
@@ -294,6 +324,13 @@
                 @endforeach
             </div>
 
+            {{-- Mobile Show More Button --}}
+            <div class="text-center pt-2 sm:hidden">
+                <a href="{{ route('shop.best-sellers') }}" class="inline-flex items-center justify-center border border-[#DFD9CE] hover:border-[#1C1917] bg-white text-[#1C1917] hover:bg-[#1C1917] hover:text-white text-[10px] uppercase tracking-[0.22em] font-semibold px-7 py-3 rounded-full transition-all duration-300 shadow-2xs">
+                    <span>Show More Bestsellers &rarr;</span>
+                </a>
+            </div>
+
         </section>
         @endif
 
@@ -302,18 +339,18 @@
              5c. NEW ARRIVALS (Recently added or marked as new)
              ══════════════════════════════════════════════════════════════════ --}}
         @if($newArrivals->isNotEmpty())
-        <section class="max-w-[1400px] mx-auto px-6 lg:px-12 xl:px-16 space-y-10">
+        <section class="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-12 xl:px-16 space-y-8 sm:space-y-10 w-full min-w-0">
             
-            <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-6 border-b border-[#E5DFD3]/80 pb-6">
-                <div class="space-y-2">
+            <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 sm:gap-6 border-b border-[#E5DFD3]/80 pb-4 sm:pb-6">
+                <div class="space-y-1.5 sm:space-y-2">
                     <span class="text-[10px] uppercase tracking-[0.28em] font-bold text-[#6E675E]">
                         NEW ARRIVALS
                     </span>
-                    <h2 class="font-editorial text-3xl sm:text-4xl lg:text-5xl text-[#1C1917] font-light">
+                    <h2 class="font-editorial text-2xl sm:text-4xl lg:text-5xl text-[#1C1917] font-light">
                         Fresh from the <em class="italic text-[#846B49]">atelier.</em>
                     </h2>
                 </div>
-                <a href="{{ route('shop.index') }}" class="inline-flex items-center space-x-2 text-[10.5px] uppercase tracking-[0.22em] font-semibold text-[#1C1917] hover:text-[#AD9575] transition-colors group">
+                <a href="{{ route('shop.new-arrivals') }}" class="inline-flex items-center space-x-2 text-[10.5px] uppercase tracking-[0.22em] font-semibold text-[#1C1917] hover:text-[#AD9575] transition-colors group">
                     <span>See what's new</span>
                     <span class="group-hover:translate-x-1 transition-transform">&rarr;</span>
                 </a>
@@ -326,6 +363,13 @@
                 @endforeach
             </div>
 
+            {{-- Mobile Show More Button --}}
+            <div class="text-center pt-2 sm:hidden">
+                <a href="{{ route('shop.new-arrivals') }}" class="inline-flex items-center justify-center border border-[#DFD9CE] hover:border-[#1C1917] bg-white text-[#1C1917] hover:bg-[#1C1917] hover:text-white text-[10px] uppercase tracking-[0.22em] font-semibold px-7 py-3 rounded-full transition-all duration-300 shadow-2xs">
+                    <span>Show More New Arrivals &rarr;</span>
+                </a>
+            </div>
+
         </section>
         @endif
 
@@ -334,15 +378,15 @@
              2. FEATURED COLLECTIONS (Dynamic from Admin Panel with Collection Links)
              ══════════════════════════════════════════════════════════════════ --}}
         @if($featuredCollections->isNotEmpty())
-        <section class="max-w-[1400px] mx-auto px-6 lg:px-12 xl:px-16 space-y-12">
+        <section class="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-12 xl:px-16 space-y-8 sm:space-y-12 w-full min-w-0">
             
             {{-- Header --}}
-            <div class="flex flex-col md:flex-row md:items-end justify-between gap-6 border-b border-[#E5DFD3]/80 pb-6">
-                <div class="space-y-2">
+            <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 sm:gap-6 border-b border-[#E5DFD3]/80 pb-4 sm:pb-6">
+                <div class="space-y-1.5 sm:space-y-2">
                     <span class="text-[10px] uppercase tracking-[0.28em] font-bold text-[#6E675E]">
                         CURATED COLLECTIONS
                     </span>
-                    <h2 class="font-editorial text-3xl sm:text-4xl lg:text-5xl text-[#1C1917] font-light">
+                    <h2 class="font-editorial text-2xl sm:text-4xl lg:text-5xl text-[#1C1917] font-light">
                         From centrepiece tables to <em class="italic text-[#846B49]">quiet objects.</em>
                     </h2>
                 </div>
@@ -362,7 +406,7 @@
                         $col1Img = $col1->effective_cover_image ? (str_starts_with($col1->effective_cover_image, 'http') || str_starts_with($col1->effective_cover_image, '/') ? $col1->effective_cover_image : asset('storage/' . $col1->effective_cover_image)) : asset('images/segre_river_table.webp');
                     @endphp
                     <a href="{{ route('collections.show', $col1->slug) }}" 
-                       class="lg:col-span-7 group relative rounded-[2.5rem] overflow-hidden min-h-[480px] lg:min-h-[580px] bg-[#EBE5DB] border border-[#DFD9CE]/60 flex flex-col justify-between p-8 sm:p-10 shadow-sm transition-all duration-500 hover:shadow-xl">
+                       class="lg:col-span-7 group relative rounded-[1.75rem] sm:rounded-[2.5rem] overflow-hidden min-h-[380px] sm:min-h-[480px] lg:min-h-[580px] bg-[#EBE5DB] border border-[#DFD9CE]/60 flex flex-col justify-between p-5 sm:p-10 shadow-sm transition-all duration-500 hover:shadow-xl">
                         
                         <img src="{{ $col1Img }}" 
                              alt="{{ $col1->name }}" 
@@ -372,20 +416,20 @@
 
                         {{-- Top Tag --}}
                         <div class="relative z-10 flex justify-between items-start">
-                            <span class="glass-pill bg-white/20 backdrop-blur-md border border-white/30 text-white text-[9.5px] uppercase tracking-[0.22em] font-semibold px-4 py-1.5 rounded-full">
+                            <span class="glass-pill bg-white/20 backdrop-blur-md border border-white/30 text-white text-[9px] sm:text-[9.5px] uppercase tracking-[0.22em] font-semibold px-3.5 sm:px-4 py-1.5 rounded-full">
                                 N°01 · COLLECTION
                             </span>
-                            <div class="w-10 h-10 rounded-full bg-white/20 backdrop-blur-md border border-white/40 text-white flex items-center justify-center group-hover:bg-white group-hover:text-[#1C1917] transition-all duration-300">
+                            <div class="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-white/20 backdrop-blur-md border border-white/40 text-white flex items-center justify-center group-hover:bg-white group-hover:text-[#1C1917] transition-all duration-300">
                                 <svg class="w-4 h-4 stroke-[2]" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
                             </div>
                         </div>
 
                         {{-- Bottom Description --}}
-                        <div class="relative z-10 space-y-1.5 text-white">
-                            <h3 class="font-editorial text-3xl sm:text-4xl text-white font-normal">
+                        <div class="relative z-10 space-y-1 sm:space-y-1.5 text-white">
+                            <h3 class="font-editorial text-2xl sm:text-4xl text-white font-normal">
                                 {{ $col1->name }}
                             </h3>
-                            <p class="text-sm text-white/80 font-light tracking-wide">
+                            <p class="text-xs sm:text-sm text-white/80 font-light tracking-wide">
                                 {{ $col1->subtitle ?: $col1->effective_short_description ?: 'Handcrafted Atelier Collection' }}
                             </p>
                         </div>
@@ -402,7 +446,7 @@
                             $col2Img = $col2->effective_cover_image ? (str_starts_with($col2->effective_cover_image, 'http') || str_starts_with($col2->effective_cover_image, '/') ? $col2->effective_cover_image : asset('storage/' . $col2->effective_cover_image)) : asset('storage/gallery/mira_wall.webp');
                         @endphp
                         <a href="{{ route('collections.show', $col2->slug) }}" 
-                           class="group relative rounded-[2.25rem] overflow-hidden min-h-[260px] sm:min-h-[275px] bg-[#EBE5DB] border border-[#DFD9CE]/60 flex flex-col justify-between p-7 sm:p-8 shadow-sm transition-all duration-500 hover:shadow-lg">
+                           class="group relative rounded-[1.5rem] sm:rounded-[2.25rem] overflow-hidden min-h-[240px] sm:min-h-[275px] bg-[#EBE5DB] border border-[#DFD9CE]/60 flex flex-col justify-between p-5 sm:p-8 shadow-sm transition-all duration-500 hover:shadow-lg">
                             
                             <img src="{{ $col2Img }}" 
                                  alt="{{ $col2->name }}" 
@@ -411,16 +455,16 @@
                             <div class="absolute inset-0 bg-gradient-to-t from-black/85 via-black/35 to-black/10"></div>
 
                             <div class="relative z-10 flex justify-between items-start">
-                                <span class="glass-pill bg-white/20 backdrop-blur-md border border-white/30 text-white text-[9px] uppercase tracking-[0.22em] font-semibold px-3.5 py-1.5 rounded-full">
+                                <span class="glass-pill bg-white/20 backdrop-blur-md border border-white/30 text-white text-[8.5px] sm:text-[9px] uppercase tracking-[0.22em] font-semibold px-3.5 py-1.5 rounded-full">
                                     N°02 · COLLECTION
                                 </span>
-                                <div class="w-9 h-9 rounded-full bg-white/20 backdrop-blur-md border border-white/40 text-white flex items-center justify-center group-hover:bg-white group-hover:text-[#1C1917] transition-all duration-300">
+                                <div class="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-white/20 backdrop-blur-md border border-white/40 text-white flex items-center justify-center group-hover:bg-white group-hover:text-[#1C1917] transition-all duration-300">
                                     <svg class="w-3.5 h-3.5 stroke-[2]" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
                                 </div>
                             </div>
 
-                            <div class="relative z-10 space-y-1 text-white">
-                                <h3 class="font-editorial text-2xl sm:text-3xl text-white font-normal">
+                            <div class="relative z-10 space-y-0.5 sm:space-y-1 text-white">
+                                <h3 class="font-editorial text-xl sm:text-3xl text-white font-normal">
                                     {{ $col2->name }}
                                 </h3>
                                 <p class="text-xs text-white/80 font-light">
@@ -437,7 +481,7 @@
                             $col3Img = $col3->effective_cover_image ? (str_starts_with($col3->effective_cover_image, 'http') || str_starts_with($col3->effective_cover_image, '/') ? $col3->effective_cover_image : asset('storage/' . $col3->effective_cover_image)) : asset('storage/gallery/tray.webp');
                         @endphp
                         <a href="{{ route('collections.show', $col3->slug) }}" 
-                           class="group relative rounded-[2.25rem] overflow-hidden min-h-[260px] sm:min-h-[275px] bg-[#EBE5DB] border border-[#DFD9CE]/60 flex flex-col justify-between p-7 sm:p-8 shadow-sm transition-all duration-500 hover:shadow-lg">
+                           class="group relative rounded-[1.5rem] sm:rounded-[2.25rem] overflow-hidden min-h-[240px] sm:min-h-[275px] bg-[#EBE5DB] border border-[#DFD9CE]/60 flex flex-col justify-between p-5 sm:p-8 shadow-sm transition-all duration-500 hover:shadow-lg">
                             
                             <img src="{{ $col3Img }}" 
                                  alt="{{ $col3->name }}" 
@@ -446,42 +490,41 @@
                             <div class="absolute inset-0 bg-gradient-to-t from-black/85 via-black/35 to-black/10"></div>
 
                             <div class="relative z-10 flex justify-between items-start">
-                                <span class="glass-pill bg-white/20 backdrop-blur-md border border-white/30 text-white text-[9px] uppercase tracking-[0.22em] font-semibold px-3.5 py-1.5 rounded-full">
+                                <span class="glass-pill bg-white/20 backdrop-blur-md border border-white/30 text-white text-[8.5px] sm:text-[9px] uppercase tracking-[0.22em] font-semibold px-3.5 py-1.5 rounded-full">
                                     N°03 · COLLECTION
                                 </span>
-                                <div class="w-9 h-9 rounded-full bg-white/20 backdrop-blur-md border border-white/40 text-white flex items-center justify-center group-hover:bg-white group-hover:text-[#1C1917] transition-all duration-300">
+                                <div class="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-white/20 backdrop-blur-md border border-white/40 text-white flex items-center justify-center group-hover:bg-white group-hover:text-[#1C1917] transition-all duration-300">
                                     <svg class="w-3.5 h-3.5 stroke-[2]" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
                                 </div>
                             </div>
 
-                            <div class="relative z-10 space-y-1 text-white">
-                                <h3 class="font-editorial text-2xl sm:text-3xl text-white font-normal">
+                            <div class="relative z-10 space-y-0.5 sm:space-y-1 text-white">
+                                <h3 class="font-editorial text-xl sm:text-3xl text-white font-normal">
                                     {{ $col3->name }}
                                 </h3>
                                 <p class="text-xs text-white/80 font-light">
-                                    {{ $col3->subtitle ?: $col3->effective_short_description ?: 'Bespoke Home Objects & Decor' }}
+                                    {{ $col3->subtitle ?: $col3->effective_short_description ?: 'Unique Resin Artwork Series' }}
                                 </p>
                             </div>
                         </a>
                     @endif
 
                 </div>
-
             </div>
+
         </section>
         @endif
-
 
         {{-- ══════════════════════════════════════════════════════════════════
              3. BRAND QUOTE BANNER (Dynamic from Admin Settings)
              ══════════════════════════════════════════════════════════════════ --}}
-        <section class="max-w-4xl mx-auto px-6 text-center py-4">
-            <div class="space-y-6">
+        <section class="max-w-4xl mx-auto px-4 sm:px-6 text-center py-4 w-full min-w-0">
+            <div class="space-y-5 sm:space-y-6">
                 <span class="inline-block w-12 h-[1px] bg-[#846B49]"></span>
-                <blockquote class="font-editorial text-2xl sm:text-3xl md:text-4xl text-[#1C1917] font-light italic leading-relaxed">
+                <blockquote class="font-editorial text-xl sm:text-3xl md:text-4xl text-[#1C1917] font-light italic leading-relaxed">
                     &ldquo;{{ $homeQuoteText }}&rdquo;
                 </blockquote>
-                <p class="text-[11px] uppercase tracking-[0.28em] font-semibold text-[#6E675E]">
+                <p class="text-[10px] sm:text-[11px] uppercase tracking-[0.28em] font-semibold text-[#6E675E]">
                     — {{ $homeQuoteAuthor }}
                 </p>
             </div>
@@ -491,12 +534,12 @@
         {{-- ══════════════════════════════════════════════════════════════════
              4. THE HOUSE: MADE TO ORDER (Dynamic from Admin Settings)
              ══════════════════════════════════════════════════════════════════ --}}
-        <section class="max-w-[1400px] mx-auto px-6 lg:px-12 xl:px-16">
-            <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center">
+        <section class="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-12 xl:px-16 w-full min-w-0">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 sm:gap-12 lg:gap-16 items-center">
                 
                 {{-- Left Image --}}
                 <div class="lg:col-span-6 relative">
-                    <div class="relative aspect-[4/3.2] max-h-[440px] rounded-[2.25rem] lg:rounded-[2.5rem] overflow-hidden bg-[#F0EBE1] border border-[#DFD9CE]/70 shadow-lg">
+                    <div class="relative aspect-[4/3.2] max-h-[440px] rounded-[1.75rem] sm:rounded-[2.25rem] lg:rounded-[2.5rem] overflow-hidden bg-[#F0EBE1] border border-[#DFD9CE]/70 shadow-lg">
                         @php
                             $storyImgSrc = $homeStoryImage ? (str_starts_with($homeStoryImage, 'http') || str_starts_with($homeStoryImage, '/') ? $homeStoryImage : asset('storage/' . $homeStoryImage)) : asset('storage/homepage/story_artwork.webp');
                         @endphp
@@ -505,8 +548,8 @@
                              loading="lazy"
                              decoding="async"
                              class="w-full h-full object-cover">
-                        <div class="absolute bottom-6 left-6 z-10">
-                            <span class="glass-pill bg-white/90 backdrop-blur-md border border-white/80 text-[#1C1917] text-[9.5px] uppercase tracking-[0.24em] font-semibold px-4 py-2 rounded-full shadow-sm">
+                        <div class="absolute bottom-4 left-4 sm:bottom-6 sm:left-6 z-10">
+                            <span class="glass-pill bg-white/90 backdrop-blur-md border border-white/80 text-[#1C1917] text-[9px] sm:text-[9.5px] uppercase tracking-[0.24em] font-semibold px-3.5 sm:px-4 py-1.5 sm:py-2 rounded-full shadow-sm">
                                 {{ $homeStoryBadge }}
                             </span>
                         </div>
@@ -514,29 +557,29 @@
                 </div>
 
                 {{-- Right Narrative --}}
-                <div class="lg:col-span-6 space-y-7">
+                <div class="lg:col-span-6 space-y-5 sm:space-y-7">
                     <div class="flex items-center space-x-3 text-[10px] uppercase tracking-[0.28em] font-bold text-[#6E675E]">
                         <span class="w-6 h-[1px] bg-[#D9D2C5] inline-block"></span>
                         <span>{{ $homeStoryTag }}</span>
                     </div>
 
-                    <h2 class="font-editorial text-4xl sm:text-5xl lg:text-6xl text-[#1C1917] font-light leading-[1.1]">
+                    <h2 class="font-editorial text-3xl sm:text-5xl lg:text-6xl text-[#1C1917] font-light leading-[1.12]">
                         {{ $homeStoryTitle }}
                     </h2>
 
-                    <p class="text-[15px] sm:text-[16px] text-[#57534E] font-light leading-relaxed">
+                    <p class="text-[14px] sm:text-[16px] text-[#57534E] font-light leading-relaxed">
                         {{ $homeStoryParagraph1 }}
                     </p>
 
                     @if($homeStoryParagraph2)
-                    <p class="text-[14px] text-[#6E675E] font-light leading-relaxed italic">
+                    <p class="text-[13px] sm:text-[14px] text-[#6E675E] font-light leading-relaxed italic">
                         {{ $homeStoryParagraph2 }}
                     </p>
                     @endif
 
-                    <div class="pt-3">
+                    <div class="pt-2 sm:pt-3">
                         <a href="{{ $homeStoryLinkUrl }}" 
-                           class="inline-flex items-center space-x-2 text-[10.5px] uppercase tracking-[0.24em] font-semibold text-[#1C1917] hover:text-[#AD9575] transition-colors border-b border-[#1C1917] pb-1 hover:border-[#AD9575] group">
+                           class="inline-flex items-center space-x-2 text-[10px] sm:text-[10.5px] uppercase tracking-[0.24em] font-semibold text-[#1C1917] hover:text-[#AD9575] transition-colors border-b border-[#1C1917] pb-1 hover:border-[#AD9575] group">
                             <span>{{ $homeStoryLinkText }}</span>
                             <span class="group-hover:translate-x-1.5 transition-transform">&rarr;</span>
                         </a>
@@ -547,17 +590,11 @@
         </section>
 
 
-       
-
-
-     
-
-
         {{-- ══════════════════════════════════════════════════════════════════
              7. CUSTOM RESIN ARTWORK (Custom Request Process Showcase)
              ══════════════════════════════════════════════════════════════════ --}}
-        <section class="max-w-[1400px] mx-auto px-6 lg:px-12 xl:px-16">
-            <div class="rounded-[2.5rem] bg-[#1C1917] text-white p-8 sm:p-12 lg:p-16 relative overflow-hidden shadow-2xl">
+        <section class="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-12 xl:px-16 w-full min-w-0">
+            <div class="rounded-[1.75rem] sm:rounded-[2.5rem] bg-[#1C1917] text-white p-5 sm:p-10 lg:p-16 relative overflow-hidden shadow-2xl">
                 
                 {{-- Atmospheric Background Glow --}}
                 <div class="absolute -top-32 -right-32 w-96 h-96 rounded-full pointer-events-none"
@@ -565,65 +602,65 @@
                 <div class="absolute -bottom-32 -left-32 w-96 h-96 rounded-full pointer-events-none"
                      style="background: radial-gradient(circle, rgba(13, 92, 117, 0.28) 0%, rgba(13, 92, 117, 0.16) 40%, rgba(13, 92, 117, 0.05) 65%, transparent 80%);"></div>
 
-                <div class="relative z-10 space-y-12">
+                <div class="relative z-10 space-y-8 sm:space-y-12">
                     
                     {{-- Header Row --}}
-                    <div class="flex flex-col lg:flex-row lg:items-end justify-between gap-6 border-b border-white/10 pb-8">
-                        <div class="space-y-4 max-w-2xl">
+                    <div class="flex flex-col lg:flex-row lg:items-end justify-between gap-6 border-b border-white/10 pb-6 sm:pb-8">
+                        <div class="space-y-3 sm:space-y-4 max-w-2xl">
                             <div class="flex items-center space-x-3 text-[10px] uppercase tracking-[0.28em] font-bold text-[#AD9575]">
                                 <span class="w-6 h-[1px] bg-[#AD9575] inline-block"></span>
                                 <span>{{ $homeCustomTag }}</span>
                             </div>
-                            <h2 class="font-editorial text-4xl sm:text-5xl lg:text-6xl font-light leading-tight">
+                            <h2 class="font-editorial text-3xl sm:text-5xl lg:text-6xl font-light leading-tight">
                                 {!! str_replace('your space.', '<em class="italic text-[#AD9575]">your space.</em>', e($homeCustomTitle)) !!}
                             </h2>
-                            <p class="text-[14.5px] text-white/70 font-light leading-relaxed">
+                            <p class="text-[13.5px] sm:text-[14.5px] text-white/70 font-light leading-relaxed">
                                 {{ $homeCustomDesc }}
                             </p>
                         </div>
 
                         <div class="shrink-0">
                             <a href="{{ $homeCustomBtnUrl }}" 
-                               class="inline-flex items-center justify-center rounded-full bg-[#AD9575] hover:bg-white text-[#1C1917] px-9 py-4 text-[10.5px] uppercase tracking-[0.24em] font-semibold transition-all duration-300 shadow-md">
+                               class="inline-flex items-center justify-center rounded-full bg-[#AD9575] hover:bg-white text-[#1C1917] px-6 sm:px-9 py-3.5 sm:py-4 text-[10px] sm:text-[10.5px] uppercase tracking-[0.22em] sm:tracking-[0.24em] font-semibold transition-all duration-300 shadow-md whitespace-nowrap">
                                 {{ $homeCustomBtnText }}
                             </a>
                         </div>
                     </div>
 
                     {{-- 3-Step Custom Artwork Process Lifecycle --}}
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-8 pt-2">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-5 sm:gap-8 pt-2">
                         
                         {{-- Step 1 --}}
-                        <div class="rounded-[2rem] bg-white/5 border border-white/10 p-7 sm:p-8 space-y-4 backdrop-blur-sm">
+                        <div class="rounded-[1.5rem] sm:rounded-[2rem] bg-white/5 border border-white/10 p-5 sm:p-8 space-y-3 sm:space-y-4 backdrop-blur-sm">
                             <div class="flex items-center justify-between text-[#AD9575]">
                                 <span class="font-mono text-sm">01</span>
                                 <span class="text-[9px] uppercase tracking-[0.2em] font-semibold text-white/75">Step 1</span>
                             </div>
-                            <h3 class="font-editorial text-2xl text-white font-normal">{{ $homeCustomStep1Title }}</h3>
+                            <h3 class="font-editorial text-xl sm:text-2xl text-white font-normal">{{ $homeCustomStep1Title }}</h3>
                             <p class="text-xs text-white/75 font-light leading-relaxed">
                                 {{ $homeCustomStep1Desc }}
                             </p>
                         </div>
 
                         {{-- Step 2 --}}
-                        <div class="rounded-[2rem] bg-white/5 border border-white/10 p-7 sm:p-8 space-y-4 backdrop-blur-sm">
+                        <div class="rounded-[1.5rem] sm:rounded-[2rem] bg-white/5 border border-white/10 p-5 sm:p-8 space-y-3 sm:space-y-4 backdrop-blur-sm">
                             <div class="flex items-center justify-between text-[#AD9575]">
                                 <span class="font-mono text-sm">02</span>
                                 <span class="text-[9px] uppercase tracking-[0.2em] font-semibold text-white/75">Step 2</span>
                             </div>
-                            <h3 class="font-editorial text-2xl text-white font-normal">{{ $homeCustomStep2Title }}</h3>
+                            <h3 class="font-editorial text-xl sm:text-2xl text-white font-normal">{{ $homeCustomStep2Title }}</h3>
                             <p class="text-xs text-white/75 font-light leading-relaxed">
                                 {{ $homeCustomStep2Desc }}
                             </p>
                         </div>
 
                         {{-- Step 3 --}}
-                        <div class="rounded-[2rem] bg-white/5 border border-white/10 p-7 sm:p-8 space-y-4 backdrop-blur-sm">
+                        <div class="rounded-[1.5rem] sm:rounded-[2rem] bg-white/5 border border-white/10 p-5 sm:p-8 space-y-3 sm:space-y-4 backdrop-blur-sm">
                             <div class="flex items-center justify-between text-[#AD9575]">
                                 <span class="font-mono text-sm">03</span>
                                 <span class="text-[9px] uppercase tracking-[0.2em] font-semibold text-white/75">Step 3</span>
                             </div>
-                            <h3 class="font-editorial text-2xl text-white font-normal">{{ $homeCustomStep3Title }}</h3>
+                            <h3 class="font-editorial text-xl sm:text-2xl text-white font-normal">{{ $homeCustomStep3Title }}</h3>
                             <p class="text-xs text-white/75 font-light leading-relaxed">
                                 {{ $homeCustomStep3Desc }}
                             </p>
@@ -641,7 +678,7 @@
              8. CLIENT FEEDBACK (Dynamic Reviews Auto-Scrolling Carousel - Exactly 3 Per View)
              ══════════════════════════════════════════════════════════════════ --}}
         @if(isset($featuredReviews) && $featuredReviews->isNotEmpty())
-        <section class="max-w-[1400px] mx-auto px-6 lg:px-12 xl:px-16 space-y-10"
+        <section class="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-12 xl:px-16 space-y-8 sm:space-y-10 w-full min-w-0"
                  x-data="{
                      scrollLeft() {
                          const el = this.$refs.reviewSlider;
@@ -688,12 +725,12 @@
                  @touchend.passive="startAutoScroll()">
             
             {{-- Header with Nav Arrows --}}
-            <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-6 border-b border-[#E5DFD3]/80 pb-6">
-                <div class="space-y-2">
+            <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 sm:gap-6 border-b border-[#E5DFD3]/80 pb-4 sm:pb-6">
+                <div class="space-y-1.5 sm:space-y-2">
                     <span class="text-[10px] uppercase tracking-[0.28em] font-bold text-[#6E675E]">
                         Words from our clients
                     </span>
-                    <h2 class="font-editorial text-3xl sm:text-4xl lg:text-5xl text-[#1C1917] font-light">
+                    <h2 class="font-editorial text-2xl sm:text-4xl lg:text-5xl text-[#1C1917] font-light">
                         Trusted by <em class="italic text-[#846B49]">collectors.</em>
                     </h2>
                 </div>
@@ -704,7 +741,7 @@
                             @click="scrollLeft()"
                             :class="canScrollLeft ? 'opacity-100 cursor-pointer hover:bg-[#1C1917] hover:text-white hover:border-[#1C1917]' : 'opacity-40 cursor-not-allowed'"
                             aria-label="Previous review"
-                            class="w-10 h-10 rounded-full border border-[#D5CFC4] bg-white flex items-center justify-center text-[#1C1917] transition-all duration-200 shadow-xs active:scale-95">
+                            class="w-9 h-9 sm:w-10 sm:h-10 rounded-full border border-[#D5CFC4] bg-white flex items-center justify-center text-[#1C1917] transition-all duration-200 shadow-xs active:scale-95">
                         <svg class="w-4 h-4 stroke-[2.5]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5"/>
                         </svg>
@@ -713,7 +750,7 @@
                             @click="scrollRight()"
                             :class="canScrollRight ? 'opacity-100 cursor-pointer hover:bg-[#1C1917] hover:text-white hover:border-[#1C1917]' : 'opacity-40 cursor-not-allowed'"
                             aria-label="Next review"
-                            class="w-10 h-10 rounded-full border border-[#D5CFC4] bg-white flex items-center justify-center text-[#1C1917] transition-all duration-200 shadow-xs active:scale-95">
+                            class="w-9 h-9 sm:w-10 sm:h-10 rounded-full border border-[#D5CFC4] bg-white flex items-center justify-center text-[#1C1917] transition-all duration-200 shadow-xs active:scale-95">
                         <svg class="w-4 h-4 stroke-[2.5]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5"/>
                         </svg>
@@ -732,7 +769,7 @@
                     @php
                         $initials = collect(explode(' ', $review->reviewer_name))->map(fn($n) => mb_substr($n, 0, 1))->take(2)->join('');
                     @endphp
-                    <div class="review-card shrink-0 snap-start w-full sm:w-[calc(50%-12px)] lg:w-[calc(33.333%-16px)] rounded-[2rem] bg-[#FBF9F5] border border-[#E7E1D6] p-7 sm:p-8 shadow-[0_4px_20px_rgba(0,0,0,0.03)] hover:shadow-[0_12px_32px_rgba(142,117,88,0.12)] hover:border-[#D5C7B2] hover:-translate-y-1.5 transition-all duration-300 flex flex-col justify-between space-y-6">
+                    <div class="review-card shrink-0 snap-start w-full sm:w-[calc(50%-12px)] lg:w-[calc(33.333%-16px)] rounded-[1.5rem] sm:rounded-[2rem] bg-[#FBF9F5] border border-[#E7E1D6] p-5 sm:p-8 shadow-[0_4px_20px_rgba(0,0,0,0.03)] hover:shadow-[0_12px_32px_rgba(142,117,88,0.12)] hover:border-[#D5C7B2] hover:-translate-y-1.5 transition-all duration-300 flex flex-col justify-between space-y-6">
                         
                         <div class="space-y-4">
                             {{-- Rating Stars --}}
@@ -743,18 +780,18 @@
                             </div>
 
                             {{-- Title & Body --}}
-                            <h3 class="font-editorial text-xl sm:text-2xl text-[#1C1917] font-normal leading-snug">
+                            <h3 class="font-editorial text-lg sm:text-2xl text-[#1C1917] font-normal leading-snug">
                                 {{ $review->title ?: 'Unbelievable craftsmanship' }}
                             </h3>
-                            <p class="text-sm text-[#5C554E] font-light leading-relaxed italic line-clamp-4">
+                            <p class="text-xs sm:text-sm text-[#5C554E] font-light leading-relaxed italic line-clamp-4">
                                 &ldquo;{{ $review->comment }}&rdquo;
                             </p>
                         </div>
 
                         {{-- Reviewer Info & Purchased Item --}}
-                        <div class="pt-5 border-t border-[#EAE3D8]/80 space-y-2.5">
+                        <div class="pt-4 sm:pt-5 border-t border-[#EAE3D8]/80 space-y-2.5">
                             <div class="flex items-center space-x-3">
-                                <div class="w-9 h-9 rounded-full bg-[#EFE9DF] text-[#8E7558] font-semibold text-xs flex items-center justify-center border border-[#DFD7CB] shrink-0">
+                                <div class="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-[#EFE9DF] text-[#8E7558] font-semibold text-xs flex items-center justify-center border border-[#DFD7CB] shrink-0">
                                     {{ $initials ?: 'MR' }}
                                 </div>
                                 <div class="overflow-hidden">
@@ -791,14 +828,14 @@
              9. INTERIOR INSPIRATION (Dynamic Random Gallery from Database)
              ══════════════════════════════════════════════════════════════════ --}}
         @if($galleryItems->isNotEmpty())
-        <section class="max-w-[1400px] mx-auto px-6 lg:px-12 xl:px-16 space-y-10">
+        <section class="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-12 xl:px-16 space-y-8 sm:space-y-10 w-full min-w-0">
             
-            <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-6 border-b border-[#E5DFD3]/80 pb-6">
-                <div class="space-y-2">
+            <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 sm:gap-6 border-b border-[#E5DFD3]/80 pb-4 sm:pb-6">
+                <div class="space-y-1.5 sm:space-y-2">
                     <span class="text-[10px] uppercase tracking-[0.28em] font-bold text-[#6E675E]">
                         Interior Inspiration
                     </span>
-                    <h2 class="font-editorial text-3xl sm:text-4xl lg:text-5xl text-[#1C1917] font-light">
+                    <h2 class="font-editorial text-2xl sm:text-4xl lg:text-5xl text-[#1C1917] font-light">
                         Homes that hold <em class="italic">our work.</em>
                     </h2>
                 </div>
@@ -809,28 +846,28 @@
             </div>
 
             {{-- Asymmetric Random Luxury Gallery Grid --}}
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-6 sm:gap-8">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-5 sm:gap-8">
                 
                 {{-- 1. Hero Feature Item (Span 7) --}}
                 @if(isset($galleryItems[0]))
                     @php $first = $galleryItems[0]; @endphp
-                    <div class="lg:col-span-7 group relative rounded-[2.25rem] overflow-hidden min-h-[420px] lg:min-h-[500px] bg-[#EBE5DB] border border-[#DFD9CE]/60 shadow-sm">
+                    <div class="lg:col-span-7 group relative rounded-[1.5rem] sm:rounded-[2.25rem] overflow-hidden min-h-[340px] sm:min-h-[420px] lg:min-h-[500px] bg-[#EBE5DB] border border-[#DFD9CE]/60 shadow-sm">
                         <img src="{{ asset('storage/' . $first->image_path) }}" 
                              alt="{{ $first->title }}" 
                              class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out">
                         <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
                         
-                        <div class="absolute top-6 left-6 z-10">
-                            <span class="glass-pill bg-white/80 backdrop-blur-md border border-white/60 text-[#1C1917] text-[9px] uppercase tracking-[0.22em] font-semibold px-3.5 py-1.5 rounded-full shadow-sm">
+                        <div class="absolute top-4 left-4 sm:top-6 sm:left-6 z-10">
+                            <span class="glass-pill bg-white/80 backdrop-blur-md border border-white/60 text-[#1C1917] text-[8.5px] sm:text-[9px] uppercase tracking-[0.22em] font-semibold px-3 sm:px-3.5 py-1 sm:py-1.5 rounded-full shadow-sm">
                                 {{ $first->galleryCategory->name ?? 'Interior Feature' }}
                             </span>
                         </div>
 
-                        <div class="absolute bottom-6 left-6 right-6 text-white space-y-1">
-                            <p class="text-[9.5px] uppercase tracking-widest text-[#AD9575] font-semibold">
+                        <div class="absolute bottom-4 left-4 right-4 sm:bottom-6 sm:left-6 sm:right-6 text-white space-y-1">
+                            <p class="text-[9px] sm:text-[9.5px] uppercase tracking-widest text-[#AD9575] font-semibold">
                                 {{ $first->location ?? 'Private Residence' }}
                             </p>
-                            <h3 class="font-editorial text-2xl sm:text-3xl font-normal text-white">
+                            <h3 class="font-editorial text-xl sm:text-3xl font-normal text-white">
                                 {{ $first->title }}
                             </h3>
                         </div>
@@ -840,23 +877,23 @@
                 {{-- 2. Side Item (Span 5) --}}
                 @if(isset($galleryItems[1]))
                     @php $second = $galleryItems[1]; @endphp
-                    <div class="lg:col-span-5 group relative rounded-[2.25rem] overflow-hidden min-h-[420px] lg:min-h-[500px] bg-[#EBE5DB] border border-[#DFD9CE]/60 shadow-sm">
+                    <div class="lg:col-span-5 group relative rounded-[1.5rem] sm:rounded-[2.25rem] overflow-hidden min-h-[340px] sm:min-h-[420px] lg:min-h-[500px] bg-[#EBE5DB] border border-[#DFD9CE]/60 shadow-sm">
                         <img src="{{ asset('storage/' . $second->image_path) }}" 
                              alt="{{ $second->title }}" 
                              class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out">
                         <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
                         
-                        <div class="absolute top-6 left-6 z-10">
-                            <span class="glass-pill bg-white/80 backdrop-blur-md border border-white/60 text-[#1C1917] text-[9px] uppercase tracking-[0.22em] font-semibold px-3.5 py-1.5 rounded-full shadow-sm">
+                        <div class="absolute top-4 left-4 sm:top-6 sm:left-6 z-10">
+                            <span class="glass-pill bg-white/80 backdrop-blur-md border border-white/60 text-[#1C1917] text-[8.5px] sm:text-[9px] uppercase tracking-[0.22em] font-semibold px-3 sm:px-3.5 py-1 sm:py-1.5 rounded-full shadow-sm">
                                 {{ $second->galleryCategory->name ?? 'Atelier Piece' }}
                             </span>
                         </div>
 
-                        <div class="absolute bottom-6 left-6 right-6 text-white space-y-1">
-                            <p class="text-[9.5px] uppercase tracking-widest text-[#AD9575] font-semibold">
+                        <div class="absolute bottom-4 left-4 right-4 sm:bottom-6 sm:left-6 sm:right-6 text-white space-y-1">
+                            <p class="text-[9px] sm:text-[9.5px] uppercase tracking-widest text-[#AD9575] font-semibold">
                                 {{ $second->location ?? 'Architectural Suite' }}
                             </p>
-                            <h3 class="font-editorial text-2xl sm:text-3xl font-normal text-white">
+                            <h3 class="font-editorial text-xl sm:text-3xl font-normal text-white">
                                 {{ $second->title }}
                             </h3>
                         </div>
@@ -865,17 +902,17 @@
 
                 {{-- 3 & 4. Bottom 3-Card Row (4 Cols Each) --}}
                 @foreach($galleryItems->slice(2, 3) as $item)
-                    <div class="lg:col-span-4 group relative rounded-[2rem] overflow-hidden aspect-[4/5] bg-[#EBE5DB] border border-[#DFD9CE]/60 shadow-sm">
+                    <div class="lg:col-span-4 group relative rounded-[1.5rem] sm:rounded-[2rem] overflow-hidden aspect-[4/5] bg-[#EBE5DB] border border-[#DFD9CE]/60 shadow-sm">
                         <img src="{{ asset('storage/' . $item->image_path) }}" 
                              alt="{{ $item->title }}" 
                              class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out">
                         <div class="absolute inset-0 bg-gradient-to-t from-black/75 via-transparent to-transparent"></div>
                         
-                        <div class="absolute bottom-6 left-6 right-6 text-white space-y-0.5">
-                            <p class="text-[9px] uppercase tracking-widest text-[#AD9575] font-semibold">
+                        <div class="absolute bottom-4 left-4 right-4 sm:bottom-6 sm:left-6 sm:right-6 text-white space-y-0.5">
+                            <p class="text-[8.5px] sm:text-[9px] uppercase tracking-widest text-[#AD9575] font-semibold">
                                 {{ $item->location ?? 'Private Collection' }}
                             </p>
-                            <h3 class="font-editorial text-xl font-normal text-white truncate">
+                            <h3 class="font-editorial text-lg sm:text-xl font-normal text-white truncate">
                                 {{ $item->title }}
                             </h3>
                         </div>

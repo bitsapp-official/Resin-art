@@ -20,7 +20,7 @@
         $isLoggedIn = Auth::check();
     @endphp
 
-    <div class="max-w-[1320px] mx-auto px-4 sm:px-6 lg:px-12 py-10" 
+    <div class="max-w-[1320px] mx-auto w-full min-w-0 px-3.5 sm:px-6 lg:px-12 py-6 sm:py-10" 
          x-data="{ 
             currentStep: 1, 
             isLoggedIn: @js($isLoggedIn),
@@ -203,29 +203,30 @@
         <form method="POST" action="{{ route('checkout.process') }}">
             @csrf
 
-            <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start w-full">
                 
                 <!-- LEFT COLUMN: Step Bar + Multi-Step Form -->
-                <div class="lg:col-span-7 space-y-6">
+                <div class="lg:col-span-7 space-y-6 w-full min-w-0">
 
                     <!-- Step Indicator Bar -->
-                    <div class="flex items-center space-x-6 text-[11px] uppercase tracking-[0.2em] mb-8">
-                        <div class="flex items-center space-x-3 transition-colors duration-300" :class="currentStep >= 1 ? 'text-[#1C1917] font-medium' : 'text-[#A8A29E]'">
-                            <span class="w-6 h-6 rounded-full border flex items-center justify-center text-[10px] transition-colors duration-300 bg-transparent"
+                    <div class="flex items-center justify-between sm:justify-start gap-2 sm:gap-6 text-[9.5px] sm:text-[11px] uppercase tracking-wider sm:tracking-[0.2em] mb-8 pb-1 w-full max-w-full">
+                        <div class="flex items-center space-x-2 sm:space-x-3 shrink-0 transition-colors duration-300" :class="currentStep >= 1 ? 'text-[#1C1917] font-medium' : 'text-[#A8A29E]'">
+                            <span class="w-6 h-6 rounded-full border flex items-center justify-center text-[10px] transition-colors duration-300 bg-transparent shrink-0"
                                   :class="currentStep >= 1 ? 'border-[#1C1917] text-[#1C1917] font-semibold' : 'border-[#E6E1D7] text-[#A8A29E]'">1</span>
-                            <span>CONTACT</span>
+                            <span class="font-medium">CONTACT</span>
                         </div>
-                        <span class="w-12 h-[1px] bg-[#E6E1D7]"></span>
-                        <div class="flex items-center space-x-3 transition-colors duration-300" :class="currentStep >= 2 ? 'text-[#1C1917] font-medium' : 'text-[#A8A29E]'">
-                            <span class="w-6 h-6 rounded-full border flex items-center justify-center text-[10px] transition-colors duration-300 bg-transparent"
+                        <span class="flex-1 max-w-[40px] sm:max-w-[48px] h-[1px] bg-[#E6E1D7] shrink min-w-[12px]"></span>
+                        <div class="flex items-center space-x-2 sm:space-x-3 shrink-0 transition-colors duration-300" :class="currentStep >= 2 ? 'text-[#1C1917] font-medium' : 'text-[#A8A29E]'">
+                            <span class="w-6 h-6 rounded-full border flex items-center justify-center text-[10px] transition-colors duration-300 bg-transparent shrink-0"
                                   :class="currentStep >= 2 ? 'border-[#1C1917] text-[#1C1917] font-semibold' : 'border-[#E6E1D7] text-[#A8A29E]'">2</span>
-                            <span>DELIVERY &amp; BILLING</span>
+                            <span class="hidden md:inline font-medium">DELIVERY &amp; BILLING</span>
+                            <span class="inline md:hidden font-medium">DELIVERY</span>
                         </div>
-                        <span class="w-12 h-[1px] bg-[#E6E1D7]"></span>
-                        <div class="flex items-center space-x-3 transition-colors duration-300" :class="currentStep >= 3 ? 'text-[#1C1917] font-medium' : 'text-[#A8A29E]'">
-                            <span class="w-6 h-6 rounded-full border flex items-center justify-center text-[10px] transition-colors duration-300 bg-transparent"
+                        <span class="flex-1 max-w-[40px] sm:max-w-[48px] h-[1px] bg-[#E6E1D7] shrink min-w-[12px]"></span>
+                        <div class="flex items-center space-x-2 sm:space-x-3 shrink-0 transition-colors duration-300" :class="currentStep >= 3 ? 'text-[#1C1917] font-medium' : 'text-[#A8A29E]'">
+                            <span class="w-6 h-6 rounded-full border flex items-center justify-center text-[10px] transition-colors duration-300 bg-transparent shrink-0"
                                   :class="currentStep >= 3 ? 'border-[#1C1917] text-[#1C1917] font-semibold' : 'border-[#E6E1D7] text-[#A8A29E]'">3</span>
-                            <span>PAYMENT</span>
+                            <span class="font-medium">PAYMENT</span>
                         </div>
                     </div>
 
@@ -339,7 +340,7 @@
                             </div>
 
                             {{-- City & State --}}
-                            <div class="grid grid-cols-2 gap-4">
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                                 <div class="space-y-1.5">
                                     <label class="block text-[10px] uppercase tracking-[0.2em] font-bold text-[#8E877D]">CITY / TOWN *</label>
                                     <input type="text" name="city" x-model="city"
@@ -365,7 +366,7 @@
                             </div>
 
                             {{-- PIN Code & Country --}}
-                            <div class="grid grid-cols-2 gap-4">
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                                 <div class="space-y-1.5">
                                     <label class="block text-[10px] uppercase tracking-[0.2em] font-bold text-[#8E877D]">PIN CODE *</label>
                                     <input type="text" name="postal_code" x-model="postalCode"
@@ -436,7 +437,7 @@
                                            class="w-full px-5 py-3.5 bg-transparent border border-[#DFD9CE] rounded-full text-xs font-medium focus:outline-none focus:border-[#1C1917]">
                                 </div>
 
-                                <div class="grid grid-cols-2 gap-4">
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                                     <div class="space-y-1.5">
                                         <label class="block text-[10px] uppercase tracking-[0.2em] font-bold text-[#8E877D]">BILLING CITY *</label>
                                         <input type="text" name="billing_city" x-model="billingCity"
@@ -459,7 +460,7 @@
                                     </div>
                                 </div>
 
-                                <div class="grid grid-cols-2 gap-4">
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                                     <div class="space-y-1.5">
                                         <label class="block text-[10px] uppercase tracking-[0.2em] font-bold text-[#8E877D]">BILLING PIN CODE *</label>
                                         <input type="text" name="billing_postal_code" x-model="billingPostalCode"
@@ -489,11 +490,11 @@
                             </div>
                         @endif
 
-                        <div class="flex items-center space-x-4 pt-4">
-                            <button type="button" @click="currentStep = 1" class="border border-[#E6E1D7] bg-transparent hover:bg-[#FAF8F5] text-[#1C1917] text-xs uppercase tracking-[0.2em] font-semibold px-8 py-4 rounded-full transition-colors cursor-pointer">
+                        <div class="flex items-center space-x-2.5 sm:space-x-4 pt-4">
+                            <button type="button" @click="currentStep = 1" class="border border-[#E6E1D7] bg-transparent hover:bg-[#FAF8F5] text-[#1C1917] text-[10px] sm:text-xs uppercase tracking-wider sm:tracking-[0.2em] font-semibold px-4 sm:px-8 py-3.5 sm:py-4 rounded-full transition-colors cursor-pointer shrink-0">
                                 BACK
                             </button>
-                            <button type="button" @click="validateStep2()" class="flex-1 bg-[#1A1615] hover:bg-[#2C2724] text-white text-xs uppercase tracking-[0.25em] font-semibold py-4 rounded-full transition-all shadow-md cursor-pointer">
+                            <button type="button" @click="validateStep2()" class="flex-1 bg-[#1A1615] hover:bg-[#2C2724] text-white text-[10px] sm:text-xs uppercase tracking-wider sm:tracking-[0.25em] font-semibold py-3.5 sm:py-4 px-3 sm:px-4 rounded-full transition-all shadow-md cursor-pointer text-center whitespace-nowrap">
                                 CONTINUE TO PAYMENT
                             </button>
                         </div>
@@ -511,7 +512,7 @@
                             <input type="hidden" name="payment_method" value="stripe">
 
                             {{-- Stripe Official Payment Card --}}
-                            <div class="p-7 sm:p-8 rounded-[2rem] bg-white border-2 border-[#1C1917] shadow-sm space-y-6 relative overflow-hidden">
+                            <div class="p-5 sm:p-8 rounded-[1.75rem] sm:rounded-[2rem] bg-white border-2 border-[#1C1917] shadow-sm space-y-6 relative overflow-hidden">
                                 <div class="flex items-start justify-between">
                                     <div class="space-y-1">
                                         <div class="flex items-center space-x-2">
@@ -530,7 +531,7 @@
                                 </div>
 
                                 {{-- Supported Payment Badges Grid --}}
-                                <div class="pt-2 border-t border-[#F2EFE9] grid grid-cols-2 sm:grid-cols-4 gap-2.5 text-center text-[10px] uppercase tracking-wider font-semibold text-[#57534E]">
+                                <div class="pt-2 border-t border-[#F2EFE9] grid grid-cols-2 sm:grid-cols-4 gap-2 text-center text-[9.5px] sm:text-[10px] uppercase tracking-wider font-semibold text-[#57534E]">
                                     <div class="p-2.5 bg-[#FAF8F5] rounded-xl border border-[#EBE6DD]">
                                         <span>VISA / MC / RUPAY</span>
                                     </div>
@@ -557,39 +558,40 @@
                             </div>
                         </div>
 
-                        <div class="flex items-center space-x-4 pt-4">
-                            <button type="button" @click="currentStep = 2" class="border border-[#E6E1D7] bg-transparent hover:bg-[#FAF8F5] text-[#1C1917] text-xs uppercase tracking-[0.2em] font-semibold px-8 py-4 rounded-full transition-colors cursor-pointer">
+                        <div class="flex items-center space-x-2.5 sm:space-x-4 pt-4">
+                            <button type="button" @click="currentStep = 2" class="border border-[#E6E1D7] bg-transparent hover:bg-[#FAF8F5] text-[#1C1917] text-[10px] sm:text-xs uppercase tracking-wider sm:tracking-[0.2em] font-semibold px-4 sm:px-8 py-3.5 sm:py-4 rounded-full transition-colors cursor-pointer shrink-0">
                                 BACK
                             </button>
-                            <button type="submit" class="flex-1 bg-[#1A1615] hover:bg-[#2C2724] text-white text-xs uppercase tracking-[0.25em] font-semibold py-4 rounded-full transition-all shadow-md cursor-pointer flex items-center justify-center space-x-2">
-                                <svg class="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <button type="submit" class="flex-1 bg-[#1A1615] hover:bg-[#2C2724] text-white text-[10px] sm:text-xs uppercase tracking-wider sm:tracking-[0.25em] font-semibold py-3.5 sm:py-4 px-3 sm:px-4 rounded-full transition-all shadow-md cursor-pointer flex items-center justify-center space-x-2 text-center whitespace-nowrap">
+                                <svg class="w-4 h-4 text-white shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                                 </svg>
-                                <span>PROCEED TO STRIPE SECURE PAYMENT (&#8377; {{ number_format($subtotal) }}) &rarr;</span>
+                                <span class="truncate">PAY &#8377; {{ number_format($subtotal) }} &rarr;</span>
                             </button>
                         </div>
                     </div>
                 </div>
 
                 <!-- RIGHT COLUMN: Order Summary Card -->
-                <div class="lg:col-span-5 sticky top-8">
-                    <div class="glass rounded-[2.5rem] p-8 sm:p-10 space-y-6">
+                <div class="lg:col-span-5 lg:sticky lg:top-8 w-full min-w-0">
+                    <div class="glass rounded-[1.75rem] sm:rounded-[2.5rem] p-5 sm:p-8 lg:p-10 space-y-6 w-full">
                         <h3 class="text-[10px] font-semibold uppercase tracking-[0.22em] pb-1 text-[#78716C]">YOUR ORDER SUMMARY</h3>
 
-                        <div class="space-y-5">
-                            @foreach($cartItems as $item)
-                                <div class="flex items-center justify-between py-1">
-                                    <div class="flex items-center space-x-4">
-                                        <div class="w-14 h-14 bg-white rounded-2xl overflow-hidden shrink-0 border border-[#DFD9CE]">
+                        <div class="space-y-4 sm:space-y-5">
+                            @foreach($cartItems->sortByDesc('id') as $item)
+                                <div class="flex items-center justify-between py-1 gap-3">
+                                    <div class="flex items-center space-x-3.5 min-w-0 flex-1">
+                                        <div class="w-12 h-12 sm:w-14 sm:h-14 bg-white rounded-xl sm:rounded-2xl overflow-hidden shrink-0 border border-[#DFD9CE]">
                                             @if(!empty($item->product?->images) && isset($item->product->images[0]))
                                                 <img src="{{ $item->product->images[0] }}" alt="" class="w-full h-full object-cover">
                                             @endif
                                         </div>
-                                        <div>
-                                            <h4 class="text-sm font-normal leading-snug text-[#1C1917]">{{ $item->product_name }} &times; {{ $item->quantity }}</h4>
+                                        <div class="min-w-0 flex-1">
+                                            <h4 class="text-xs sm:text-sm font-normal leading-snug text-[#1C1917] truncate">{{ $item->product_name }}</h4>
+                                            <span class="text-[11px] text-[#78716C]">&times; {{ $item->quantity }}</span>
                                         </div>
                                     </div>
-                                    <span class="text-sm font-normal shrink-0 pl-4 text-[#1C1917] font-sans">&#8377; {{ number_format($item->subtotal) }}</span>
+                                    <span class="text-xs sm:text-sm font-normal shrink-0 pl-2 text-[#1C1917] font-sans">&#8377; {{ number_format($item->subtotal) }}</span>
                                 </div>
                             @endforeach
                         </div>

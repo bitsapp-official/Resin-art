@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="overflow-x-hidden">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
@@ -24,14 +24,14 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @stack('head')
 </head>
-<body class="min-h-full flex flex-col bg-[#FAF8F5] text-[#1C1917] antialiased relative overflow-x-clip">
+<body class="min-h-full flex flex-col bg-[#FAF8F5] text-[#1C1917] antialiased relative overflow-x-hidden w-full max-w-full">
     @if(request()->is('/') || request()->routeIs('shop.index'))
         <!-- Premium Resin Art Branded Initial Site Entrance Loader Component (First Visit Only) -->
         <x-site-loader />
     @endif
 
     <!-- Ambient Background Lighting Glows (Teal Left & Warm Gold Right) - Zero-GPU Pre-Rendered Bitmaps (100% Identical Blur Look, 0% GPU Load) -->
-    <div class="fixed inset-0 pointer-events-none z-0 overflow-hidden select-none" aria-hidden="true">
+    <div class="fixed inset-0 w-full h-full max-w-full pointer-events-none z-0 overflow-hidden select-none" aria-hidden="true">
         <img src="{{ asset('images/ambient-glow-teal.png') }}"
              class="absolute -top-28 -left-28 w-[720px] h-[720px] max-w-none opacity-90 pointer-events-none"
              alt=""
@@ -45,12 +45,12 @@
         <div class="absolute inset-0 bg-noise opacity-35 pointer-events-none"></div>
     </div>
 
-    <div class="relative z-10 flex-grow flex flex-col">
+    <div class="relative z-10 flex-grow flex flex-col w-full max-w-full overflow-x-hidden">
         <!-- Navigation Header -->
         <x-navbar />
 
         <!-- Main Body Content -->
-        <main class="flex-grow {{ request()->is('/') ? '' : 'pt-24 sm:pt-28' }}">
+        <main class="flex-grow w-full max-w-full overflow-x-hidden {{ request()->is('/') ? '' : 'pt-24 sm:pt-28' }}">
             {{ $slot }}
         </main>
 

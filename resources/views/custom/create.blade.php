@@ -1,22 +1,22 @@
 <x-app-layout title="Custom Requirements — Maison Résine Atelier">
 
-    <div class="py-10 lg:py-16 bg-transparent">
-        <div class="max-w-[1400px] mx-auto px-6 lg:px-12 xl:px-16">
+    <div class="py-6 sm:py-10 lg:py-16 bg-transparent w-full min-w-0">
+        <div class="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-12 xl:px-16 w-full min-w-0">
 
             {{-- ══════════════════════════════════════════════════════════════════
                  1. HERO SECTION (Consistent with Contact & Process pages)
                  ══════════════════════════════════════════════════════════════════ --}}
-            <div class="max-w-3xl mb-12 lg:mb-16 space-y-4 animate-fade-up">
+            <div class="max-w-3xl mb-8 sm:mb-12 lg:mb-16 space-y-3 sm:space-y-4 animate-fade-up min-w-0">
                 <div class="flex items-center space-x-3 text-[10px] uppercase tracking-[0.25em] font-semibold text-[#8E877D]">
                     <span class="w-8 h-[1px] bg-[#D9D2C5] inline-block"></span>
                     <span>CUSTOM RESIN ARTWORK</span>
                 </div>
 
-                <h1 class="font-editorial text-5xl sm:text-6xl lg:text-[72px] text-[#1C1917] font-light leading-[1.08] tracking-tight">
+                <h1 class="font-editorial text-3xl sm:text-5xl lg:text-[72px] text-[#1C1917] font-light leading-[1.08] tracking-tight">
                     Made for your space.
                 </h1>
 
-                <p class="text-[15px] sm:text-base text-[#78716C] font-light leading-relaxed max-w-xl pt-1">
+                <p class="text-xs sm:text-[15px] md:text-base text-[#78716C] font-light leading-relaxed max-w-xl pt-1">
                     Every custom resin artwork begins with your vision, your space, and raw pigments poured by hand. Share your requirement with our team and let us create a bespoke resin masterpiece tailored for your home.
                 </p>
             </div>

@@ -28,7 +28,7 @@ class Cart extends Model
 
     public function items(): HasMany
     {
-        return $this->hasMany(CartItem::class);
+        return $this->hasMany(CartItem::class)->orderBy('id', 'desc');
     }
 
     public function recalculateTotal(): void

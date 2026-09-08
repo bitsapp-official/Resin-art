@@ -5,28 +5,28 @@
     header-subtitle="Everything the atelier has told you lately.">
     
     <!-- INBOX Card (Lovable Design) -->
-    <div class="glass rounded-[1.75rem] p-7 space-y-6">
+    <div class="glass rounded-[1.25rem] sm:rounded-[1.75rem] p-4 sm:p-7 md:p-9 space-y-5 sm:space-y-6 w-full min-w-0">
         
-        <div class="flex items-center justify-between">
+        <div class="flex items-center justify-between gap-3">
             <span class="text-[10px] font-bold uppercase tracking-[0.22em] text-[#8E877D]">INBOX</span>
             
             @if($notifications->count() > 0 && $notifications->where('is_read', false)->count() > 0)
                 <form method="POST" action="{{ route('account.notifications.read-all') }}">
                     @csrf
-                    <button type="submit" class="border border-[#DFD9CE] hover:border-[#1C1917] hover:bg-[#1C1917] hover:text-white text-[#1C1917] text-[9.5px] uppercase tracking-[0.2em] font-semibold px-4 py-2 rounded-full transition-all duration-300 cursor-pointer">
+                    <button type="submit" class="border border-[#DFD9CE] hover:border-[#1C1917] hover:bg-[#1C1917] hover:text-white text-[#1C1917] text-[9px] sm:text-[9.5px] uppercase tracking-[0.2em] font-semibold px-3 sm:px-4 py-1.5 sm:py-2 rounded-full transition-all duration-300 cursor-pointer whitespace-nowrap">
                         MARK ALL READ
                     </button>
                 </form>
             @endif
         </div>
 
-        <div class="space-y-5 pt-2">
+        <div class="space-y-4 sm:space-y-5 pt-2">
             @forelse($notifications as $notif)
-                <div class="flex items-start justify-between pb-4 border-b border-[#E6E1D7]/60 last:border-none last:pb-0">
-                    <div class="flex items-start space-x-3.5">
+                <div class="flex items-start justify-between gap-3 pb-4 border-b border-[#E6E1D7]/60 last:border-none last:pb-0 w-full min-w-0">
+                    <div class="flex items-start space-x-3 sm:space-x-3.5 min-w-0 flex-1">
                         <span class="mt-1.5 w-2 h-2 rounded-full shrink-0 {{ !$notif->is_read ? 'bg-[#8E7558]' : 'bg-[#DFD9CE]' }}"></span>
-                        <div class="space-y-1">
-                            <h4 class="text-xs font-semibold text-[#1C1917]">
+                        <div class="space-y-1 min-w-0 flex-1">
+                            <h4 class="text-xs font-semibold text-[#1C1917] leading-snug">
                                 {{ $notif->title }}
                             </h4>
                             <p class="text-[11.5px] text-[#78716C] font-light leading-relaxed">
@@ -39,7 +39,7 @@
                     </div>
 
                     @if(!$notif->is_read)
-                        <form method="POST" action="{{ route('account.notifications.read', $notif->id) }}" class="shrink-0 pl-4">
+                        <form method="POST" action="{{ route('account.notifications.read', $notif->id) }}" class="shrink-0 whitespace-nowrap pl-2 sm:pl-4">
                             @csrf
                             <button type="submit" class="text-[9px] uppercase tracking-[0.15em] font-semibold text-[#8E877D] hover:text-[#1C1917] transition-colors cursor-pointer">
                                 Mark read

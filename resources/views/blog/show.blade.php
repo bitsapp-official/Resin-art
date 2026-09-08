@@ -24,8 +24,8 @@
         {!! json_encode($jsonLd, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT) !!}
     </script>
 
-    <div class="py-10 lg:py-16">
-        <div class="max-w-[1400px] mx-auto px-6 lg:px-12 xl:px-16 space-y-12 lg:space-y-16">
+    <div class="py-8 sm:py-10 lg:py-16">
+        <div class="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-12 xl:px-16 space-y-8 sm:space-y-12 lg:space-y-16 w-full min-w-0">
 
             <!-- Back to Journal Link -->
             <div class="animate-fade-up">
@@ -39,8 +39,8 @@
             </div>
 
             <!-- Centered Header -->
-            <div class="max-w-4xl mx-auto text-center space-y-5 animate-fade-up delay-100">
-                <div class="flex items-center justify-center space-x-2 text-[11px] uppercase tracking-[0.25em] font-semibold text-[#8E877D]">
+            <div class="max-w-4xl mx-auto text-center space-y-3 sm:space-y-5 animate-fade-up delay-100">
+                <div class="flex items-center justify-center space-x-2 text-[10.5px] sm:text-[11px] uppercase tracking-[0.25em] font-semibold text-[#8E877D]">
                     <a href="{{ route('blog.index', ['category' => $post->category?->slug]) }}" class="hover:text-[#1C1917] transition-colors">
                         {{ $post->category?->name ?? 'Journal' }}
                     </a>
@@ -48,12 +48,12 @@
                     <span>{{ $post->reading_time ?? '5 MIN' }}</span>
                 </div>
 
-                <h1 class="font-editorial text-4xl sm:text-5xl lg:text-[60px] text-[#1C1917] font-light leading-[1.08] tracking-tight">
+                <h1 class="font-editorial text-2xl sm:text-4xl lg:text-[60px] text-[#1C1917] font-light leading-[1.12] sm:leading-[1.08] tracking-tight">
                     {{ $post->title }}
                 </h1>
 
                 @if($post->published_at)
-                    <div class="text-[11px] font-mono uppercase tracking-[0.2em] text-[#8E877D]">
+                    <div class="text-[10.5px] sm:text-[11px] font-mono uppercase tracking-[0.2em] text-[#8E877D]">
                         · {{ strtoupper($post->published_at->format('d F Y')) }}
                     </div>
                 @endif
@@ -61,32 +61,32 @@
 
             <!-- Featured Image -->
             @if(!empty($post->featured_image))
-                <div class="max-w-5xl mx-auto rounded-[2rem] overflow-hidden border border-[#E5DFD3] shadow-[0_15px_45px_rgba(0,0,0,0.04)] bg-[oklch(98.5%_0.008_85)] animate-fade-up delay-150">
+                <div class="max-w-5xl mx-auto rounded-[1.5rem] sm:rounded-[2rem] overflow-hidden border border-[#E5DFD3] shadow-[0_15px_45px_rgba(0,0,0,0.04)] bg-[oklch(98.5%_0.008_85)] animate-fade-up delay-150">
                     <img src="{{ asset('storage/' . $post->featured_image) }}" 
                          alt="{{ $post->title }}" 
-                         class="w-full h-[400px] sm:h-[520px] lg:h-[620px] object-cover"
+                         class="w-full h-[240px] sm:h-[420px] lg:h-[620px] object-cover"
                          loading="eager"
                          decoding="async">
                 </div>
             @endif
 
             <!-- Article Body Typography Container (Optimal Reading Width ~720px) -->
-            <div class="max-w-[720px] mx-auto space-y-8 animate-fade-up delay-200">
+            <div class="max-w-[720px] mx-auto space-y-6 sm:space-y-8 animate-fade-up delay-200">
 
                 <!-- Excerpt Lead Paragraph -->
                 @if(!empty($post->excerpt))
-                    <p class="font-editorial text-xl sm:text-2xl text-[#1C1917] italic leading-relaxed border-l-2 border-[#D9D2C5] pl-6 py-1">
+                    <p class="font-editorial text-lg sm:text-2xl text-[#1C1917] italic leading-relaxed border-l-2 border-[#D9D2C5] pl-4 sm:pl-6 py-1">
                         {{ $post->excerpt }}
                     </p>
                 @endif
 
                 <!-- Rich Article Content -->
-                <div class="prose prose-stone max-w-none text-[16px] text-[#44403C] font-light leading-[1.85] space-y-6">
+                <div class="prose prose-stone max-w-none text-[15px] sm:text-[16px] text-[#44403C] font-light leading-[1.85] space-y-6">
                     {!! $post->content !!}
                 </div>
 
                 <!-- Author Signature Footer Card -->
-                <div class="pt-8 border-t border-[#E5DFD3] flex items-center justify-between">
+                <div class="pt-6 sm:pt-8 border-t border-[#E5DFD3] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                     <div class="flex items-center space-x-3">
                         <div class="w-10 h-10 rounded-full bg-[#1C1917] text-[#FAF8F5] font-editorial italic font-light text-lg flex items-center justify-center">
                             {{ substr($post->author_name ?? 'M', 0, 1) }}
@@ -97,7 +97,7 @@
                         </div>
                     </div>
 
-                    <a href="{{ route('blog.index') }}" class="text-[10.5px] uppercase tracking-[0.22em] font-semibold text-[#8E877D] hover:text-[#1C1917] transition-colors">
+                    <a href="{{ route('blog.index') }}" class="text-[10.5px] uppercase tracking-[0.22em] font-semibold text-[#8E877D] hover:text-[#1C1917] transition-colors whitespace-nowrap">
                         ← All Journal Entries
                     </a>
                 </div>

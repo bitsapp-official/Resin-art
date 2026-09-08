@@ -1,12 +1,12 @@
 <x-app-layout title="Order Tracking — Maison Résine">
-    <div class="min-h-[75vh] py-12 sm:py-16 px-4 sm:px-6 lg:px-8 max-w-[1060px] mx-auto space-y-10">
+    <div class="min-h-[75vh] py-8 sm:py-16 px-3.5 sm:px-6 lg:px-8 max-w-[1060px] mx-auto w-full min-w-0 space-y-8 sm:space-y-10">
 
         {{-- Header --}}
-        <div class="space-y-3">
-            <span class="text-[10px] uppercase tracking-[0.25em] font-semibold text-[#8E877D] block">
+        <div class="space-y-2.5 sm:space-y-3 min-w-0">
+            <span class="text-[9.5px] sm:text-[10px] uppercase tracking-[0.22em] sm:tracking-[0.25em] font-semibold text-[#8E877D] block">
                 ORDER TRACKING
             </span>
-            <h1 class="font-editorial text-4xl sm:text-5xl lg:text-6xl text-[#1C1917] font-light tracking-tight leading-none">
+            <h1 class="font-editorial text-3xl sm:text-5xl lg:text-6xl text-[#1C1917] font-light tracking-tight leading-tight sm:leading-none">
                 Track your <em class="italic font-normal">order.</em>
             </h1>
             <p class="text-xs sm:text-[13px] text-[#78716C] font-light max-w-lg leading-relaxed pt-1">
@@ -15,8 +15,8 @@
         </div>
 
         {{-- Search Form (Supports POST and GET) --}}
-        <div class="glass rounded-[2rem] p-5 sm:p-6 shadow-xs w-full">
-            <form method="POST" action="{{ route('tracking.search') }}" class="flex flex-col sm:flex-row items-end gap-3 sm:gap-4">
+        <div class="glass rounded-[1.5rem] sm:rounded-[2rem] p-4 sm:p-6 shadow-xs w-full min-w-0">
+            <form method="POST" action="{{ route('tracking.search') }}" class="flex flex-col sm:flex-row items-stretch sm:items-end gap-3 sm:gap-4">
                 @csrf
                 {{-- Order Number --}}
                 <div class="w-full sm:flex-1 space-y-1.5">
@@ -110,8 +110,8 @@
                 <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
 
                     {{-- Left: PROGRESS --}}
-                    <div class="lg:col-span-5 space-y-6">
-                        <div class="glass rounded-[2rem] p-7 sm:p-8 space-y-6">
+                    <div class="lg:col-span-5 space-y-6 w-full min-w-0">
+                        <div class="glass rounded-[1.5rem] sm:rounded-[2rem] p-4 sm:p-7 md:p-8 space-y-6 w-full min-w-0">
                             <div class="text-[10px] uppercase tracking-[0.22em] font-bold text-[#8E877D]">
                                 PROGRESS &mdash; {{ $order->order_reference }}
                             </div>
@@ -166,10 +166,10 @@
                     </div>
 
                     {{-- Right: DELIVERY & ORDER SUMMARY --}}
-                    <div class="lg:col-span-7 space-y-8">
+                    <div class="lg:col-span-7 space-y-6 sm:space-y-8 w-full min-w-0">
 
                         {{-- Delivery Card --}}
-                        <div class="glass rounded-[2rem] p-7 sm:p-8 space-y-4">
+                        <div class="glass rounded-[1.5rem] sm:rounded-[2rem] p-4 sm:p-7 md:p-8 space-y-4 w-full min-w-0">
                             <div class="text-[10px] uppercase tracking-[0.22em] font-bold text-[#8E877D] pb-1">
                                 DELIVERY
                             </div>
@@ -228,7 +228,7 @@
                         </div>
 
                         {{-- Order Summary Card --}}
-                        <div class="glass rounded-[2rem] p-7 sm:p-8 space-y-5">
+                        <div class="glass rounded-[1.5rem] sm:rounded-[2rem] p-4 sm:p-7 md:p-8 space-y-5 w-full min-w-0">
                             <div class="text-[10px] uppercase tracking-[0.22em] font-bold text-[#8E877D]">
                                 ORDER SUMMARY
                             </div>
@@ -312,7 +312,7 @@
 
             @else
                 {{-- Nothing Found --}}
-                <div class="glass rounded-[2rem] p-12 text-center max-w-2xl mx-auto space-y-4">
+                <div class="glass rounded-[1.5rem] sm:rounded-[2rem] p-6 sm:p-12 text-center max-w-2xl mx-auto space-y-4 w-full min-w-0">
                     <h3 class="font-editorial text-2xl italic text-[#1C1917]">Nothing to follow yet.</h3>
                     <p class="text-xs text-[#78716C] leading-relaxed max-w-sm mx-auto">
                         Enter an order reference above, or open an order from your order history.

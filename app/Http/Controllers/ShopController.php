@@ -226,6 +226,13 @@ class ShopController extends Controller
             ->take(4)
             ->get();
 
+        if ($relatedProducts->isEmpty()) {
+            $relatedProducts = Product::published()
+                ->where('id', '!=', $product->id)
+                ->take(4)
+                ->get();
+        }
+
         return view('shop.show', compact('product', 'relatedProducts'));
     }
 }

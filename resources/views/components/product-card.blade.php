@@ -30,32 +30,32 @@
         </a>
 
         {{-- Top-Right Floating Wishlist Button --}}
-        <div class="absolute top-4 right-4 z-20">
+        <div class="absolute top-3 right-3 sm:top-4 sm:right-4 z-20">
             <form method="POST" action="{{ route('wishlist.toggle') }}" class="wishlist-toggle-form" data-product-id="{{ $product->id }}">
                 @csrf
                 <input type="hidden" name="product_id" value="{{ $product->id }}">
                 <button type="submit"
                         title="{{ $isWishlisted ? 'Remove from Wishlist' : 'Add to Wishlist' }}"
                         aria-label="{{ $isWishlisted ? 'Remove from Wishlist' : 'Add to Wishlist' }}"
-                        class="wishlist-btn glass-pill w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center text-[#1C1917] hover:bg-white transition-all duration-300 shadow-xs cursor-pointer"
+                        class="wishlist-btn glass-pill w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center text-[#1C1917] hover:bg-white transition-all duration-300 shadow-xs cursor-pointer"
                         data-product-id="{{ $product->id }}"
                         data-wishlisted="{{ $isWishlisted ? 'true' : 'false' }}"
                         data-style-type="product-card">
-                    <svg class="wishlist-icon w-4 h-4 transition-all duration-200 {{ $isWishlisted ? 'fill-[#B87333] stroke-[#B87333]' : 'fill-none stroke-[#1C1917]' }}" viewBox="0 0 24 24" stroke-width="1.5">
+                    <svg class="wishlist-icon w-3.5 h-3.5 sm:w-4 sm:h-4 transition-all duration-200 {{ $isWishlisted ? 'fill-[#B87333] stroke-[#B87333]' : 'fill-none stroke-[#1C1917]' }}" viewBox="0 0 24 24" stroke-width="1.5">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
                     </svg>
                 </button>
             </form>
         </div>
 
-        {{-- Frosted Glass QUICK ADD Pill Button (Bottom Inside Card on Hover) --}}
-        <div class="absolute bottom-4 left-4 right-4 z-20 opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0 transition-all duration-300 ease-out pointer-events-none group-hover:pointer-events-auto">
+        {{-- Frosted Glass QUICK ADD Pill Button (Always accessible on mobile, slides up on desktop hover) --}}
+        <div class="absolute bottom-3 sm:bottom-4 left-3 right-3 sm:left-4 sm:right-4 z-20 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 translate-y-0 sm:translate-y-2 sm:group-hover:translate-y-0 transition-all duration-300 ease-out pointer-events-auto sm:pointer-events-none sm:group-hover:pointer-events-auto">
             <form method="POST" action="{{ route('cart.add') }}">
                 @csrf
                 <input type="hidden" name="product_id" value="{{ $product->id }}">
                 <input type="hidden" name="quantity" value="1">
                 <button type="submit"
-                        class="glass-pill w-full py-3 px-6 rounded-full text-[#1C1917] hover:bg-[#1C1917] hover:text-white text-[10px] sm:text-[10.5px] uppercase tracking-[0.24em] font-semibold transition-all duration-300 shadow-md text-center cursor-pointer">
+                        class="glass-pill w-full py-2.5 sm:py-3 px-4 sm:px-6 rounded-full text-[#1C1917] hover:bg-[#1C1917] hover:text-white text-[9.5px] sm:text-[10.5px] uppercase tracking-[0.2em] sm:tracking-[0.24em] font-semibold transition-all duration-300 shadow-md text-center cursor-pointer">
                     QUICK ADD
                 </button>
             </form>

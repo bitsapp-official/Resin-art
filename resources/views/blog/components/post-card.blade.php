@@ -4,18 +4,18 @@
 
 @if($featured)
     <!-- FEATURED ARTICLE CARD (2-Column Desktop Layout) -->
-    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center bg-[oklch(98.5%_0.008_85)] border border-[#E5DFD3] rounded-[2rem] p-6 lg:p-8 transition-all duration-500 hover:shadow-[0_15px_45px_rgba(0,0,0,0.04)] group">
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8 lg:gap-12 items-center bg-[oklch(98.5%_0.008_85)] border border-[#E5DFD3] rounded-[1.5rem] sm:rounded-[2rem] p-4 sm:p-6 lg:p-8 transition-all duration-500 hover:shadow-[0_15px_45px_rgba(0,0,0,0.04)] group">
         <!-- Left Image -->
-        <div class="lg:col-span-7 rounded-[1.5rem] overflow-hidden bg-[#FAF8F5]">
+        <div class="lg:col-span-7 rounded-xl sm:rounded-[1.5rem] overflow-hidden bg-[#FAF8F5]">
             <a href="{{ route('blog.show', $post->slug) }}" class="block overflow-hidden">
                 @if(!empty($post->featured_image))
                     <img src="{{ asset('storage/' . $post->featured_image) }}" 
                          alt="{{ $post->title }}" 
-                         class="w-full h-[320px] sm:h-[400px] lg:h-[460px] object-cover transition-transform duration-700 group-hover:scale-[1.03]"
+                         class="w-full h-[220px] sm:h-[360px] lg:h-[460px] object-cover transition-transform duration-700 group-hover:scale-[1.03]"
                          loading="eager"
                          decoding="async">
                 @else
-                    <div class="w-full h-[360px] bg-[#FAF8F5] flex items-center justify-center text-[#8E877D] text-xs uppercase tracking-widest">
+                    <div class="w-full h-[240px] sm:h-[360px] bg-[#FAF8F5] flex items-center justify-center text-[#8E877D] text-xs uppercase tracking-widest">
                         Journal Image
                     </div>
                 @endif
@@ -23,14 +23,14 @@
         </div>
 
         <!-- Right Content -->
-        <div class="lg:col-span-5 space-y-5 lg:py-4">
+        <div class="lg:col-span-5 space-y-3 sm:space-y-5 lg:py-4">
             <div class="flex items-center space-x-2 text-[10.5px] uppercase tracking-[0.25em] font-semibold text-[#8E877D]">
                 <span>{{ $post->category?->name ?? 'Journal' }}</span>
                 <span>·</span>
                 <span>{{ $post->reading_time ?? '5 MIN' }}</span>
             </div>
 
-            <h2 class="font-editorial text-4xl sm:text-5xl lg:text-[48px] text-[#1C1917] font-light leading-[1.12]">
+            <h2 class="font-editorial text-2xl sm:text-4xl lg:text-[48px] text-[#1C1917] font-light leading-[1.12]">
                 <a href="{{ route('blog.show', $post->slug) }}" class="hover:opacity-80 transition-opacity">
                     {{ $post->title }}
                 </a>

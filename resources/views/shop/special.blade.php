@@ -1,19 +1,19 @@
 <x-app-layout :title="$title . ' — Maison Résine Atelier'">
 <div class="min-h-screen bg-transparent">
-    <div class="max-w-[1360px] mx-auto px-6 lg:px-12 xl:px-16 pt-8 pb-24">
+    <div class="max-w-[1360px] mx-auto px-4 sm:px-6 lg:px-12 xl:px-16 pt-4 sm:pt-8 pb-24">
 
         {{-- ── HERO HEADER SECTION ──────────────────────────────── --}}
-        <div class="py-10 border-b border-[#E5DFD3]/80 space-y-3.5 animate-fade-up">
+        <div class="py-8 sm:py-10 border-b border-[#E5DFD3]/80 space-y-3 animate-fade-up">
             <div class="flex items-center space-x-3 text-[10px] uppercase tracking-[0.28em] font-medium text-[#8E877D]">
                 <span class="w-8 h-[1px] bg-[#D9D2C5] inline-block"></span>
                 <span>{{ $eyebrow }}</span>
             </div>
 
-            <h1 class="font-editorial text-5xl sm:text-6xl lg:text-[72px] text-[#1C1917] font-light leading-[1.08] tracking-tight">
+            <h1 class="font-editorial text-3xl sm:text-5xl lg:text-6xl text-[#1C1917] font-light leading-[1.08] tracking-tight">
                 {!! $title !!}
             </h1>
 
-            <p class="text-[14px] sm:text-[15px] text-[#78716C] font-light leading-relaxed max-w-xl pt-1">
+            <p class="text-[13px] sm:text-[15px] text-[#78716C] font-light leading-relaxed max-w-xl pt-1">
                 {{ $subtitle }}
             </p>
         </div>
@@ -38,9 +38,9 @@
 
         {{-- ── PRODUCT GRID ─────────────────────────────────────── --}}
         @if($products->count() > 0)
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-12 pt-4 pb-16">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 sm:gap-8 pt-4 pb-16">
                 @foreach($products as $product)
-                    <x-product-card :product="$product" :wishlistIds="$wishlistIds" />
+                    @include('components.product-card', ['product' => $product, 'wishlistIds' => $wishlistIds])
                 @endforeach
             </div>
 

@@ -13,7 +13,7 @@
                 
                 @if($order->status === 'CANCELLED')
                     <!-- 1. ORDER CANCELLED & REFUND STATUS Card (Shown when order is Cancelled) -->
-                    <div class="glass rounded-[2rem] p-7 sm:p-8 space-y-6 border border-red-200/60 bg-red-50/10">
+                    <div class="glass rounded-[1.5rem] sm:rounded-[2rem] p-4 sm:p-7 md:p-8 space-y-5 sm:space-y-6 border border-red-200/60 bg-red-50/10 w-full min-w-0">
                         <div class="flex items-center justify-between">
                             <div class="text-[10px] uppercase tracking-[0.22em] font-bold text-red-800">
                                 ORDER CANCELLATION DETAILS
@@ -68,7 +68,7 @@
                     </div>
                 @else
                     <!-- 1. ORDER TIMELINE Card (Continuous Stepper for Active Orders) -->
-                    <div class="glass rounded-[2rem] p-7 sm:p-8 space-y-6">
+                    <div class="glass rounded-[1.5rem] sm:rounded-[2rem] p-4 sm:p-7 md:p-8 space-y-5 sm:space-y-6 w-full min-w-0">
                         <div class="text-[10px] uppercase tracking-[0.22em] font-bold text-[#8E877D]">
                             ORDER TIMELINE
                         </div>
@@ -189,7 +189,7 @@
                 @endif
 
                 <!-- 2. AVAILABLE ACTIONS Card -->
-                <div class="glass rounded-[2rem] p-7 sm:p-8 space-y-6">
+                <div class="glass rounded-[1.5rem] sm:rounded-[2rem] p-4 sm:p-7 md:p-8 space-y-5 sm:space-y-6 w-full min-w-0">
                     <div class="text-[10px] uppercase tracking-[0.22em] font-bold text-[#8E877D]">
                         AVAILABLE ACTIONS
                     </div>
@@ -239,7 +239,7 @@
             <div class="lg:col-span-6 space-y-8">
                 
                 <!-- 1. PRODUCTS Card -->
-                <div class="glass rounded-[2rem] p-7 sm:p-8 space-y-5">
+                <div class="glass rounded-[1.5rem] sm:rounded-[2rem] p-4 sm:p-7 md:p-8 space-y-4 sm:space-y-5 w-full min-w-0">
                     <div class="text-[10px] uppercase tracking-[0.22em] font-bold text-[#8E877D]">
                         PRODUCTS
                     </div>
@@ -292,7 +292,7 @@
                 </div>
 
                 <!-- 2. DELIVERY & PAYMENT Card (Dynamic Data from Database) -->
-                <div class="glass rounded-[2rem] p-7 sm:p-8 space-y-4">
+                <div class="glass rounded-[1.5rem] sm:rounded-[2rem] p-4 sm:p-7 md:p-8 space-y-4 w-full min-w-0">
                     <div class="text-[10px] uppercase tracking-[0.22em] font-bold text-[#8E877D] pb-1">
                         DELIVERY &amp; PAYMENT
                     </div>
@@ -409,23 +409,23 @@
                      x-transition:leave-start="opacity-100 scale-100 translate-y-0"
                      x-transition:leave-end="opacity-0 scale-95 -translate-y-2"
                      @click.outside="cancelModal = false"
-                     class="max-w-lg w-full rounded-[2rem] p-8 space-y-6 shadow-2xl border border-[#E6E1D7] relative my-auto bg-[#FAF8F5]">
+                     class="max-w-lg w-full rounded-[1.5rem] sm:rounded-[2rem] p-5 sm:p-8 space-y-5 sm:space-y-6 shadow-2xl border border-[#E6E1D7] relative my-auto bg-[#FAF8F5]">
                     
                     {{-- Header --}}
                     <div class="space-y-1.5 border-b border-[#E6E1D7] pb-4">
                         <div class="text-[10px] uppercase tracking-[0.25em] font-bold text-[#8E877D]">
                             ORDER CANCELLATION
                         </div>
-                        <h3 class="font-editorial text-3xl text-[#1C1917] font-normal leading-tight">
+                        <h3 class="font-editorial text-2xl sm:text-3xl text-[#1C1917] font-normal leading-tight">
                             Cancel <em class="italic font-normal">Order.</em>
                         </h3>
                     </div>
 
                     {{-- Policy Notice Pill --}}
-                    <div class="p-5 rounded-2xl bg-white border border-[#E6E1D7] space-y-2 shadow-xs">
+                    <div class="p-4 sm:p-5 rounded-2xl bg-white border border-[#E6E1D7] space-y-2 shadow-xs">
                         <div class="flex items-center justify-between">
-                            <span class="font-editorial text-lg text-[#1C1917] font-normal">{{ $order->order_reference }}</span>
-                            <span class="text-[9.5px] uppercase tracking-[0.15em] font-bold px-3 py-1 rounded-full bg-[#1C1917] text-white">
+                            <span class="font-editorial text-base sm:text-lg text-[#1C1917] font-normal">{{ $order->order_reference }}</span>
+                            <span class="text-[9px] sm:text-[9.5px] uppercase tracking-[0.15em] font-bold px-2.5 sm:px-3 py-1 rounded-full bg-[#1C1917] text-white whitespace-nowrap">
                                 3H Window Active
                             </span>
                         </div>
@@ -435,7 +435,7 @@
                     </div>
 
                     {{-- Cancellation Form --}}
-                    <form method="POST" action="{{ route('account.orders.cancel', $order->id) }}" class="space-y-5">
+                    <form method="POST" action="{{ route('account.orders.cancel', $order->id) }}" class="space-y-4 sm:space-y-5">
                         @csrf
                         <div class="space-y-1.5">
                             <label class="block text-[10px] uppercase tracking-[0.2em] font-bold text-[#8E877D]">
@@ -443,16 +443,16 @@
                             </label>
                             <textarea name="reason" rows="3" required 
                                       placeholder="Please let our atelier know why you wish to cancel this order..." 
-                                      class="w-full p-4 rounded-2xl bg-white border border-[#DFD9CE] text-xs text-[#1C1917] placeholder:text-[#A89F91] focus:border-[#1C1917] focus:ring-1 focus:ring-[#1C1917] transition-all outline-none leading-relaxed shadow-xs"></textarea>
+                                      class="w-full p-3.5 sm:p-4 rounded-2xl bg-white border border-[#DFD9CE] text-xs text-[#1C1917] placeholder:text-[#A89F91] focus:border-[#1C1917] focus:ring-1 focus:ring-[#1C1917] transition-all outline-none leading-relaxed shadow-xs"></textarea>
                         </div>
 
-                        <div class="flex items-center justify-end space-x-3.5 pt-3 border-t border-[#E6E1D7]">
+                        <div class="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end gap-2.5 sm:gap-3.5 pt-3 border-t border-[#E6E1D7]">
                             <button type="button" @click="cancelModal = false" 
-                                    class="px-6 py-3 rounded-full border border-[#DFD9CE] bg-white hover:border-[#1C1917] hover:bg-[#FAF8F5] text-[10px] uppercase tracking-[0.2em] font-semibold text-[#1C1917] transition-all cursor-pointer shadow-xs">
+                                    class="px-6 py-3 rounded-full border border-[#DFD9CE] bg-white hover:border-[#1C1917] hover:bg-[#FAF8F5] text-[10px] uppercase tracking-[0.2em] font-semibold text-[#1C1917] transition-all cursor-pointer shadow-xs text-center">
                                 KEEP ORDER
                             </button>
                             <button type="submit" 
-                                    class="px-7 py-3 rounded-full bg-[#1C1917] hover:bg-red-700 text-white text-[10px] uppercase tracking-[0.2em] font-semibold transition-all shadow-md cursor-pointer">
+                                    class="px-7 py-3 rounded-full bg-[#1C1917] hover:bg-red-700 text-white text-[10px] uppercase tracking-[0.2em] font-semibold transition-all shadow-md cursor-pointer text-center">
                                 CONFIRM CANCELLATION
                             </button>
                         </div>

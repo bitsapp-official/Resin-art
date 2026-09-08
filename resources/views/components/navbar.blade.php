@@ -101,28 +101,40 @@
                     </button>
                 </div>
 
-                <!-- RIGHT: Mobile Top Controls (Quick Search, Quick Bag Pill & Luxury Menu Toggle) -->
-                <div class="flex items-center lg:hidden space-x-1 sm:space-x-2">
+                <!-- RIGHT: Mobile Top Controls (Quick Search, User Profile, Quick Bag & Menu Toggle) -->
+                <div class="flex items-center lg:hidden space-x-1 sm:space-x-1.5 shrink-0">
                     <!-- Mobile Search Trigger -->
-                    <button type="button" @click="searchModalOpen = true" title="Search Atelier" class="text-[oklch(18%_0.012_50)] p-2 hover:opacity-60 transition-opacity cursor-pointer">
+                    <button type="button" @click="searchModalOpen = true" title="Search Atelier" class="text-[oklch(18%_0.012_50)] p-1.5 sm:p-2 hover:opacity-60 transition-opacity cursor-pointer">
                         <svg class="w-4 h-4 stroke-[1.75]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
                         </svg>
                     </button>
 
-                    <!-- Mobile Bag Trigger (Clean Luxury Icon with Conditional Top-Right Badge) -->
-                    <button @click="cartOpen = true" type="button" title="View Bag" class="relative text-[oklch(18%_0.012_50)] p-2 hover:opacity-60 transition-opacity cursor-pointer">
+                    <!-- Mobile Account / User Profile Link -->
+                    <a href="{{ Auth::check() ? route('account.dashboard') : route('login') }}" 
+                       title="{{ Auth::check() ? 'My Account (' . Auth::user()->name . ')' : 'Sign In / Account' }}" 
+                       class="text-[oklch(18%_0.012_50)] p-1.5 sm:p-2 hover:opacity-60 transition-opacity flex items-center justify-center cursor-pointer"
+                       aria-label="{{ Auth::check() ? 'My Account' : 'Sign In' }}">
                         <svg class="w-4 h-4 stroke-[1.75]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 10.5V6a3.75 3.75 0 10-7.5 0v4.5m11.356-1.993l1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 01-1.12-1.243l1.264-12A1.125 1.125 0 015.513 7.5h12.974c.576 0 1.059.435 1.119 1.007zM8.625 10.5a.375.375 0 11-.75 0 .375.375 0 01.75 0zm7.5 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
                         </svg>
-                        <span id="mobile-header-cart-count" class="absolute top-0.5 right-0.5 w-4 h-4 rounded-full bg-[#1C1917] text-white font-semibold text-[8.5px] items-center justify-center leading-none shadow-2xs {{ $cartItemCount > 0 ? 'flex' : 'hidden' }}">
-                            {{ $cartItemCount }}
+                    </a>
+
+                    <!-- Mobile Bag Trigger (Clean Luxury Icon with Floating Top-Right Badge) -->
+                    <button @click="cartOpen = true" type="button" title="View Bag" class="text-[oklch(18%_0.012_50)] p-1.5 sm:p-2 hover:opacity-60 transition-opacity flex items-center justify-center cursor-pointer">
+                        <span class="relative inline-flex items-center justify-center">
+                            <svg class="w-4 h-4 stroke-[1.75]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 10.5V6a3.75 3.75 0 10-7.5 0v4.5m11.356-1.993l1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 01-1.12-1.243l1.264-12A1.125 1.125 0 015.513 7.5h12.974c.576 0 1.059.435 1.119 1.007zM8.625 10.5a.375.375 0 11-.75 0 .375.375 0 01.75 0zm7.5 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
+                            </svg>
+                            <span id="mobile-header-cart-count" class="absolute -top-1.5 -right-2 min-w-[15px] h-[15px] px-0.5 rounded-full bg-[#1C1917] text-white font-bold text-[8px] items-center justify-center leading-none shadow-2xs {{ $cartItemCount > 0 ? 'flex' : 'hidden' }}">
+                                {{ $cartItemCount }}
+                            </span>
                         </span>
                     </button>
 
                     <!-- Mobile Hamburger / Close Toggle Button -->
                     <button @click="mobileMenuOpen = !mobileMenuOpen" type="button"
-                            class="text-[oklch(18%_0.012_50)] p-2 hover:opacity-60 transition-opacity cursor-pointer"
+                            class="text-[oklch(18%_0.012_50)] p-1.5 sm:p-2 hover:opacity-60 transition-opacity cursor-pointer"
                             aria-label="Toggle menu">
                         <svg x-show="!mobileMenuOpen" class="w-4 h-4 stroke-[1.75]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
@@ -238,15 +250,17 @@
                             <span class="text-[9px] text-[#8E877D] group-hover:translate-x-0.5 transition-transform">→</span>
                         </a>
 
-                        <!-- Contact Us Card -->
-                        <a href="{{ route('contact.index') }}" @click="mobileMenuOpen = false"
+                        <!-- Account / Profile Card -->
+                        <a href="{{ Auth::check() ? route('account.dashboard') : route('login') }}" @click="mobileMenuOpen = false"
                            class="flex items-center justify-between p-3 rounded-2xl border border-[#DFD9CE] hover:border-[#1C1917] transition-all group shadow-2xs"
                            style="background-color: #FFFFFF !important;">
                             <div class="flex items-center space-x-2">
                                 <svg class="w-3.5 h-3.5 text-[#1C1917] stroke-[1.75]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
                                 </svg>
-                                <span class="text-[9.5px] uppercase tracking-[0.16em] font-semibold text-[#1C1917]">Contact Us</span>
+                                <span class="text-[9.5px] uppercase tracking-[0.16em] font-semibold text-[#1C1917]">
+                                    {{ Auth::check() ? 'My Account' : 'Sign In' }}
+                                </span>
                             </div>
                             <span class="text-[9px] text-[#8E877D] group-hover:translate-x-0.5 transition-transform">→</span>
                         </a>
@@ -260,21 +274,17 @@
                  style="background-color: #FAF8F5 !important;">
                 @if(Auth::check())
                     <div class="flex items-center justify-between">
-                        <div class="flex items-center space-x-2.5">
-                            <span class="w-8 h-8 rounded-full bg-[#1C1917] text-white text-xs font-semibold flex items-center justify-center shadow-xs">
+                        <a href="{{ route('account.dashboard') }}" @click="mobileMenuOpen = false" class="flex items-center space-x-2.5 group hover:opacity-85 transition-opacity">
+                            <span class="w-8 h-8 rounded-full bg-[#1C1917] text-white text-xs font-semibold flex items-center justify-center shadow-xs shrink-0">
                                 {{ strtoupper(substr(Auth::user()->name, 0, 1)) }}
                             </span>
-                            <div>
-                                <p class="text-xs font-medium text-[#1C1917] leading-tight">{{ Auth::user()->name }}</p>
+                            <div class="min-w-0">
+                                <p class="text-xs font-medium text-[#1C1917] leading-tight truncate group-hover:text-[#B87333] transition-colors">{{ Auth::user()->name }}</p>
                                 <p class="text-[8.5px] uppercase tracking-wider text-[#8E877D]">Atelier Patron</p>
                             </div>
-                        </div>
-                        <div class="flex items-center space-x-3 text-xs">
-                            <a href="{{ route('account.dashboard') }}" @click="mobileMenuOpen = false" class="text-[9.5px] uppercase tracking-[0.2em] font-semibold text-[#1C1917] hover:underline">
-                                Account
-                            </a>
-                            <span class="text-[#DFD9CE]">·</span>
-                            <a href="{{ route('logout') }}" class="text-[9.5px] uppercase tracking-[0.2em] font-semibold text-[#8E877D] hover:text-red-700">
+                        </a>
+                        <div class="shrink-0 pl-2">
+                            <a href="{{ route('logout') }}" class="text-[9.5px] uppercase tracking-[0.2em] font-semibold text-[#8E877D] hover:text-red-700 transition-colors">
                                 Sign Out
                             </a>
                         </div>
@@ -307,18 +317,69 @@
     {{-- Search Modal Overlay (At Root level to avoid Header CSS backdrop-filter containing block scroll & margin/gap bugs) --}}
     <div x-show="searchModalOpen" 
          x-cloak 
-         x-effect="document.body.classList.toggle('overflow-hidden', searchModalOpen)"
+         x-effect="document.body.classList.toggle('overflow-hidden', searchModalOpen); if (searchModalOpen) { $nextTick(() => $refs.searchInput && $refs.searchInput.focus()); }"
          @keydown.escape.window="searchModalOpen = false" 
-         class="fixed inset-0 z-[99999] bg-black/60 backdrop-blur-xs flex items-start justify-center pt-24 px-4 pointer-events-auto">
-        <div @click.away="searchModalOpen = false" class="bg-white rounded-3xl p-6 max-w-lg w-full shadow-2xl space-y-4">
-            <div class="flex items-center justify-between pb-1">
-                <h3 class="text-sm font-semibold uppercase tracking-wider text-[#1C1917]">Search Atelier</h3>
-                <button type="button" @click="searchModalOpen = false" class="text-gray-400 hover:text-black text-xl">&times;</button>
+         x-transition:enter="transition ease-out duration-200"
+         x-transition:enter-start="opacity-0"
+         x-transition:enter-end="opacity-100"
+         x-transition:leave="transition ease-in duration-150"
+         x-transition:leave-start="opacity-100"
+         x-transition:leave-end="opacity-0"
+         class="fixed inset-0 z-[99999] bg-black/60 backdrop-blur-xs flex items-start justify-center pt-20 sm:pt-28 px-3.5 sm:px-4 pointer-events-auto">
+        <div @click.away="searchModalOpen = false" 
+             x-show="searchModalOpen"
+             x-transition:enter="transition ease-out duration-250 transform"
+             x-transition:enter-start="opacity-0 -translate-y-3 scale-95"
+             x-transition:enter-end="opacity-100 translate-y-0 scale-100"
+             x-transition:leave="transition ease-in duration-150 transform"
+             x-transition:leave-start="opacity-100 translate-y-0 scale-100"
+             x-transition:leave-end="opacity-0 -translate-y-3 scale-95"
+             class="bg-white rounded-3xl p-5 sm:p-7 max-w-lg w-full shadow-2xl space-y-4 border border-[#DFD9CE]/60">
+            <div class="flex items-center justify-between pb-1 border-b border-[#F0ECE1]">
+                <div>
+                    <h3 class="text-xs sm:text-sm font-semibold uppercase tracking-[0.2em] text-[#1C1917]">Search Atelier</h3>
+                    <p class="text-[10px] sm:text-xs text-[#8E877D] mt-0.5">Explore handcrafted resin art, clocks & custom decor</p>
+                </div>
+                <button type="button" 
+                        @click="searchModalOpen = false" 
+                        class="w-8 h-8 rounded-full bg-[#FAF8F5] hover:bg-[#EBE6DD] text-[#1C1917] flex items-center justify-center transition-colors cursor-pointer shrink-0"
+                        aria-label="Close search">
+                    <svg class="w-4 h-4 stroke-[2]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
             </div>
-            <form method="GET" action="{{ route('shop.index') }}" class="flex gap-2">
-                <input type="text" name="search" placeholder="Search coasters, clocks, tables..." required value="{{ request('search') ?: request('q') }}" class="flex-1 border border-[#DFD9CE] rounded-full px-5 py-2.5 text-xs text-[#1C1917] focus:outline-none focus:border-[#1C1917]">
-                <button type="submit" class="bg-[#1C1917] text-white text-xs px-6 py-2.5 rounded-full font-semibold">SEARCH</button>
+            <form method="GET" action="{{ route('shop.index') }}" class="relative w-full">
+                <div class="relative flex items-center w-full">
+                    <div class="absolute left-3.5 sm:left-4 text-[#8E877D] pointer-events-none flex items-center">
+                        <svg class="w-4 h-4 stroke-[1.75]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+                        </svg>
+                    </div>
+                    <input type="text" 
+                           name="search" 
+                           x-ref="searchInput"
+                           placeholder="Search coasters, clocks, tables..." 
+                           required 
+                           value="{{ request('search') ?: request('q') }}" 
+                           class="w-full bg-[#FAF8F5] border border-[#DFD9CE] rounded-full pl-10 sm:pl-11 pr-24 sm:pr-28 py-3 text-xs sm:text-sm text-[#1C1917] placeholder:text-[#8E877D] focus:outline-none focus:border-[#1C1917] focus:bg-white transition-all shadow-inner/10">
+                    <button type="submit" 
+                            class="absolute right-1.5 top-1/2 -translate-y-1/2 bg-[#1C1917] hover:bg-[#2D2825] text-white text-[10.5px] sm:text-xs tracking-wider uppercase font-semibold px-4 py-2 rounded-full transition-all cursor-pointer shadow-xs">
+                        Search
+                    </button>
+                </div>
             </form>
+            <div class="pt-1">
+                <p class="text-[9px] uppercase tracking-[0.2em] font-semibold text-[#8E877D] mb-2">Popular Searches</p>
+                <div class="flex flex-wrap gap-1.5">
+                    @foreach(['Coasters', 'Wall Clocks', 'Resin Tables', 'Serving Trays', 'Geode Art', 'Bookmarks'] as $tag)
+                        <a href="{{ route('shop.index', ['search' => $tag]) }}" 
+                           class="text-[10px] sm:text-xs px-3 py-1 rounded-full bg-[#FAF8F5] hover:bg-[#1C1917] text-[#1C1917] hover:text-white border border-[#DFD9CE] transition-all cursor-pointer">
+                            {{ $tag }}
+                        </a>
+                    @endforeach
+                </div>
+            </div>
         </div>
     </div>
 </div>

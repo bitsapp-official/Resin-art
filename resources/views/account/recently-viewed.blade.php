@@ -3,10 +3,10 @@
     header-title="Recently" 
     header-italic=" viewed." 
     header-subtitle="Masterpieces and bespoke creations you recently browsed in the atelier.">
-    <div class="space-y-6">
+    <div class="space-y-6 w-full min-w-0">
 
         @if($recentlyViewed->count() > 0)
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 w-full min-w-0">
                 @foreach($recentlyViewed as $rv)
                     @php $p = $rv->product; @endphp
                     @if($p)
@@ -55,11 +55,11 @@
                 @endforeach
             </div>
         @else
-            <div class="glass rounded-[1.75rem] p-12 text-center text-xs text-[#78716C] font-light space-y-4">
+            <div class="glass rounded-[1.25rem] sm:rounded-[1.75rem] p-6 sm:p-12 text-center text-xs text-[#78716C] font-light space-y-4 w-full min-w-0">
                 <p>You haven't viewed any products yet.</p>
                 <div>
                     <a href="{{ route('shop.index') }}" 
-                       class="inline-block bg-[#1C1917] hover:bg-[#2C2724] text-white text-[9.5px] uppercase tracking-[0.25em] font-semibold py-3 px-6 rounded-full transition-all duration-300 shadow-xs">
+                       class="inline-block bg-[#1C1917] hover:bg-[#2C2724] text-white text-[9.5px] uppercase tracking-[0.25em] font-semibold py-3 px-6 rounded-full transition-all duration-300 shadow-xs whitespace-nowrap">
                         EXPLORE PRODUCTS
                     </a>
                 </div>

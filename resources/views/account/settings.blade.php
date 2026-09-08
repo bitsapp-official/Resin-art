@@ -6,7 +6,7 @@
     <div class="space-y-6">
         
         <!-- Preferences Card (Lovable Design) -->
-        <div class="glass rounded-[1.75rem] p-7 sm:p-9 space-y-6">
+        <div class="glass rounded-[1.25rem] sm:rounded-[1.75rem] p-4 sm:p-7 md:p-9 space-y-5 sm:space-y-6 w-full min-w-0">
             <div class="border-b border-[#E6E1D7]/60 pb-3">
                 <span class="text-[10px] font-bold uppercase tracking-[0.22em] text-[#8E877D]">PREFERENCES</span>
             </div>
@@ -16,7 +16,7 @@
                 @method('PUT')
 
                 <div class="space-y-3">
-                    <label class="flex items-center space-x-3.5 cursor-pointer p-4 border border-[#E6E1D7]/60 rounded-2xl bg-white/40 hover:bg-white/70 transition-all">
+                    <label class="flex items-center space-x-3.5 cursor-pointer p-3.5 sm:p-4 border border-[#E6E1D7]/60 rounded-2xl bg-white/40 hover:bg-white/70 transition-all">
                         <input type="checkbox" name="order_updates_email" value="1" {{ $settings->order_updates_email ? 'checked' : '' }} class="accent-[#1C1917] rounded">
                         <div>
                             <span class="font-normal text-[#1C1917] block" style="font-family: 'Plus Jakarta Sans', system-ui, sans-serif;">Order Dispatch Email Alerts</span>
@@ -24,7 +24,7 @@
                         </div>
                     </label>
 
-                    <label class="flex items-center space-x-3.5 cursor-pointer p-4 border border-[#E6E1D7]/60 rounded-2xl bg-white/40 hover:bg-white/70 transition-all">
+                    <label class="flex items-center space-x-3.5 cursor-pointer p-3.5 sm:p-4 border border-[#E6E1D7]/60 rounded-2xl bg-white/40 hover:bg-white/70 transition-all">
                         <input type="checkbox" name="promotional_email" value="1" {{ $settings->promotional_email ? 'checked' : '' }} class="accent-[#1C1917] rounded">
                         <div>
                             <span class="font-normal text-[#1C1917] block" style="font-family: 'Plus Jakarta Sans', system-ui, sans-serif;">Atelier Journal & Drop Previews</span>
@@ -34,7 +34,7 @@
                 </div>
 
                 <div class="pt-2">
-                    <button type="submit" class="border border-[#DFD9CE] hover:border-[#1C1917] hover:bg-[#1C1917] hover:text-white text-[#1C1917] text-[9.5px] uppercase tracking-[0.2em] font-semibold px-6 py-3 rounded-full transition-all duration-300 cursor-pointer">
+                    <button type="submit" class="border border-[#DFD9CE] hover:border-[#1C1917] hover:bg-[#1C1917] hover:text-white text-[#1C1917] text-[9.5px] uppercase tracking-[0.2em] font-semibold px-5 sm:px-6 py-2.5 sm:py-3 rounded-full transition-all duration-300 cursor-pointer">
                         SAVE PREFERENCES
                     </button>
                 </div>

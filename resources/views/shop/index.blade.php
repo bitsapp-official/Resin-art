@@ -1,19 +1,19 @@
 <x-app-layout title="Shop All Resin Art — Maison Résine Atelier">
-<div class="min-h-screen bg-transparent">
-    <div class="max-w-[1360px] mx-auto px-6 lg:px-12 xl:px-16 pt-8 pb-24">
+<div class="min-h-screen bg-transparent w-full min-w-0">
+    <div class="max-w-[1360px] mx-auto px-4 sm:px-6 lg:px-12 xl:px-16 pt-6 sm:pt-8 pb-16 sm:pb-24 w-full min-w-0">
 
         {{-- ── HERO HEADER SECTION ──────────────────────────────── --}}
-        <div class="py-10 border-b border-[#E5DFD3]/80 space-y-3.5">
+        <div class="py-6 sm:py-10 border-b border-[#E5DFD3]/80 space-y-2 sm:space-y-3.5">
             <div class="flex items-center space-x-3 text-[10px] uppercase tracking-[0.28em] font-medium text-[#8E877D]">
                 <span class="w-8 h-[1px] bg-[#D9D2C5] inline-block"></span>
                 <span>THE INDEX</span>
             </div>
 
-            <h1 class="font-editorial text-5xl sm:text-6xl lg:text-[72px] text-[#1C1917] font-light leading-[1.08] tracking-tight">
+            <h1 class="font-editorial text-3xl sm:text-5xl lg:text-[72px] text-[#1C1917] font-light leading-[1.08] tracking-tight">
                 Every piece, <em class="italic font-normal">one of one.</em>
             </h1>
 
-            <p class="text-[14px] sm:text-[15px] text-[#78716C] font-light leading-relaxed max-w-xl pt-1">
+            <p class="text-xs sm:text-[14px] md:text-[15px] text-[#78716C] font-light leading-relaxed max-w-xl pt-1">
                 Poured by hand in Bordeaux with resin, hardwood, and raw pigments. Unrepeatable design. Objects for residence.
             </p>
         </div>
@@ -111,8 +111,8 @@
                                 $isWishlisted = in_array($product->id, $wishlistIds ?? []);
                             @endphp
 
-                            {{-- Floating Action Buttons (Top Right): Hover Animated with Glass Border --}}
-                            <div class="absolute top-4 right-4 flex flex-col space-y-2 z-20 opacity-0 group-hover:opacity-100 translate-x-2 group-hover:translate-x-0 transition-all duration-300 ease-out pointer-events-none group-hover:pointer-events-auto">
+                            {{-- Floating Action Buttons (Top Right): Always visible on mobile, hover-reveal on desktop --}}
+                            <div class="absolute top-3.5 right-3.5 sm:top-4 sm:right-4 flex flex-col space-y-2 z-20 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 translate-x-0 sm:translate-x-2 sm:group-hover:translate-x-0 transition-all duration-300 ease-out pointer-events-auto sm:pointer-events-none sm:group-hover:pointer-events-auto">
                                 {{-- Wishlist Toggle Button --}}
                                 <form method="POST" action="{{ route('wishlist.toggle') }}" class="wishlist-toggle-form" data-product-id="{{ $product->id }}">
                                     @csrf

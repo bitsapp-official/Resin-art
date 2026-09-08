@@ -1,14 +1,14 @@
 <x-app-layout title="Recover Password — Maison Résine">
-    <div class="min-h-[75vh] flex items-center justify-center py-16 px-6 lg:px-12 xl:px-20">
-        <div class="max-w-[1060px] w-full grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center">
+    <div class="min-h-[75vh] flex items-center justify-center py-10 sm:py-16 px-4 sm:px-6 lg:px-12 xl:px-20 w-full min-w-0">
+        <div class="max-w-[1060px] w-full grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-16 items-center">
             
             {{-- Left column welcome text --}}
-            <div class="lg:col-span-6 space-y-4 text-left">
+            <div class="lg:col-span-6 space-y-3 sm:space-y-4 text-left">
                 <div class="flex items-center space-x-2 text-[10px] uppercase tracking-[0.2em] font-medium text-[#8E877D]">
                     <span class="w-6 h-[1px] bg-[#8E877D] inline-block"></span>
                     <span>RECOVERY</span>
                 </div>
-                <h1 class="font-editorial text-5xl sm:text-6xl lg:text-[64px] text-[#1C1917] font-light leading-[1.05] tracking-tight">
+                <h1 class="font-editorial text-3xl sm:text-5xl lg:text-[64px] text-[#1C1917] font-light leading-[1.08] sm:leading-[1.05] tracking-tight">
                     Forgotten <em class="italic font-normal">password.</em>
                 </h1>
                 <p class="text-[13.5px] text-[#78716C] font-light leading-relaxed max-w-sm pt-1">
@@ -17,8 +17,8 @@
             </div>
 
             {{-- Right column forgot password form card --}}
-            <div class="lg:col-span-6 flex justify-center lg:justify-end">
-                <div class="w-full max-w-[480px] glass rounded-[2.25rem] p-8 sm:p-12 space-y-6">
+            <div class="lg:col-span-6 flex justify-center lg:justify-end w-full min-w-0">
+                <div class="w-full max-w-[480px] glass rounded-[1.5rem] sm:rounded-[2.25rem] p-5 sm:p-8 md:p-12 space-y-6">
                     @if(session('status'))
                         {{-- ✅ Success State: Email sent --}}
                         <div class="py-4 flex flex-col items-center justify-center text-center space-y-2">

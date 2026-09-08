@@ -2,44 +2,44 @@
     <div class="space-y-8">
         
         <!-- 1. Top Row: 4 Metric Stat Cards (Balanced 4-Column Grid) -->
-        <div class="grid grid-cols-2 sm:grid-cols-4 gap-5">
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-5">
             
             <!-- Card 1: Orders -->
-            <a href="{{ route('account.orders.index') }}" class="glass rounded-[1.75rem] p-7 hover:bg-white/80 transition-all block">
-                <div class="font-editorial text-4xl text-[#1C1917] font-light leading-none mb-2">
+            <a href="{{ route('account.orders.index') }}" class="glass rounded-[1.25rem] sm:rounded-[1.75rem] p-4 sm:p-6 lg:p-7 hover:bg-white/80 transition-all block">
+                <div class="font-editorial text-3xl sm:text-4xl text-[#1C1917] font-light leading-none mb-1.5 sm:mb-2">
                     {{ $ordersCount }}
                 </div>
-                <div class="text-[9px] uppercase tracking-[0.2em] font-bold text-[#8E877D]">
+                <div class="text-[8.5px] sm:text-[9px] uppercase tracking-wider sm:tracking-[0.2em] font-bold text-[#8E877D]">
                     ORDERS
                 </div>
             </a>
 
             <!-- Card 2: Custom Requests -->
-            <a href="{{ route('account.custom-requests.index') }}" class="glass rounded-[1.75rem] p-7 hover:bg-white/80 transition-all block">
-                <div class="font-editorial text-4xl text-[#1C1917] font-light leading-none mb-2">
+            <a href="{{ route('account.custom-requests.index') }}" class="glass rounded-[1.25rem] sm:rounded-[1.75rem] p-4 sm:p-6 lg:p-7 hover:bg-white/80 transition-all block">
+                <div class="font-editorial text-3xl sm:text-4xl text-[#1C1917] font-light leading-none mb-1.5 sm:mb-2">
                     {{ $customRequestsCount }}
                 </div>
-                <div class="text-[9px] uppercase tracking-[0.2em] font-bold text-[#8E877D]">
+                <div class="text-[8.5px] sm:text-[9px] uppercase tracking-wider sm:tracking-[0.2em] font-bold text-[#8E877D] truncate">
                     CUSTOM REQUESTS
                 </div>
             </a>
 
             <!-- Card 3: Wishlist -->
-            <a href="{{ route('wishlist.index') }}" class="glass rounded-[1.75rem] p-7 hover:bg-white/80 transition-all block">
-                <div class="font-editorial text-4xl text-[#1C1917] font-light leading-none mb-2">
+            <a href="{{ route('wishlist.index') }}" class="glass rounded-[1.25rem] sm:rounded-[1.75rem] p-4 sm:p-6 lg:p-7 hover:bg-white/80 transition-all block">
+                <div class="font-editorial text-3xl sm:text-4xl text-[#1C1917] font-light leading-none mb-1.5 sm:mb-2">
                     {{ $wishlistCount }}
                 </div>
-                <div class="text-[9px] uppercase tracking-[0.2em] font-bold text-[#8E877D]">
+                <div class="text-[8.5px] sm:text-[9px] uppercase tracking-wider sm:tracking-[0.2em] font-bold text-[#8E877D]">
                     WISHLIST
                 </div>
             </a>
 
             <!-- Card 4: Notifications -->
-            <a href="{{ route('account.notifications.index') }}" class="glass rounded-[1.75rem] p-7 hover:bg-white/80 transition-all block">
-                <div class="font-editorial text-4xl text-[#1C1917] font-light leading-none mb-2">
+            <a href="{{ route('account.notifications.index') }}" class="glass rounded-[1.25rem] sm:rounded-[1.75rem] p-4 sm:p-6 lg:p-7 hover:bg-white/80 transition-all block">
+                <div class="font-editorial text-3xl sm:text-4xl text-[#1C1917] font-light leading-none mb-1.5 sm:mb-2">
                     {{ $unreadNotificationsCount }}
                 </div>
-                <div class="text-[9px] uppercase tracking-[0.2em] font-bold text-[#8E877D]">
+                <div class="text-[8.5px] sm:text-[9px] uppercase tracking-wider sm:tracking-[0.2em] font-bold text-[#8E877D]">
                     NOTIFICATIONS
                 </div>
             </a>

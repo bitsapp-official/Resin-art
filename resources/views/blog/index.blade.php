@@ -1,20 +1,20 @@
 <x-app-layout title="Journal — Maison Résine Atelier">
 
-    <div class="py-10 lg:py-16">
-        <div class="max-w-[1400px] mx-auto px-6 lg:px-12 xl:px-16 space-y-12 lg:space-y-16">
+    <div class="py-8 sm:py-10 lg:py-16">
+        <div class="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-12 xl:px-16 space-y-8 sm:space-y-12 lg:space-y-16 w-full min-w-0">
 
             <!-- Hero Header Section -->
-            <div class="max-w-3xl space-y-4 animate-fade-up">
+            <div class="max-w-3xl space-y-3 sm:space-y-4 animate-fade-up">
                 <div class="flex items-center space-x-3 text-[10px] uppercase tracking-[0.25em] font-medium text-[#8E877D]">
                     <span class="w-8 h-[1px] bg-[#D9D2C5] inline-block"></span>
                     <span>JOURNAL</span>
                 </div>
 
-                <h1 class="font-editorial text-5xl sm:text-6xl lg:text-[72px] text-[#1C1917] font-light leading-[1.08] tracking-tight">
+                <h1 class="font-editorial text-3xl sm:text-5xl lg:text-6xl xl:text-[72px] text-[#1C1917] font-light leading-[1.08] tracking-tight">
                     Notes from <em class="italic font-normal">the atelier.</em>
                 </h1>
 
-                <p class="text-[15px] sm:text-base text-[#78716C] font-light leading-relaxed max-w-xl pt-1">
+                <p class="text-[14px] sm:text-base text-[#78716C] font-light leading-relaxed max-w-xl pt-1">
                     Essays on material, light, process and the slow craft of pouring resin.
                 </p>
             </div>

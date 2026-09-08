@@ -64,19 +64,19 @@
     }" class="space-y-6">
         
         <!-- Top Action Header -->
-        <div class="flex items-center justify-between pb-1">
-            <span class="text-[10px] uppercase tracking-[0.2em] font-semibold text-[#8E877D]">
+        <div class="flex items-center justify-between gap-3 pb-1 w-full min-w-0">
+            <span class="text-[9.5px] sm:text-[10px] uppercase tracking-wider sm:tracking-[0.2em] font-semibold text-[#8E877D] truncate">
                 REQUEST HISTORY ({{ $customRequests->total() }})
             </span>
             <a href="{{ route('custom.index') }}" 
-               class="inline-flex items-center justify-center border border-[#DFD9CE] hover:border-[#1C1917] hover:bg-[#1C1917] hover:text-white text-[#1C1917] text-[9.5px] uppercase tracking-[0.2em] font-semibold px-5 py-2.5 rounded-full transition-all duration-300 shadow-sm shrink-0">
+               class="inline-flex items-center justify-center border border-[#DFD9CE] hover:border-[#1C1917] hover:bg-[#1C1917] hover:text-white text-[#1C1917] text-[8.5px] sm:text-[9.5px] uppercase tracking-wider sm:tracking-[0.2em] font-semibold px-3 sm:px-5 py-1.5 sm:py-2.5 rounded-full transition-all duration-300 shadow-2xs shrink-0 whitespace-nowrap">
                 + SUBMIT NEW REQUEST
             </a>
         </div>
 
         @if($customRequests->count() > 0)
             <!-- Infinite Scroll Container -->
-            <div id="custom-requests-list" class="space-y-5">
+            <div id="custom-requests-list" class="space-y-4 sm:space-y-5 w-full min-w-0">
                 @foreach($customRequests as $req)
                     @php
                         $statusEnum = $req->status instanceof \App\Enums\CustomRequestStatus 
@@ -89,24 +89,24 @@
                         $invoice = $req->invoice;
                     @endphp
 
-                    <div class="custom-request-card rounded-[2rem] p-6 sm:p-7 space-y-4 shadow-[0_20px_50px_rgba(28,25,23,0.04)] border-none" style="background: oklch(98.5% .008 85);">
+                    <div class="custom-request-card rounded-[1.25rem] sm:rounded-[2rem] p-4 sm:p-6 lg:p-7 space-y-3.5 sm:space-y-4 shadow-[0_10px_30px_rgba(28,25,23,0.04)] border border-[#E6E1D7]/60 w-full min-w-0" style="background: oklch(98.5% .008 85);">
                         
-                        <!-- Header Row: Reference, Date, Status Badge & Price -->
-                        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between border-b border-[#E6E1D7]/60 pb-3 gap-2 text-xs">
-                            <div>
-                                <span class="font-editorial text-xl text-[#1C1917] block">{{ $req->public_reference }}</span>
-                                <span class="text-[10px] uppercase tracking-[0.15em] text-[#8E877D] block mt-0.5">
-                                    Submitted on {{ ($req->submitted_at ?? $req->created_at)->format('d M Y') }}
+                        <!-- Header Row: Reference, Date, Status Badge -->
+                        <div class="flex items-center justify-between border-b border-[#E6E1D7]/60 pb-3 gap-2 text-xs">
+                            <div class="min-w-0 flex-1">
+                                <span class="font-editorial text-base sm:text-xl text-[#1C1917] block truncate leading-snug">{{ $req->public_reference }}</span>
+                                <span class="text-[9.5px] sm:text-[10px] uppercase tracking-wider sm:tracking-[0.15em] text-[#8E877D] block mt-0.5">
+                                    Submitted on {{ ($req->submitted_at ?? $req->created_at) ? ($req->submitted_at ?? $req->created_at)->format('d M Y') : 'Recent' }}
                                 </span>
                             </div>
 
-                            <div class="flex items-center space-x-3">
+                            <div class="flex items-center shrink-0">
                                 @if($isClosed)
-                                    <span class="bg-red-50 text-red-800 border border-red-200/80 px-3 py-1 rounded-full text-[9px] uppercase font-semibold tracking-widest">
+                                    <span class="bg-red-50 text-red-800 border border-red-200/80 px-2 sm:px-3 py-0.5 sm:py-1 rounded-full text-[8.5px] sm:text-[9px] uppercase font-semibold tracking-wider whitespace-nowrap">
                                         {{ $customerLabel }}
                                     </span>
                                 @else
-                                    <span class="bg-[#EFECE6] text-[#1C1917] border border-[#DDD6CA] px-3 py-1 rounded-full text-[9px] uppercase font-semibold tracking-widest">
+                                    <span class="bg-[#EFECE6] text-[#1C1917] border border-[#DDD6CA] px-2 sm:px-3 py-0.5 sm:py-1 rounded-full text-[8.5px] sm:text-[9px] uppercase font-semibold tracking-wider whitespace-nowrap">
                                         {{ $customerLabel }}
                                     </span>
                                 @endif
@@ -115,10 +115,10 @@
 
                         <!-- 5-Segment Progress Bar (Universal Flexbox) -->
                         @if(!$isClosed)
-                            <div class="py-1">
-                                <div class="flex items-center gap-1.5 w-full">
+                            <div class="py-0.5">
+                                <div class="flex items-center gap-1 sm:gap-1.5 w-full">
                                     @for($i = 1; $i <= 5; $i++)
-                                        <div class="flex-1 h-1.5 rounded-full transition-colors {{ $i <= $stepIndex ? 'bg-[#1C1917]' : 'bg-[#E5DFD3]' }}"></div>
+                                        <div class="flex-1 h-1 sm:h-1.5 rounded-full transition-colors {{ $i <= $stepIndex ? 'bg-[#1C1917]' : 'bg-[#E5DFD3]' }}"></div>
                                     @endfor
                                 </div>
                             </div>
@@ -131,36 +131,38 @@
                             </p>
 
                             @if($req->images && $req->images->count() > 0)
-                                <div class="flex items-center gap-2 pt-1">
-                                    <span class="text-[10px] uppercase tracking-wider text-[#8E877D] font-medium mr-1">References:</span>
-                                    @foreach($req->images as $img)
-                                        <a href="{{ $img->url }}" 
-                                           target="_blank" 
-                                           class="w-10 h-10 rounded-lg overflow-hidden border border-[#E6E1D7] bg-white shrink-0 hover:scale-105 transition-transform inline-block"
-                                           title="View reference photo">
-                                            <img src="{{ $img->url }}" 
-                                                 alt="Reference" 
-                                                 class="w-full h-full object-cover">
-                                        </a>
-                                    @endforeach
+                                <div class="flex flex-wrap items-center gap-2 pt-1">
+                                    <span class="text-[9.5px] sm:text-[10px] uppercase tracking-wider text-[#8E877D] font-medium mr-1 shrink-0">References:</span>
+                                    <div class="flex flex-wrap items-center gap-1.5 sm:gap-2">
+                                        @foreach($req->images as $img)
+                                            <a href="{{ $img->url }}" 
+                                               target="_blank" 
+                                               class="w-9 h-9 sm:w-10 sm:h-10 rounded-lg overflow-hidden border border-[#E6E1D7] bg-white shrink-0 hover:scale-105 transition-transform inline-block"
+                                               title="View reference photo">
+                                                <img src="{{ $img->url }}" 
+                                                     alt="Reference" 
+                                                     class="w-full h-full object-cover">
+                                            </a>
+                                        @endforeach
+                                    </div>
                                 </div>
                             @endif
                         </div>
 
                         <!-- Footer Actions -->
-                        <div class="pt-3 border-t border-[#E6E1D7]/60 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
-                            <div class="text-[10px] text-[#8E877D] font-light">
+                        <div class="pt-3 border-t border-[#E6E1D7]/60 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2.5 text-xs">
+                            <div class="text-[9.5px] sm:text-[10px] text-[#8E877D] font-light truncate max-w-full">
                                 Destination: <span class="text-[#1C1917] font-medium">{{ $req->phone ?: 'Custom Delivery' }}</span>
                                 @if($req->whatsapp)
                                     &bull; WhatsApp: <span class="text-[#1C1917] font-medium">{{ $req->whatsapp }}</span>
                                 @endif
                             </div>
 
-                            <div class="flex items-center gap-3">
+                            <div class="flex items-center justify-between sm:justify-end gap-2.5 sm:gap-3 w-full sm:w-auto shrink-0">
                                 @if($invoice)
                                     <a href="{{ route('admin.invoices.pdf', $invoice) }}" 
                                        target="_blank"
-                                       class="border border-[#DFD9CE] text-[#1C1917] hover:bg-[#1C1917] hover:text-white text-[9.5px] uppercase tracking-[0.2em] font-semibold px-4 py-2 rounded-full transition-all duration-300">
+                                       class="border border-[#DFD9CE] text-[#1C1917] hover:bg-[#1C1917] hover:text-white text-[8.5px] sm:text-[9.5px] uppercase tracking-wider sm:tracking-[0.2em] font-semibold px-3 sm:px-4 py-1.5 sm:py-2 rounded-full transition-all duration-300 shrink-0 whitespace-nowrap shadow-2xs">
                                         Download Invoice PDF
                                     </a>
                                 @endif
@@ -171,7 +173,7 @@
                                 @endphp
                                 <a href="https://wa.me/{{ $whatsappNumber }}?text={{ $msg }}" 
                                    target="_blank"
-                                   class="text-[10px] uppercase tracking-[0.2em] font-semibold text-[#8E877D] hover:text-[#1C1917] transition-colors">
+                                   class="text-[9px] sm:text-[10px] uppercase tracking-wider sm:tracking-[0.2em] font-semibold text-[#8E877D] hover:text-[#1C1917] transition-colors shrink-0 whitespace-nowrap">
                                     Contact Us &rarr;
                                 </a>
                             </div>

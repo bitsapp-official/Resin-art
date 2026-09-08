@@ -1,8 +1,8 @@
 <footer class="bg-[#12100E] text-[#F5F2EC] mt-20 pt-12 pb-10 font-sans border-t border-[#241F1A]">
-    <div class="max-w-[1400px] mx-auto px-6 lg:px-12 xl:px-16">
+    <div class="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-12 xl:px-16 w-full min-w-0">
 
         <!-- 5-Column Grid: Brand + 4 Link Columns Evenly Distributed -->
-        <div class="grid grid-cols-2 md:grid-cols-5 gap-8 lg:gap-10 pb-12 border-b border-[#241F1A]">
+        <div class="grid grid-cols-2 md:grid-cols-5 gap-6 sm:gap-8 lg:gap-10 pb-12 border-b border-[#241F1A]">
             
             <!-- Col 1: Maison & Origin + Direct Contact -->
             @php

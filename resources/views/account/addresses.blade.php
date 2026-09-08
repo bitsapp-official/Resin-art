@@ -44,9 +44,9 @@
     }">
         
         <!-- Header Actions -->
-        <div class="flex items-center justify-between pb-2">
-            <p class="text-xs text-[#78716C]">Manage your atelier delivery locations</p>
-            <button @click="showAddForm = !showAddForm; editingId = null" class="border border-[#DFD9CE] hover:border-[#1C1917] hover:bg-[#1C1917] hover:text-white text-[#1C1917] text-[9.5px] uppercase tracking-[0.2em] font-semibold px-5 py-2.5 rounded-full transition-all duration-300 cursor-pointer">
+        <div class="flex items-center justify-between gap-3 pb-2 w-full min-w-0">
+            <p class="text-xs text-[#78716C] truncate">Manage your atelier delivery locations</p>
+            <button @click="showAddForm = !showAddForm; editingId = null" class="border border-[#DFD9CE] hover:border-[#1C1917] hover:bg-[#1C1917] hover:text-white text-[#1C1917] text-[8.5px] sm:text-[9.5px] uppercase tracking-wider sm:tracking-[0.2em] font-semibold px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-full transition-all duration-300 cursor-pointer shrink-0 whitespace-nowrap shadow-2xs">
                 <span x-text="showAddForm ? '✕ Close Form' : '+ ADD NEW ADDRESS'"></span>
             </button>
         </div>

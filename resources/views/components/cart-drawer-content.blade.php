@@ -1,7 +1,12 @@
 {{-- Items Container --}}
+@php
+    $displayItems = (isset($cartItems) && $cartItems instanceof \Illuminate\Support\Collection) 
+        ? $cartItems->sortByDesc('id') 
+        : ($cart ? $cart->items()->orderBy('id', 'desc')->get() : collect());
+@endphp
 <div class="flex-1 overflow-y-auto px-7 py-6 space-y-6">
-    @if(isset($cartItems) && $cartItems->count() > 0)
-        @foreach($cartItems as $item)
+    @if($displayItems->count() > 0)
+        @foreach($displayItems as $item)
             <div class="flex gap-4 pb-6 border-b border-[#DFD9CE]/40 last:border-b-0">
                 {{-- Thumbnail (Strict 80x80 Size Container) --}}
                 <div class="w-20 h-20 shrink-0 bg-[#F5F2EB] border border-[#DFD9CE]/60 overflow-hidden rounded-xl" style="width: 80px; height: 80px; min-width: 80px; min-height: 80px; max-width: 80px; max-height: 80px;">
@@ -75,7 +80,7 @@
 </div>
 
 {{-- Footer (Matching Screenshot) --}}
-@if(isset($cartItems) && $cartItems->count() > 0)
+@if($displayItems->count() > 0)
     <div class="border-t border-[#DFD9CE]/60 px-7 py-6 space-y-4 bg-[#FAF8F5]">
         <div class="flex justify-between items-baseline">
             <span class="text-[9.5px] uppercase tracking-[0.25em] font-semibold text-[#8E877D]">SUBTOTAL</span>

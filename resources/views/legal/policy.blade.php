@@ -1,13 +1,13 @@
 <x-app-layout :title="$page->meta_title ?? ($page->title . ' — Maison Résine')">
-    <div class="min-h-[70vh] max-w-4xl mx-auto px-6 py-16 sm:py-24 space-y-12">
+    <div class="min-h-[70vh] max-w-4xl mx-auto px-4 sm:px-6 py-10 sm:py-20 space-y-8 sm:space-y-12 w-full min-w-0">
         
         {{-- Header block --}}
-        <div class="space-y-4 border-b border-[#E5DFD3]/80 pb-8">
+        <div class="space-y-3 sm:space-y-4 border-b border-[#E5DFD3]/80 pb-6 sm:pb-8">
             <div class="flex items-center space-x-3 text-[10px] uppercase tracking-[0.28em] font-medium text-[#8E877D]">
                 <span class="w-8 h-[1px] bg-[#D9D2C5] inline-block"></span>
                 <span>{{ $page->hero_badge ?? 'LEGAL NOTICE' }}</span>
             </div>
-            <h1 class="font-editorial text-4xl sm:text-5xl lg:text-6xl text-[#1C1917] font-light leading-tight">
+            <h1 class="font-editorial text-3xl sm:text-5xl lg:text-6xl text-[#1C1917] font-light leading-tight">
                 {{ $page->title }}<span class="text-[#8E877D]">.</span>
             </h1>
             @if($page->hero_label)
@@ -16,9 +16,9 @@
         </div>
 
         {{-- Rich Content Body --}}
-        <div class="prose prose-[#1C1917] max-w-none text-[14px] text-[#524C46] font-light leading-relaxed space-y-8
-                    prose-h2:font-editorial prose-h2:text-2xl sm:prose-h2:text-3xl prose-h2:text-[#1C1917] prose-h2:font-light prose-h2:tracking-tight prose-h2:mt-10 prose-h2:mb-4
-                    prose-p:text-[#524C46] prose-p:text-[14.5px] prose-p:leading-[1.85] prose-p:font-light
+        <div class="prose prose-[#1C1917] max-w-none text-[13.5px] sm:text-[14px] text-[#524C46] font-light leading-relaxed space-y-6 sm:space-y-8
+                    prose-h2:font-editorial prose-h2:text-xl sm:prose-h2:text-3xl prose-h2:text-[#1C1917] prose-h2:font-light prose-h2:tracking-tight prose-h2:mt-8 sm:prose-h2:mt-10 prose-h2:mb-3 sm:prose-h2:mb-4
+                    prose-p:text-[#524C46] prose-p:text-[14px] sm:prose-p:text-[14.5px] prose-p:leading-[1.85] prose-p:font-light
                     prose-a:text-[#1C1917] prose-a:underline prose-a:underline-offset-2 hover:prose-a:opacity-70
                     prose-strong:text-[#1C1917] prose-strong:font-semibold
                     prose-ul:list-disc prose-ul:pl-5 prose-ul:space-y-2
@@ -34,7 +34,7 @@
                 </svg>
                 Last updated: {{ $page->updated_at?->format('d F Y') ?? now()->format('d F Y') }}
             </span>
-            <div class="flex items-center gap-4">
+            <div class="flex flex-wrap items-center gap-3 sm:gap-4">
                 <a href="{{ route('legal.shipping') }}" class="hover:text-[#1C1917] transition-colors {{ $page->slug === 'shipping' ? 'underline font-medium text-[#1C1917]' : '' }}">Shipping</a>
                 <a href="{{ route('legal.return') }}" class="hover:text-[#1C1917] transition-colors {{ $page->slug === 'return' ? 'underline font-medium text-[#1C1917]' : '' }}">Returns & Cancellations</a>
                 <a href="{{ route('legal.privacy') }}" class="hover:text-[#1C1917] transition-colors {{ $page->slug === 'privacy' ? 'underline font-medium text-[#1C1917]' : '' }}">Privacy</a>

@@ -8,22 +8,22 @@
                 <span class="text-[10px] uppercase tracking-[0.3em] font-semibold text-[#8E877D]">
                     OUR CHRONICLE
                 </span>
-                <h2 class="font-editorial text-4xl sm:text-5xl lg:text-[52px] text-[#1C1917] font-light tracking-tight">
+                <h2 class="font-editorial text-2xl sm:text-4xl lg:text-[52px] text-[#1C1917] font-light tracking-tight leading-tight">
                     A house built on patience.
                 </h2>
-                <p class="text-[15px] text-[#78716C] font-light max-w-lg mx-auto">
+                <p class="text-[14px] sm:text-[15px] text-[#78716C] font-light max-w-lg mx-auto">
                     Maison Résine began with one poured panel in a rented flat and a stubborn belief that resin could be quiet.
                 </p>
             </div>
 
             <!-- Vertical Timeline List -->
-            <div class="relative pl-6 sm:pl-10 space-y-10 border-l border-[#D9D2C5] ml-4 sm:ml-12 pt-4 timeline-container">
+            <div class="relative pl-5 sm:pl-10 space-y-8 sm:space-y-10 border-l border-[#D9D2C5] ml-3 sm:ml-12 pt-4 timeline-container">
                 @foreach($timelineSteps as $step)
-                    <div class="relative space-y-2 group timeline-step" style="opacity: 0;">
-                        <div class="absolute -left-[31px] sm:-left-[47px] top-1.5 w-3.5 h-3.5 rounded-full {{ $loop->first || $loop->last ? 'bg-[#1C1917]' : 'bg-[#8E877D]' }} border-4 border-[#FAF8F5] timeline-dot" style="opacity: 0;"></div>
-                        <div class="flex items-baseline space-x-3">
-                            <span class="font-editorial text-3xl sm:text-4xl text-[#1C1917] font-light">{{ $step->year }}</span>
-                            <span class="text-xs uppercase tracking-[0.2em] font-bold text-[#8E877D]">{{ $step->title }}</span>
+                    <div class="relative space-y-1.5 sm:space-y-2 group timeline-step" style="opacity: 0;">
+                        <div class="absolute -left-[27px] sm:-left-[47px] top-1.5 w-3.5 h-3.5 rounded-full {{ $loop->first || $loop->last ? 'bg-[#1C1917]' : 'bg-[#8E877D]' }} border-4 border-[#FAF8F5] timeline-dot" style="opacity: 0;"></div>
+                        <div class="flex items-baseline space-x-2.5 sm:space-x-3">
+                            <span class="font-editorial text-2xl sm:text-4xl text-[#1C1917] font-light">{{ $step->year }}</span>
+                            <span class="text-[11px] sm:text-xs uppercase tracking-[0.2em] font-bold text-[#8E877D]">{{ $step->title }}</span>
                         </div>
                         <p class="text-[14.5px] text-[#78716C] font-light leading-relaxed max-w-xl">
                             {{ $step->description }}

@@ -1,5 +1,5 @@
 <x-app-layout title="Your Bag — Maison Résine">
-    <div class="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-12 py-10">
+    <div class="max-w-[1200px] mx-auto w-full min-w-0 px-3.5 sm:px-6 lg:px-12 py-6 sm:py-10">
 
         <!-- Alerts -->
         @if(session('success'))
@@ -14,20 +14,20 @@
             </div>
         @endif
 
-        <div class="border-b border-[#E6E1D7] pb-6 mb-8 flex items-baseline justify-between">
-            <h1 class="font-editorial text-4xl sm:text-5xl italic text-[#1C1917] font-light">Your bag</h1>
+        <div class="border-b border-[#E6E1D7] pb-4 sm:pb-6 mb-6 sm:mb-8 flex items-baseline justify-between">
+            <h1 class="font-editorial text-3xl sm:text-5xl italic text-[#1C1917] font-light">Your bag</h1>
             <span class="text-xs uppercase tracking-widest text-[#78716C] font-semibold">{{ $cart->items->count() }} Piece(s)</span>
         </div>
 
         @if($cart->items->count() > 0)
-            <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start w-full min-w-0">
                 
                 <!-- Items Table -->
-                <div class="lg:col-span-8 space-y-6">
-                    @foreach($cart->items as $item)
-                        <div class="bg-[#FAF8F5] border border-[#E6E1D7] rounded-3xl p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 shadow-xs">
-                            <div class="flex items-center space-x-4">
-                                <div class="w-24 h-24 bg-[#F5F2EB] rounded-2xl border border-[#E6E1D7] overflow-hidden shrink-0">
+                <div class="lg:col-span-8 space-y-4 sm:space-y-6 w-full min-w-0">
+                    @foreach($cart->items->sortByDesc('id') as $item)
+                        <div class="bg-[#FAF8F5] border border-[#E6E1D7] rounded-[1.5rem] sm:rounded-3xl p-4 sm:p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-6 shadow-xs w-full min-w-0">
+                            <div class="flex items-center space-x-3.5 sm:space-x-4 min-w-0 flex-1">
+                                <div class="w-20 h-20 sm:w-24 sm:h-24 bg-[#F5F2EB] rounded-2xl border border-[#E6E1D7] overflow-hidden shrink-0">
                                     @if(!empty($item->product?->images) && isset($item->product->images[0]))
                                         <img src="{{ $item->product->images[0] }}" alt="{{ $item->product_name }}" class="w-full h-full object-cover">
                                     @endif
@@ -73,8 +73,8 @@
                 </div>
 
                 <!-- Summary Panel -->
-                <div class="lg:col-span-4 sticky top-8">
-                    <div class="bg-[#FAF8F5] border border-[#E6E1D7] rounded-[2rem] p-7 sm:p-8 space-y-6 shadow-xs">
+                <div class="lg:col-span-4 sticky top-8 w-full min-w-0">
+                    <div class="bg-[#FAF8F5] border border-[#E6E1D7] rounded-[1.5rem] sm:rounded-[2rem] p-4 sm:p-7 md:p-8 space-y-5 sm:space-y-6 shadow-xs w-full min-w-0">
                         
                         {{-- Header --}}
                         <div class="flex items-center justify-between border-b border-[#E6E1D7] pb-4">
@@ -112,7 +112,7 @@
 
                         {{-- Actions --}}
                         <div class="space-y-3 pt-1">
-                            <a href="{{ route('checkout.index') }}" class="w-full bg-[#1A1615] hover:bg-[#2C2724] text-white text-[11px] uppercase tracking-[0.25em] font-semibold py-4 rounded-full transition-all duration-300 shadow-sm hover:shadow-md flex items-center justify-center space-x-2 group">
+                            <a href="{{ route('checkout.index') }}" class="w-full bg-[#1A1615] hover:bg-[#2C2724] text-white text-[10px] sm:text-[11px] uppercase tracking-[0.25em] font-semibold py-3.5 sm:py-4 rounded-full transition-all duration-300 shadow-sm hover:shadow-md flex items-center justify-center space-x-2 group">
                                 <span>PROCEED TO CHECKOUT</span>
                                 <svg class="w-3.5 h-3.5 text-white/70 group-hover:text-white group-hover:translate-x-0.5 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
@@ -129,10 +129,10 @@
 
             </div>
         @else
-            <div class="text-center py-20 bg-white/40 border border-[#E6E1D7] rounded-3xl p-8 space-y-4">
-                <h2 class="font-editorial text-3xl italic text-[#1C1917]">Still empty.</h2>
+            <div class="text-center py-16 sm:py-20 bg-white/40 border border-[#E6E1D7] rounded-2xl sm:rounded-3xl p-6 sm:p-8 space-y-4">
+                <h2 class="font-editorial text-2xl sm:text-3xl italic text-[#1C1917]">Still empty.</h2>
                 <p class="text-xs text-[#78716C] max-w-sm mx-auto">Every piece is one of one — begin with the index.</p>
-                <a href="{{ route('shop.index') }}" class="inline-block bg-[#1C1917] text-white text-xs uppercase tracking-[0.25em] font-semibold px-8 py-3.5 rounded-full">
+                <a href="{{ route('shop.index') }}" class="inline-block bg-[#1C1917] text-white text-[10.5px] uppercase tracking-[0.25em] font-semibold px-6 sm:px-8 py-3 sm:py-3.5 rounded-full whitespace-nowrap">
                     BROWSE THE SHOP
                 </a>
             </div>

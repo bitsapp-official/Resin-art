@@ -4,22 +4,22 @@
         $contactContent = \App\Models\ContactPageContent::getContent();
     @endphp
 
-    <div class="py-10 lg:py-16">
+    <div class="py-6 sm:py-10 lg:py-16 w-full min-w-0">
 
-        <div class="max-w-[1400px] mx-auto px-6 lg:px-12 xl:px-16">
+        <div class="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-12 xl:px-16 w-full min-w-0">
 
             <!-- Hero Section (Preceding line + CORRESPONDENCE, Editorial Title & Subtitle) -->
-            <div class="max-w-3xl mb-12 lg:mb-16 space-y-4 animate-fade-up">
+            <div class="max-w-3xl mb-8 sm:mb-12 lg:mb-16 space-y-3 sm:space-y-4 animate-fade-up min-w-0">
                 <div class="flex items-center space-x-3 text-[10px] uppercase tracking-[0.25em] font-medium text-[#8E877D]">
                     <span class="w-8 h-[1px] bg-[#D9D2C5] inline-block"></span>
                     <span>{{ $contactContent->hero_badge }}</span>
                 </div>
 
-                <h1 class="font-editorial text-5xl sm:text-6xl lg:text-[72px] text-[#1C1917] font-light leading-[1.08] tracking-tight">
+                <h1 class="font-editorial text-3xl sm:text-5xl lg:text-[72px] text-[#1C1917] font-light leading-[1.08] tracking-tight">
                     {!! $contactContent->hero_title !!}
                 </h1>
 
-                <p class="text-[15px] sm:text-base text-[#78716C] font-light leading-relaxed max-w-xl pt-1">
+                <p class="text-xs sm:text-[15px] md:text-base text-[#78716C] font-light leading-relaxed max-w-xl pt-1">
                     {{ $contactContent->hero_subtitle }}
                 </p>
             </div>
@@ -31,67 +31,67 @@
                 <div class="w-full lg:w-[400px] xl:w-[420px] shrink-0 space-y-5">
 
                     <!-- Studio Card -->
-                    <div class="bg-[oklch(98.5%_0.008_85)] rounded-[1.75rem] p-7 lg:p-9 space-y-6 animate-fade-up delay-100 border border-[#E5DFD3]">
+                    <div class="bg-[oklch(98.5%_0.008_85)] rounded-2xl sm:rounded-[1.75rem] p-4 sm:p-7 lg:p-9 space-y-4 sm:space-y-6 animate-fade-up delay-100 border border-[#E5DFD3]">
                         
-                        <div class="space-y-3">
+                        <div class="space-y-2 sm:space-y-3">
                             <span class="text-[10px] uppercase tracking-[0.2em] font-semibold text-[#8E877D] block">{{ $contactContent->workshop_label ?? 'Workshop' }}</span>
-                            <h3 class="font-editorial text-[26px] text-[#1C1917] font-normal leading-[1.25]">
+                            <h3 class="font-editorial text-[22px] sm:text-[26px] text-[#1C1917] font-normal leading-[1.25]">
                                 {!! nl2br(e($contactContent->studio_address)) !!}
                             </h3>
                         </div>
 
                         <hr class="border-[#E5DFD3]">
 
-                        <div class="text-[13px] text-[#78716C] font-light leading-[1.6]">
+                        <div class="text-[12.5px] sm:text-[13px] text-[#78716C] font-light leading-[1.6]">
                             {!! nl2br(e($contactContent->studio_hours)) !!}
                         </div>
 
                         <hr class="border-[#E5DFD3]">
 
-                        <div class="space-y-1.5 text-[13px] font-medium text-[#1C1917]">
-                            <div><a href="mailto:{{ $contactContent->studio_email }}" class="hover:opacity-70 transition-opacity">{{ $contactContent->studio_email }}</a></div>
+                        <div class="space-y-1.5 text-[12.5px] sm:text-[13px] font-medium text-[#1C1917]">
+                            <div><a href="mailto:{{ $contactContent->studio_email }}" class="hover:opacity-70 transition-opacity break-all">{{ $contactContent->studio_email }}</a></div>
                             <div><a href="tel:{{ $contactContent->studio_phone }}" class="hover:opacity-70 transition-opacity">{{ $contactContent->studio_phone }}</a></div>
                         </div>
                     </div>
 
                     <!-- 4 Inquiry Cards (2x2 Grid) -->
-                    <div class="grid grid-cols-2 gap-3.5 animate-fade-up delay-200">
+                    <div class="grid grid-cols-2 gap-2.5 sm:gap-3.5 animate-fade-up delay-200">
                         <!-- Card 1: Custom Orders -->
-                        <div class="bg-[oklch(98.5%_0.008_85)] p-5 sm:p-6 rounded-[1.25rem] border border-[#E5DFD3] flex flex-col justify-center h-full cursor-default select-none">
-                            <h4 class="font-editorial text-[22px] text-[#1C1917] font-normal leading-tight mb-1.5">
+                        <div class="bg-[oklch(98.5%_0.008_85)] p-3.5 sm:p-6 rounded-xl sm:rounded-[1.25rem] border border-[#E5DFD3] flex flex-col justify-center h-full cursor-default select-none">
+                            <h4 class="font-editorial text-[18px] sm:text-[22px] text-[#1C1917] font-normal leading-tight mb-1">
                                 Custom Orders
                             </h4>
-                            <p class="text-[9px] uppercase tracking-[0.2em] text-[#8E877D] font-semibold">
+                            <p class="text-[8.5px] sm:text-[9px] uppercase tracking-[0.2em] text-[#8E877D] font-semibold">
                                 Bespoke pieces
                             </p>
                         </div>
 
                         <!-- Card 2: Trade -->
-                        <div class="bg-[oklch(98.5%_0.008_85)] p-5 sm:p-6 rounded-[1.25rem] border border-[#E5DFD3] flex flex-col justify-center h-full cursor-default select-none">
-                            <h4 class="font-editorial text-[22px] text-[#1C1917] font-normal leading-tight mb-1.5">
+                        <div class="bg-[oklch(98.5%_0.008_85)] p-3.5 sm:p-6 rounded-xl sm:rounded-[1.25rem] border border-[#E5DFD3] flex flex-col justify-center h-full cursor-default select-none">
+                            <h4 class="font-editorial text-[18px] sm:text-[22px] text-[#1C1917] font-normal leading-tight mb-1">
                                 Trade
                             </h4>
-                            <p class="text-[9px] uppercase tracking-[0.2em] text-[#8E877D] font-semibold">
+                            <p class="text-[8.5px] sm:text-[9px] uppercase tracking-[0.2em] text-[#8E877D] font-semibold">
                                 Designers & hotels
                             </p>
                         </div>
 
                         <!-- Card 3: Press -->
-                        <div class="bg-[oklch(98.5%_0.008_85)] p-5 sm:p-6 rounded-[1.25rem] border border-[#E5DFD3] flex flex-col justify-center h-full cursor-default select-none">
-                            <h4 class="font-editorial text-[22px] text-[#1C1917] font-normal leading-tight mb-1.5">
+                        <div class="bg-[oklch(98.5%_0.008_85)] p-3.5 sm:p-6 rounded-xl sm:rounded-[1.25rem] border border-[#E5DFD3] flex flex-col justify-center h-full cursor-default select-none">
+                            <h4 class="font-editorial text-[18px] sm:text-[22px] text-[#1C1917] font-normal leading-tight mb-1">
                                 Press
                             </h4>
-                            <p class="text-[9px] uppercase tracking-[0.2em] text-[#8E877D] font-semibold">
+                            <p class="text-[8.5px] sm:text-[9px] uppercase tracking-[0.2em] text-[#8E877D] font-semibold">
                                 Editorial requests
                             </p>
                         </div>
 
                         <!-- Card 4: Visits -->
-                        <div class="bg-[oklch(98.5%_0.008_85)] p-5 sm:p-6 rounded-[1.25rem] border border-[#E5DFD3] flex flex-col justify-center h-full cursor-default select-none">
-                            <h4 class="font-editorial text-[22px] text-[#1C1917] font-normal leading-tight mb-1.5">
+                        <div class="bg-[oklch(98.5%_0.008_85)] p-3.5 sm:p-6 rounded-xl sm:rounded-[1.25rem] border border-[#E5DFD3] flex flex-col justify-center h-full cursor-default select-none">
+                            <h4 class="font-editorial text-[18px] sm:text-[22px] text-[#1C1917] font-normal leading-tight mb-1">
                                 Visits
                             </h4>
-                            <p class="text-[9px] uppercase tracking-[0.2em] text-[#8E877D] font-semibold">
+                            <p class="text-[8.5px] sm:text-[9px] uppercase tracking-[0.2em] text-[#8E877D] font-semibold">
                                 Book the atelier
                             </p>
                         </div>
@@ -100,8 +100,8 @@
                 </div>
 
                 <!-- RIGHT COLUMN: Contact Form / Success Container -->
-                <div class="flex-1 w-full animate-fade-up delay-300">
-                    <div class="bg-[oklch(98.5%_0.008_85)] rounded-[2rem] p-7 sm:p-10 lg:p-12 border border-[#E5DFD3]">
+                <div class="flex-1 w-full animate-fade-up delay-300 min-w-0">
+                    <div class="bg-[oklch(98.5%_0.008_85)] rounded-[1.5rem] sm:rounded-[2rem] p-4 sm:p-8 lg:p-12 border border-[#E5DFD3] w-full min-w-0">
 
                         @if(isset($successName))
                             <!-- Success State Inside Right Column Grid -->
@@ -218,7 +218,7 @@
                                     </span>
 
                                     <button type="submit" 
-                                            class="w-full sm:w-auto inline-flex items-center justify-center space-x-3 bg-[#1C1917] hover:bg-[#2D2825] text-[#FAF8F5] text-[10.5px] uppercase tracking-[0.28em] font-semibold px-9 py-3.5 rounded-full transition-all duration-300 shadow-sm cursor-pointer group">
+                                            class="w-full sm:w-auto inline-flex items-center justify-center space-x-3 bg-[#1C1917] hover:bg-[#2D2825] text-[#FAF8F5] text-[10px] sm:text-[10.5px] uppercase tracking-[0.28em] font-semibold px-6 sm:px-9 py-3.5 rounded-full transition-all duration-300 shadow-sm cursor-pointer group whitespace-nowrap">
                                         <span>SEND LETTER</span>
                                         <svg class="w-3.5 h-3.5 stroke-[2] transition-transform duration-300 group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                             <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />

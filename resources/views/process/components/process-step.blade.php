@@ -13,15 +13,15 @@
 
         <!-- Image Column -->
         <div class="lg:col-span-7 {{ $isImageLeft ? 'lg:order-first' : 'lg:order-last' }}">
-            <div class="rounded-[2rem] overflow-hidden border border-[#E5DFD3] bg-[oklch(98.5%_0.008_85)] shadow-[0_10px_35px_rgba(0,0,0,0.03)]">
+            <div class="rounded-[1.5rem] sm:rounded-[2rem] overflow-hidden border border-[#E5DFD3] bg-[oklch(98.5%_0.008_85)] shadow-[0_10px_35px_rgba(0,0,0,0.03)]">
                 @if(!empty($step->image_path))
                     <img src="{{ asset('storage/' . $step->image_path) }}" 
                          alt="{{ $step->image_alt ?? $step->title }}" 
-                         class="w-full h-[360px] sm:h-[480px] lg:h-[540px] object-cover transition-transform duration-700 group-hover:scale-[1.02]"
+                         class="w-full h-[220px] sm:h-[420px] lg:h-[540px] object-cover transition-transform duration-700 group-hover:scale-[1.02]"
                          loading="lazy"
                          decoding="async">
                 @else
-                    <div class="w-full h-[380px] bg-[#FAF8F5] flex items-center justify-center text-[#8E877D] text-xs uppercase tracking-widest">
+                    <div class="w-full h-[240px] sm:h-[380px] bg-[#FAF8F5] flex items-center justify-center text-[#8E877D] text-xs uppercase tracking-widest">
                         {{ $step->title }} Image
                     </div>
                 @endif
@@ -34,14 +34,14 @@
         </div>
 
         <!-- Content Column -->
-        <div class="lg:col-span-5 space-y-5 {{ $isImageLeft ? 'lg:order-last lg:pl-4' : 'lg:order-first lg:pr-4' }}">
+        <div class="lg:col-span-5 space-y-3 sm:space-y-5 {{ $isImageLeft ? 'lg:order-last lg:pl-4' : 'lg:order-first lg:pr-4' }}">
             <!-- Step Number Badge -->
             <div class="flex items-center space-x-3 text-[10.5px] uppercase tracking-[0.25em] font-semibold text-[#8E877D]">
                 <span>STEP {{ $step->formatted_step_number }}</span>
             </div>
 
             <!-- Title -->
-            <h2 class="font-editorial text-4xl sm:text-5xl lg:text-[46px] text-[#1C1917] font-light leading-[1.1] tracking-tight">
+            <h2 class="font-editorial text-2xl sm:text-4xl lg:text-[46px] text-[#1C1917] font-light leading-[1.12] sm:leading-[1.1] tracking-tight">
                 {{ $step->title }}
             </h2>
 

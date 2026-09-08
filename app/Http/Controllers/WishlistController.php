@@ -114,6 +114,6 @@ class WishlistController extends Controller
 
         $cart->recalculateTotal();
 
-        return redirect()->route('cart.index')->with('success', 'Moved piece to your bag.');
+        return redirect()->route('cart.index');
     }
 }

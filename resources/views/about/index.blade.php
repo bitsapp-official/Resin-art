@@ -1,7 +1,7 @@
 <x-app-layout :title="$aboutPage->seo_title ?? 'About — Maison Résine Atelier'">
 
-    <div class="py-10 lg:py-16">
-        <div class="max-w-[1400px] mx-auto px-6 lg:px-12 xl:px-16">
+    <div class="py-6 sm:py-10 lg:py-16 w-full min-w-0">
+        <div class="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-12 xl:px-16 w-full min-w-0">
 
             @if($aboutPage && $aboutPage->is_published)
 

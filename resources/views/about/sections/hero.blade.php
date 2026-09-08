@@ -5,7 +5,7 @@
         <span>{{ $aboutPage->eyebrow ?? 'THE HOUSE · EST. 2013' }}</span>
     </div>
 
-    <h1 class="font-editorial text-5xl sm:text-6xl lg:text-[72px] text-[#1C1917] font-light leading-[1.08] tracking-tight">
+    <h1 class="font-editorial text-3xl sm:text-5xl lg:text-6xl xl:text-[72px] text-[#1C1917] font-light leading-[1.08] tracking-tight">
         {!! $aboutPage->hero_title ?? 'A quiet atelier.' !!}
     </h1>
 

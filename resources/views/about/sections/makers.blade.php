@@ -8,13 +8,13 @@
                 <span class="text-[10px] uppercase tracking-[0.25em] font-semibold text-[#8E877D]">
                     THE ARTISANS
                 </span>
-                <h2 class="font-editorial text-4xl sm:text-5xl lg:text-[54px] text-[#1C1917] font-light leading-[1.08]">
+                <h2 class="font-editorial text-2xl sm:text-4xl lg:text-[54px] text-[#1C1917] font-light leading-[1.1] sm:leading-[1.08]">
                     The hands.
                 </h2>
             </div>
 
             <a href="{{ route('our-process.index') }}" 
-               class="inline-flex items-center space-x-2 text-[10.5px] uppercase tracking-[0.25em] font-semibold text-[#1C1917] hover:text-[#78716C] transition-colors">
+               class="inline-flex items-center space-x-2 text-[10.5px] uppercase tracking-[0.25em] font-semibold text-[#1C1917] hover:text-[#78716C] transition-colors whitespace-nowrap">
                 <span>SEE HOW A PIECE IS MADE</span>
                 <svg class="w-3.5 h-3.5 stroke-[2]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
@@ -23,10 +23,10 @@
         </div>
 
         <!-- Artisans Dynamic Grid -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-8 lg:gap-10">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8 lg:gap-10">
             @foreach($artisans as $artisan)
-                <div class="artisan-card space-y-4 group" style="opacity: 0;">
-                    <div class="rounded-[2rem] overflow-hidden border border-[#E5DFD3] bg-[oklch(98.5%_0.008_85)] aspect-[4/5] shadow-sm">
+                <div class="artisan-card space-y-3 sm:space-y-4 group" style="opacity: 0;">
+                    <div class="rounded-[1.5rem] sm:rounded-[2rem] overflow-hidden border border-[#E5DFD3] bg-[oklch(98.5%_0.008_85)] aspect-[4/5] shadow-sm">
                         @if(!empty($artisan->image_path))
                             <img src="{{ asset('storage/' . $artisan->image_path) }}" 
                                  alt="{{ $artisan->name }} — {{ $artisan->role }}" 

@@ -14,13 +14,13 @@
         @if($returnRequests->count() > 0)
             <div class="space-y-4">
                 @foreach($returnRequests as $req)
-                    <div class="bg-white/80 border border-[#E6E1D7] rounded-3xl p-6 shadow-sm space-y-3 text-xs">
-                        <div class="flex items-center justify-between border-b border-[#E6E1D7] pb-2">
-                            <div>
-                                <span class="font-semibold text-[#1C1917]">Order Ref: {{ $req->order?->order_reference }}</span>
-                                <span class="text-[#78716C] ml-2">• Requested on {{ $req->created_at->format('M d, Y') }}</span>
+                    <div class="bg-white/80 border border-[#E6E1D7] rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-sm space-y-3 text-xs w-full min-w-0">
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between border-b border-[#E6E1D7] pb-3 gap-2">
+                            <div class="min-w-0">
+                                <span class="font-semibold text-[#1C1917] block sm:inline">Order Ref: {{ $req->order?->order_reference }}</span>
+                                <span class="text-[#78716C] sm:ml-2 block sm:inline text-[11px] sm:text-xs">• Requested on {{ $req->created_at->format('M d, Y') }}</span>
                             </div>
-                            <span class="bg-[#1C1917] text-white px-3 py-0.5 rounded-full text-[10px] uppercase font-semibold tracking-widest">
+                            <span class="bg-[#1C1917] text-white px-3 py-1 rounded-full text-[9px] sm:text-[10px] uppercase font-semibold tracking-widest shrink-0 self-start sm:self-auto">
                                 {{ $req->status }}
                             </span>
                         </div>
@@ -43,7 +43,7 @@
                 {{ $returnRequests->links() }}
             </div>
         @else
-            <div class="text-center py-12 bg-white/40 border border-[#E6E1D7] rounded-3xl p-6 text-xs text-[#78716C]">
+            <div class="text-center py-10 sm:py-12 bg-white/40 border border-[#E6E1D7] rounded-2xl sm:rounded-3xl p-5 sm:p-6 text-xs text-[#78716C]">
                 No return requests found.
             </div>
         @endif

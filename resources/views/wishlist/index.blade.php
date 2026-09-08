@@ -1,5 +1,5 @@
 <x-app-layout title="Saved Wishlist — Maison Résine">
-    <div class="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-12 py-10">
+    <div class="max-w-[1200px] mx-auto w-full min-w-0 px-3.5 sm:px-6 lg:px-12 py-6 sm:py-10">
 
         <!-- Alerts -->
         @if(session('success'))
@@ -13,20 +13,20 @@
             </div>
         @endif
 
-        <div class="border-b border-[#E6E1D7] pb-6 mb-8 flex items-baseline justify-between">
-            <h1 class="font-editorial text-3xl sm:text-4xl italic font-light text-[#1C1917]">Your Saved Wishlist</h1>
+        <div class="border-b border-[#E6E1D7] pb-4 sm:pb-6 mb-6 sm:mb-8 flex items-baseline justify-between">
+            <h1 class="font-editorial text-2xl sm:text-4xl italic font-light text-[#1C1917]">Your Saved Wishlist</h1>
             <span id="wishlist-page-count" class="text-xs uppercase tracking-widest text-[#78716C]">
                 {{ $wishlists->count() }} {{ Str::plural('piece', $wishlists->count()) }}
             </span>
         </div>
 
-        <div id="wishlist-items-container">
+        <div id="wishlist-items-container" class="w-full min-w-0">
             @if($wishlists->count() > 0)
-                <div id="wishlist-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div id="wishlist-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 w-full min-w-0">
                     @foreach($wishlists as $item)
                         @php $product = $item->product; @endphp
                         @if($product)
-                            <div id="wishlist-card-{{ $product->id }}" class="wishlist-page-card bg-white/70 border border-[#E6E1D7] rounded-3xl overflow-hidden shadow-sm flex flex-col justify-between p-5 transition-all duration-300">
+                            <div id="wishlist-card-{{ $product->id }}" class="wishlist-page-card bg-white/70 border border-[#E6E1D7] rounded-2xl sm:rounded-3xl overflow-hidden shadow-sm flex flex-col justify-between p-4 sm:p-5 transition-all duration-300 w-full min-w-0">
                                 <div>
                                     <a href="{{ route('shop.show', $product->slug) }}" class="block aspect-square overflow-hidden bg-[#F5F2EB] rounded-2xl mb-4 relative">
                                         @if(!empty($product->images) && isset($product->images[0]))
