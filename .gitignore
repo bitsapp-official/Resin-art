@@ -42,7 +42,8 @@ Thumbs.db
 !/storage/logs/.gitignore
 
 # Confidential Stripe activation & internal documentation
-/docs/
+/docs/*
+!/docs/stripe_integration.md
 *.docx
 *Stripe*Compliance*
 *Stripe*Activation*

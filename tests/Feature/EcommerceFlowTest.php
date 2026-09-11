@@ -122,7 +122,11 @@ class EcommerceFlowTest extends TestCase
 
         $order = Order::where('user_id', $user->id)->latest('id')->first();
         $this->assertNotNull($order);
-        $response->assertRedirect(route('checkout.confirmation', $order->order_reference));
+        $response->assertRedirect();
+        $this->assertStringContainsString('checkout.stripe.com', (string) $response->headers->get('Location'));
+
+        // Fulfill order upon confirmed Stripe payment
+        \App\Services\OrderFulfillmentService::fulfill($order, 'pi_test_flow_complete');
 
         // Stock deduction check
         $this->assertEquals($initialStock - 2, $product->fresh()->stock);

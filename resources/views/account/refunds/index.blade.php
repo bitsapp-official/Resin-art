@@ -16,11 +16,18 @@
                             </div>
                             <div class="flex items-center space-x-3 shrink-0">
                                 <span class="font-normal text-sm text-[#1C1917]">₹ {{ number_format($ref->amount) }}</span>
-                                <span class="bg-[#1C1917] text-white px-2.5 sm:px-3 py-1 rounded-full text-[8.5px] sm:text-[9px] uppercase font-semibold tracking-widest">
+                                <span class="bg-[#1C1917] text-white px-3 py-1 rounded-full text-[9px] uppercase font-semibold tracking-widest inline-block text-center whitespace-nowrap shadow-2xs">
                                     {{ $ref->status }}
                                 </span>
                             </div>
                         </div>
+
+                        @if($ref->stripe_refund_id)
+                            <div class="p-2.5 bg-white/70 border border-[#E6E1D7] rounded-xl text-[11px] text-[#57534E] flex flex-wrap items-center gap-2">
+                                <span class="text-[#8E877D] font-medium uppercase tracking-wider text-[9.5px]">Stripe Refund Ref:</span>
+                                <code class="font-mono text-xs font-semibold text-[#1C1917] tracking-wider select-all">{{ $ref->stripe_refund_id }}</code>
+                            </div>
+                        @endif
 
                         <div>
                             <span class="font-medium text-[#1C1917]">Reason:</span> {{ $ref->reason }}

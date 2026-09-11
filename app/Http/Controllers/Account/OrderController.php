@@ -12,6 +12,7 @@ class OrderController extends Controller
     public function index()
     {
         $orders = Auth::user()->orders()
+            ->where('status', '!=', Order::STATUS_PENDING_PAYMENT)
             ->with(['items.product'])
             ->latest()
             ->paginate(10);
@@ -27,6 +28,12 @@ class OrderController extends Controller
 
         $this->authorize('view', $order);
 
+        // If this order is an abandoned pending payment, redirect customer to resume checkout
+        if ($order->status === Order::STATUS_PENDING_PAYMENT && $order->payment_status === 'unpaid') {
+            return redirect()->route('checkout.index')
+                ->with('error', 'This checkout was not completed. You can complete your order from your bag.');
+        }
+
         $order->load(['items.product', 'payments', 'returnRequests', 'refundRequests']);
 
         return view('account.orders.show', compact('order'));
@@ -34,10 +41,16 @@ class OrderController extends Controller
 
     public function cancel(Request $request, Order $order)
     {
+        $this->authorize('cancel', $order);
+
         $hours = (int) config('atelier.cancellation_hours', env('ORDER_CANCELLATION_HOURS', 3));
 
         if (!$order->is_cancellable) {
             return back()->with('error', "Orders can only be cancelled within {$hours} hours of placement as bespoke crafting begins immediately.");
+        }
+
+        if ($order->refundRequests()->whereIn('status', ['REQUESTED', 'APPROVED', 'COMPLETED'])->exists()) {
+            return back()->with('error', "A refund request is already active or processed for this order.");
         }
 
         $request->validate([

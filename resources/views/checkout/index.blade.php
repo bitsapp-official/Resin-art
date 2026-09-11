@@ -57,6 +57,7 @@
             paymentMethod: 'stripe',
 
             errors: {},
+            isSubmitting: false,
 
             selectSavedAddress(addr) {
                 this.selectedAddressId = addr.id;
@@ -200,7 +201,7 @@
             </div>
         @endif
 
-        <form method="POST" action="{{ route('checkout.process') }}">
+        <form method="POST" action="{{ route('checkout.process') }}" @submit="if(isSubmitting) { $event.preventDefault(); return false; } isSubmitting = true;">
             @csrf
 
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start w-full">
@@ -506,21 +507,21 @@
                         {{-- Payment Method Selection --}}
                         <div class="space-y-4">
                             <div class="text-[10px] uppercase tracking-[0.22em] font-bold text-[#8E877D]">
-                                SECURE ONLINE PAYMENT (STRIPE GATEWAY)
+                                SECURE PAYMENT
                             </div>
 
                             <input type="hidden" name="payment_method" value="stripe">
 
-                            {{-- Stripe Official Payment Card --}}
+                            {{-- Payment Provider Trust Card --}}
                             <div class="p-5 sm:p-8 rounded-[1.75rem] sm:rounded-[2rem] bg-white border-2 border-[#1C1917] shadow-sm space-y-6 relative overflow-hidden">
                                 <div class="flex items-start justify-between">
                                     <div class="space-y-1">
                                         <div class="flex items-center space-x-2">
-                                            <span class="w-2.5 h-2.5 rounded-full bg-[#22C55E] animate-pulse"></span>
-                                            <span class="font-semibold text-sm text-[#1C1917]">Stripe 256-Bit Encrypted Checkout</span>
+                                            <span class="w-2.5 h-2.5 rounded-full bg-[#22C55E]"></span>
+                                            <span class="font-semibold text-sm text-[#1C1917]">Secure Payment</span>
                                         </div>
                                         <p class="text-xs text-[#78716C] font-light leading-relaxed">
-                                            Cards (Visa, Mastercard, RuPay, Amex), UPI (Google Pay, PhonePe), and Netbanking with bank 3D Secure OTP.
+                                            Your payment is securely processed by our payment provider. Payments securely processed by Stripe.
                                         </p>
                                     </div>
                                     <div class="p-2.5 bg-[#F9F8F6] rounded-xl shrink-0 border border-[#E6E1D7]">
@@ -530,19 +531,19 @@
                                     </div>
                                 </div>
 
-                                {{-- Supported Payment Badges Grid --}}
-                                <div class="pt-2 border-t border-[#F2EFE9] grid grid-cols-2 sm:grid-cols-4 gap-2 text-center text-[9.5px] sm:text-[10px] uppercase tracking-wider font-semibold text-[#57534E]">
-                                    <div class="p-2.5 bg-[#FAF8F5] rounded-xl border border-[#EBE6DD]">
-                                        <span>VISA / MC / RUPAY</span>
-                                    </div>
-                                    <div class="p-2.5 bg-[#FAF8F5] rounded-xl border border-[#EBE6DD]">
-                                        <span>AMEX &amp; DINERS</span>
-                                    </div>
-                                    <div class="p-2.5 bg-[#FAF8F5] rounded-xl border border-[#EBE6DD]">
-                                        <span>UPI &amp; NETBANKING</span>
-                                    </div>
-                                    <div class="p-2.5 bg-[#FAF8F5] rounded-xl border border-[#EBE6DD]">
-                                        <span>APPLE / GPAY</span>
+                                {{-- Supported Payment Cards Grid --}}
+                                <div class="pt-3 border-t border-[#F2EFE9] space-y-2">
+                                    <span class="text-[9.5px] uppercase tracking-wider font-semibold text-[#8E877D] block">Accepted Cards</span>
+                                    <div class="grid grid-cols-3 gap-2 text-center text-[10px] sm:text-[11px] uppercase tracking-wider font-semibold text-[#57534E]">
+                                        <div class="p-2.5 sm:p-3 bg-[#FAF8F5] rounded-xl border border-[#EBE6DD] flex items-center justify-center">
+                                            <span>VISA</span>
+                                        </div>
+                                        <div class="p-2.5 sm:p-3 bg-[#FAF8F5] rounded-xl border border-[#EBE6DD] flex items-center justify-center">
+                                            <span>MASTERCARD</span>
+                                        </div>
+                                        <div class="p-2.5 sm:p-3 bg-[#FAF8F5] rounded-xl border border-[#EBE6DD] flex items-center justify-center">
+                                            <span>AMERICAN EXPRESS</span>
+                                        </div>
                                     </div>
                                 </div>
 
@@ -552,21 +553,36 @@
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
                                     </svg>
                                     <span>
-                                        <strong>Zero Card Data Stored:</strong> When you click continue, you will be securely redirected to Stripe's bank-level hosted gateway to enter your card details and OTP. Strictly 100% online authorization.
+                                        You will be redirected to complete your payment securely. No card details are ever saved or stored on our servers.
                                     </span>
                                 </div>
                             </div>
                         </div>
 
                         <div class="flex items-center space-x-2.5 sm:space-x-4 pt-4">
-                            <button type="button" @click="currentStep = 2" class="border border-[#E6E1D7] bg-transparent hover:bg-[#FAF8F5] text-[#1C1917] text-[10px] sm:text-xs uppercase tracking-wider sm:tracking-[0.2em] font-semibold px-4 sm:px-8 py-3.5 sm:py-4 rounded-full transition-colors cursor-pointer shrink-0">
+                            <button type="button" :disabled="isSubmitting" @click="currentStep = 2" class="border border-[#E6E1D7] bg-transparent hover:bg-[#FAF8F5] text-[#1C1917] text-[10px] sm:text-xs uppercase tracking-wider sm:tracking-[0.2em] font-semibold px-4 sm:px-8 py-3.5 sm:py-4 rounded-full transition-colors cursor-pointer shrink-0 disabled:opacity-50">
                                 BACK
                             </button>
-                            <button type="submit" class="flex-1 bg-[#1A1615] hover:bg-[#2C2724] text-white text-[10px] sm:text-xs uppercase tracking-wider sm:tracking-[0.25em] font-semibold py-3.5 sm:py-4 px-3 sm:px-4 rounded-full transition-all shadow-md cursor-pointer flex items-center justify-center space-x-2 text-center whitespace-nowrap">
-                                <svg class="w-4 h-4 text-white shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                                </svg>
-                                <span class="truncate">PAY &#8377; {{ number_format($subtotal) }} &rarr;</span>
+                            <button type="submit" 
+                                    :disabled="isSubmitting"
+                                    class="flex-1 bg-[#1A1615] hover:bg-[#2C2724] disabled:opacity-75 disabled:cursor-not-allowed text-white text-[10px] sm:text-xs uppercase tracking-wider sm:tracking-[0.25em] font-semibold py-3.5 sm:py-4 px-3 sm:px-4 rounded-full transition-all shadow-md cursor-pointer flex items-center justify-center space-x-2 text-center whitespace-nowrap">
+                                <template x-if="!isSubmitting">
+                                    <div class="flex items-center space-x-2">
+                                        <svg class="w-4 h-4 text-white shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                                        </svg>
+                                        <span class="truncate">PAY &#8377; {{ number_format($subtotal) }} &rarr;</span>
+                                    </div>
+                                </template>
+                                <template x-if="isSubmitting">
+                                    <div class="flex items-center space-x-2">
+                                        <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+                                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+                                        </svg>
+                                        <span class="text-[10px] tracking-wider font-semibold">CONNECTING TO SECURE GATEWAY...</span>
+                                    </div>
+                                </template>
                             </button>
                         </div>
                     </div>

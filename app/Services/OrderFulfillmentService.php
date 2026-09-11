@@ -116,6 +116,22 @@ class OrderFulfillmentService
                 Log::warning("Admin order notification could not be sent: " . $e->getMessage());
             }
 
+            // 9. Empty Cart for Authenticated User or Current Session
+            if ($lockedOrder->user_id) {
+                $userCart = \App\Models\Cart::where('user_id', $lockedOrder->user_id)->first();
+                if ($userCart) {
+                    $userCart->items()->delete();
+                    $userCart->update(['total' => 0]);
+                }
+            }
+            if (session()->isStarted() && session()->getId()) {
+                $sessionCart = \App\Models\Cart::where('session_id', session()->getId())->first();
+                if ($sessionCart) {
+                    $sessionCart->items()->delete();
+                    $sessionCart->update(['total' => 0]);
+                }
+            }
+
             Log::info("Order {$lockedOrder->order_reference} successfully fulfilled via Stripe ({$paymentReference}).");
 
             return $lockedOrder;

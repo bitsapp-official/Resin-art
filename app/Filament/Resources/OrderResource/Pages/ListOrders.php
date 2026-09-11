@@ -46,6 +46,11 @@ class ListOrders extends ListRecords
                 ->badge(Order::where('status', Order::STATUS_DELIVERED)->count())
                 ->badgeColor('success'),
 
+            'unpaid' => Tab::make('Unpaid Checkouts')
+                ->modifyQueryUsing(fn (Builder $query) => $query->where('status', Order::STATUS_PENDING_PAYMENT)->orWhere('payment_status', 'unpaid'))
+                ->badge(Order::where('status', Order::STATUS_PENDING_PAYMENT)->orWhere('payment_status', 'unpaid')->count())
+                ->badgeColor('warning'),
+
             'cancelled' => Tab::make('Cancelled')
                 ->modifyQueryUsing(fn (Builder $query) => $query->where('status', Order::STATUS_CANCELLED))
                 ->badge(Order::where('status', Order::STATUS_CANCELLED)->count())

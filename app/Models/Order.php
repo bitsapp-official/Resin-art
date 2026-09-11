@@ -12,11 +12,12 @@ class Order extends Model
     use HasFactory;
 
     // ─── ORDER STATUS CONSTANTS (STANDARD E-COMMERCE) ────────────────────────
-    const STATUS_CONFIRMED      = 'CONFIRMED';      // Order confirmed / Payment received
-    const STATUS_PROCESSING     = 'PROCESSING';     // Order is being processed & packed
-    const STATUS_SHIPPED        = 'SHIPPED';        // Dispatched with courier
-    const STATUS_DELIVERED      = 'DELIVERED';      // Successfully delivered to customer
-    const STATUS_CANCELLED      = 'CANCELLED';      // Order cancelled
+    const STATUS_PENDING_PAYMENT = 'PENDING_PAYMENT'; // Awaiting online payment on Stripe
+    const STATUS_CONFIRMED       = 'CONFIRMED';       // Order confirmed / Payment received
+    const STATUS_PROCESSING      = 'PROCESSING';      // Order is being processed & packed
+    const STATUS_SHIPPED         = 'SHIPPED';         // Dispatched with courier
+    const STATUS_DELIVERED       = 'DELIVERED';       // Successfully delivered to customer
+    const STATUS_CANCELLED       = 'CANCELLED';       // Order cancelled
 
     // Aliases for backward compatibility with previous artisan statuses
     const STATUS_CRAFTING       = 'PROCESSING';
@@ -24,6 +25,7 @@ class Order extends Model
     const STATUS_PACKED         = 'PROCESSING';
 
     const STATUSES = [
+        self::STATUS_PENDING_PAYMENT,
         self::STATUS_CONFIRMED,
         self::STATUS_PROCESSING,
         self::STATUS_SHIPPED,
@@ -33,11 +35,12 @@ class Order extends Model
 
     // Standard E-Commerce Labels shown across website and admin
     const STATUS_LABELS = [
-        self::STATUS_CONFIRMED  => 'Confirmed',
-        self::STATUS_PROCESSING => 'Processing',
-        self::STATUS_SHIPPED    => 'Shipped',
-        self::STATUS_DELIVERED  => 'Delivered',
-        self::STATUS_CANCELLED  => 'Cancelled',
+        self::STATUS_PENDING_PAYMENT => 'Pending Payment',
+        self::STATUS_CONFIRMED       => 'Confirmed',
+        self::STATUS_PROCESSING      => 'Processing',
+        self::STATUS_SHIPPED         => 'Shipped',
+        self::STATUS_DELIVERED       => 'Delivered',
+        self::STATUS_CANCELLED       => 'Cancelled',
     ];
 
     protected $fillable = [

@@ -55,13 +55,13 @@ class OrderResource extends Resource
                         Forms\Components\Select::make('payment_status')
                             ->label('Payment Status')
                             ->options([
-                                'unpaid'   => 'Unpaid',
-                                'paid'     => 'Paid',
+                                'unpaid'   => 'Unpaid (Payment Not Completed)',
+                                'paid'     => 'Paid (Captured via Stripe)',
                                 'refunded' => 'Refunded',
-                                'failed'   => 'Failed',
+                                'failed'   => 'Failed / Declined',
                             ])
                             ->disabled()
-                            ->helperText('Automated by Stripe Payment Gateway. Read-only for audit security.')
+                            ->helperText("Automated by Stripe. 'Unpaid' means customer reached Stripe Checkout but did not finish the card transaction.")
                             ->required(),
                         Forms\Components\TextInput::make('payment_method')
                             ->label('Payment Method')

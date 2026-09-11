@@ -16,11 +16,15 @@ class RefundRequest extends Model
         'amount',
         'reason',
         'status',
+        'stripe_refund_id',
+        'stripe_refund_status',
+        'refunded_at',
         'admin_notes',
     ];
 
     protected $casts = [
-        'amount' => 'decimal:2',
+        'amount'      => 'decimal:2',
+        'refunded_at' => 'datetime',
     ];
 
     public function user(): BelongsTo

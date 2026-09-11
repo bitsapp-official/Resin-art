@@ -55,7 +55,7 @@ class CheckoutController extends Controller
             return redirect()->route('cart.index');
         }
 
-        // Validate Checkout Fields (Strictly online payment via Stripe - No Cash on Delivery)
+        // Validate Checkout Fields (Strictly online payment via Stripe)
         $rules = [
             'email'            => ['required', 'email'],
             'full_name'        => ['required', 'string', 'max:255'],
@@ -83,19 +83,77 @@ class CheckoutController extends Controller
 
         $request->validate($rules);
 
-        $cart->recalculateTotal();
+        // 1. Authoritative Server-Side Product Stock, Availability & Price Recalculation
+        $authoritativeItems = [];
+        $calculatedSubtotal = 0.0;
 
-        // 1. Re-validate Product stock and availability server-side
         foreach ($cart->items as $item) {
             $product = Product::published()->find($item->product_id);
             if (!$product || !$product->is_available) {
-                return back()->with('error', "The piece '{$item->product->name}' is no longer available.");
+                return back()->with('error', "The piece '{$item->product_name}' is no longer available.");
             }
 
-            if ($product->inventory_type === 'READY_TO_SHIP' && $item->quantity > $product->stock) {
-                return back()->with('error', "Only {$product->stock} unit(s) of '{$product->name}' remain in stock.");
+            // Auto-convert READY_TO_SHIP to MADE_TO_ORDER when stock is 0 or if requested quantity exceeds ready stock
+            if ($product->inventory_type === 'READY_TO_SHIP') {
+                if ($product->stock <= 0) {
+                    $product->update([
+                        'inventory_type' => 'MADE_TO_ORDER',
+                        'stock'          => 0,
+                    ]);
+                } elseif ($item->quantity > $product->stock) {
+                    // When order quantity exceeds ready stock, seamlessly convert to MADE_TO_ORDER
+                    $product->update([
+                        'inventory_type' => 'MADE_TO_ORDER',
+                    ]);
+                }
             }
+
+            // Determine authoritative price from database
+            $unitPrice = (float) $product->effective_price;
+            $options = $item->options ?? [];
+            if (!empty($options['size'])) {
+                $sizeVariants = $product->attributes['size_variants'] ?? [];
+                foreach ($sizeVariants as $variant) {
+                    if (($variant['size'] ?? '') === $options['size'] && !empty($variant['price'])) {
+                        $unitPrice = (float) $variant['price'];
+                        break;
+                    }
+                }
+            }
+
+            // Sync item price if mismatched
+            if (abs((float)$item->price - $unitPrice) > 0.001) {
+                $item->price = $unitPrice;
+                $item->save();
+            }
+
+            $lineSubtotal = round($unitPrice * $item->quantity, 2);
+            $calculatedSubtotal += $lineSubtotal;
+
+            $authoritativeItems[] = [
+                'item'         => $item,
+                'product'      => $product,
+                'unit_price'   => $unitPrice,
+                'quantity'     => $item->quantity,
+                'line_total'   => $lineSubtotal,
+                'options'      => $options,
+            ];
         }
+
+        $cart->total = $calculatedSubtotal;
+        $cart->save();
+
+        // 2. Authoritative Tax & Grand Total Computation
+        $shippingFee = 0.00; // Complimentary atelier crated shipping
+        $taxRate = floatval(SiteSetting::get('invoice_tax_rate', '5'));
+        $showTax = (bool) SiteSetting::get('invoice_show_tax', '1');
+        $tax = $showTax ? round($calculatedSubtotal * ($taxRate / 100), 2) : 0.00;
+        $grandTotal = round($calculatedSubtotal + $shippingFee + $tax, 2);
+
+        // 3. Determine Currency based on Stripe India rules
+        // Domestic India customers must use INR.
+        // International customers can also be charged in INR (or store currency), supported by Stripe.
+        $currency = 'inr'; // Standard authoritative currency for Stripe India
 
         // Prepare shipping address snapshot (Physical Parcel Delivery)
         $shippingSnapshot = [
@@ -153,18 +211,22 @@ class CheckoutController extends Controller
             }
         }
 
-        // Create Order and Line Items in Atomic Transaction
-        $order = DB::transaction(function () use ($request, $cart, $shippingSnapshot, $billingSnapshot) {
+        // 4. Create Order and Line Items in Atomic Transaction (Status: PENDING_PAYMENT)
+        $order = DB::transaction(function () use ($request, $calculatedSubtotal, $shippingFee, $tax, $grandTotal, $shippingSnapshot, $billingSnapshot, $authoritativeItems) {
+            // Cancel previous abandoned PENDING_PAYMENT orders for this user to prevent clutter
+            if (Auth::check()) {
+                Order::where('user_id', Auth::id())
+                    ->where('status', 'PENDING_PAYMENT')
+                    ->where('payment_status', 'unpaid')
+                    ->where('created_at', '>=', now()->subHours(2))
+                    ->update([
+                        'status'        => 'CANCELLED',
+                        'cancel_reason' => 'Superseded by new checkout attempt.',
+                    ]);
+            }
+
             $orderReference = 'MR-' . date('Y') . '-' . strtoupper(Str::random(6));
 
-            $subtotal = $cart->total;
-            $shippingFee = 0.00; // Complimentary atelier shipping
-            $taxRate = floatval(SiteSetting::get('invoice_tax_rate', '5'));
-            $showTax = (bool) SiteSetting::get('invoice_show_tax', '1');
-            $tax = $showTax ? round($subtotal * ($taxRate / 100), 2) : 0.00;
-            $grandTotal = $subtotal + $shippingFee + $tax;
-
-            // Create Order in PENDING_PAYMENT status
             $order = Order::create([
                 'order_reference'           => $orderReference,
                 'user_id'                   => Auth::id(),
@@ -173,7 +235,7 @@ class CheckoutController extends Controller
                 'payment_status'            => 'unpaid',
                 'payment_method'            => 'stripe',
                 'payment_reference'         => null,
-                'subtotal'                  => $subtotal,
+                'subtotal'                  => $calculatedSubtotal,
                 'discount'                  => 0.00,
                 'tax'                       => $tax,
                 'shipping_fee'              => $shippingFee,
@@ -183,25 +245,23 @@ class CheckoutController extends Controller
                 'notes'                     => $request->notes,
             ]);
 
-            // Create Order Items Snapshot (Inventory will be deducted upon confirmed payment)
-            foreach ($cart->items as $item) {
-                $product = Product::find($item->product_id);
-
+            foreach ($authoritativeItems as $authItem) {
+                $prod = $authItem['product'];
                 OrderItem::create([
                     'order_id'         => $order->id,
-                    'product_id'       => $product?->id,
-                    'product_name'     => $product ? $product->name : $item->product_name,
-                    'sku'              => $product?->sku,
-                    'unit_price'       => $item->price,
-                    'quantity'         => $item->quantity,
-                    'subtotal'         => $item->price * $item->quantity,
-                    'options'          => $item->options,
+                    'product_id'       => $prod->id,
+                    'product_name'     => $prod->name,
+                    'sku'              => $prod->sku,
+                    'unit_price'       => $authItem['unit_price'],
+                    'quantity'         => $authItem['quantity'],
+                    'subtotal'         => $authItem['line_total'],
+                    'options'          => $authItem['options'],
                     'product_snapshot' => [
-                        'name'           => $product?->name,
-                        'sku'            => $product?->sku,
-                        'images'         => $product?->images,
-                        'inventory_type' => $product?->inventory_type,
-                        'options'        => $item->options,
+                        'name'           => $prod->name,
+                        'sku'            => $prod->sku,
+                        'images'         => $prod->images,
+                        'inventory_type' => $prod->inventory_type,
+                        'options'        => $authItem['options'],
                     ],
                 ]);
             }
@@ -209,93 +269,97 @@ class CheckoutController extends Controller
             return $order;
         });
 
-        // Check if real Stripe credentials are configured
+        // Store reference in session for IDOR verification
+        session(['checkout_order_ref' => $order->order_reference]);
+
+        // 5. Create Stripe Checkout Session
         $stripeSecret = config('services.stripe.secret');
-        $isLiveConfigured = !empty($stripeSecret) && !str_starts_with($stripeSecret, 'sk_test_your_secret');
-
-        if ($isLiveConfigured) {
-            try {
-                $stripe = new StripeClient($stripeSecret);
-                $currency = strtolower(config('services.stripe.currency', 'inr'));
-
-                // Build Stripe Line Items
-                $lineItems = [];
-                foreach ($cart->items as $item) {
-                    $unitAmountPaise = intval(round($item->price * 100));
-                    $lineItems[] = [
-                        'price_data' => [
-                            'currency'     => $currency,
-                            'product_data' => [
-                                'name'        => $item->product?->name ?? $item->product_name,
-                                'description' => "Maison Résine Handcrafted Artwork (SKU: " . ($item->product?->sku ?? 'RESIN') . ")",
-                            ],
-                            'unit_amount'  => $unitAmountPaise,
-                        ],
-                        'quantity'   => $item->quantity,
-                    ];
-                }
-
-                // Add GST Tax Line Item if applicable
-                if ($order->tax > 0) {
-                    $lineItems[] = [
-                        'price_data' => [
-                            'currency'     => $currency,
-                            'product_data' => [
-                                'name'        => 'GST & Preservation Tax',
-                                'description' => 'Mandatory tax & certificate documentation',
-                            ],
-                            'unit_amount'  => intval(round($order->tax * 100)),
-                        ],
-                        'quantity'   => 1,
-                    ];
-                }
-
-                // Create Hosted Stripe Checkout Session
-                $session = $stripe->checkout->sessions->create([
-                    'payment_method_types' => ['card'],
-                    'customer_email'       => $order->email,
-                    'client_reference_id'  => $order->order_reference,
-                    'metadata'             => [
-                        'order_reference' => $order->order_reference,
-                        'order_id'        => $order->id,
-                    ],
-                    'line_items'           => $lineItems,
-                    'mode'                 => 'payment',
-                    'success_url'          => route('checkout.confirmation', ['order' => $order->order_reference]) . '?session_id={CHECKOUT_SESSION_ID}',
-                    'cancel_url'           => route('checkout.cancel', ['order' => $order->order_reference]),
-                ]);
-
-                // Store preliminary session ID on Order
-                $order->update(['payment_reference' => $session->id]);
-
-                // Redirect client to Stripe Hosted Secure Payment Page
-                return redirect()->away($session->url);
-
-            } catch (\Exception $e) {
-                Log::error("Stripe Session Creation Failed: " . $e->getMessage());
-                return back()->with('error', 'Unable to initiate secure Stripe checkout. Please verify connection and try again: ' . $e->getMessage());
-            }
+        if (empty($stripeSecret) || str_starts_with($stripeSecret, 'sk_test_your_secret')) {
+            Log::error("Stripe payment error: Stripe secret key is not properly configured in environment.");
+            return back()->with('error', 'Payment gateway is temporarily unavailable. Please contact atelier concierge.');
         }
 
-        // Fallback / Sandbox Demo Mode (When Stripe keys are placeholder in .env)
-        // Automatically fulfills the order so testing works without crashing
-        $simulatedRef = 'STRIPE-TEST-' . strtoupper(Str::random(10));
-        OrderFulfillmentService::fulfill($order, $simulatedRef, [
-            'mode' => 'sandbox_simulation',
-            'note' => 'To activate live Stripe checkout, add your STRIPE_KEY and STRIPE_SECRET in .env',
-        ]);
+        try {
+            $stripe = app()->bound(StripeClient::class)
+                ? app(StripeClient::class)
+                : new StripeClient($stripeSecret);
 
-        // Empty Cart
-        $cart->items()->delete();
-        $cart->update(['total' => 0]);
+            // Build Stripe Line Items
+            $lineItems = [];
+            foreach ($authoritativeItems as $authItem) {
+                $unitAmountPaise = intval(round($authItem['unit_price'] * 100));
+                $lineItems[] = [
+                    'price_data' => [
+                        'currency'     => $currency,
+                        'product_data' => [
+                            'name'        => $authItem['product']->name,
+                            'description' => "Maison Résine Handcrafted Artwork (SKU: " . ($authItem['product']->sku ?? 'RESIN') . ")",
+                        ],
+                        'unit_amount'  => $unitAmountPaise,
+                    ],
+                    'quantity'   => $authItem['quantity'],
+                ];
+            }
 
-        return redirect()->route('checkout.confirmation', ['order' => $order->order_reference])
-            ->with('message', 'Stripe Sandbox Simulation: Payment recorded. Please add your real Stripe API keys in .env to connect live Stripe checkout.');
+            // Add Tax Line Item if applicable
+            if ($order->tax > 0) {
+                $lineItems[] = [
+                    'price_data' => [
+                        'currency'     => $currency,
+                        'product_data' => [
+                            'name'        => 'Taxes & Documentation',
+                            'description' => 'Mandatory preservation & tax documentation',
+                        ],
+                        'unit_amount'  => intval(round($order->tax * 100)),
+                    ],
+                    'quantity'   => 1,
+                ];
+            }
+
+            $session = $stripe->checkout->sessions->create([
+                'payment_method_types' => ['card'],
+                'customer_email'       => $order->email,
+                'client_reference_id'  => $order->order_reference,
+                'metadata'             => [
+                    'order_reference' => $order->order_reference,
+                    'order_id'        => (string) $order->id,
+                ],
+                'line_items'           => $lineItems,
+                'mode'                 => 'payment',
+                'success_url'          => route('checkout.confirmation', ['order' => $order->order_reference]) . '?session_id={CHECKOUT_SESSION_ID}',
+                'cancel_url'           => route('checkout.cancel', ['order' => $order->order_reference]),
+            ], [
+                'idempotency_key' => 'checkout_sess_' . $order->order_reference,
+            ]);
+
+            // Save Stripe Session ID on order
+            $order->update(['payment_reference' => $session->id]);
+
+            // Redirect customer to Stripe hosted checkout page
+            // Cart remains preserved in DB/session until payment confirmation!
+            return redirect()->away($session->url);
+
+        } catch (\Exception $e) {
+            Log::error("Stripe Session Creation Failed for Order {$order->order_reference}: " . $e->getMessage());
+            return back()->with('error', 'Unable to initiate secure payment. Please verify your connection or try again: ' . $e->getMessage());
+        }
     }
 
     public function confirmation(string $orderReference, Request $request)
     {
         $order = Order::where('order_reference', $orderReference)->with('items.product')->firstOrFail();
+
+        // IDOR Protection: verify access
+        if (Auth::check()) {
+            if ($order->user_id && $order->user_id !== Auth::id()) {
+                abort(403, 'Unauthorized access to order.');
+            }
+        } else {
+            $sessionOrderRef = session('checkout_order_ref');
+            if ($sessionOrderRef !== $orderReference) {
+                abort(403, 'Unauthorized access to order.');
+            }
+        }
 
         // If returned from Stripe with session_id, verify payment with Stripe API
         $sessionId = $request->query('session_id');
@@ -303,7 +367,9 @@ class CheckoutController extends Controller
 
         if ($sessionId && !empty($stripeSecret) && !str_starts_with($stripeSecret, 'sk_test_your_secret')) {
             try {
-                $stripe = new StripeClient($stripeSecret);
+                $stripe = app()->bound(StripeClient::class)
+                    ? app(StripeClient::class)
+                    : new StripeClient($stripeSecret);
                 $session = $stripe->checkout->sessions->retrieve($sessionId);
 
                 if ($session && $session->payment_status === 'paid') {
@@ -311,7 +377,7 @@ class CheckoutController extends Controller
                     OrderFulfillmentService::fulfill($order, $paymentRef, (array) $session);
                 }
             } catch (\Exception $e) {
-                Log::warning("Stripe Session Confirmation Check Warning: " . $e->getMessage());
+                Log::warning("Stripe Session Confirmation Check Warning for {$orderReference}: " . $e->getMessage());
             }
         }
 
@@ -322,6 +388,9 @@ class CheckoutController extends Controller
             $cart->update(['total' => 0]);
         }
 
+        // Clear session reference
+        session()->forget('checkout_order_ref');
+
         return view('checkout.confirmation', compact('order'));
     }
 
@@ -329,14 +398,22 @@ class CheckoutController extends Controller
     {
         $order = Order::where('order_reference', $orderReference)->first();
 
-        if ($order && $order->payment_status === 'unpaid') {
-            $order->update([
-                'status'        => 'CANCELLED',
-                'cancel_reason' => 'Customer cancelled checkout on Stripe page',
-                'canceled_at'   => now(),
-            ]);
+        if ($order) {
+            // IDOR Protection
+            if (Auth::check() && $order->user_id && $order->user_id !== Auth::id()) {
+                abort(403, 'Unauthorized access.');
+            }
+
+            if ($order->payment_status === 'unpaid') {
+                $order->update([
+                    'status'        => 'CANCELLED',
+                    'cancel_reason' => 'Customer cancelled checkout on payment page.',
+                    'canceled_at'   => now(),
+                ]);
+            }
         }
 
-        return redirect()->route('checkout.index')->with('error', 'Stripe payment was interrupted or cancelled. Your shopping bag has been saved.');
+        // Cart is intentionally preserved so user doesn't lose their selected pieces!
+        return redirect()->route('checkout.index')->with('error', 'Payment was not completed. Your shopping bag has been safely preserved.');
     }
 }

@@ -67,7 +67,7 @@ Route::post('/wishlist/move-to-cart', [WishlistController::class, 'moveToCart'])
 // Checkout Routes (Requires Authentication - No Guest Checkout Allowed)
 Route::middleware(['auth'])->group(function () {
     Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index');
-    Route::post('/checkout/process', [CheckoutController::class, 'process'])->name('checkout.process');
+    Route::post('/checkout/process', [CheckoutController::class, 'process'])->middleware('throttle:10,1')->name('checkout.process');
     Route::get('/checkout/confirmation/{order}', [CheckoutController::class, 'confirmation'])->name('checkout.confirmation');
     Route::get('/checkout/cancel/{order}', [CheckoutController::class, 'cancel'])->name('checkout.cancel');
 });

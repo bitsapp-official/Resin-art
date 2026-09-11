@@ -47,7 +47,7 @@
                             <div class="space-y-2 pt-1">
                                 <div class="flex items-center justify-between">
                                     <span class="text-xs font-semibold text-[#1C1917]">Refund Status</span>
-                                    <span class="px-2.5 py-0.5 rounded-full text-[9.5px] font-bold uppercase tracking-wider {{ in_array($refund?->status, ['APPROVED', 'COMPLETED', 'PROCESSED']) ? 'bg-emerald-800 text-white' : 'bg-amber-700 text-white' }}">
+                                    <span class="bg-[#1C1917] text-white px-3 py-1 rounded-full text-[9px] uppercase font-semibold tracking-widest inline-block text-center whitespace-nowrap shadow-2xs">
                                         {{ $refund?->status ?? 'REQUESTED' }}
                                     </span>
                                 </div>
@@ -55,8 +55,22 @@
                                     <span class="text-[#78716C]">Refund Amount</span>
                                     <span class="font-bold text-[#1C1917]">₹ {{ number_format($refund?->amount ?? $order->grand_total, 2) }}</span>
                                 </div>
+                                @if($refund?->stripe_refund_id)
+                                    <div class="p-2.5 bg-white/70 border border-[#E6E1D7] rounded-xl text-[11px] text-[#57534E] flex flex-wrap items-center gap-2">
+                                        <span class="text-[#8E877D] font-medium uppercase tracking-wider text-[9.5px]">Stripe Refund Ref:</span>
+                                        <code class="font-mono text-xs font-semibold text-[#1C1917] tracking-wider select-all">{{ $refund->stripe_refund_id }}</code>
+                                    </div>
+                                @endif
                                 <p class="text-[11.5px] text-[#78716C] font-light leading-relaxed pt-1">
-                                    A full 100% refund has been logged for this order. Our atelier accounts team will credit the amount back to your original payment method.
+                                    @if($refund?->status === 'COMPLETED')
+                                        Refund has been successfully credited via Stripe back to your original payment method.
+                                    @elseif($refund?->status === 'APPROVED')
+                                        Approved by Atelier Admin. Online payout transfer via Stripe is queued/in progress.
+                                    @elseif($refund?->status === 'REJECTED')
+                                        Refund request was reviewed and rejected. Please contact atelier support for assistance.
+                                    @else
+                                        Refund request submitted and awaiting Atelier Admin review &amp; approval. Once approved, online transfer will be executed.
+                                    @endif
                                 </p>
                                 <div class="pt-2">
                                     <a href="{{ route('account.refunds.index') }}" class="inline-flex items-center text-xs font-semibold text-[#1C1917] hover:underline">
