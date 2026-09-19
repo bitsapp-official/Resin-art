@@ -150,10 +150,9 @@ class CheckoutController extends Controller
         $tax = $showTax ? round($calculatedSubtotal * ($taxRate / 100), 2) : 0.00;
         $grandTotal = round($calculatedSubtotal + $shippingFee + $tax, 2);
 
-        // 3. Determine Currency based on Stripe India rules
-        // Domestic India customers must use INR.
-        // International customers can also be charged in INR (or store currency), supported by Stripe.
-        $currency = 'inr'; // Standard authoritative currency for Stripe India
+        // 3. Determine Currency based on Stripe India rules & Authoritative App Config
+        // Domestic India transactions must be settled in INR. Subunits are 100 paise.
+        $currency = strtolower(config('services.stripe.currency', 'inr'));
 
         // Prepare shipping address snapshot (Physical Parcel Delivery)
         $shippingSnapshot = [

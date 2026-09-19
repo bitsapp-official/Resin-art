@@ -195,12 +195,13 @@ All 17 tests verify:
 ## 8. Live Production Deployment Checklist
 
 1. **Environment Configuration (`.env`)**:
+   Only store credential secrets in `.env`:
    ```env
    STRIPE_KEY=your_stripe_publishable_key
    STRIPE_SECRET=your_stripe_secret_key
    STRIPE_WEBHOOK_SECRET=your_stripe_webhook_signing_secret
-   STRIPE_CURRENCY=inr
    ```
+   > **Architectural & Financial Safety Note**: Store base currency is locked to `inr` in `config/services.php` (ISO 4217, 2-decimal paise). It is intentionally excluded from `.env` to prevent currency mismatch vulnerabilities (e.g. charging $2,500 USD instead of ₹2,500 INR) and comply with RBI domestic settlement regulations.
 2. **Stripe Dashboard Webhook Registration**:
    - URL: `https://your-domain.com/webhook/stripe`
    - Events:

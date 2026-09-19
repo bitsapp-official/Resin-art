@@ -43,7 +43,7 @@ return [
         'key'            => env('STRIPE_KEY'),
         'secret'         => env('STRIPE_SECRET'),
         'webhook_secret' => env('STRIPE_WEBHOOK_SECRET'),
-        'currency'       => env('STRIPE_CURRENCY', 'inr'),
+        'currency'       => 'inr', // Authoritative store base currency (ISO 4217). Hardcoded to INR to prevent financial mismatch exploits and satisfy RBI regulations.
     ],
 
 ];
