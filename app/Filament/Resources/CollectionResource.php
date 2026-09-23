@@ -35,13 +35,14 @@ class CollectionResource extends Resource
                                     ->required()
                                     ->maxLength(255)
                                     ->live(onBlur: true)
-                                    ->afterStateUpdated(fn (string $operation, $state, Forms\Set $set) =>
-                                        $operation === 'create' ? $set('slug', Str::slug($state)) : null
+                                    ->afterStateUpdated(fn ($state, Forms\Set $set) =>
+                                        $set('slug', Str::slug($state))
                                     ),
 
                                 Forms\Components\TextInput::make('slug')
                                     ->required()
                                     ->maxLength(255)
+                                    ->helperText('Auto-generated from collection name (can also be edited manually).')
                                     ->unique(Collection::class, 'slug', ignoreRecord: true),
 
                                 Forms\Components\TextInput::make('subtitle')
