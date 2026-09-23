@@ -154,15 +154,20 @@ class ProductResource extends Resource
                         ]),
 
                     Forms\Components\Section::make('Product Gallery')
+                        ->description('Upload product photography (Max 5 MB each, up to 10 photos).')
                         ->schema([
                             Forms\Components\FileUpload::make('images')
                                 ->multiple()
                                 ->image()
+                                ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp', 'image/jpg'])
+                                ->maxSize(5120)
+                                ->maxFiles(10)
                                 ->disk('public')
                                 ->directory('products')
                                 ->reorderable()
                                 ->openable()
                                 ->downloadable()
+                                ->helperText('Max 5 MB per image. Formats: JPG, PNG, WEBP (Up to 10 images).')
                                 ->label('Product Images'),
                         ]),
                 ])->columnSpan(1),

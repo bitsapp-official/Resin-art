@@ -60,6 +60,9 @@ class HomeSlideResource extends Resource
                             ->disk('public')
                             ->directory('gallery')
                             ->image()
+                            ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp', 'image/jpg'])
+                            ->maxSize(5120)
+                            ->helperText('Max file size: 5 MB. Formats: JPG, PNG, WEBP.')
                             ->required()
                             ->columnSpanFull(),
 

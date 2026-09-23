@@ -119,11 +119,13 @@ class HomePageSettings extends Page implements HasForms
                         FileUpload::make('home_story_image')
                             ->label('Story / Workshop Photo')
                             ->image()
+                            ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp', 'image/jpg'])
+                            ->maxSize(5120)
                             ->disk('public')
                             ->directory('homepage')
                             ->imageResizeMode('cover')
                             ->imageCropAspectRatio('4:5')
-                            ->helperText('Upload artwork or workshop photo. Recommended aspect ratio 4:5.')
+                            ->helperText('Upload artwork or workshop photo. Max 5 MB. Recommended aspect ratio 4:5.')
                             ->columnSpanFull(),
 
                         Grid::make(2)
