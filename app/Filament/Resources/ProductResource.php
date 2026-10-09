@@ -65,6 +65,21 @@ class ProductResource extends Resource
 
                             Forms\Components\RichEditor::make('description')
                                 ->label('Product Details & Description')
+                                ->toolbarButtons([
+                                    'bold',
+                                    'italic',
+                                    'underline',
+                                    'strike',
+                                    'link',
+                                    'h2',
+                                    'h3',
+                                    'blockquote',
+                                    'codeBlock',
+                                    'bulletList',
+                                    'orderedList',
+                                    'undo',
+                                    'redo',
+                                ])
                                 ->columnSpanFull(),
                         ])->columns(2),
 
