@@ -1,13 +1,39 @@
 <x-app-layout :title="$product->name . ' — Maison Résine Atelier'">
 <div class="min-h-screen bg-transparent w-full min-w-0">
+    @php
+        $mediaList = [];
+        if (!empty($product->images)) {
+            foreach ($product->images as $img) {
+                $mediaList[] = [
+                    'type' => 'image',
+                    'src' => $img,
+                    'thumb' => $img,
+                ];
+            }
+        }
+        if ($product->has_video) {
+            $videoSrc = $product->video_asset_url;
+            $videoThumb = $product->video_thumbnail_url ?: ($mediaList[0]['src'] ?? null);
+            $isYoutube = !empty($product->youtube_id);
+            $youtubeEmbed = $product->youtube_embed_url;
+
+            $mediaList[] = [
+                'type' => 'video',
+                'src' => $videoSrc,
+                'thumb' => $videoThumb,
+                'isYoutube' => $isYoutube,
+                'embedUrl' => $youtubeEmbed,
+            ];
+        }
+    @endphp
     <script>
         function productDetail(config) {
             return {
-                activeImage: 0,
+                mediaItems: config.mediaItems || [],
+                activeMedia: 0,
                 selectedSize: config.selectedSize || '',
                 qty: 1,
                 showLightbox: false,
-                productImages: config.productImages || [],
                 sizeVariants: config.sizeVariants || [],
                 basePrice: config.basePrice || 0,
                 
@@ -18,6 +44,10 @@
                 isDragging: false,
                 dragStartX: 0,
                 dragStartY: 0,
+
+                get currentMedia() {
+                    return this.mediaItems[this.activeMedia] || null;
+                },
                 
                 init() {
                     window.addEventListener('touchmove', (e) => {
@@ -25,6 +55,15 @@
                             e.preventDefault();
                         }
                     }, { passive: false });
+                },
+
+                pauseAllVideos() {
+                    if (this.$refs.mainVideo) {
+                        try { this.$refs.mainVideo.pause(); } catch(e) {}
+                    }
+                    if (this.$refs.lightboxVideo) {
+                        try { this.$refs.lightboxVideo.pause(); } catch(e) {}
+                    }
                 },
                 
                 openLightbox() {
@@ -39,6 +78,7 @@
                     document.body.style.touchAction = 'none';
                 },
                 closeLightbox() {
+                    this.pauseAllVideos();
                     this.showLightbox = false;
                     this.resetLightboxZoom();
                     document.documentElement.classList.remove('overflow-hidden', 'touch-none');
@@ -77,6 +117,7 @@
                 },
                 handleWheel(e) {
                     if (!this.showLightbox) return;
+                    if (this.currentMedia && this.currentMedia.type === 'video') return;
                     e.preventDefault();
                     if (e.deltaY < 0) {
                         this.zoomIn();
@@ -99,7 +140,6 @@
                     const img = this.$refs.lightboxImg;
                     const w = img ? img.offsetWidth : 600;
                     const h = img ? img.offsetHeight : 600;
-                    // Generous pan limits so every edge and corner is easily reachable without cutting off
                     const maxPanX = Math.max(120, ((w * this.lightboxZoom) - w) / 2 + 100);
                     const maxPanY = Math.max(120, ((h * this.lightboxZoom) - h) / 2 + 100);
                     const newX = clientX - this.dragStartX;
@@ -121,34 +161,46 @@
                 formatPrice(price) {
                     return new Intl.NumberFormat('en-IN').format(price);
                 },
-                nextImage() {
-                    if (this.productImages.length > 0) {
-                        this.activeImage = (this.activeImage + 1) % this.productImages.length;
+                nextMedia() {
+                    if (this.mediaItems.length > 0) {
+                        this.pauseAllVideos();
+                        this.activeMedia = (this.activeMedia + 1) % this.mediaItems.length;
                         this.resetLightboxZoom();
                     }
                 },
-                prevImage() {
-                    if (this.productImages.length > 0) {
-                        this.activeImage = (this.activeImage - 1 + this.productImages.length) % this.productImages.length;
+                prevMedia() {
+                    if (this.mediaItems.length > 0) {
+                        this.pauseAllVideos();
+                        this.activeMedia = (this.activeMedia - 1 + this.mediaItems.length) % this.mediaItems.length;
                         this.resetLightboxZoom();
                     }
                 },
-                selectImage(idx) {
-                    this.activeImage = idx;
-                    this.resetLightboxZoom();
-                }
+                selectMedia(idx) {
+                    if (this.activeMedia !== idx) {
+                        this.pauseAllVideos();
+                        this.activeMedia = idx;
+                        this.resetLightboxZoom();
+                    }
+                },
+
+                // Backward compatibility aliases
+                get activeImage() { return this.activeMedia; },
+                get productImages() { return this.mediaItems.map(m => m.src); },
+                selectImage(idx) { this.selectMedia(idx); },
+                nextImage() { this.nextMedia(); },
+                prevImage() { this.prevMedia(); }
             };
         }
     </script>
     <div class="max-w-[1320px] mx-auto px-4 sm:px-6 lg:px-12 xl:px-16 pt-6 sm:pt-8 pb-16 sm:pb-24 w-full min-w-0"
          x-data="productDetail({
-            productImages: @js($product->images ?? []),
+            mediaItems: @js($mediaList),
             sizeVariants: @js($product->attributes['size_variants'] ?? []),
             basePrice: {{ (float) $product->effective_price }},
             selectedSize: @js(!empty($product->attributes['size_variants']) ? ($product->attributes['size_variants'][0]['size'] ?? '') : (!empty($product->attributes['sizes']) ? $product->attributes['sizes'][0] : ''))
          })">
 
-        {{-- ── FULL-SCREEN LIGHTBOX MODAL WITH CUT-FREE ZOOM & PAN ── --}}
+        {{-- ── FULL-SCREEN LIGHTBOX MODAL WITH CUT-FREE ZOOM & PAN OR VIDEO CINEMA ── --}}
         <div x-show="showLightbox" x-cloak
              x-transition:enter="transition ease-out duration-300"
              x-transition:enter-start="opacity-0"
@@ -157,8 +209,8 @@
              x-transition:leave-start="opacity-100"
              x-transition:leave-end="opacity-0"
              @keydown.escape.window="closeLightbox()"
-             @keydown.arrow-left.window="prevImage()"
-             @keydown.arrow-right.window="nextImage()"
+             @keydown.arrow-left.window="prevMedia()"
+             @keydown.arrow-right.window="nextMedia()"
              @keydown.equal.window="zoomIn()"
              @keydown.minus.window="zoomOut()"
              @keydown.digit0.window="resetLightboxZoom()"
@@ -166,8 +218,16 @@
              @wheel.prevent="handleWheel($event)"
              @touchmove="if (lightboxZoom <= 1 || !$event.target.closest('[x-ref=\'lightboxImg\']')) $event.preventDefault()">
             
-            {{-- TOP BAR: Close Button (Right) --}}
-            <div class="w-full flex items-center justify-end z-50 shrink-0 min-h-[44px]">
+            {{-- TOP BAR: Indicator (Left) & Close Button (Right) --}}
+            <div class="w-full flex items-center justify-between z-50 shrink-0 min-h-[44px]">
+                <div class="flex items-center gap-2">
+                    <template x-if="currentMedia && currentMedia.type === 'video'">
+                        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#1C1917] text-white text-[11px] font-semibold uppercase tracking-wider shadow-sm">
+                            <svg class="w-3 h-3 fill-current" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                            Video Showcase
+                        </span>
+                    </template>
+                </div>
                 {{-- Right: Close Button (✕) --}}
                 <button type="button" @click.stop="closeLightbox()"
                         class="text-[#1C1917] bg-white hover:bg-[#1C1917] hover:text-white border border-[#DFD9CE] w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center transition-all cursor-pointer shadow-sm shrink-0"
@@ -176,15 +236,15 @@
                 </button>
             </div>
 
-            {{-- MIDDLE CANVAS: Zoomable & Draggable Image (100% Fit at 1x, Zero Cutting on Zoom) --}}
+            {{-- MIDDLE CANVAS: Zoomable Image OR Full Video Player --}}
             <div class="relative flex-1 w-full flex items-center justify-center overflow-hidden my-auto"
                  @click.self="closeLightbox()">
 
                 {{-- Previous Arrow --}}
-                <template x-if="productImages.length > 1">
-                    <button type="button" @click.stop="prevImage()"
+                <template x-if="mediaItems.length > 1">
+                    <button type="button" @click.stop="prevMedia()"
                             class="absolute left-2 sm:left-6 top-1/2 -translate-y-1/2 text-[#1C1917] bg-white/95 hover:bg-[#1C1917] hover:text-white border border-[#DFD9CE] w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center transition-all cursor-pointer shadow-md z-40"
-                            aria-label="Previous image">
+                            aria-label="Previous media">
                         <svg class="w-4 h-4 sm:w-5 sm:h-5 stroke-[2]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/>
                         </svg>
@@ -192,43 +252,78 @@
                 </template>
 
                 {{-- Next Arrow --}}
-                <template x-if="productImages.length > 1">
-                    <button type="button" @click.stop="nextImage()"
+                <template x-if="mediaItems.length > 1">
+                    <button type="button" @click.stop="nextMedia()"
                             class="absolute right-2 sm:right-6 top-1/2 -translate-y-1/2 text-[#1C1917] bg-white/95 hover:bg-[#1C1917] hover:text-white border border-[#DFD9CE] w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center transition-all cursor-pointer shadow-md z-40"
-                            aria-label="Next image">
+                            aria-label="Next media">
                         <svg class="w-4 h-4 sm:w-5 sm:h-5 stroke-[2]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
                         </svg>
                     </button>
                 </template>
 
-                {{-- Image Container --}}
-                <div class="relative flex items-center justify-center select-none"
-                     @mousedown="startDrag($event)"
-                     @mousemove="onDrag($event)"
-                     @mouseup="stopDrag()"
-                     @mouseleave="stopDrag()"
-                     @touchstart="startDrag($event)"
-                     @touchmove="onDrag($event)"
-                     @touchend="stopDrag()"
-                     @dblclick.stop="toggleLightboxZoom()">
-                    <img x-ref="lightboxImg"
-                         :src="productImages[activeImage]"
-                         alt="{{ $product->name }}"
-                         draggable="false"
-                         class="max-w-[86vw] max-h-[66vh] sm:max-h-[70vh] object-contain rounded-2xl shadow-xl border border-white/60 will-change-transform select-none"
-                         :style="'transform: translate(' + lightboxPanX + 'px, ' + lightboxPanY + 'px) scale(' + lightboxZoom + '); transform-origin: center center; transition: ' + (isDragging ? 'none' : 'transform 0.25s cubic-bezier(0.16, 1, 0.3, 1)') + '; cursor: ' + (lightboxZoom > 1 ? (isDragging ? 'grabbing' : 'grab') : 'zoom-in') + ';'">
-                </div>
+                {{-- IMAGE Container (when active item is image) --}}
+                <template x-if="currentMedia && currentMedia.type === 'image'">
+                    <div class="relative flex items-center justify-center select-none"
+                         @mousedown="startDrag($event)"
+                         @mousemove="onDrag($event)"
+                         @mouseup="stopDrag()"
+                         @mouseleave="stopDrag()"
+                         @touchstart="startDrag($event)"
+                         @touchmove="onDrag($event)"
+                         @touchend="stopDrag()"
+                         @dblclick.stop="toggleLightboxZoom()">
+                        <img x-ref="lightboxImg"
+                             :src="currentMedia.src"
+                             alt="{{ $product->name }}"
+                             draggable="false"
+                             class="max-w-[86vw] max-h-[66vh] sm:max-h-[70vh] object-contain rounded-2xl shadow-xl border border-white/60 will-change-transform select-none"
+                             :style="'transform: translate(' + lightboxPanX + 'px, ' + lightboxPanY + 'px) scale(' + lightboxZoom + '); transform-origin: center center; transition: ' + (isDragging ? 'none' : 'transform 0.25s cubic-bezier(0.16, 1, 0.3, 1)') + '; cursor: ' + (lightboxZoom > 1 ? (isDragging ? 'grabbing' : 'grab') : 'zoom-in') + ';'">
+                    </div>
+                </template>
+
+                {{-- VIDEO Container: HTML5 (when active item is direct video) --}}
+                <template x-if="currentMedia && currentMedia.type === 'video' && !currentMedia.isYoutube">
+                    <div class="relative w-full max-w-4xl max-h-[72vh] flex items-center justify-center bg-black/95 rounded-2xl overflow-hidden shadow-2xl border border-white/10 p-1">
+                        <video x-ref="lightboxVideo"
+                               controls
+                               autoplay
+                               playsinline
+                               :src="currentMedia.src"
+                               :poster="currentMedia.thumb"
+                               class="w-full max-h-[70vh] object-contain rounded-xl">
+                        </video>
+                    </div>
+                </template>
+
+                {{-- VIDEO Container: YouTube (when active item is youtube) --}}
+                <template x-if="currentMedia && currentMedia.type === 'video' && currentMedia.isYoutube">
+                    <div class="relative w-full max-w-4xl h-[65vh] max-h-[600px] flex items-center justify-center bg-black rounded-2xl overflow-hidden shadow-2xl border border-white/10">
+                        <iframe :src="currentMedia.embedUrl"
+                                title="{{ $product->name }} Video"
+                                class="w-full h-full border-0"
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                allowfullscreen>
+                        </iframe>
+                    </div>
+                </template>
             </div>
 
-            {{-- Lightbox Thumbnails Navigation --}}
-            <template x-if="productImages.length > 1">
+            {{-- Lightbox Thumbnails Navigation (Images + Video with Play badge) --}}
+            <template x-if="mediaItems.length > 1">
                 <div @click.stop="" class="flex items-center justify-center gap-2 sm:gap-3 pt-2 pb-1 z-50 cursor-default max-w-full overflow-x-auto no-scrollbar px-4 shrink-0">
-                    <template x-for="(img, idx) in productImages" :key="idx">
-                        <button type="button" @click="selectImage(idx)"
-                                class="shrink-0 w-11 h-11 sm:w-13 sm:h-13 rounded-xl overflow-hidden border-2 transition-all cursor-pointer p-0.5 bg-white"
-                                :class="activeImage === idx ? 'border-[#1C1917] ring-2 ring-[#1C1917]/25 scale-110 shadow-md opacity-100' : 'border-[#DFD9CE] opacity-60 hover:opacity-100'">
-                            <img :src="img" class="w-full h-full object-cover rounded-lg">
+                    <template x-for="(item, idx) in mediaItems" :key="idx">
+                        <button type="button" @click="selectMedia(idx)"
+                                class="relative shrink-0 w-11 h-11 sm:w-13 sm:h-13 rounded-xl overflow-hidden border-2 transition-all cursor-pointer p-0.5 bg-white"
+                                :class="activeMedia === idx ? 'border-[#1C1917] ring-2 ring-[#1C1917]/25 scale-110 shadow-md opacity-100' : 'border-[#DFD9CE] opacity-60 hover:opacity-100'">
+                            <img :src="item.thumb || item.src" class="w-full h-full object-cover rounded-lg">
+                            <template x-if="item.type === 'video'">
+                                <div class="absolute inset-0 bg-black/40 rounded-lg flex items-center justify-center">
+                                    <div class="w-5 h-5 rounded-full bg-white text-[#1C1917] flex items-center justify-center shadow-xs">
+                                        <svg class="w-2.5 h-2.5 fill-current ml-0.5" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                                    </div>
+                                </div>
+                            </template>
                         </button>
                     </template>
                 </div>
@@ -251,61 +346,118 @@
         {{-- ── MAIN PRODUCT LAYOUT ─────────────────────────────── --}}
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 sm:gap-12 lg:gap-16 xl:gap-20 mb-16 sm:mb-20">
 
-            {{-- LEFT: Gallery --}}
+            {{-- LEFT: Gallery (Amazon-style Image & Video Showcase) --}}
             <div class="space-y-3.5 sm:space-y-4">
-                {{-- Main Gallery Image (Clean Steady Display - No Zoom Glitch + Click to Open Lightbox) --}}
-                <div class="relative overflow-hidden aspect-square rounded-[1.75rem] sm:rounded-[2rem] bg-[#F5F2EB] border border-[#DFD9CE]/60 shadow-2xs cursor-pointer select-none"
-                     @click="openLightbox()">
+                {{-- Main Gallery Stage --}}
+                <div class="relative overflow-hidden aspect-square rounded-[1.75rem] sm:rounded-[2rem] bg-[#F5F2EB] border border-[#DFD9CE]/60 shadow-2xs select-none group">
 
-                    @if(!empty($product->images))
-                        @foreach($product->images as $index => $img)
-                            <img x-show="activeImage === {{ $index }}"
-                                 src="{{ $img }}"
-                                 alt="{{ $product->name }}"
-                                 class="w-full h-full object-cover absolute inset-0 transition-opacity duration-300"
-                                 :class="activeImage === {{ $index }} ? 'opacity-100' : 'opacity-0'"
-                                 loading="{{ $index === 0 ? 'eager' : 'lazy' }}">
-                        @endforeach
+                    @if(!empty($mediaList))
+                        {{-- Image Viewers --}}
+                        <template x-if="currentMedia && currentMedia.type === 'image'">
+                            <div class="w-full h-full cursor-pointer relative" @click="openLightbox()">
+                                <img :src="currentMedia.src"
+                                     alt="{{ $product->name }}"
+                                     class="w-full h-full object-cover transition-opacity duration-300">
+                                {{-- Click to zoom hint on desktop --}}
+                                <div class="absolute bottom-3 right-3 hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/85 backdrop-blur-md border border-[#DFD9CE]/80 text-[11px] text-[#5A554E] font-medium opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none shadow-xs">
+                                    <svg class="w-3.5 h-3.5 stroke-[2]" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7"/></svg>
+                                    <span>Click to zoom</span>
+                                </div>
+                            </div>
+                        </template>
+
+                        {{-- Video Viewer: HTML5 direct video --}}
+                        <template x-if="currentMedia && currentMedia.type === 'video' && !currentMedia.isYoutube">
+                            <div class="w-full h-full relative bg-[#141210] flex items-center justify-center">
+                                <video x-ref="mainVideo"
+                                       controls
+                                       playsinline
+                                       preload="metadata"
+                                       :poster="currentMedia.thumb"
+                                       :src="currentMedia.src"
+                                       class="w-full h-full object-contain">
+                                    Your browser does not support HTML5 video.
+                                </video>
+                                {{-- Fullscreen cinema lightbox button --}}
+                                <button type="button" @click.stop="openLightbox()"
+                                        class="absolute top-3 right-3 p-2 rounded-full bg-black/60 hover:bg-black/90 text-white backdrop-blur-md transition-all shadow-md z-20 cursor-pointer"
+                                        title="View full screen cinema">
+                                    <svg class="w-4 h-4 stroke-[2]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M4 8V4m0 0h4M4 4l5 5m11-5h-4m4 0v4m0 0l-5-5m-6 16v4m0 0H4m4 0l-5-5m16 5h-4m4 0v-4m0 0l-5 5"/>
+                                    </svg>
+                                </button>
+                            </div>
+                        </template>
+
+                        {{-- Video Viewer: YouTube Embed --}}
+                        <template x-if="currentMedia && currentMedia.type === 'video' && currentMedia.isYoutube">
+                            <div class="w-full h-full relative bg-black flex items-center justify-center">
+                                <iframe :src="currentMedia.embedUrl"
+                                        title="{{ $product->name }} Video"
+                                        class="w-full h-full aspect-square border-0"
+                                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                        allowfullscreen>
+                                </iframe>
+                            </div>
+                        </template>
                     @else
                         <div class="w-full h-full flex items-center justify-center text-[#8E877D] text-sm">
-                            No image available
+                            No media available
                         </div>
                     @endif
 
                     {{-- Navigation Arrows (Visible on mobile, hover-revealed on desktop) --}}
-                    @if(!empty($product->images) && count($product->images) > 1)
-                        <button type="button" @click.stop="prevImage()"
-                                class="absolute left-3 top-1/2 -translate-y-1/2 w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-white/85 backdrop-blur-md border border-[#DFD9CE]/80 text-[#1C1917] flex items-center justify-center shadow-sm opacity-90 sm:opacity-0 hover:!opacity-100 transition-all duration-200 cursor-pointer hover:bg-white z-10"
-                                aria-label="Previous image">
+                    @if(count($mediaList) > 1)
+                        <button type="button" @click.stop="prevMedia()"
+                                class="absolute left-3 top-1/2 -translate-y-1/2 w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-white/85 backdrop-blur-md border border-[#DFD9CE]/80 text-[#1C1917] flex items-center justify-center shadow-sm opacity-90 sm:opacity-0 group-hover:!opacity-100 transition-all duration-200 cursor-pointer hover:bg-white z-10"
+                                aria-label="Previous media">
                             <svg class="w-4 h-4 stroke-[2]" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
                         </button>
-                        <button type="button" @click.stop="nextImage()"
-                                class="absolute right-3 top-1/2 -translate-y-1/2 w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-white/85 backdrop-blur-md border border-[#DFD9CE]/80 text-[#1C1917] flex items-center justify-center shadow-sm opacity-90 sm:opacity-0 hover:!opacity-100 transition-all duration-200 cursor-pointer hover:bg-white z-10"
-                                aria-label="Next image">
+                        <button type="button" @click.stop="nextMedia()"
+                                class="absolute right-3 top-1/2 -translate-y-1/2 w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-white/85 backdrop-blur-md border border-[#DFD9CE]/80 text-[#1C1917] flex items-center justify-center shadow-sm opacity-90 sm:opacity-0 group-hover:!opacity-100 transition-all duration-200 cursor-pointer hover:bg-white z-10"
+                                aria-label="Next media">
                             <svg class="w-4 h-4 stroke-[2]" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
                         </button>
 
                         {{-- Dot Indicators for mobile --}}
                         <div class="absolute bottom-3.5 left-1/2 -translate-x-1/2 flex items-center gap-1.5 sm:hidden z-10 pointer-events-none">
-                            @foreach($product->images as $index => $img)
+                            <template x-for="(item, idx) in mediaItems" :key="idx">
                                 <span class="h-1.5 rounded-full transition-all duration-300"
-                                      :class="activeImage === {{ $index }} ? 'bg-[#1C1917] w-4' : 'bg-[#1C1917]/35 w-1.5'"></span>
-                            @endforeach
+                                      :class="activeMedia === idx ? 'bg-[#1C1917] w-4' : 'bg-[#1C1917]/35 w-1.5'"></span>
+                            </template>
                         </div>
                     @endif
                 </div>
 
-                {{-- Thumbnails: Horizontal scroll on mobile, flex row on desktop with instant hover & click selection --}}
-                @if(!empty($product->images) && count($product->images) > 1)
+                {{-- Amazon-Style Thumbnails: Images + Video Tile with Play badge & "VIDEO" pill --}}
+                @if(count($mediaList) > 1)
                     <div class="flex items-center gap-2.5 sm:gap-3 overflow-x-auto no-scrollbar py-1 px-0.5">
-                        @foreach($product->images as $index => $img)
+                        <template x-for="(item, idx) in mediaItems" :key="idx">
                             <button type="button" 
-                                    @click="selectImage({{ $index }})"
-                                    class="shrink-0 w-16 h-16 sm:w-20 sm:h-20 aspect-square overflow-hidden rounded-xl sm:rounded-2xl bg-[#F5F2EB] border-2 transition-all duration-200 cursor-pointer relative p-0.5"
-                                    :class="activeImage === {{ $index }} ? 'border-[#1C1917] ring-2 ring-[#1C1917]/25 scale-105 opacity-100 shadow-xs' : 'border-[#DFD9CE]/70 opacity-60 hover:opacity-100 hover:border-[#1C1917]/50'">
-                                <img src="{{ $img }}" alt="{{ $product->name }} thumbnail {{ $index + 1 }}" class="w-full h-full object-cover rounded-lg sm:rounded-xl transition-transform duration-300">
+                                    @click="selectMedia(idx)"
+                                    class="shrink-0 w-16 h-16 sm:w-20 sm:h-20 aspect-square overflow-hidden rounded-xl sm:rounded-2xl bg-[#F5F2EB] border-2 transition-all duration-200 cursor-pointer relative p-0.5 select-none"
+                                    :class="activeMedia === idx ? 'border-[#1C1917] ring-2 ring-[#1C1917]/25 scale-105 opacity-100 shadow-xs' : 'border-[#DFD9CE]/70 opacity-70 hover:opacity-100 hover:border-[#1C1917]/50'">
+                                
+                                {{-- Thumbnail Poster/Image --}}
+                                <img :src="item.thumb || item.src" :alt="'Media ' + (idx + 1)" class="w-full h-full object-cover rounded-lg sm:rounded-xl">
+
+                                {{-- Amazon-Style Video Badge & Overlay (if video item) --}}
+                                <template x-if="item.type === 'video'">
+                                    <div class="absolute inset-0 bg-black/40 rounded-lg sm:rounded-xl flex flex-col items-center justify-center text-white transition-colors hover:bg-black/25">
+                                        {{-- Center Play Disc --}}
+                                        <div class="w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-white text-[#1C1917] flex items-center justify-center shadow-md mb-0.5">
+                                            <svg class="w-3 h-3 fill-current ml-0.5" viewBox="0 0 24 24">
+                                                <path d="M8 5v14l11-7z"/>
+                                            </svg>
+                                        </div>
+                                        {{-- Amazon "VIDEO" Pill --}}
+                                        <span class="bg-[#1C1917]/95 text-white text-[8px] sm:text-[8.5px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-xs shadow-xs">
+                                            VIDEO
+                                        </span>
+                                    </div>
+                                </template>
                             </button>
-                        @endforeach
+                        </template>
                     </div>
                 @endif
             </div>

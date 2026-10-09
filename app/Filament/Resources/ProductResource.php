@@ -154,8 +154,8 @@ class ProductResource extends Resource
                                 ->default(false),
                         ]),
 
-                    Forms\Components\Section::make('Product Gallery')
-                        ->description('Upload product photography (Max 5 MB each, up to 10 photos).')
+                    Forms\Components\Section::make('Product Gallery & Media')
+                        ->description('Upload product photography & showcase video (Amazon-style gallery preview).')
                         ->schema([
                             Forms\Components\FileUpload::make('images')
                                 ->multiple()
@@ -170,6 +170,35 @@ class ProductResource extends Resource
                                 ->downloadable()
                                 ->helperText('Max 5 MB per image. Formats: JPG, PNG, WEBP (Up to 10 images).')
                                 ->label('Product Images'),
+
+                            Forms\Components\FileUpload::make('video_path')
+                                ->label('Product Video (Upload MP4 / WebM)')
+                                ->acceptedFileTypes(['video/mp4', 'video/webm', 'video/quicktime'])
+                                ->maxSize(61440)
+                                ->disk('public')
+                                ->directory('products/videos')
+                                ->openable()
+                                ->downloadable()
+                                ->helperText('Upload product video (Max 60 MB, MP4 or WebM). Displays Amazon-style video preview in the gallery.')
+                                ->columnSpanFull(),
+
+                            Forms\Components\TextInput::make('video_url')
+                                ->label('Or External Video Link (YouTube / CDN)')
+                                ->placeholder('https://www.youtube.com/watch?v=... or direct .mp4 link')
+                                ->url()
+                                ->nullable()
+                                ->helperText('Optional: YouTube video or direct MP4 link if not uploading file.')
+                                ->columnSpanFull(),
+
+                            Forms\Components\FileUpload::make('video_thumbnail')
+                                ->label('Custom Video Thumbnail / Poster (Optional)')
+                                ->image()
+                                ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp', 'image/jpg'])
+                                ->maxSize(5120)
+                                ->disk('public')
+                                ->directory('products/videos/thumbnails')
+                                ->helperText('Optional: Custom thumbnail for the video tile. If left blank, first photo or video frame is used.')
+                                ->columnSpanFull(),
                         ]),
                 ])->columnSpan(1),
             ])->columns(3);
@@ -184,6 +213,16 @@ class ProductResource extends Resource
                     ->disk('public')
                     ->circular()
                     ->getStateUsing(fn ($record) => is_array($record->images) ? ($record->images[0] ?? null) : $record->images),
+
+                Tables\Columns\IconColumn::make('video_path')
+                    ->label('Video')
+                    ->getStateUsing(fn ($record) => !empty($record->video_path) || !empty($record->video_url))
+                    ->boolean()
+                    ->trueIcon('heroicon-o-video-camera')
+                    ->falseIcon(null)
+                    ->color('warning')
+                    ->tooltip(fn ($record) => (!empty($record->video_path) || !empty($record->video_url)) ? 'Product has showcase video' : 'No video')
+                    ->toggleable(),
 
                 Tables\Columns\TextColumn::make('name')
                     ->label('Product Name')

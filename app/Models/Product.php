@@ -21,6 +21,9 @@ class Product extends Model
         'category_id',
         'collection_id',
         'images',
+        'video_path',
+        'video_url',
+        'video_thumbnail',
         'inventory_type',
         'stock',
         'low_stock_threshold',
@@ -155,5 +158,79 @@ class Product extends Model
     {
         return $this->belongsToMany(Collection::class, 'collection_product')
                     ->withTimestamps();
+    }
+
+    /**
+     * Determine if the product has a video attached (uploaded or URL).
+     */
+    public function getHasVideoAttribute(): bool
+    {
+        return !empty($this->video_path) || !empty($this->video_url);
+    }
+
+    /**
+     * Resolve the playable video URL (local storage asset or external URL).
+     */
+    public function getVideoAssetUrlAttribute(): ?string
+    {
+        if (!empty($this->video_path)) {
+            return asset('storage/' . $this->video_path);
+        }
+
+        if (!empty($this->video_url)) {
+            return $this->video_url;
+        }
+
+        return null;
+    }
+
+    /**
+     * Extract YouTube Video ID if video_url is a YouTube link.
+     */
+    public function getYoutubeIdAttribute(): ?string
+    {
+        if (empty($this->video_url)) {
+            return null;
+        }
+
+        $pattern = '/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/ ]{11})/i';
+        if (preg_match($pattern, $this->video_url, $matches)) {
+            return $matches[1];
+        }
+
+        return null;
+    }
+
+    /**
+     * Return YouTube embed URL if applicable.
+     */
+    public function getYoutubeEmbedUrlAttribute(): ?string
+    {
+        $ytId = $this->youtube_id;
+        if ($ytId) {
+            return "https://www.youtube-nocookie.com/embed/{$ytId}?enablejsapi=1&rel=0";
+        }
+        return null;
+    }
+
+    /**
+     * Resolve thumbnail / poster for the video.
+     */
+    public function getVideoThumbnailUrlAttribute(): ?string
+    {
+        if (!empty($this->video_thumbnail)) {
+            return asset('storage/' . $this->video_thumbnail);
+        }
+
+        if ($this->youtube_id) {
+            return "https://img.youtube.com/vi/{$this->youtube_id}/hqdefault.jpg";
+        }
+
+        $imgs = $this->images;
+        if (!empty($imgs) && is_array($imgs) && count($imgs) > 0) {
+            return $imgs[0];
+        }
+
+        return null;
     }
 }
