@@ -155,7 +155,7 @@ class ProductResource extends Resource
                         ]),
 
                     Forms\Components\Section::make('Product Gallery & Media')
-                        ->description('Upload product photography & showcase video (Amazon-style gallery preview).')
+                        ->description('High-resolution product photography and craft showcase video.')
                         ->schema([
                             Forms\Components\FileUpload::make('images')
                                 ->multiple()
@@ -168,36 +168,26 @@ class ProductResource extends Resource
                                 ->reorderable()
                                 ->openable()
                                 ->downloadable()
-                                ->helperText('Max 5 MB per image. Formats: JPG, PNG, WEBP (Up to 10 images).')
+                                ->helperText('Upload up to 10 images. Max 5 MB each (JPG, PNG, WEBP).')
                                 ->label('Product Images'),
 
                             Forms\Components\FileUpload::make('video_path')
-                                ->label('Product Video (Upload MP4 / WebM)')
+                                ->label('Product Showcase Video (Upload MP4 / WebM)')
                                 ->acceptedFileTypes(['video/mp4', 'video/webm', 'video/quicktime'])
-                                ->maxSize(61440)
+                                ->maxSize(25600)
                                 ->disk('public')
                                 ->directory('products/videos')
                                 ->openable()
                                 ->downloadable()
-                                ->helperText('Upload product video (Max 60 MB, MP4 or WebM). Displays Amazon-style video preview in the gallery.')
+                                ->helperText('Upload craft or showcase video (Max 25 MB). Takes priority over external URL.')
                                 ->columnSpanFull(),
 
                             Forms\Components\TextInput::make('video_url')
-                                ->label('Or External Video Link (YouTube / CDN)')
-                                ->placeholder('https://www.youtube.com/watch?v=... or direct .mp4 link')
+                                ->label('External Video URL (YouTube / Vimeo / CDN)')
+                                ->placeholder('https://www.youtube.com/watch?v=... or Vimeo link')
                                 ->url()
                                 ->nullable()
-                                ->helperText('Optional: YouTube video or direct MP4 link if not uploading file.')
-                                ->columnSpanFull(),
-
-                            Forms\Components\FileUpload::make('video_thumbnail')
-                                ->label('Custom Video Thumbnail / Poster (Optional)')
-                                ->image()
-                                ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp', 'image/jpg'])
-                                ->maxSize(5120)
-                                ->disk('public')
-                                ->directory('products/videos/thumbnails')
-                                ->helperText('Optional: Custom thumbnail for the video tile. If left blank, first photo or video frame is used.')
+                                ->helperText('Provide a video link if not uploading an MP4 file. Video thumbnail is automatically generated.')
                                 ->columnSpanFull(),
                         ]),
                 ])->columnSpan(1),

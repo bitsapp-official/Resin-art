@@ -2,28 +2,54 @@
 <div class="min-h-screen bg-transparent w-full min-w-0">
     @php
         $mediaList = [];
-        if (!empty($product->images)) {
-            foreach ($product->images as $img) {
-                $mediaList[] = [
-                    'type' => 'image',
-                    'src' => $img,
-                    'thumb' => $img,
-                ];
-            }
-        }
-        if ($product->has_video) {
-            $videoSrc = $product->video_asset_url;
-            $videoThumb = $product->video_thumbnail_url ?: ($mediaList[0]['src'] ?? null);
-            $isYoutube = !empty($product->youtube_id);
-            $youtubeEmbed = $product->youtube_embed_url;
+        $productImages = !empty($product->images) ? (array) $product->images : [];
 
-            $mediaList[] = [
+        $videoItem = null;
+        if ($product->has_video) {
+            // Priority: Direct uploaded MP4 video takes precedence over external link
+            $hasUpload = !empty($product->video_path);
+            $videoSrc = $product->video_asset_url;
+            $isYoutube = !$hasUpload && !empty($product->youtube_id);
+            $isVimeo = !$hasUpload && !$isYoutube && !empty($product->vimeo_id);
+            $embedUrl = $isYoutube ? $product->youtube_embed_url : ($isVimeo ? $product->vimeo_embed_url : null);
+            $videoThumb = $product->video_thumbnail_url;
+
+            $videoItem = [
                 'type' => 'video',
                 'src' => $videoSrc,
                 'thumb' => $videoThumb,
+                'isUpload' => $hasUpload,
                 'isYoutube' => $isYoutube,
-                'embedUrl' => $youtubeEmbed,
+                'isVimeo' => $isVimeo,
+                'embedUrl' => $embedUrl,
+                'originalUrl' => $product->video_url,
             ];
+        }
+
+        if (count($productImages) > 0) {
+            // Position 1: Hero / Cover Image
+            $mediaList[] = [
+                'type' => 'image',
+                'src' => $productImages[0],
+                'thumb' => $productImages[0],
+            ];
+
+            // Position 2: Video (if product has a video)
+            if ($videoItem) {
+                $mediaList[] = $videoItem;
+            }
+
+            // Remaining images follow after the video
+            for ($i = 1; $i < count($productImages); $i++) {
+                $mediaList[] = [
+                    'type' => 'image',
+                    'src' => $productImages[$i],
+                    'thumb' => $productImages[$i],
+                ];
+            }
+        } elseif ($videoItem) {
+            // If product has video but no images
+            $mediaList[] = $videoItem;
         }
     @endphp
     <script>
@@ -57,16 +83,19 @@
                     }, { passive: false });
                 },
 
+                isVideoPlaying: false,
+
                 pauseAllVideos() {
-                    if (this.$refs.mainVideo) {
-                        try { this.$refs.mainVideo.pause(); } catch(e) {}
-                    }
-                    if (this.$refs.lightboxVideo) {
-                        try { this.$refs.lightboxVideo.pause(); } catch(e) {}
-                    }
+                    this.isVideoPlaying = false;
+                    document.querySelectorAll('video').forEach(v => {
+                        try {
+                            v.pause();
+                        } catch(e) {}
+                    });
                 },
                 
                 openLightbox() {
+                    this.pauseAllVideos();
                     this.showLightbox = true;
                     this.resetLightboxZoom();
                     document.documentElement.classList.add('overflow-hidden', 'touch-none');
@@ -76,6 +105,9 @@
                     document.body.style.overflow = 'hidden';
                     document.body.style.overscrollBehavior = 'none';
                     document.body.style.touchAction = 'none';
+                    this.$nextTick(() => {
+                        this.playActiveVideo();
+                    });
                 },
                 closeLightbox() {
                     this.pauseAllVideos();
@@ -161,11 +193,37 @@
                 formatPrice(price) {
                     return new Intl.NumberFormat('en-IN').format(price);
                 },
+                playActiveVideo() {
+                    this.$nextTick(() => {
+                        const media = this.currentMedia;
+                        if (media && media.type === 'video' && media.isUpload) {
+                            const v = this.showLightbox ? this.$refs.lightboxVideo : this.$refs.mainVideo;
+                            if (v && v.paused) {
+                                try {
+                                    const p = v.play();
+                                    if (p !== undefined) {
+                                        p.then(() => {
+                                            this.isVideoPlaying = true;
+                                        }).catch(() => {
+                                            if (v && v.paused) {
+                                                v.muted = true;
+                                                v.play().then(() => {
+                                                    this.isVideoPlaying = true;
+                                                }).catch(() => {});
+                                            }
+                                        });
+                                    }
+                                } catch(e) {}
+                            }
+                        }
+                    });
+                },
                 nextMedia() {
                     if (this.mediaItems.length > 0) {
                         this.pauseAllVideos();
                         this.activeMedia = (this.activeMedia + 1) % this.mediaItems.length;
                         this.resetLightboxZoom();
+                        this.playActiveVideo();
                     }
                 },
                 prevMedia() {
@@ -173,6 +231,7 @@
                         this.pauseAllVideos();
                         this.activeMedia = (this.activeMedia - 1 + this.mediaItems.length) % this.mediaItems.length;
                         this.resetLightboxZoom();
+                        this.playActiveVideo();
                     }
                 },
                 selectMedia(idx) {
@@ -180,6 +239,16 @@
                         this.pauseAllVideos();
                         this.activeMedia = idx;
                         this.resetLightboxZoom();
+                        this.playActiveVideo();
+                    } else if (this.currentMedia && this.currentMedia.type === 'video' && this.currentMedia.isUpload) {
+                        const v = this.showLightbox ? this.$refs.lightboxVideo : this.$refs.mainVideo;
+                        if (v) {
+                            if (v.paused) {
+                                v.play().catch(() => {});
+                            } else {
+                                v.pause();
+                            }
+                        }
                     }
                 },
 
@@ -201,134 +270,173 @@
          })">
 
         {{-- ── FULL-SCREEN LIGHTBOX MODAL WITH CUT-FREE ZOOM & PAN OR VIDEO CINEMA ── --}}
-        <div x-show="showLightbox" x-cloak
-             x-transition:enter="transition ease-out duration-300"
-             x-transition:enter-start="opacity-0"
-             x-transition:enter-end="opacity-100"
-             x-transition:leave="transition ease-in duration-200"
-             x-transition:leave-start="opacity-100"
-             x-transition:leave-end="opacity-0"
-             @keydown.escape.window="closeLightbox()"
-             @keydown.arrow-left.window="prevMedia()"
-             @keydown.arrow-right.window="nextMedia()"
-             @keydown.equal.window="zoomIn()"
-             @keydown.minus.window="zoomOut()"
-             @keydown.digit0.window="resetLightboxZoom()"
-             class="fixed inset-0 z-[99999] bg-[#FAF8F5]/96 backdrop-blur-2xl flex flex-col justify-between p-3 sm:p-6 select-none overflow-hidden overscroll-none touch-none"
-             @wheel.prevent="handleWheel($event)"
-             @touchmove="if (lightboxZoom <= 1 || !$event.target.closest('[x-ref=\'lightboxImg\']')) $event.preventDefault()">
-            
-            {{-- TOP BAR: Indicator (Left) & Close Button (Right) --}}
-            <div class="w-full flex items-center justify-between z-50 shrink-0 min-h-[44px]">
-                <div class="flex items-center gap-2">
-                    <template x-if="currentMedia && currentMedia.type === 'video'">
-                        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#1C1917] text-white text-[11px] font-semibold uppercase tracking-wider shadow-sm">
-                            <svg class="w-3 h-3 fill-current" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-                            Video Showcase
-                        </span>
-                    </template>
+        <template x-if="showLightbox">
+            <div x-cloak
+                 x-transition:enter="transition ease-out duration-300"
+                 x-transition:enter-start="opacity-0 scale-98"
+                 x-transition:enter-end="opacity-100 scale-100"
+                 x-transition:leave="transition ease-in duration-200"
+                 x-transition:leave-start="opacity-100 scale-100"
+                 x-transition:leave-end="opacity-0 scale-98"
+                 @keydown.escape.window="closeLightbox()"
+                 @keydown.arrow-left.window="prevMedia()"
+                 @keydown.arrow-right.window="nextMedia()"
+                 @keydown.equal.window="zoomIn()"
+                 @keydown.minus.window="zoomOut()"
+                 @keydown.digit0.window="resetLightboxZoom()"
+                 class="fixed inset-0 z-[99999] bg-[#FAF8F5]/96 backdrop-blur-2xl flex flex-col justify-between p-3 sm:p-6 select-none overflow-hidden overscroll-none touch-none text-[#1C1917]"
+                 @wheel.prevent="handleWheel($event)"
+                 @touchmove="if (lightboxZoom <= 1 || !$event.target.closest('[x-ref=\'lightboxImg\']')) $event.preventDefault()">
+                
+                {{-- TOP BAR: Indicator/Zoom Controls (Left) & Close Button (Right) --}}
+                <div class="w-full flex items-center justify-between z-50 shrink-0 min-h-[48px] px-1 sm:px-3">
+                    {{-- Left: Badge & Image Zoom Controls --}}
+                    <div class="flex items-center gap-2 sm:gap-3">
+                        <template x-if="currentMedia && currentMedia.type === 'video'">
+                            <span class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-white text-[11px] font-bold uppercase tracking-wider shadow-sm bg-[#1C1917] border border-[#1C1917]">
+                                <svg class="w-3.5 h-3.5 fill-current text-[#FBBF24]" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                                Video Showcase
+                            </span>
+                        </template>
+                        <template x-if="currentMedia && currentMedia.type === 'image'">
+                            <div class="flex items-center gap-1.5 rounded-full px-3 py-1.5 shadow-sm bg-white border border-[#DFD9CE] text-[#1C1917]">
+                                <span class="text-[11px] font-bold tracking-wider px-1 text-[#1C1917]" x-text="(activeMedia + 1) + ' / ' + mediaItems.length"></span>
+                                <div class="h-4 w-px bg-[#DFD9CE]"></div>
+                                <button type="button" @click.stop="zoomOut()" :disabled="lightboxZoom <= 1" class="w-7 h-7 rounded-full flex items-center justify-center hover:bg-[#F2ECE4] disabled:opacity-30 disabled:cursor-not-allowed transition-all cursor-pointer text-[#1C1917]" title="Zoom Out (-)">
+                                    <svg class="w-3.5 h-3.5 stroke-[2.5]" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M20 12H4"/></svg>
+                                </button>
+                                <span class="text-[11px] font-mono font-bold px-1 text-[#1C1917] min-w-[38px] text-center" x-text="Math.round(lightboxZoom * 100) + '%'"></span>
+                                <button type="button" @click.stop="zoomIn()" :disabled="lightboxZoom >= 3" class="w-7 h-7 rounded-full flex items-center justify-center hover:bg-[#F2ECE4] disabled:opacity-30 disabled:cursor-not-allowed transition-all cursor-pointer text-[#1C1917]" title="Zoom In (+)">
+                                    <svg class="w-3.5 h-3.5 stroke-[2.5]" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+                                </button>
+                                <button type="button" @click.stop="resetLightboxZoom()" x-show="lightboxZoom > 1" class="w-7 h-7 rounded-full flex items-center justify-center hover:bg-[#F2ECE4] transition-all cursor-pointer text-[10.5px] font-bold text-[#A87432]" title="Reset Zoom">
+                                    1:1
+                                </button>
+                            </div>
+                        </template>
+                    </div>
+
+                    {{-- Right: High-Contrast Bold Close Button (✕) --}}
+                    <button type="button" @click.stop="closeLightbox()"
+                            class="w-11 h-11 sm:w-12 sm:h-12 rounded-full flex items-center justify-center transition-all duration-200 cursor-pointer shadow-md shrink-0 group border border-[#DFD9CE] bg-white text-[#1C1917] hover:bg-[#1C1917] hover:text-white hover:border-[#1C1917] hover:scale-105 active:scale-95"
+                            title="Close (Esc)"
+                            aria-label="Close lightbox">
+                        <svg class="w-5 h-5 stroke-[2.5] text-current group-hover:rotate-90 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
+                    </button>
                 </div>
-                {{-- Right: Close Button (✕) --}}
-                <button type="button" @click.stop="closeLightbox()"
-                        class="text-[#1C1917] bg-white hover:bg-[#1C1917] hover:text-white border border-[#DFD9CE] w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center transition-all cursor-pointer shadow-sm shrink-0"
-                        aria-label="Close lightbox">
-                    <svg class="w-4 h-4 stroke-[2]" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
-                </button>
-            </div>
 
-            {{-- MIDDLE CANVAS: Zoomable Image OR Full Video Player --}}
-            <div class="relative flex-1 w-full flex items-center justify-center overflow-hidden my-auto"
-                 @click.self="closeLightbox()">
+                {{-- MIDDLE CANVAS: Zoomable Image OR Full Video Player --}}
+                <div class="relative flex-1 w-full flex items-center justify-center overflow-hidden my-auto p-2"
+                     @click.self="closeLightbox()">
 
-                {{-- Previous Arrow --}}
-                <template x-if="mediaItems.length > 1">
-                    <button type="button" @click.stop="prevMedia()"
-                            class="absolute left-2 sm:left-6 top-1/2 -translate-y-1/2 text-[#1C1917] bg-white/95 hover:bg-[#1C1917] hover:text-white border border-[#DFD9CE] w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center transition-all cursor-pointer shadow-md z-40"
-                            aria-label="Previous media">
-                        <svg class="w-4 h-4 sm:w-5 sm:h-5 stroke-[2]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/>
-                        </svg>
-                    </button>
-                </template>
-
-                {{-- Next Arrow --}}
-                <template x-if="mediaItems.length > 1">
-                    <button type="button" @click.stop="nextMedia()"
-                            class="absolute right-2 sm:right-6 top-1/2 -translate-y-1/2 text-[#1C1917] bg-white/95 hover:bg-[#1C1917] hover:text-white border border-[#DFD9CE] w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center transition-all cursor-pointer shadow-md z-40"
-                            aria-label="Next media">
-                        <svg class="w-4 h-4 sm:w-5 sm:h-5 stroke-[2]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
-                        </svg>
-                    </button>
-                </template>
-
-                {{-- IMAGE Container (when active item is image) --}}
-                <template x-if="currentMedia && currentMedia.type === 'image'">
-                    <div class="relative flex items-center justify-center select-none"
-                         @mousedown="startDrag($event)"
-                         @mousemove="onDrag($event)"
-                         @mouseup="stopDrag()"
-                         @mouseleave="stopDrag()"
-                         @touchstart="startDrag($event)"
-                         @touchmove="onDrag($event)"
-                         @touchend="stopDrag()"
-                         @dblclick.stop="toggleLightboxZoom()">
-                        <img x-ref="lightboxImg"
-                             :src="currentMedia.src"
-                             alt="{{ $product->name }}"
-                             draggable="false"
-                             class="max-w-[86vw] max-h-[66vh] sm:max-h-[70vh] object-contain rounded-2xl shadow-xl border border-white/60 will-change-transform select-none"
-                             :style="'transform: translate(' + lightboxPanX + 'px, ' + lightboxPanY + 'px) scale(' + lightboxZoom + '); transform-origin: center center; transition: ' + (isDragging ? 'none' : 'transform 0.25s cubic-bezier(0.16, 1, 0.3, 1)') + '; cursor: ' + (lightboxZoom > 1 ? (isDragging ? 'grabbing' : 'grab') : 'zoom-in') + ';'">
-                    </div>
-                </template>
-
-                {{-- VIDEO Container: HTML5 (when active item is direct video) --}}
-                <template x-if="currentMedia && currentMedia.type === 'video' && !currentMedia.isYoutube">
-                    <div class="relative w-full max-w-4xl max-h-[72vh] flex items-center justify-center bg-black/95 rounded-2xl overflow-hidden shadow-2xl border border-white/10 p-1">
-                        <video x-ref="lightboxVideo"
-                               controls
-                               autoplay
-                               playsinline
-                               :src="currentMedia.src"
-                               :poster="currentMedia.thumb"
-                               class="w-full max-h-[70vh] object-contain rounded-xl">
-                        </video>
-                    </div>
-                </template>
-
-                {{-- VIDEO Container: YouTube (when active item is youtube) --}}
-                <template x-if="currentMedia && currentMedia.type === 'video' && currentMedia.isYoutube">
-                    <div class="relative w-full max-w-4xl h-[65vh] max-h-[600px] flex items-center justify-center bg-black rounded-2xl overflow-hidden shadow-2xl border border-white/10">
-                        <iframe :src="currentMedia.embedUrl"
-                                title="{{ $product->name }} Video"
-                                class="w-full h-full border-0"
-                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                                allowfullscreen>
-                        </iframe>
-                    </div>
-                </template>
-            </div>
-
-            {{-- Lightbox Thumbnails Navigation (Images + Video with Play badge) --}}
-            <template x-if="mediaItems.length > 1">
-                <div @click.stop="" class="flex items-center justify-center gap-2 sm:gap-3 pt-2 pb-1 z-50 cursor-default max-w-full overflow-x-auto no-scrollbar px-4 shrink-0">
-                    <template x-for="(item, idx) in mediaItems" :key="idx">
-                        <button type="button" @click="selectMedia(idx)"
-                                class="relative shrink-0 w-11 h-11 sm:w-13 sm:h-13 rounded-xl overflow-hidden border-2 transition-all cursor-pointer p-0.5 bg-white"
-                                :class="activeMedia === idx ? 'border-[#1C1917] ring-2 ring-[#1C1917]/25 scale-110 shadow-md opacity-100' : 'border-[#DFD9CE] opacity-60 hover:opacity-100'">
-                            <img :src="item.thumb || item.src" class="w-full h-full object-cover rounded-lg">
-                            <template x-if="item.type === 'video'">
-                                <div class="absolute inset-0 bg-black/40 rounded-lg flex items-center justify-center">
-                                    <div class="w-5 h-5 rounded-full bg-white text-[#1C1917] flex items-center justify-center shadow-xs">
-                                        <svg class="w-2.5 h-2.5 fill-current ml-0.5" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-                                    </div>
-                                </div>
-                            </template>
+                    {{-- Previous Arrow --}}
+                    <template x-if="mediaItems.length > 1">
+                        <button type="button" @click.stop="prevMedia()"
+                                class="absolute left-2 sm:left-6 top-1/2 -translate-y-1/2 text-[#1C1917] bg-white hover:bg-[#1C1917] hover:text-white border border-[#DFD9CE] w-11 h-11 sm:w-12 sm:h-12 rounded-full flex items-center justify-center transition-all cursor-pointer shadow-lg z-40 hover:scale-110 active:scale-95"
+                                aria-label="Previous media">
+                            <svg class="w-5 h-5 stroke-[2.5]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/>
+                            </svg>
                         </button>
                     </template>
+
+                    {{-- Next Arrow --}}
+                    <template x-if="mediaItems.length > 1">
+                        <button type="button" @click.stop="nextMedia()"
+                                class="absolute right-2 sm:right-6 top-1/2 -translate-y-1/2 text-[#1C1917] bg-white hover:bg-[#1C1917] hover:text-white border border-[#DFD9CE] w-11 h-11 sm:w-12 sm:h-12 rounded-full flex items-center justify-center transition-all cursor-pointer shadow-lg z-40 hover:scale-110 active:scale-95"
+                                aria-label="Next media">
+                            <svg class="w-5 h-5 stroke-[2.5]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
+                            </svg>
+                        </button>
+                    </template>
+
+                    {{-- IMAGE Container (when active item is image) --}}
+                    <template x-if="currentMedia && currentMedia.type === 'image'">
+                        <div class="relative flex items-center justify-center select-none max-w-full max-h-full"
+                             @mousedown="startDrag($event)"
+                             @mousemove="onDrag($event)"
+                             @mouseup="stopDrag()"
+                             @mouseleave="stopDrag()"
+                             @touchstart="startDrag($event)"
+                             @touchmove="onDrag($event)"
+                             @touchend="stopDrag()"
+                             @dblclick.stop="toggleLightboxZoom()">
+                            <img x-ref="lightboxImg"
+                                 :src="currentMedia.src"
+                                 alt="{{ $product->name }}"
+                                 draggable="false"
+                                 class="max-w-[88vw] max-h-[74vh] object-contain rounded-2xl shadow-xl will-change-transform select-none"
+                                 :style="'transform: translate(' + lightboxPanX + 'px, ' + lightboxPanY + 'px) scale(' + lightboxZoom + '); transform-origin: center center; transition: ' + (isDragging ? 'none' : 'transform 0.25s cubic-bezier(0.16, 1, 0.3, 1)') + '; cursor: ' + (lightboxZoom > 1 ? (isDragging ? 'grabbing' : 'grab') : 'zoom-in') + ';'">
+                        </div>
+                    </template>
+
+                    {{-- VIDEO Container: HTML5 direct video --}}
+                    <template x-if="currentMedia && currentMedia.type === 'video' && !currentMedia.isYoutube && !currentMedia.isVimeo">
+                        <div class="relative w-full max-w-5xl aspect-video max-h-[76vh] flex items-center justify-center bg-black rounded-2xl overflow-hidden shadow-2xl border border-black/10">
+                            <video x-ref="lightboxVideo"
+                                   controls
+                                   playsinline
+                                   preload="auto"
+                                   :src="currentMedia.src"
+                                   :poster="currentMedia.thumb"
+                                   @play="isVideoPlaying = true"
+                                   @pause="isVideoPlaying = false"
+                                   @ended="isVideoPlaying = false"
+                                   class="w-full h-full object-contain bg-black rounded-2xl">
+                                Your browser does not support HTML5 video.
+                            </video>
+                        </div>
+                    </template>
+
+                    {{-- VIDEO Container: YouTube / Vimeo --}}
+                    <template x-if="currentMedia && currentMedia.type === 'video' && (currentMedia.isYoutube || currentMedia.isVimeo)">
+                        <div class="relative w-full max-w-5xl aspect-video max-h-[76vh] flex items-center justify-center bg-black rounded-2xl overflow-hidden shadow-2xl border border-black/10">
+                            <iframe :src="currentMedia.embedUrl"
+                                    title="{{ $product->name }} Video"
+                                    class="w-full h-full border-0 rounded-2xl"
+                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                                    referrerpolicy="strict-origin-when-cross-origin"
+                                    allowfullscreen>
+                            </iframe>
+                        </div>
+                    </template>
                 </div>
-            </template>
-        </div>
+
+                {{-- Lightbox Thumbnails Navigation (Images + Video with Play badge) --}}
+                <template x-if="mediaItems.length > 1">
+                    <div @click.stop="" class="flex items-center justify-center gap-2 sm:gap-3 pt-2 pb-1 z-50 cursor-default max-w-full overflow-x-auto no-scrollbar px-4 shrink-0">
+                        <template x-for="(item, idx) in mediaItems" :key="idx">
+                            <button type="button" @click="selectMedia(idx)"
+                                    class="relative shrink-0 w-12 h-12 sm:w-14 sm:h-14 rounded-xl overflow-hidden border-2 transition-all cursor-pointer p-0.5 bg-white shadow-xs"
+                                    :class="activeMedia === idx ? 'border-[#1C1917] ring-2 ring-[#1C1917]/25 scale-105 shadow-md opacity-100' : 'border-[#DFD9CE] opacity-70 hover:opacity-100 hover:border-[#1C1917]/50'">
+                                {{-- Uploaded Video: Render actual video first frame --}}
+                                <template x-if="item.type === 'video' && item.isUpload">
+                                    <video :src="item.src + '#t=0.5'" preload="metadata" muted playsinline tabindex="-1" aria-hidden="true" x-init="$el.muted = true; $el.volume = 0; $el.pause()" class="w-full h-full object-cover rounded-lg pointer-events-none bg-[#141210]"></video>
+                                </template>
+                                {{-- YouTube / Vimeo: Render official video poster --}}
+                                <template x-if="item.type === 'video' && (item.isYoutube || item.isVimeo)">
+                                    <img :src="item.thumb" class="w-full h-full object-cover rounded-lg pointer-events-none">
+                                </template>
+                                {{-- Product Image: Render image --}}
+                                <template x-if="item.type === 'image'">
+                                    <img :src="item.thumb || item.src" class="w-full h-full object-cover rounded-lg">
+                                </template>
+                                <template x-if="item.type === 'video'">
+                                    <div class="absolute inset-0 bg-black/40 rounded-lg flex items-center justify-center">
+                                        <div class="w-5 h-5 rounded-full bg-white text-[#1C1917] flex items-center justify-center shadow-xs">
+                                            <svg class="w-2.5 h-2.5 fill-current ml-0.5" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                                        </div>
+                                    </div>
+                                </template>
+                            </button>
+                        </template>
+                    </div>
+                </template>
+            </div>
+        </template>
 
         {{-- ── BREADCRUMB ──────────────────────────────────────── --}}
         <nav class="flex items-center flex-wrap gap-x-2 gap-y-1 text-[10px] uppercase tracking-[0.16em] sm:tracking-[0.2em] text-[#8E877D] mb-6 sm:mb-8 font-medium">
@@ -346,7 +454,7 @@
         {{-- ── MAIN PRODUCT LAYOUT ─────────────────────────────── --}}
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 sm:gap-12 lg:gap-16 xl:gap-20 mb-16 sm:mb-20">
 
-            {{-- LEFT: Gallery (Amazon-style Image & Video Showcase) --}}
+            {{-- LEFT: Product Gallery (Images & Video Showcase) --}}
             <div class="space-y-3.5 sm:space-y-4">
                 {{-- Main Gallery Stage --}}
                 <div class="relative overflow-hidden aspect-square rounded-[1.75rem] sm:rounded-[2rem] bg-[#F5F2EB] border border-[#DFD9CE]/60 shadow-2xs select-none group">
@@ -367,7 +475,7 @@
                         </template>
 
                         {{-- Video Viewer: HTML5 direct video --}}
-                        <template x-if="currentMedia && currentMedia.type === 'video' && !currentMedia.isYoutube">
+                        <template x-if="currentMedia && currentMedia.type === 'video' && !currentMedia.isYoutube && !currentMedia.isVimeo">
                             <div class="w-full h-full relative bg-[#141210] flex items-center justify-center">
                                 <video x-ref="mainVideo"
                                        controls
@@ -375,6 +483,9 @@
                                        preload="metadata"
                                        :poster="currentMedia.thumb"
                                        :src="currentMedia.src"
+                                       @play="isVideoPlaying = true"
+                                       @pause="isVideoPlaying = false"
+                                       @ended="isVideoPlaying = false"
                                        class="w-full h-full object-contain">
                                     Your browser does not support HTML5 video.
                                 </video>
@@ -389,15 +500,24 @@
                             </div>
                         </template>
 
-                        {{-- Video Viewer: YouTube Embed --}}
-                        <template x-if="currentMedia && currentMedia.type === 'video' && currentMedia.isYoutube">
+                        {{-- Video Viewer: YouTube / Vimeo Embed --}}
+                        <template x-if="currentMedia && currentMedia.type === 'video' && (currentMedia.isYoutube || currentMedia.isVimeo)">
                             <div class="w-full h-full relative bg-black flex items-center justify-center">
                                 <iframe :src="currentMedia.embedUrl"
                                         title="{{ $product->name }} Video"
                                         class="w-full h-full aspect-square border-0"
-                                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                                        referrerpolicy="strict-origin-when-cross-origin"
                                         allowfullscreen>
                                 </iframe>
+                                {{-- Fullscreen cinema lightbox button --}}
+                                <button type="button" @click.stop="openLightbox()"
+                                        class="absolute top-3 right-3 p-2 rounded-full bg-black/60 hover:bg-black/90 text-white backdrop-blur-md transition-all shadow-md z-20 cursor-pointer"
+                                        title="View full screen cinema">
+                                    <svg class="w-4 h-4 stroke-[2]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M4 8V4m0 0h4M4 4l5 5m11-5h-4m4 0v4m0 0l-5-5m-6 16v4m0 0H4m4 0l-5-5m16 5h-4m4 0v-4m0 0l-5 5"/>
+                                    </svg>
+                                </button>
                             </div>
                         </template>
                     @else
@@ -429,7 +549,7 @@
                     @endif
                 </div>
 
-                {{-- Amazon-Style Thumbnails: Images + Video Tile with Play badge & "VIDEO" pill --}}
+                {{-- Media Thumbnails: Images & Video Showcase --}}
                 @if(count($mediaList) > 1)
                     <div class="flex items-center gap-2.5 sm:gap-3 overflow-x-auto no-scrollbar py-1 px-0.5">
                         <template x-for="(item, idx) in mediaItems" :key="idx">
@@ -438,10 +558,32 @@
                                     class="shrink-0 w-16 h-16 sm:w-20 sm:h-20 aspect-square overflow-hidden rounded-xl sm:rounded-2xl bg-[#F5F2EB] border-2 transition-all duration-200 cursor-pointer relative p-0.5 select-none"
                                     :class="activeMedia === idx ? 'border-[#1C1917] ring-2 ring-[#1C1917]/25 scale-105 opacity-100 shadow-xs' : 'border-[#DFD9CE]/70 opacity-70 hover:opacity-100 hover:border-[#1C1917]/50'">
                                 
-                                {{-- Thumbnail Poster/Image --}}
-                                <img :src="item.thumb || item.src" :alt="'Media ' + (idx + 1)" class="w-full h-full object-cover rounded-lg sm:rounded-xl">
+                                {{-- 1. If uploaded MP4 video, display actual video frame --}}
+                                <template x-if="item.type === 'video' && item.isUpload">
+                                    <div class="w-full h-full relative overflow-hidden rounded-lg sm:rounded-xl bg-[#141210]">
+                                        <video :src="item.src + '#t=0.5'"
+                                               preload="metadata"
+                                               muted
+                                               playsinline
+                                               tabindex="-1"
+                                               aria-hidden="true"
+                                               x-init="$el.muted = true; $el.volume = 0; $el.pause()"
+                                               class="w-full h-full object-cover pointer-events-none bg-[#141210]">
+                                        </video>
+                                    </div>
+                                </template>
 
-                                {{-- Amazon-Style Video Badge & Overlay (if video item) --}}
+                                {{-- 2. If YouTube / Vimeo, display official API thumbnail --}}
+                                <template x-if="item.type === 'video' && (item.isYoutube || item.isVimeo)">
+                                    <img :src="item.thumb" :alt="'Video ' + (idx + 1)" class="w-full h-full object-cover rounded-lg sm:rounded-xl pointer-events-none">
+                                </template>
+
+                                {{-- 3. If standard product image, display photo --}}
+                                <template x-if="item.type === 'image'">
+                                    <img :src="item.thumb || item.src" :alt="'Media ' + (idx + 1)" class="w-full h-full object-cover rounded-lg sm:rounded-xl">
+                                </template>
+
+                                {{-- Video Badge & Overlay (if video item) --}}
                                 <template x-if="item.type === 'video'">
                                     <div class="absolute inset-0 bg-black/40 rounded-lg sm:rounded-xl flex flex-col items-center justify-center text-white transition-colors hover:bg-black/25">
                                         {{-- Center Play Disc --}}
@@ -450,7 +592,7 @@
                                                 <path d="M8 5v14l11-7z"/>
                                             </svg>
                                         </div>
-                                        {{-- Amazon "VIDEO" Pill --}}
+                                        {{-- Video Pill Indicator --}}
                                         <span class="bg-[#1C1917]/95 text-white text-[8px] sm:text-[8.5px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-xs shadow-xs">
                                             VIDEO
                                         </span>

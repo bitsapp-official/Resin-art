@@ -169,7 +169,7 @@ class Product extends Model
     }
 
     /**
-     * Resolve the playable video URL (local storage asset or external URL).
+     * Resolve the playable video URL (local storage asset takes precedence over external link).
      */
     public function getVideoAssetUrlAttribute(): ?string
     {
@@ -185,7 +185,7 @@ class Product extends Model
     }
 
     /**
-     * Extract YouTube Video ID if video_url is a YouTube link.
+     * Extract YouTube Video ID from any standard YouTube URL (watch, shorts, embed, youtu.be).
      */
     public function getYoutubeIdAttribute(): ?string
     {
@@ -193,8 +193,8 @@ class Product extends Model
             return null;
         }
 
-        $pattern = '/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/ ]{11})/i';
-        if (preg_match($pattern, $this->video_url, $matches)) {
+        $pattern = '/(?:youtu\.be\/|youtube(?:-nocookie)?\.com\/(?:embed\/|v\/|shorts\/|watch\?(?:.*&)?v=))([\w-]{11})/i';
+        if (preg_match($pattern, trim($this->video_url), $matches)) {
             return $matches[1];
         }
 
@@ -202,19 +202,49 @@ class Product extends Model
     }
 
     /**
-     * Return YouTube embed URL if applicable.
+     * Return standard YouTube embed URL with optimal parameters.
      */
     public function getYoutubeEmbedUrlAttribute(): ?string
     {
         $ytId = $this->youtube_id;
         if ($ytId) {
-            return "https://www.youtube-nocookie.com/embed/{$ytId}?enablejsapi=1&rel=0";
+            return "https://www.youtube.com/embed/{$ytId}?rel=0&playsinline=1&enablejsapi=1";
         }
         return null;
     }
 
     /**
-     * Resolve thumbnail / poster for the video.
+     * Extract Vimeo Video ID if applicable.
+     */
+    public function getVimeoIdAttribute(): ?string
+    {
+        if (empty($this->video_url)) {
+            return null;
+        }
+
+        if (preg_match('/(?:vimeo\.com\/(?:video\/)?|player\.vimeo\.com\/video\/)(\d+)/i', trim($this->video_url), $matches)) {
+            return $matches[1];
+        }
+
+        return null;
+    }
+
+    /**
+     * Return Vimeo embed URL if applicable.
+     */
+    public function getVimeoEmbedUrlAttribute(): ?string
+    {
+        $vimeoId = $this->vimeo_id;
+        if ($vimeoId) {
+            return "https://player.vimeo.com/video/{$vimeoId}?dnt=1&playsinline=1";
+        }
+        return null;
+    }
+
+    /**
+     * Resolve thumbnail / poster for the video automatically.
+     * YouTube and Vimeo thumbnails are resolved from their APIs.
+     * For uploaded videos without custom thumbnail, returns null so the player renders the native video frame.
      */
     public function getVideoThumbnailUrlAttribute(): ?string
     {
@@ -226,9 +256,8 @@ class Product extends Model
             return "https://img.youtube.com/vi/{$this->youtube_id}/hqdefault.jpg";
         }
 
-        $imgs = $this->images;
-        if (!empty($imgs) && is_array($imgs) && count($imgs) > 0) {
-            return $imgs[0];
+        if ($this->vimeo_id) {
+            return "https://vumbnail.com/{$this->vimeo_id}.jpg";
         }
 
         return null;
