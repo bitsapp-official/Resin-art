@@ -198,11 +198,11 @@ class ProductResource extends Resource
                                 ->columnSpanFull(),
 
                             Forms\Components\TextInput::make('video_url')
-                                ->label('External Video URL (YouTube / Vimeo / CDN)')
-                                ->placeholder('https://www.youtube.com/watch?v=... or Vimeo link')
+                                ->label('YouTube Video URL (Optional)')
+                                ->placeholder('https://www.youtube.com/watch?v=... or https://youtu.be/... or Shorts')
                                 ->url()
                                 ->nullable()
-                                ->helperText('Provide a video link if not uploading an MP4 file. Video thumbnail is automatically generated.')
+                                ->helperText('Paste a YouTube link if not uploading an MP4 file. Video player and thumbnail poster are handled automatically.')
                                 ->columnSpanFull(),
                         ]),
                 ])->columnSpan(1),

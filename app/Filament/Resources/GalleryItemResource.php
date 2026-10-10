@@ -49,23 +49,70 @@ class GalleryItemResource extends Resource
                                     ->maxLength(255),
                             ])->columns(3),
 
-                        Forms\Components\Section::make('Media Asset & Alt Text')
+                        Forms\Components\Section::make('Media Format & Content')
+                            ->description('Choose whether this gallery entry is a high-resolution photograph or a YouTube video showcase.')
                             ->schema([
+                                Forms\Components\ToggleButtons::make('media_type')
+                                    ->label('Select Media Type')
+                                    ->options([
+                                        'image' => 'Photography (Photo)',
+                                        'video' => 'YouTube Video',
+                                    ])
+                                    ->icons([
+                                        'image' => 'heroicon-o-camera',
+                                        'video' => 'heroicon-o-play-circle',
+                                    ])
+                                    ->colors([
+                                        'image' => 'primary',
+                                        'video' => 'warning',
+                                    ])
+                                    ->default('image')
+                                    ->afterStateHydrated(function ($component, $record) {
+                                        if ($record) {
+                                            $component->state($record->media_type ?? (!empty($record->video_url) ? 'video' : 'image'));
+                                        }
+                                    })
+                                    ->inline()
+                                    ->live()
+                                    ->required()
+                                    ->columnSpanFull(),
+
+                                Forms\Components\TextInput::make('video_url')
+                                    ->label('YouTube Video URL')
+                                    ->placeholder('https://www.youtube.com/watch?v=... or https://youtu.be/... or Shorts')
+                                    ->url()
+                                    ->required(fn (Forms\Get $get) => $get('media_type') === 'video')
+                                    ->rules([
+                                        fn () => function (string $attribute, $value, \Closure $fail) {
+                                            if (!empty($value) && !preg_match('/(?:youtu\.be\/|youtube(?:-nocookie)?\.com\/(?:embed\/|v\/|shorts\/|watch\?(?:.*&)?v=))([\w-]{11})/i', $value)) {
+                                                $fail('Please enter a valid YouTube video link (watch, shorts, or youtu.be). Only YouTube links are supported.');
+                                            }
+                                        },
+                                    ])
+                                    ->helperText('Only valid YouTube links (Watch, Shorts, or youtu.be) are accepted. Video player and thumbnail poster are handled automatically.')
+                                    ->visible(fn (Forms\Get $get) => $get('media_type') === 'video')
+                                    ->columnSpanFull(),
+
                                 Forms\Components\FileUpload::make('image_path')
-                                    ->label('Gallery Photography Image')
+                                    ->label('Upload Photography Image')
                                     ->disk('public')
                                     ->directory('gallery')
                                     ->visibility('public')
                                     ->image()
                                     ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp', 'image/avif'])
                                     ->maxSize(5120)
-                                    ->required()
+                                    ->required(fn (Forms\Get $get) => ($get('media_type') ?? 'image') === 'image')
+                                    ->visible(fn (Forms\Get $get) => ($get('media_type') ?? 'image') === 'image')
+                                    ->helperText('Upload high-resolution photography image (JPG, PNG, WebP, AVIF — Max 5 MB).')
                                     ->columnSpanFull(),
 
                                 Forms\Components\TextInput::make('image_alt')
-                                    ->label('Image Accessibility Alt Text')
-                                    ->required()
-                                    ->default(fn ($get) => $get('title') ?? 'Resin art piece photography')
+                                    ->label('Accessibility Alt Text')
+                                    ->placeholder('e.g. Handcrafted Ocean Wave Resin Artwork')
+                                    ->nullable()
+                                    ->default(fn ($get) => $get('title') ?? 'Resin art gallery piece')
+                                    ->helperText('Descriptive alt text for accessibility and search engines.')
+                                    ->visible(fn (Forms\Get $get) => ($get('media_type') ?? 'image') === 'image')
                                     ->maxLength(255)
                                     ->columnSpanFull(),
                             ]),
@@ -101,7 +148,17 @@ class GalleryItemResource extends Resource
                     ->label('Thumbnail')
                     ->disk('public')
                     ->square()
-                    ->size(60),
+                    ->size(60)
+                    ->defaultImageUrl(fn ($record) => $record->thumbnail_url),
+
+                Tables\Columns\IconColumn::make('is_video')
+                    ->label('Type')
+                    ->boolean()
+                    ->trueIcon('heroicon-o-video-camera')
+                    ->falseIcon('heroicon-o-photo')
+                    ->trueColor('warning')
+                    ->falseColor('gray')
+                    ->tooltip(fn ($record) => $record->is_video ? 'YouTube Video' : 'Photography Photo'),
 
                 Tables\Columns\TextColumn::make('title')
                     ->weight('bold')

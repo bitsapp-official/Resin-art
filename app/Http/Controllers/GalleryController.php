@@ -58,9 +58,11 @@ class GalleryController extends Controller
                     'id' => $item->id,
                     'title' => $item->title,
                     'category' => $item->galleryCategory ? $item->galleryCategory->name : 'Gallery',
-                    'image' => asset('storage/' . $item->image_path),
-                    'alt' => $item->image_alt,
+                    'image' => $item->thumbnail_url,
+                    'alt' => $item->image_alt ?? $item->title,
                     'location' => $item->location ?? '',
+                    'is_video' => $item->is_video,
+                    'embed_url' => $item->video_embed_url,
                 ];
             }
 

@@ -10,9 +10,11 @@
                     id: {{ $item->id }},
                     title: @js($item->title),
                     category: @js($item->galleryCategory ? $item->galleryCategory->name : 'Gallery'),
-                    image: @js(asset('storage/' . $item->image_path)),
-                    alt: @js($item->image_alt),
-                    location: @js($item->location ?? '')
+                    image: @js($item->thumbnail_url),
+                    alt: @js($item->image_alt ?? $item->title),
+                    location: @js($item->location ?? ''),
+                    is_video: @js($item->is_video),
+                    embed_url: @js($item->video_embed_url)
                 }{{ !$loop->last ? ',' : '' }}
                 @endforeach
             ]
@@ -134,9 +136,9 @@
             <!-- Close Button (Top Right) -->
             <button type="button" 
                     @click="closeLightbox()"
-                    class="absolute top-4 right-4 sm:top-6 sm:right-6 z-30 w-9 h-9 sm:w-11 sm:h-11 rounded-full bg-white/10 hover:bg-white/25 text-white backdrop-blur-md flex items-center justify-center transition-all focus:outline-none cursor-pointer"
+                    class="absolute top-4 right-4 sm:top-6 sm:right-6 z-40 w-11 h-11 sm:w-13 sm:h-13 rounded-full bg-white/20 hover:bg-white text-white hover:text-[#1C1917] border border-white/40 shadow-2xl backdrop-blur-md flex items-center justify-center transition-all focus:outline-none cursor-pointer group active:scale-95"
                     aria-label="Close lightbox">
-                <svg class="w-4 h-4 sm:w-5 sm:h-5 stroke-[2]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <svg class="w-5 h-5 sm:w-6 sm:h-6 stroke-[2.25] group-hover:rotate-90 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
                 </svg>
             </button>
@@ -144,8 +146,8 @@
             <!-- Navigation Arrow Left -->
             <button type="button" 
                     @click="prevImage()"
-                    class="absolute left-2 sm:left-6 top-1/2 -translate-y-1/2 z-30 w-9 h-9 sm:w-12 sm:h-12 rounded-full bg-white/10 hover:bg-white/25 text-white backdrop-blur-md flex items-center justify-center transition-all focus:outline-none cursor-pointer"
-                    aria-label="Previous image">
+                    class="absolute left-2 sm:left-6 top-1/2 -translate-y-1/2 z-40 w-11 h-11 sm:w-13 sm:h-13 rounded-full bg-white/20 hover:bg-white text-white hover:text-[#1C1917] border border-white/40 shadow-2xl backdrop-blur-md flex items-center justify-center transition-all focus:outline-none cursor-pointer group active:scale-95"
+                    aria-label="Previous media">
                 <svg class="w-5 h-5 sm:w-6 sm:h-6 stroke-[2]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
                 </svg>
@@ -154,39 +156,56 @@
             <!-- Navigation Arrow Right -->
             <button type="button" 
                     @click="nextImage()"
-                    class="absolute right-2 sm:right-6 top-1/2 -translate-y-1/2 z-30 w-9 h-9 sm:w-12 sm:h-12 rounded-full bg-white/10 hover:bg-white/25 text-white backdrop-blur-md flex items-center justify-center transition-all focus:outline-none cursor-pointer"
-                    aria-label="Next image">
+                    class="absolute right-2 sm:right-6 top-1/2 -translate-y-1/2 z-40 w-11 h-11 sm:w-13 sm:h-13 rounded-full bg-white/20 hover:bg-white text-white hover:text-[#1C1917] border border-white/40 shadow-2xl backdrop-blur-md flex items-center justify-center transition-all focus:outline-none cursor-pointer group active:scale-95"
+                    aria-label="Next media">
                 <svg class="w-5 h-5 sm:w-6 sm:h-6 stroke-[2]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
                 </svg>
             </button>
 
-            <!-- Main Image & Title Container -->
-            <div class="relative z-20 flex flex-col items-center justify-center max-w-full max-h-full select-none" @click.stop>
-                <div class="relative overflow-hidden flex items-center justify-center rounded-2xl sm:rounded-3xl"
-                     @mousedown="startDrag($event)"
-                     @mousemove="onDrag($event)"
-                     @mouseup="stopDrag()"
-                     @mouseleave="stopDrag()"
-                     @touchstart="startDrag($event)"
-                     @touchmove="onDrag($event)"
-                     @touchend="stopDrag()">
-                    <template x-if="currentItem">
+            <!-- Main Media & Title Container (Large Scale Cinema Format) -->
+            <div class="relative z-20 w-full flex-1 max-w-[1440px] flex flex-col items-center justify-center px-2 sm:px-6 select-none my-auto" @click.stop>
+                
+                <!-- 1. CINEMA VIDEO PLAYER (Truly Big & Immersive) -->
+                <template x-if="currentItem && currentItem.is_video">
+                    <div class="w-[94vw] max-w-[1360px] aspect-video max-h-[80vh] bg-black rounded-2xl sm:rounded-3xl overflow-hidden shadow-2xl border border-white/20 flex items-center justify-center">
+                        <iframe :src="currentItem.embed_url"
+                                :title="currentItem.title + ' Video'"
+                                class="w-full h-full border-0 rounded-2xl sm:rounded-3xl"
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                                referrerpolicy="strict-origin-when-cross-origin"
+                                allowfullscreen>
+                        </iframe>
+                    </div>
+                </template>
+
+                <!-- 2. IMAGE VIEWER (When current item is photography) -->
+                <template x-if="currentItem && !currentItem.is_video">
+                    <div class="relative overflow-hidden flex items-center justify-center rounded-2xl sm:rounded-3xl"
+                         @mousedown="startDrag($event)"
+                         @mousemove="onDrag($event)"
+                         @mouseup="stopDrag()"
+                         @mouseleave="stopDrag()"
+                         @touchstart="startDrag($event)"
+                         @touchmove="onDrag($event)"
+                         @touchend="stopDrag()">
                         <img x-ref="lightboxImg"
                              :src="currentItem.image" 
                              :alt="currentItem.alt" 
                              draggable="false"
                              @click="onImageClick($event)"
                              @dblclick.prevent="toggleZoom($event)"
-                             class="max-h-[75vh] sm:max-h-[79vh] max-w-[90vw] sm:max-w-[85vw] object-contain rounded-2xl sm:rounded-3xl shadow-2xl will-change-transform select-none"
+                             class="max-h-[78vh] sm:max-h-[82vh] max-w-[94vw] sm:max-w-[90vw] object-contain rounded-2xl sm:rounded-3xl shadow-2xl will-change-transform select-none"
                              :style="'transform: translate(' + panX + 'px, ' + panY + 'px) scale(' + zoom + '); transform-origin: center center; transition: ' + (isDragging ? 'none' : 'transform 0.25s cubic-bezier(0.16, 1, 0.3, 1)') + '; cursor: ' + (zoom > 1 ? (isDragging ? 'grabbing' : 'grab') : 'zoom-in') + ';'">
-                    </template>
-                </div>
+                    </div>
+                </template>
 
-                <!-- Clean Minimal Title Underneath Image (Matching Reference Screenshot) -->
-                <div class="text-center pt-5 sm:pt-6 pointer-events-none">
-                    <span class="text-[11px] sm:text-xs uppercase tracking-[0.25em] font-medium text-[#FAF8F5] opacity-90" 
+                <!-- Clean Minimal Title & Details Underneath Media -->
+                <div class="text-center pt-3 sm:pt-4 pointer-events-none flex flex-col items-center">
+                    <span class="text-xs sm:text-sm uppercase tracking-[0.22em] font-medium text-[#FAF8F5] opacity-95" 
                           x-text="currentItem?.title"></span>
+                    <span class="text-[10px] uppercase tracking-[0.18em] font-light text-[#D4C3A3] mt-0.5"
+                          x-text="(currentItem?.location ? currentItem.location + ' · ' : '') + (currentItem?.category || '')"></span>
                 </div>
             </div>
 

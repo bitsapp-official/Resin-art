@@ -852,18 +852,32 @@
                 @if(isset($galleryItems[0]))
                     @php $first = $galleryItems[0]; @endphp
                     <div class="lg:col-span-7 group relative rounded-[1.5rem] sm:rounded-[2.25rem] overflow-hidden min-h-[340px] sm:min-h-[420px] lg:min-h-[500px] bg-[#EBE5DB] border border-[#DFD9CE]/60 shadow-sm">
-                        <img src="{{ asset('storage/' . $first->image_path) }}" 
+                        <img src="{{ $first->thumbnail_url }}" 
                              alt="{{ $first->title }}" 
                              class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out">
                         <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
                         
-                        <div class="absolute top-4 left-4 sm:top-6 sm:left-6 z-10">
+                        <div class="absolute top-4 left-4 sm:top-6 sm:left-6 z-10 flex items-center gap-2">
                             <span class="glass-pill bg-white/80 backdrop-blur-md border border-white/60 text-[#1C1917] text-[8.5px] sm:text-[9px] uppercase tracking-[0.22em] font-semibold px-3 sm:px-3.5 py-1 sm:py-1.5 rounded-full shadow-sm">
                                 {{ $first->galleryCategory->name ?? 'Interior Feature' }}
                             </span>
+                            @if($first->is_video)
+                                <span class="bg-[#1C1917]/90 text-white text-[8px] sm:text-[8.5px] uppercase tracking-wider font-bold px-2.5 py-1 rounded-full shadow-md border border-white/20 flex items-center gap-1">
+                                    <svg class="w-2.5 h-2.5 fill-current text-[#FBBF24]" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                                    Video
+                                </span>
+                            @endif
                         </div>
 
-                        <div class="absolute bottom-4 left-4 right-4 sm:bottom-6 sm:left-6 sm:right-6 text-white space-y-1">
+                        @if($first->is_video)
+                            <div class="absolute inset-0 flex items-center justify-center pointer-events-none z-10">
+                                <div class="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-white/95 text-[#1C1917] flex items-center justify-center shadow-2xl transition-transform duration-300 group-hover:scale-110">
+                                    <svg class="w-6 h-6 fill-current ml-0.5" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                                </div>
+                            </div>
+                        @endif
+
+                        <div class="absolute bottom-4 left-4 right-4 sm:bottom-6 sm:left-6 sm:right-6 text-white space-y-1 z-10">
                             <p class="text-[9px] sm:text-[9.5px] uppercase tracking-widest text-[#AD9575] font-semibold">
                                 {{ $first->location ?? 'Private Residence' }}
                             </p>
@@ -878,18 +892,32 @@
                 @if(isset($galleryItems[1]))
                     @php $second = $galleryItems[1]; @endphp
                     <div class="lg:col-span-5 group relative rounded-[1.5rem] sm:rounded-[2.25rem] overflow-hidden min-h-[340px] sm:min-h-[420px] lg:min-h-[500px] bg-[#EBE5DB] border border-[#DFD9CE]/60 shadow-sm">
-                        <img src="{{ asset('storage/' . $second->image_path) }}" 
+                        <img src="{{ $second->thumbnail_url }}" 
                              alt="{{ $second->title }}" 
                              class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out">
                         <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
                         
-                        <div class="absolute top-4 left-4 sm:top-6 sm:left-6 z-10">
+                        <div class="absolute top-4 left-4 sm:top-6 sm:left-6 z-10 flex items-center gap-2">
                             <span class="glass-pill bg-white/80 backdrop-blur-md border border-white/60 text-[#1C1917] text-[8.5px] sm:text-[9px] uppercase tracking-[0.22em] font-semibold px-3 sm:px-3.5 py-1 sm:py-1.5 rounded-full shadow-sm">
                                 {{ $second->galleryCategory->name ?? 'Atelier Piece' }}
                             </span>
+                            @if($second->is_video)
+                                <span class="bg-[#1C1917]/90 text-white text-[8px] sm:text-[8.5px] uppercase tracking-wider font-bold px-2.5 py-1 rounded-full shadow-md border border-white/20 flex items-center gap-1">
+                                    <svg class="w-2.5 h-2.5 fill-current text-[#FBBF24]" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                                    Video
+                                </span>
+                            @endif
                         </div>
 
-                        <div class="absolute bottom-4 left-4 right-4 sm:bottom-6 sm:left-6 sm:right-6 text-white space-y-1">
+                        @if($second->is_video)
+                            <div class="absolute inset-0 flex items-center justify-center pointer-events-none z-10">
+                                <div class="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-white/95 text-[#1C1917] flex items-center justify-center shadow-2xl transition-transform duration-300 group-hover:scale-110">
+                                    <svg class="w-6 h-6 fill-current ml-0.5" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                                </div>
+                            </div>
+                        @endif
+
+                        <div class="absolute bottom-4 left-4 right-4 sm:bottom-6 sm:left-6 sm:right-6 text-white space-y-1 z-10">
                             <p class="text-[9px] sm:text-[9.5px] uppercase tracking-widest text-[#AD9575] font-semibold">
                                 {{ $second->location ?? 'Architectural Suite' }}
                             </p>
@@ -903,12 +931,26 @@
                 {{-- 3 & 4. Bottom 3-Card Row (4 Cols Each) --}}
                 @foreach($galleryItems->slice(2, 3) as $item)
                     <div class="lg:col-span-4 group relative rounded-[1.5rem] sm:rounded-[2rem] overflow-hidden aspect-[4/5] bg-[#EBE5DB] border border-[#DFD9CE]/60 shadow-sm">
-                        <img src="{{ asset('storage/' . $item->image_path) }}" 
+                        <img src="{{ $item->thumbnail_url }}" 
                              alt="{{ $item->title }}" 
                              class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out">
                         <div class="absolute inset-0 bg-gradient-to-t from-black/75 via-transparent to-transparent"></div>
                         
-                        <div class="absolute bottom-4 left-4 right-4 sm:bottom-6 sm:left-6 sm:right-6 text-white space-y-0.5">
+                        @if($item->is_video)
+                            <div class="absolute top-3.5 left-3.5 z-10">
+                                <span class="bg-[#1C1917]/90 text-white text-[8px] uppercase tracking-wider font-bold px-2 py-0.5 rounded-full shadow-md border border-white/20 flex items-center gap-1">
+                                    <svg class="w-2.5 h-2.5 fill-current text-[#FBBF24]" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                                    Video
+                                </span>
+                            </div>
+                            <div class="absolute inset-0 flex items-center justify-center pointer-events-none z-10">
+                                <div class="w-11 h-11 rounded-full bg-white/95 text-[#1C1917] flex items-center justify-center shadow-xl transition-transform duration-300 group-hover:scale-110">
+                                    <svg class="w-4 h-4 fill-current ml-0.5" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                                </div>
+                            </div>
+                        @endif
+
+                        <div class="absolute bottom-4 left-4 right-4 sm:bottom-6 sm:left-6 sm:right-6 text-white space-y-0.5 z-10">
                             <p class="text-[8.5px] sm:text-[9px] uppercase tracking-widest text-[#AD9575] font-semibold">
                                 {{ $item->location ?? 'Private Collection' }}
                             </p>

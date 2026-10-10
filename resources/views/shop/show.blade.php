@@ -291,13 +291,8 @@
                 {{-- TOP BAR: Indicator/Zoom Controls (Left) & Close Button (Right) --}}
                 <div class="w-full flex items-center justify-between z-50 shrink-0 min-h-[48px] px-1 sm:px-3">
                     {{-- Left: Badge & Image Zoom Controls --}}
+                    {{-- Left: Image Zoom Controls (if media is image) --}}
                     <div class="flex items-center gap-2 sm:gap-3">
-                        <template x-if="currentMedia && currentMedia.type === 'video'">
-                            <span class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-white text-[11px] font-bold uppercase tracking-wider shadow-sm bg-[#1C1917] border border-[#1C1917]">
-                                <svg class="w-3.5 h-3.5 fill-current text-[#FBBF24]" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-                                Video Showcase
-                            </span>
-                        </template>
                         <template x-if="currentMedia && currentMedia.type === 'image'">
                             <div class="flex items-center gap-1.5 rounded-full px-3 py-1.5 shadow-sm bg-white border border-[#DFD9CE] text-[#1C1917]">
                                 <span class="text-[11px] font-bold tracking-wider px-1 text-[#1C1917]" x-text="(activeMedia + 1) + ' / ' + mediaItems.length"></span>
@@ -373,9 +368,9 @@
                         </div>
                     </template>
 
-                    {{-- VIDEO Container: HTML5 direct video --}}
+                    {{-- VIDEO Container: HTML5 direct video (Cinema Large) --}}
                     <template x-if="currentMedia && currentMedia.type === 'video' && !currentMedia.isYoutube && !currentMedia.isVimeo">
-                        <div class="relative w-full max-w-5xl aspect-video max-h-[76vh] flex items-center justify-center bg-black rounded-2xl overflow-hidden shadow-2xl border border-black/10">
+                        <div class="relative w-[94vw] max-w-[1360px] aspect-video max-h-[82vh] flex items-center justify-center bg-black rounded-2xl overflow-hidden shadow-2xl border border-black/10">
                             <video x-ref="lightboxVideo"
                                    controls
                                    playsinline
@@ -391,9 +386,9 @@
                         </div>
                     </template>
 
-                    {{-- VIDEO Container: YouTube / Vimeo --}}
+                    {{-- VIDEO Container: YouTube / Vimeo (Cinema Large) --}}
                     <template x-if="currentMedia && currentMedia.type === 'video' && (currentMedia.isYoutube || currentMedia.isVimeo)">
-                        <div class="relative w-full max-w-5xl aspect-video max-h-[76vh] flex items-center justify-center bg-black rounded-2xl overflow-hidden shadow-2xl border border-black/10">
+                        <div class="relative w-[94vw] max-w-[1360px] aspect-video max-h-[82vh] flex items-center justify-center bg-black rounded-2xl overflow-hidden shadow-2xl border border-black/10">
                             <iframe :src="currentMedia.embedUrl"
                                     title="{{ $product->name }} Video"
                                     class="w-full h-full border-0 rounded-2xl"
