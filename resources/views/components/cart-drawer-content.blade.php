@@ -27,11 +27,17 @@
                                     {{ $item->product_name }}
                                 </a>
                             </h3>
+                            @php
+                                $optParts = [];
+                                if(!empty($item->options['gold_purity'])) $optParts[] = $item->options['gold_purity'];
+                                if(!empty($item->options['metal_color'])) $optParts[] = $item->options['metal_color'];
+                                if(!empty($item->options['size'])) $optParts[] = $item->options['size'];
+                            @endphp
                             <p class="text-[9.5px] uppercase tracking-[0.18em] text-[#8E877D] font-light mt-0.5">
-                                @if(!empty($item->options['size']))
-                                    INK · {{ $item->options['size'] }}
+                                @if(count($optParts) > 0)
+                                    {{ implode(' · ', $optParts) }}
                                 @else
-                                    {{ $item->product?->category?->name ?? 'HANDCRAFTED ATELIER PIECE' }}
+                                    {{ $item->product?->category?->name ?? 'FINE JEWELLERY' }}
                                 @endif
                             </p>
                         </div>

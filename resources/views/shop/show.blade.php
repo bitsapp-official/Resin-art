@@ -58,9 +58,17 @@
                 mediaItems: config.mediaItems || [],
                 activeMedia: 0,
                 selectedSize: config.selectedSize || '',
+                sizeLabel: config.sizeLabel || 'Size',
+                sizeVariants: config.sizeVariants || [],
+                goldPurities: config.goldPurities || ['14KT Gold', '18KT Gold', '22KT Gold'],
+                selectedPurity: config.selectedPurity || '14KT Gold',
+                metalColors: config.metalColors || ['Yellow Gold', 'White Gold', 'Rose Gold'],
+                selectedColor: config.selectedColor || 'Yellow Gold',
+                productTitle: config.productTitle || '',
+                productSku: config.productSku || '',
+                whatsappNumber: config.whatsappNumber || '919876543210',
                 qty: 1,
                 showLightbox: false,
-                sizeVariants: config.sizeVariants || [],
                 basePrice: config.basePrice || 0,
                 
                 // Lightbox cut-free zoom & pan
@@ -193,6 +201,35 @@
                 formatPrice(price) {
                     return new Intl.NumberFormat('en-IN').format(price);
                 },
+                get whatsappOrderUrl() {
+                    let msg = `Hello, I would like to order / inquire about this piece:\n\n` +
+                              `• Product: ${this.productTitle}\n` +
+                              (this.productSku ? `• SKU: ${this.productSku}\n` : '') +
+                              `• Metal Color: ${this.selectedColor}\n` +
+                              `• Gold Purity: ${this.selectedPurity}\n` +
+                              (this.selectedSize ? `• ${this.sizeLabel}: ${this.selectedSize}\n` : '') +
+                              `• Quantity: ${this.qty}\n` +
+                              `• Price: ₹ ${this.formatPrice(this.currentPrice * this.qty)}\n\n` +
+                              `Link: ${window.location.href}`;
+                    return `https://wa.me/${this.whatsappNumber}?text=` + encodeURIComponent(msg);
+                },
+                get whatsappBulkUrl() {
+                    let msg = `Hello, I am interested in placing a Bulk / Wholesale B2B inquiry for:\n\n` +
+                              `• Product: ${this.productTitle}\n` +
+                              (this.productSku ? `• SKU: ${this.productSku}\n` : '') +
+                              `Link: ${window.location.href}\n\n` +
+                              `Please share bulk quantity pricing, diamond certification details, and dispatch lead times.`;
+                    return `https://wa.me/${this.whatsappNumber}?text=` + encodeURIComponent(msg);
+                },
+                getColorStyle(color) {
+                    const c = (color || '').toLowerCase();
+                    if (c.includes('yellow')) return 'background: linear-gradient(135deg, #FFE082 0%, #D4AF37 50%, #B8860B 100%);';
+                    if (c.includes('rose'))   return 'background: linear-gradient(135deg, #FAD0C4 0%, #E8A598 50%, #C97D6B 100%);';
+                    if (c.includes('white') || c.includes('silver') || c.includes('platinum')) {
+                        return 'background: linear-gradient(135deg, #FFFFFF 0%, #E8E8E8 50%, #BDBDBD 100%);';
+                    }
+                    return 'background: linear-gradient(135deg, #FFE082 0%, #D4AF37 50%, #B8860B 100%);';
+                },
                 playActiveVideo() {
                     this.$nextTick(() => {
                         const media = this.currentMedia;
@@ -266,7 +303,15 @@
             mediaItems: @js($mediaList),
             sizeVariants: @js($product->attributes['size_variants'] ?? []),
             basePrice: {{ (float) $product->effective_price }},
-            selectedSize: @js(!empty($product->attributes['size_variants']) ? ($product->attributes['size_variants'][0]['size'] ?? '') : (!empty($product->attributes['sizes']) ? $product->attributes['sizes'][0] : ''))
+            sizeLabel: @js($product->size_label),
+            selectedSize: @js(!empty($product->attributes['size_variants']) ? ($product->attributes['size_variants'][0]['size'] ?? '') : (!empty($product->attributes['sizes']) ? $product->attributes['sizes'][0] : '')),
+            goldPurities: @js($product->gold_purities),
+            selectedPurity: @js($product->gold_purities[0] ?? '14KT Gold'),
+            metalColors: @js($product->metal_colors),
+            selectedColor: @js($product->metal_colors[0] ?? 'Yellow Gold'),
+            productTitle: @js($product->name),
+            productSku: @js($product->sku ?? ''),
+            whatsappNumber: @js(preg_replace('/[^0-9]/', '', \App\Models\SiteSetting::get('contact_whatsapp') ?: \App\Models\SiteSetting::get('contact_phone', '919876543210')))
          })">
 
         {{-- ── FULL-SCREEN LIGHTBOX MODAL WITH CUT-FREE ZOOM & PAN OR VIDEO CINEMA ── --}}
@@ -599,44 +644,45 @@
                 @endif
             </div>
 
-            {{-- RIGHT: Product Info & Actions --}}
-            <div class="space-y-6">
+            {{-- RIGHT: Product Info & Actions (Jewellery Layout matching Solitairekart) --}}
+            <div class="space-y-5">
                 {{-- Category & Title --}}
                 <div>
-                    <p class="text-[10px] uppercase tracking-[0.28em] font-medium text-[#8E877D] mb-2">
-                        {{ $product->category?->name ?? 'COASTERS' }}
+                    <p class="text-[10px] uppercase tracking-[0.28em] font-medium text-[#8E877D] mb-1.5">
+                        {{ $product->category?->name ?? 'FINE JEWELLERY' }}
                     </p>
-                    <h1 class="font-editorial text-3xl sm:text-4xl lg:text-5xl text-[#1C1917] font-light leading-[1.12] sm:leading-[1.08] tracking-tight">
+                    <h1 class="font-editorial text-2xl sm:text-3xl lg:text-[2.25rem] text-[#1C1917] font-normal leading-[1.2] tracking-tight">
                         {{ $product->name }}
                     </h1>
-                    <p class="text-[10.5px] uppercase tracking-[0.18em] text-[#8E877D] font-light mt-3.5">
-                        {{ $product->category?->name ?? 'BESPOKE ART' }} &middot; {{ $product->inventory_type === 'MADE_TO_ORDER' ? 'MADE TO ORDER' : 'IN STOCK' }}
-                    </p>
+                    @if($product->diamond_carat || $product->diamond_color_clarity || $product->certification)
+                        <p class="text-[11.5px] uppercase tracking-[0.16em] text-[#8E877D] font-medium mt-2">
+                            {{ collect([$product->diamond_carat, $product->diamond_color_clarity, $product->certification ? $product->certification . ' CERTIFIED' : null])->filter()->join(' · ') }}
+                        </p>
+                    @endif
                 </div>
 
-                {{-- Price & Review Rating (Interlinked to Customer Reviews) --}}
+                {{-- Price & Review Rating --}}
                 @php
                     $revCount = $product->reviews_count ?? ($product->reviews ? $product->reviews->count() : 0);
                     $avgRating = $product->average_rating ?? 5.0;
                     $fullStars = floor($avgRating);
+                    $hasHalfStar = ($avgRating - $fullStars) >= 0.5;
+                    $emptyStars = 5 - $fullStars - ($hasHalfStar ? 1 : 0);
                 @endphp
-                <div class="flex items-baseline flex-wrap gap-x-4 gap-y-2 pt-1">
+                <div class="flex items-baseline flex-wrap gap-x-4 gap-y-2 pt-1 border-b border-[#EBE6DD] pb-4">
                     <div class="flex items-baseline gap-2.5 sm:gap-3">
-                        <span class="font-sans font-medium text-2xl sm:text-3.5xl text-[#1C1917] tracking-tight">
+                        <span class="font-sans font-semibold text-2xl sm:text-3xl text-[#8B1E3F] tracking-tight">
                             ₹ <span x-text="formatPrice(currentPrice)">{{ number_format($product->effective_price) }}</span>
                         </span>
                         @if($product->sale_price && $product->sale_price < $product->price)
-                            <s class="text-sm text-[#8E877D] font-light font-sans" x-show="sizeVariants.length === 0">
+                            <s class="text-sm sm:text-base text-[#8E877D] font-light font-sans line-through" x-show="sizeVariants.length === 0">
                                 ₹ {{ number_format($product->price) }}
                             </s>
+                            <span class="bg-[#8B1E3F] text-white text-[9.5px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-xs">
+                                SALE
+                            </span>
                         @endif
                     </div>
-                    @php
-                        $avgRating = $product->average_rating ?? 5.0;
-                        $fullStars = floor($avgRating);
-                        $hasHalfStar = ($avgRating - $fullStars) >= 0.5;
-                        $emptyStars = 5 - $fullStars - ($hasHalfStar ? 1 : 0);
-                    @endphp
                     <a href="#customer-reviews" onclick="document.getElementById('customer-reviews')?.scrollIntoView({ behavior: 'smooth' });"
                        class="text-[10px] uppercase tracking-[0.16em] sm:tracking-[0.18em] text-[#8E877D] hover:text-[#1C1917] font-light flex items-center gap-1.5 transition-colors cursor-pointer">
                         <span class="text-[#C8A96E] text-xs tracking-wider flex items-center">
@@ -646,69 +692,119 @@
                     </a>
                 </div>
 
+                {{-- Solitairekart 4 Highlights: Authenticity, Pricing, Craftsmanship, Customer Care --}}
+                <div class="space-y-1.5 text-xs text-[#57534E] py-2 border-b border-[#EBE6DD] leading-relaxed">
+                    <p><strong class="font-semibold text-[#8B1E3F]">Authenticity:</strong> 100% certified, genuine diamonds and gemstones.</p>
+                    <p><strong class="font-semibold text-[#8B1E3F]">Transparent Pricing:</strong> Competitive rates with no hidden costs.</p>
+                    <p><strong class="font-semibold text-[#8B1E3F]">Craftsmanship:</strong> Elegant designs with lasting quality.</p>
+                    <p><strong class="font-semibold text-[#8B1E3F]">Customer Care:</strong> Hassle-free shopping and dedicated support.</p>
+                </div>
 
-                {{-- Dynamic Size Selector (Managed via Admin Panel) --}}
-                @php
-                    $productSizeVariants = $product->attributes['size_variants'] ?? [];
-                    $legacySizes = $product->attributes['sizes'] ?? [];
-                    
-                    // Normalize into simple array of size names for rendering buttons
-                    $displaySizes = [];
-                    if (!empty($productSizeVariants)) {
-                        foreach($productSizeVariants as $sv) {
-                            if(isset($sv['size'])) $displaySizes[] = $sv['size'];
-                        }
-                    } elseif (!empty($legacySizes)) {
-                        $displaySizes = $legacySizes;
-                    }
-                @endphp
-                
-                <template x-if="sizeVariants.length > 0 || {{ count($displaySizes) > 0 ? 'true' : 'false' }}">
-                    <div class="space-y-2 pb-2">
-                        <p class="text-[10px] uppercase tracking-[0.2em] font-semibold text-[#1C1917]">SIZE</p>
+                {{-- 1. Gold Purity Selector --}}
+                <template x-if="goldPurities && goldPurities.length > 0">
+                    <div class="space-y-2">
+                        <p class="text-xs text-[#1C1917]">
+                            Gold Purity : <strong class="font-semibold text-[#1C1917]" x-text="selectedPurity"></strong>
+                        </p>
                         <div class="flex items-center gap-2 flex-wrap">
-                            @foreach($displaySizes as $size)
-                                <button type="button" @click="selectedSize = '{{ addslashes($size) }}'"
-                                        :class="selectedSize === '{{ addslashes($size) }}' ? 'bg-[#1C1917] text-white border-[#1C1917]' : 'bg-transparent text-[#1C1917] border-[#EBE6DD] hover:border-[#1C1917]'"
-                                        class="px-4 sm:px-5 py-2 rounded-full border text-[9px] sm:text-[9.5px] uppercase tracking-[0.18em] sm:tracking-[0.2em] font-medium transition-all duration-200 cursor-pointer">
-                                    {{ $size }}
+                            <template x-for="purity in goldPurities" :key="purity">
+                                <button type="button" @click="selectedPurity = purity"
+                                        :class="selectedPurity === purity ? 'border-[#1C1917] bg-[#1C1917] text-white shadow-xs font-semibold' : 'border-[#DFD9CE] bg-white text-[#1C1917] hover:border-[#1C1917] font-normal'"
+                                        class="px-4 py-2 border text-xs tracking-wide transition-all cursor-pointer rounded-xs"
+                                        x-text="purity">
                                 </button>
-                            @endforeach
+                            </template>
                         </div>
                     </div>
                 </template>
 
-                {{-- Quantity + Add to Bag + Wishlist Row (Un-nested Clean Forms) --}}
-                <div class="space-y-2.5 pt-1" x-data="{ showShareModal: false, copied: false }">
-                    <div class="flex items-center gap-2.5 sm:gap-3">
-                        {{-- Add to Bag Form --}}
-                        <form method="POST" action="{{ route('cart.add') }}" class="flex items-center gap-2.5 sm:gap-3 flex-1 min-w-0">
+                {{-- 2. Dynamic Size Selector (Necklace Size, Ring Size, Bracelet Size, etc.) --}}
+                <template x-if="sizeVariants && sizeVariants.length > 0">
+                    <div class="space-y-2">
+                        <p class="text-xs text-[#1C1917]">
+                            <span x-text="sizeLabel || 'Size'"></span> : <strong class="font-semibold text-[#1C1917]" x-text="selectedSize"></strong>
+                        </p>
+                        <div class="flex items-center gap-2 flex-wrap">
+                            <template x-for="v in sizeVariants" :key="v.size">
+                                <button type="button" @click="selectedSize = v.size"
+                                        :class="selectedSize === v.size ? 'border-[#1C1917] bg-[#1C1917] text-white shadow-xs font-semibold' : 'border-[#DFD9CE] bg-white text-[#1C1917] hover:border-[#1C1917] font-normal'"
+                                        class="px-4 py-2 border text-xs tracking-wide transition-all cursor-pointer rounded-xs">
+                                    <span x-text="v.size"></span>
+                                    <template x-if="v.price && v.price != basePrice">
+                                        <span class="text-[10px] ml-1 opacity-80" x-text="'(₹' + formatPrice(v.price) + ')'"></span>
+                                    </template>
+                                </button>
+                            </template>
+                        </div>
+                    </div>
+                </template>
+
+                {{-- 3. Metal Color Swatches (Yellow Gold, White Gold, Rose Gold) --}}
+                <template x-if="metalColors && metalColors.length > 0">
+                    <div class="space-y-2">
+                        <p class="text-xs text-[#1C1917]">
+                            Color : <strong class="font-semibold text-[#1C1917]" x-text="selectedColor"></strong>
+                        </p>
+                        <div class="flex items-center gap-3">
+                            <template x-for="color in metalColors" :key="color">
+                                <button type="button" @click="selectedColor = color"
+                                        :title="color"
+                                        class="w-8 h-8 rounded-full border-2 transition-all p-0.5 relative cursor-pointer focus:outline-none"
+                                        :class="selectedColor === color ? 'border-[#1C1917] ring-2 ring-[#1C1917]/30 scale-110' : 'border-transparent hover:border-[#A8A29E]'">
+                                    <span class="block w-full h-full rounded-full shadow-inner border border-black/10" :style="getColorStyle(color)"></span>
+                                </button>
+                            </template>
+                        </div>
+                    </div>
+                </template>
+
+                {{-- 4. Quantity + Add to Cart + Buy It Now Row --}}
+                <div class="space-y-3 pt-2" x-data="{ showShareModal: false, copied: false }">
+                    <div class="flex items-center gap-2 sm:gap-3 flex-wrap sm:flex-nowrap">
+                        {{-- Qty Counter Pill --}}
+                        <div class="flex items-center justify-between border border-[#DFD9CE] rounded-xs px-3 bg-white w-24 h-12 shrink-0">
+                            <button type="button" @click="if(qty > 1) qty--"
+                                    class="w-6 h-full flex items-center justify-center text-[#78716C] hover:text-[#1C1917] text-lg font-light cursor-pointer select-none">−</button>
+                            <span class="text-xs font-semibold text-[#1C1917]" x-text="qty"></span>
+                            <button type="button" @click="qty++"
+                                    class="w-6 h-full flex items-center justify-center text-[#78716C] hover:text-[#1C1917] text-lg font-light cursor-pointer select-none">+</button>
+                        </div>
+
+                        {{-- ADD TO CART FORM --}}
+                        <form method="POST" action="{{ route('cart.add') }}" class="flex-1 min-w-[140px]">
                             @csrf
                             <input type="hidden" name="product_id" value="{{ $product->id }}">
-                            
-                            {{-- Pass selected size only when product has size variants --}}
-                            <template x-if="sizeVariants.length > 0">
+                            <input type="hidden" name="quantity" :value="qty">
+                            <input type="hidden" name="options[gold_purity]" :value="selectedPurity">
+                            <input type="hidden" name="options[metal_color]" :value="selectedColor">
+                            <template x-if="selectedSize">
                                 <input type="hidden" name="options[size]" :value="selectedSize">
                             </template>
-
-                            {{-- Qty Counter Pill --}}
-                            <div class="flex items-center justify-between border border-[#DFD9CE] rounded-full px-3 sm:px-4 bg-white w-24 sm:w-28 h-12 shrink-0">
-                                <button type="button" @click="if(qty > 1) qty--"
-                                        class="w-6 h-6 flex items-center justify-center text-[#78716C] hover:text-[#1C1917] text-base leading-none font-light cursor-pointer select-none">−</button>
-                                <span class="text-xs font-semibold text-[#1C1917]" x-text="qty"></span>
-                                <button type="button" @click="qty++"
-                                        class="w-6 h-6 flex items-center justify-center text-[#78716C] hover:text-[#1C1917] text-base leading-none font-light cursor-pointer select-none">+</button>
-                                <input type="hidden" name="quantity" :value="qty">
-                            </div>
-
-                            {{-- Add to Bag Button --}}
                             <button type="submit"
-                                    class="flex-1 h-12 bg-[#1C1917] hover:bg-[#2D2825] text-white text-[10px] sm:text-[11px] uppercase tracking-[0.16em] sm:tracking-[0.25em] font-semibold rounded-full transition-all duration-300 shadow-xs cursor-pointer flex items-center justify-center text-center px-2">
-                                ADD TO BAG
+                                    class="w-full h-12 bg-[#1C1917] hover:bg-[#2D2825] text-white text-xs sm:text-[13px] font-bold uppercase tracking-wider rounded-xs transition-all duration-200 cursor-pointer shadow-xs flex items-center justify-center">
+                                ADD TO CART
                             </button>
                         </form>
 
-                        {{-- Independent Wishlist Toggle Form (Matching Screenshot 4 Styling) --}}
+                        {{-- BUY IT NOW FORM (Burgundy #8B1E3F like Solitairekart) --}}
+                        <form method="POST" action="{{ route('cart.buy-now') }}" class="flex-1 min-w-[140px]">
+                            @csrf
+                            <input type="hidden" name="product_id" value="{{ $product->id }}">
+                            <input type="hidden" name="quantity" :value="qty">
+                            <input type="hidden" name="options[gold_purity]" :value="selectedPurity">
+                            <input type="hidden" name="options[metal_color]" :value="selectedColor">
+                            <template x-if="selectedSize">
+                                <input type="hidden" name="options[size]" :value="selectedSize">
+                            </template>
+                            <button type="submit"
+                                    class="w-full h-12 bg-[#8B1E3F] hover:bg-[#731833] text-white text-xs sm:text-[13px] font-bold uppercase tracking-wider rounded-xs transition-all duration-200 cursor-pointer shadow-xs flex items-center justify-center">
+                                BUY IT NOW
+                            </button>
+                        </form>
+                    </div>
+
+                    {{-- Wishlist + Share Row --}}
+                    <div class="flex items-center justify-between text-xs pt-1">
                         @php
                             $isWishlisted = false;
                             if (Auth::check()) {
@@ -717,74 +813,63 @@
                                 $isWishlisted = in_array($product->id, session('guest_wishlist', []));
                             }
                         @endphp
-                        <form method="POST" action="{{ route('wishlist.toggle') }}" class="wishlist-toggle-form inline shrink-0" data-product-id="{{ $product->id }}">
+                        <form method="POST" action="{{ route('wishlist.toggle') }}" class="wishlist-toggle-form inline" data-product-id="{{ $product->id }}">
                             @csrf
                             <input type="hidden" name="product_id" value="{{ $product->id }}">
-                            <button type="submit" title="{{ $isWishlisted ? 'Remove from Wishlist' : 'Add to Wishlist' }}"
-                                    class="wishlist-btn w-12 h-12 rounded-full transition-all cursor-pointer shrink-0 flex items-center justify-center {{ $isWishlisted ? 'bg-[#1C1917] text-white shadow-xs' : 'bg-white border border-[#DFD9CE] text-[#1C1917] hover:border-[#1C1917] shadow-2xs' }}"
+                            <button type="submit"
+                                    class="wishlist-btn inline-flex items-center gap-1.5 text-[#1C1917] hover:text-[#8B1E3F] transition-colors cursor-pointer font-medium py-1"
                                     data-product-id="{{ $product->id }}"
-                                    data-wishlisted="{{ $isWishlisted ? 'true' : 'false' }}"
-                                    data-style-type="detail-main">
-                                <svg class="wishlist-icon w-4 h-4 stroke-[1.75] transition-all duration-200 {{ $isWishlisted ? 'fill-current' : 'fill-none' }}" viewBox="0 0 24 24" stroke="currentColor">
+                                    data-wishlisted="{{ $isWishlisted ? 'true' : 'false' }}">
+                                <svg class="wishlist-icon w-4 h-4 stroke-[1.75] {{ $isWishlisted ? 'fill-[#8B1E3F] text-[#8B1E3F]' : 'fill-none text-current' }}" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
                                 </svg>
-                            </button>
-                        </form>
-                    </div>
-
-                    {{-- Buy Now + Share Row --}}
-                    <div class="flex items-center gap-2.5">
-
-                        {{-- BUY NOW: POST form — adds to cart + redirects to checkout atomically --}}
-                        <form method="POST" action="{{ route('cart.buy-now') }}" class="flex-1 min-w-0">
-                            @csrf
-                            <input type="hidden" name="product_id" value="{{ $product->id }}">
-                            <input type="hidden" name="quantity" :value="qty">
-                            {{-- Only send size when product has size variants --}}
-                            <template x-if="sizeVariants.length > 0">
-                                <input type="hidden" name="options[size]" :value="selectedSize">
-                            </template>
-                            <button type="submit"
-                                    class="w-full h-12 flex items-center justify-center text-center border border-[#DFD9CE] hover:border-[#1C1917] bg-white text-[#1C1917] text-[10px] sm:text-[11px] uppercase tracking-[0.16em] sm:tracking-[0.25em] font-semibold rounded-full transition-all duration-300 shadow-2xs cursor-pointer">
-                                BUY NOW
+                                <span x-text="'{{ $isWishlisted ? 'In Your Wishlist' : 'Add To Wishlist' }}'"></span>
                             </button>
                         </form>
 
-                        {{-- Native Share Button / Modal Trigger --}}
-                        <button type="button"
-                                @click="
-                                    const sharePayload = {
-                                        title: {{ Js::from($product->name) }},
-                                        text: {{ Js::from('Discover ' . $product->name . ' — handcrafted resin art at Maison Résine.') }},
-                                        url: window.location.href
-                                    };
-                                    if (navigator.share) {
-                                        navigator.share(sharePayload).catch(err => {
-                                            if (err.name !== 'AbortError') {
-                                                showShareModal = true;
-                                            }
-                                        });
-                                    } else {
-                                        showShareModal = true;
-                                    }
-                                "
-                                class="h-12 shrink-0 px-5 sm:px-6 flex items-center justify-center border border-[#DFD9CE] hover:border-[#1C1917] bg-white text-[#1C1917] text-[10px] sm:text-[11px] uppercase tracking-[0.16em] sm:tracking-[0.25em] font-semibold rounded-full transition-all duration-300 shadow-2xs cursor-pointer">
-                            SHARE
+                        <button type="button" @click="showShareModal = true"
+                                class="inline-flex items-center gap-1.5 text-[#78716C] hover:text-[#1C1917] transition-colors cursor-pointer font-medium py-1">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"/></svg>
+                            <span>Share</span>
                         </button>
                     </div>
 
-                    {{-- ── SHARE POPUP MODAL (Clean Atelier Luxury Design) ────────────────────────── --}}
+                    {{-- WhatsApp Direct Order & Bulk Wholesale Inquiry Buttons --}}
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-1">
+                        <a :href="whatsappOrderUrl" target="_blank"
+                           class="flex items-center justify-center gap-2 bg-[#25D366] hover:bg-[#20BA5A] text-white text-xs font-semibold py-3 px-4 rounded-xs transition-all shadow-xs cursor-pointer">
+                            <svg class="w-4 h-4 fill-current shrink-0" viewBox="0 0 24 24"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.711 2.598 2.664-.699c.971.53 1.83.81 2.805.81h.001c3.182 0 5.768-2.587 5.769-5.766.001-3.182-2.585-5.796-5.77-5.796zm0 10.427c-.881 0-1.683-.243-2.378-.669l-.17-.104-1.58.414.422-1.54-.112-.178c-.469-.747-.717-1.464-.716-2.584.001-2.433 1.979-4.411 4.414-4.411 2.435 0 4.413 1.979 4.413 4.412 0 2.434-1.977 4.66-4.413 4.66z"/></svg>
+                            <span>Order / Inquire via WhatsApp</span>
+                        </a>
+
+                        <a :href="whatsappBulkUrl" target="_blank"
+                           class="flex items-center justify-center gap-2 bg-white hover:bg-[#F5F2EB] border border-[#1C1917] text-[#1C1917] text-xs font-semibold py-3 px-4 rounded-xs transition-all shadow-2xs cursor-pointer">
+                            <span>📦 Bulk / Wholesale Inquiry</span>
+                        </a>
+                    </div>
+
+                    {{-- Showroom & Delivery Availability Badges (Solitairekart style) --}}
+                    <div class="space-y-1.5 pt-2 text-xs text-[#44403C]">
+                        <div class="flex items-center gap-2 text-[#059669] font-medium">
+                            <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                            <span>Pickup available at Showroom &amp; Flagship Boutique</span>
+                        </div>
+                        <div class="flex items-center gap-2 text-[#57534E]">
+                            <svg class="w-4 h-4 shrink-0 text-[#C8A96E]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                            <span>100% Insured Pan-India Express Delivery · Certified Natural Diamonds</span>
+                        </div>
+                    </div>
+
+                    {{-- SHARE POPUP MODAL --}}
                     <div x-show="showShareModal" x-cloak
                          @keydown.escape.window="showShareModal = false"
                          class="fixed inset-0 z-[99999] bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
                         <div @click.away="showShareModal = false"
                              class="bg-[#FAF8F5] border border-[#E6E1D7] rounded-[2rem] p-6 sm:p-7 max-w-sm w-full space-y-4 shadow-2xl text-left">
-                            
-                            {{-- Modal Header --}}
                             <div class="flex items-center justify-between pb-3 border-b border-[#E6E1D7]">
                                 <div>
                                     <span class="text-[9px] uppercase tracking-[0.2em] font-semibold text-[#8E877D] block">SHARE PIECE</span>
-                                    <h3 class="font-editorial text-xl text-[#1C1917] font-normal mt-0.5">Share this <em class="italic">artwork</em></h3>
+                                    <h3 class="font-editorial text-xl text-[#1C1917] font-normal mt-0.5">Share this <em class="italic">jewellery</em></h3>
                                 </div>
                                 <button type="button" @click="showShareModal = false" 
                                         class="w-7 h-7 rounded-full border border-[#DFD9CE] flex items-center justify-center text-[#78716C] hover:text-[#1C1917] hover:border-[#1C1917] transition-colors text-sm font-light cursor-pointer">
@@ -792,9 +877,8 @@
                                 </button>
                             </div>
 
-                            {{-- Social Share Options --}}
                             <div class="grid grid-cols-2 gap-2.5 pt-1">
-                                <a :href="'https://api.whatsapp.com/send?text=' + encodeURIComponent('Check out ' + {{ Js::from($product->name) }} + ' on Maison Résine: ' + window.location.href)"
+                                <a :href="'https://api.whatsapp.com/send?text=' + encodeURIComponent('Check out ' + {{ Js::from($product->name) }} + ': ' + window.location.href)"
                                    target="_blank" 
                                    class="flex items-center justify-center gap-2 bg-white hover:bg-[#F5F2EB] border border-[#DFD9CE] text-[#1C1917] text-xs font-semibold py-3 rounded-xl transition-all shadow-2xs">
                                     <svg class="w-4 h-4 text-[#25D366]" fill="currentColor" viewBox="0 0 24 24"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.711 2.598 2.664-.699c.971.53 1.83.81 2.805.81h.001c3.182 0 5.768-2.587 5.769-5.766.001-3.182-2.585-5.796-5.77-5.796zm0 10.427c-.881 0-1.683-.243-2.378-.669l-.17-.104-1.58.414.422-1.54-.112-.178c-.469-.747-.717-1.464-.716-2.584.001-2.433 1.979-4.411 4.414-4.411 2.435 0 4.413 1.979 4.413 4.412 0 2.434-1.977 4.66-4.413 4.66z"/></svg>
@@ -808,20 +892,13 @@
                                     <span>Twitter / X</span>
                                 </a>
 
-                                <a :href="'https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(window.location.href)"
-                                   target="_blank" 
-                                   class="flex items-center justify-center gap-2 bg-white hover:bg-[#F5F2EB] border border-[#DFD9CE] text-[#1C1917] text-xs font-semibold py-3 rounded-xl transition-all shadow-2xs">
-                                    <svg class="w-4 h-4 text-[#1877F2]" fill="currentColor" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
-                                    <span>Facebook</span>
-                                </a>
-
                                 <button type="button" 
                                         @click="
                                             navigator.clipboard.writeText(window.location.href);
                                             copied = true;
                                             setTimeout(() => { copied = false; showShareModal = false; }, 1400);
                                         "
-                                        class="flex items-center justify-center gap-2 bg-[#1A1615] hover:bg-[#2C2724] text-white text-xs font-semibold py-3 rounded-xl transition-all shadow-2xs cursor-pointer">
+                                        class="col-span-2 flex items-center justify-center gap-2 bg-[#1A1615] hover:bg-[#2C2724] text-white text-xs font-semibold py-3 rounded-xl transition-all shadow-2xs cursor-pointer">
                                     <svg x-show="!copied" class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
                                     <svg x-show="copied" class="w-3.5 h-3.5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
                                     <span x-text="copied ? 'Copied!' : 'Copy Link'"></span>
@@ -831,12 +908,12 @@
                     </div>
                 </div>
 
-                {{-- Make it Bespoke Accordion Card (Subtle Luxury Hover Effect) --}}
-                <a href="{{ route('custom.index') }}"
-                   class="flex items-center justify-between bg-[#F7F4EE] border border-[#DFD9CE]/60 rounded-[1.5rem] px-5 sm:px-6 py-3.5 sm:py-4 hover:border-[#8E877D]/40 hover:bg-[#F2EDE4] transition-all duration-300 group shadow-2xs">
+                {{-- Bespoke Jewellery Custom Inquiry Card --}}
+                <a href="{{ route('custom.index', ['product_id' => $product->id, 'type' => 'bespoke']) }}"
+                   class="flex items-center justify-between bg-[#F7F4EE] border border-[#DFD9CE]/60 rounded-xl px-5 sm:px-6 py-3.5 sm:py-4 hover:border-[#8E877D]/60 hover:bg-[#F2EDE4] transition-all duration-300 group shadow-2xs">
                     <div class="space-y-0.5">
-                        <p class="text-xs sm:text-[13px] font-semibold text-[#1C1917]">Make it bespoke</p>
-                        <p class="text-[11px] text-[#8E877D] font-light leading-normal">Custom palette, size or engraving</p>
+                        <p class="text-xs sm:text-[13px] font-semibold text-[#1C1917]">Request Bespoke Customization</p>
+                        <p class="text-[11px] text-[#8E877D] font-light leading-normal">Custom diamond carat, gold purity, size or custom engraving</p>
                     </div>
                     <span class="text-base text-[#8E877D] group-hover:text-[#1C1917] group-hover:translate-x-1 transition-all ml-4 shrink-0">→</span>
                 </a>

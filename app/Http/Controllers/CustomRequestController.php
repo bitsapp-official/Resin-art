@@ -16,11 +16,17 @@ use Illuminate\View\View;
 class CustomRequestController extends Controller
 {
     /**
-     * Display the custom artwork requirement request form.
+     * Display the custom jewellery requirement and bulk inquiry request form.
      */
-    public function create(): View
+    public function create(Request $request): View
     {
-        return view('custom.create');
+        $product = null;
+        if ($request->filled('product_id')) {
+            $product = \App\Models\Product::find($request->product_id);
+        }
+        $inquiryType = $request->query('type', 'Bespoke Jewellery Design');
+
+        return view('custom.create', compact('product', 'inquiryType'));
     }
 
     /**

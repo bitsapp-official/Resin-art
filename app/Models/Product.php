@@ -124,6 +124,51 @@ class Product extends Model
         return (float) ($this->sale_price && $this->sale_price < $this->price ? $this->sale_price : $this->price);
     }
 
+    public function getJewelleryAttributesAttribute(): array
+    {
+        $raw = $this->getAttribute('attributes');
+        if (is_array($raw)) {
+            return $raw;
+        }
+        if (is_string($raw)) {
+            return json_decode($raw, true) ?: [];
+        }
+        return [];
+    }
+
+    public function getGoldPuritiesAttribute(): array
+    {
+        $attrs = $this->jewellery_attributes;
+        return !empty($attrs['gold_purities']) ? (array) $attrs['gold_purities'] : ['14KT Gold', '18KT Gold', '22KT Gold'];
+    }
+
+    public function getMetalColorsAttribute(): array
+    {
+        $attrs = $this->jewellery_attributes;
+        return !empty($attrs['metal_colors']) ? (array) $attrs['metal_colors'] : ['Yellow Gold', 'White Gold', 'Rose Gold'];
+    }
+
+    public function getSizeLabelAttribute(): string
+    {
+        $attrs = $this->jewellery_attributes;
+        return !empty($attrs['size_label']) ? $attrs['size_label'] : 'Size';
+    }
+
+    public function getDiamondCaratAttribute(): ?string
+    {
+        return $this->jewellery_attributes['diamond_carat'] ?? null;
+    }
+
+    public function getDiamondColorClarityAttribute(): ?string
+    {
+        return $this->jewellery_attributes['diamond_color_clarity'] ?? null;
+    }
+
+    public function getCertificationAttribute(): string
+    {
+        return $this->jewellery_attributes['certification'] ?? '100% Certified Natural Diamonds';
+    }
+
     protected static function booted()
     {
         static::saving(function ($product) {

@@ -26,10 +26,13 @@ class CartController extends Controller
     public function add(Request $request)
     {
         $request->validate([
-            'product_id'   => ['required', 'exists:products,id'],
-            'quantity'     => ['nullable', 'integer', 'min:1', 'max:99'],
-            'options'      => ['nullable', 'array'],
-            'options.size' => ['nullable', 'string', 'max:150'],
+            'product_id'            => ['required', 'exists:products,id'],
+            'quantity'              => ['nullable', 'integer', 'min:1', 'max:99'],
+            'options'               => ['nullable', 'array'],
+            'options.size'          => ['nullable', 'string', 'max:150'],
+            'options.gold_purity'   => ['nullable', 'string', 'max:100'],
+            'options.metal_color'   => ['nullable', 'string', 'max:100'],
+            'options.diamond_carat' => ['nullable', 'string', 'max:100'],
         ]);
 
         $product = Product::published()->findOrFail($request->product_id);
@@ -57,9 +60,9 @@ class CartController extends Controller
                     break;
                 }
             }
-            // If size was submitted but didn't match any variant, clear options to avoid orphaned size
-            if (!$matched) {
-                $options = [];
+            // If size was submitted but didn't match any variant, unset size to avoid orphaned values
+            if (!$matched && !empty($sizeVariants)) {
+                unset($options['size']);
             }
         }
 
@@ -117,10 +120,13 @@ class CartController extends Controller
     public function buyNow(Request $request)
     {
         $request->validate([
-            'product_id'   => ['required', 'exists:products,id'],
-            'quantity'     => ['nullable', 'integer', 'min:1', 'max:99'],
-            'options'      => ['nullable', 'array'],
-            'options.size' => ['nullable', 'string', 'max:150'],
+            'product_id'            => ['required', 'exists:products,id'],
+            'quantity'              => ['nullable', 'integer', 'min:1', 'max:99'],
+            'options'               => ['nullable', 'array'],
+            'options.size'          => ['nullable', 'string', 'max:150'],
+            'options.gold_purity'   => ['nullable', 'string', 'max:100'],
+            'options.metal_color'   => ['nullable', 'string', 'max:100'],
+            'options.diamond_carat' => ['nullable', 'string', 'max:100'],
         ]);
 
         $product = Product::published()->findOrFail($request->product_id);

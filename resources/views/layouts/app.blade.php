@@ -5,16 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title>{{ $title ?? 'Maison Résine — Handcrafted Resin Art & Objects' }}</title>
-    <meta name="description" content="Handcrafted made-to-order resin art, fluid wall clocks, bespoke tables and artisan objects.">
+    <title>{{ $title ?? (\App\Models\SiteSetting::get('invoice_brand_name', 'Solitaire Fine Jewels') . ' — Certified Natural Diamonds & Fine Gold Jewellery') }}</title>
+    <meta name="description" content="{{ \App\Models\SiteSetting::get('footer_tagline', '100% certified natural diamonds, solitaire engagement rings, and BIS hallmarked fine gold jewellery.') }}">
     <link rel="canonical" href="{{ url()->current() }}">
 
     <!-- Open Graph SEO Metadata -->
     <meta property="og:type" content="website">
-    <meta property="og:title" content="{{ $title ?? 'Maison Résine — Handcrafted Resin Art & Objects' }}">
-    <meta property="og:description" content="Handcrafted made-to-order resin art, fluid wall clocks, bespoke tables and artisan objects.">
+    <meta property="og:title" content="{{ $title ?? (\App\Models\SiteSetting::get('invoice_brand_name', 'Solitaire Fine Jewels') . ' — Certified Natural Diamonds & Fine Gold Jewellery') }}">
+    <meta property="og:description" content="{{ \App\Models\SiteSetting::get('footer_tagline', '100% certified natural diamonds, solitaire engagement rings, and BIS hallmarked fine gold jewellery.') }}">
     <meta property="og:url" content="{{ url()->current() }}">
-    <meta property="og:site_name" content="Maison Résine">
+    <meta property="og:site_name" content="{{ \App\Models\SiteSetting::get('invoice_brand_name', 'Solitaire Fine Jewels') }}">
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">

@@ -10,15 +10,15 @@
             @endphp
             <div class="col-span-2 md:col-span-1 space-y-3.5">
                 <a href="{{ route('home') }}" class="group inline-block">
-                    <span class="font-editorial text-3xl text-[#FDFBF7] font-normal tracking-tight block leading-none group-hover:text-[#DFD4C0] group-hover:translate-x-0.5 transition-all duration-200">
-                        Maison Résine
+                    <span class="font-editorial text-2xl sm:text-3xl text-[#FDFBF7] font-normal tracking-tight block leading-none group-hover:text-[#DFD4C0] group-hover:translate-x-0.5 transition-all duration-200">
+                        {{ \App\Models\SiteSetting::get('invoice_brand_name', 'Solitaire Fine Jewels') }}
                     </span>
                     <span class="font-sans text-[9.5px] uppercase tracking-[0.28em] font-semibold text-[#C7B69C] block mt-1.5">
-                        Bordeaux Atelier
+                        Certified Natural Diamonds
                     </span>
                 </a>
                 <p class="text-[13px] text-[#B8B0A2] font-normal leading-relaxed">
-                    {{ \App\Models\SiteSetting::get('footer_tagline', 'Poured by hand — One piece at a time. Natural timber and crystalline resin forged into timeless collectors works.') }}
+                    {{ \App\Models\SiteSetting::get('footer_tagline', '100% certified natural diamonds, solitaire engagement rings, and BIS hallmarked fine gold jewellery crafted with timeless perfection.') }}
                 </p>
 
                 <div class="space-y-1.5 text-[13px] pt-1">
@@ -44,11 +44,11 @@
             <div class="space-y-3.5">
                 <h4 class="text-[11px] uppercase tracking-[0.22em] font-semibold text-[#C7B69C]">Shop</h4>
                 <ul class="space-y-2.5 text-[13.5px] font-normal">
-                    <li><a href="{{ route('shop.index') }}" class="text-[#CCC5B9] hover:text-white hover:translate-x-1 transition-all duration-200 inline-block">All pieces</a></li>
+                    <li><a href="{{ route('shop.index') }}" class="text-[#CCC5B9] hover:text-white hover:translate-x-1 transition-all duration-200 inline-block">All jewellery</a></li>
                     <li><a href="{{ route('shop.new-arrivals') }}" class="text-[#CCC5B9] hover:text-white hover:translate-x-1 transition-all duration-200 inline-block">New arrivals</a></li>
-                    <li><a href="{{ route('shop.best-sellers') }}" class="text-[#CCC5B9] hover:text-white hover:translate-x-1 transition-all duration-200 inline-block">Best sellers</a></li>
+                    <li><a href="{{ route('shop.best-sellers') }}" class="text-[#CCC5B9] hover:text-white hover:translate-x-1 transition-all duration-200 inline-block">Solitaires &amp; Rings</a></li>
                     <li><a href="{{ route('collections.index') }}" class="text-[#CCC5B9] hover:text-white hover:translate-x-1 transition-all duration-200 inline-block">All collections</a></li>
-                    <li><a href="{{ route('custom.index') }}" class="text-[#CCC5B9] hover:text-white hover:translate-x-1 transition-all duration-200 inline-block">Custom Requirements</a></li>
+                    <li><a href="{{ route('custom.index') }}" class="text-[#CCC5B9] hover:text-white hover:translate-x-1 transition-all duration-200 inline-block">Bespoke &amp; Bulk Orders</a></li>
                 </ul>
             </div>
 

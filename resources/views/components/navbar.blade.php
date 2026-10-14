@@ -24,10 +24,10 @@
                 <div class="flex items-center">
                     <a href="{{ route('home') }}" class="group flex items-center space-x-2 sm:space-x-2.5">
                         <span class="font-editorial italic text-2xl font-light text-[oklch(18%_0.012_50)] group-hover:opacity-75 transition-opacity leading-none">
-                            M
+                            {{ substr(\App\Models\SiteSetting::get('invoice_brand_name', 'Solitaire Fine Jewels'), 0, 1) }}
                         </span>
                         <span class="font-sans text-[10.5px] sm:text-[11px] tracking-[0.25em] font-medium uppercase text-[oklch(18%_0.012_50)] group-hover:opacity-75 transition-opacity">
-                            Maison Résine
+                            {{ \App\Models\SiteSetting::get('invoice_brand_name', 'Solitaire Fine Jewels') }}
                         </span>
                     </a>
                 </div>
@@ -166,7 +166,7 @@
                     <svg class="w-4 h-4 text-[#8E877D] absolute left-4 top-1/2 -translate-y-1/2 stroke-[1.75] pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
                     </svg>
-                    <input type="text" name="search" placeholder="Search coasters, clocks, tables..." required value="{{ request('search') ?: request('q') }}"
+                    <input type="text" name="search" placeholder="Search solitaires, rings, necklaces, diamonds..." required value="{{ request('search') ?: request('q') }}"
                            class="w-full pr-4 py-2.5 rounded-full text-xs text-[#1C1917] placeholder:text-[#8E877D] border border-[#DFD9CE] focus:outline-none focus:border-[#1C1917] transition-all shadow-2xs"
                            style="background-color: #FFFFFF !important; padding-left: 2.75rem !important;">
                 </form>
@@ -304,7 +304,7 @@
                 @endif
 
                 <p class="text-[8px] uppercase tracking-[0.25em] text-[#8E877D] text-center font-light">
-                    Maison Résine Atelier · Surat, India
+                    {{ \App\Models\SiteSetting::get('invoice_brand_name', 'Solitaire Fine Jewels') }} · 100% Certified Natural Diamonds
                 </p>
             </div>
 
@@ -337,8 +337,8 @@
              class="bg-white rounded-3xl p-5 sm:p-7 max-w-lg w-full shadow-2xl space-y-4 border border-[#DFD9CE]/60">
             <div class="flex items-center justify-between pb-1 border-b border-[#F0ECE1]">
                 <div>
-                    <h3 class="text-xs sm:text-sm font-semibold uppercase tracking-[0.2em] text-[#1C1917]">Search Atelier</h3>
-                    <p class="text-[10px] sm:text-xs text-[#8E877D] mt-0.5">Explore handcrafted resin art, clocks & custom decor</p>
+                    <h3 class="text-xs sm:text-sm font-semibold uppercase tracking-[0.2em] text-[#1C1917]">Search Fine Jewellery</h3>
+                    <p class="text-[10px] sm:text-xs text-[#8E877D] mt-0.5">Explore certified natural diamonds, solitaire rings, necklaces &amp; fine gold</p>
                 </div>
                 <button type="button" 
                         @click="searchModalOpen = false" 
@@ -359,7 +359,7 @@
                     <input type="text" 
                            name="search" 
                            x-ref="searchInput"
-                           placeholder="Search coasters, clocks, tables..." 
+                           placeholder="Search solitaires, rings, necklaces, diamonds..." 
                            required 
                            value="{{ request('search') ?: request('q') }}" 
                            class="w-full bg-[#FAF8F5] border border-[#DFD9CE] rounded-full pl-10 sm:pl-11 pr-24 sm:pr-28 py-3 text-xs sm:text-sm text-[#1C1917] placeholder:text-[#8E877D] focus:outline-none focus:border-[#1C1917] focus:bg-white transition-all shadow-inner/10">
@@ -372,7 +372,7 @@
             <div class="pt-1">
                 <p class="text-[9px] uppercase tracking-[0.2em] font-semibold text-[#8E877D] mb-2">Popular Searches</p>
                 <div class="flex flex-wrap gap-1.5">
-                    @foreach(['Coasters', 'Wall Clocks', 'Resin Tables', 'Serving Trays', 'Geode Art', 'Bookmarks'] as $tag)
+                    @foreach(['Solitaire Rings', 'Natural Diamonds', 'Pendant Necklaces', '18KT Gold', 'Engagement Rings', 'Earrings'] as $tag)
                         <a href="{{ route('shop.index', ['search' => $tag]) }}" 
                            class="text-[10px] sm:text-xs px-3 py-1 rounded-full bg-[#FAF8F5] hover:bg-[#1C1917] text-[#1C1917] hover:text-white border border-[#DFD9CE] transition-all cursor-pointer">
                             {{ $tag }}

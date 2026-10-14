@@ -36,10 +36,16 @@
                                     <h3 class="font-editorial text-xl text-[#1C1917] font-normal">
                                         <a href="{{ route('shop.show', $item->product?->slug ?? '#') }}">{{ $item->product_name }}</a>
                                     </h3>
+                                    @php
+                                        $optParts = [];
+                                        if(!empty($item->options['gold_purity'])) $optParts[] = $item->options['gold_purity'];
+                                        if(!empty($item->options['metal_color'])) $optParts[] = $item->options['metal_color'];
+                                        if(!empty($item->options['size'])) $optParts[] = $item->options['size'];
+                                    @endphp
                                     <span class="text-[11px] text-[#78716C] block mt-0.5">
-                                        {{ $item->product?->category?->name ?? 'Handcrafted resin piece' }}
-                                        @if(!empty($item->options['size']))
-                                            <span class="text-[#1C1917] font-semibold"> &bull; {{ $item->options['size'] }}</span>
+                                        {{ $item->product?->category?->name ?? 'Fine Jewellery Piece' }}
+                                        @if(count($optParts) > 0)
+                                            <span class="text-[#1C1917] font-semibold"> &bull; {{ implode(' · ', $optParts) }}</span>
                                         @endif
                                     </span>
                                     <span class="font-semibold text-sm text-[#1C1917] block mt-2">₹ {{ number_format($item->price) }} each</span>

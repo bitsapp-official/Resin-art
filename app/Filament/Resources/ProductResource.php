@@ -119,14 +119,45 @@ class ProductResource extends Resource
                                 ->visible(fn (Forms\Get $get) => $get('inventory_type') === 'READY_TO_SHIP'),
                         ])->columns(2),
 
-                    Forms\Components\Section::make('Available Size Options & Prices (Optional)')
-                        ->description('Configure size variants with custom pricing if this product is offered in multiple sizes.')
+                    Forms\Components\Section::make('Jewellery Customization & Variant Options')
+                        ->description('Configure dynamic Gold Purity, Metal Colors, Size variants (Ring/Necklace/Bracelet), and Diamond specifications.')
                         ->schema([
+                            Forms\Components\CheckboxList::make('attributes.gold_purities')
+                                ->label('Available Gold Purities')
+                                ->options([
+                                    '14KT Gold' => '14KT Gold',
+                                    '18KT Gold' => '18KT Gold',
+                                    '22KT Gold' => '22KT Gold',
+                                ])
+                                ->default(['14KT Gold', '18KT Gold', '22KT Gold'])
+                                ->columns(3)
+                                ->helperText('Select the gold purity options offered on the product page.')
+                                ->columnSpanFull(),
+
+                            Forms\Components\CheckboxList::make('attributes.metal_colors')
+                                ->label('Available Metal Colors / Tones')
+                                ->options([
+                                    'Yellow Gold' => 'Yellow Gold',
+                                    'White Gold'  => 'White Gold',
+                                    'Rose Gold'   => 'Rose Gold',
+                                ])
+                                ->default(['Yellow Gold', 'White Gold', 'Rose Gold'])
+                                ->columns(3)
+                                ->helperText('Select metal tones. Customers can select interactive circular swatches.')
+                                ->columnSpanFull(),
+
+                            Forms\Components\TextInput::make('attributes.size_label')
+                                ->label('Size Attribute Label')
+                                ->placeholder('e.g. Necklace Size, Ring Size, Bracelet Size')
+                                ->default('Size')
+                                ->helperText('Custom label displayed above size options (e.g. "Necklace Size" or "Ring Size").')
+                                ->columnSpanFull(),
+
                             Forms\Components\Repeater::make('attributes.size_variants')
-                                ->label('Size Variants')
+                                ->label('Available Sizes & Prices')
                                 ->schema([
                                     Forms\Components\TextInput::make('size')
-                                        ->label('Size / Variant Name (e.g. S - 40 cm)')
+                                        ->label('Size Name (e.g. 16 Inch or 12)')
                                         ->required(),
                                     Forms\Components\TextInput::make('price')
                                         ->label('Price (₹)')
@@ -136,10 +167,36 @@ class ProductResource extends Resource
                                 ])
                                 ->columns(2)
                                 ->collapsible()
+                                ->helperText('Add sizes with their respective prices. Leave empty if this piece does not have sizes.')
+                                ->columnSpanFull(),
+
+                            Forms\Components\Fieldset::make('Diamond & Gemstone Specifications')
+                                ->schema([
+                                    Forms\Components\TextInput::make('attributes.diamond_carat')
+                                        ->label('Carat Weight')
+                                        ->placeholder('e.g. 2.83 ct or 21.18 ct'),
+
+                                    Forms\Components\TextInput::make('attributes.diamond_color_clarity')
+                                        ->label('Color & Clarity')
+                                        ->placeholder('e.g. H Color, VS2 Clarity or J Color, SI1'),
+
+                                    Forms\Components\TextInput::make('attributes.diamond_cut')
+                                        ->label('Cut / Shape')
+                                        ->placeholder('e.g. Round Brilliant, Emerald Cut'),
+
+                                    Forms\Components\TextInput::make('attributes.certification')
+                                        ->label('Certification')
+                                        ->placeholder('e.g. 100% Certified Natural Diamonds (IGI / SGL)')
+                                        ->default('100% Certified Natural Diamonds'),
+
+                                    Forms\Components\TextInput::make('attributes.gold_weight')
+                                        ->label('Approx Gold Weight')
+                                        ->placeholder('e.g. 4.85 gms approx'),
+                                ])
+                                ->columns(2)
                                 ->columnSpanFull(),
                         ])
-                        ->collapsible()
-                        ->collapsed(),
+                        ->collapsible(),
 
                 ])->columnSpan(2),
 

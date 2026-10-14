@@ -1,29 +1,29 @@
-<x-app-layout title="Custom Requirements — Maison Résine Atelier">
+<x-app-layout title="Bespoke Jewellery & Bulk Inquiry — Fine Diamond & Gold Jewellery">
 
     <div class="py-6 sm:py-10 lg:py-16 bg-transparent w-full min-w-0">
         <div class="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-12 xl:px-16 w-full min-w-0">
 
             {{-- ══════════════════════════════════════════════════════════════════
-                 1. HERO SECTION (Consistent with Contact & Process pages)
+                 1. HERO SECTION
                  ══════════════════════════════════════════════════════════════════ --}}
             <div class="max-w-3xl mb-8 sm:mb-12 lg:mb-16 space-y-3 sm:space-y-4 animate-fade-up min-w-0">
                 <div class="flex items-center space-x-3 text-[10px] uppercase tracking-[0.25em] font-semibold text-[#8E877D]">
                     <span class="w-8 h-[1px] bg-[#D9D2C5] inline-block"></span>
-                    <span>CUSTOM RESIN ARTWORK</span>
+                    <span>BESPOKE JEWELLERY &amp; BULK INQUIRIES</span>
                 </div>
 
                 <h1 class="font-editorial text-3xl sm:text-5xl lg:text-[72px] text-[#1C1917] font-light leading-[1.08] tracking-tight">
-                    Made for your space.
+                    Crafted for your signature elegance.
                 </h1>
 
                 <p class="text-xs sm:text-[15px] md:text-base text-[#78716C] font-light leading-relaxed max-w-xl pt-1">
-                    Every custom resin artwork begins with your vision, your space, and raw pigments poured by hand. Share your requirement with our team and let us create a bespoke resin masterpiece tailored for your home.
+                    From bespoke solitaire engagement rings to fine gold necklaces, custom diamond sourcing, and wholesale B2B bulk orders — share your requirements with our master jewellery artisans.
                 </p>
             </div>
 
 
             {{-- ══════════════════════════════════════════════════════════════════
-                 2. MAIN LAYOUT GRID (Matching Contact Page Architecture)
+                 2. MAIN LAYOUT GRID
                  ══════════════════════════════════════════════════════════════════ --}}
             <div class="flex flex-col lg:flex-row gap-7 lg:gap-10 items-start">
 
@@ -31,66 +31,62 @@
                 <div class="w-full lg:w-[400px] xl:w-[420px] shrink-0 space-y-6">
 
                     @php
-                        $whatsappNum = config('atelier.studio.whatsapp', '919876543210');
-                        $studioEmail = config('atelier.studio.email', 'atelier@maisonresine.com');
+                        $whatsappNum = preg_replace('/[^0-9]/', '', \App\Models\SiteSetting::get('contact_whatsapp') ?: \App\Models\SiteSetting::get('contact_phone', config('atelier.studio.whatsapp', '919876543210')));
+                        $studioEmail = \App\Models\SiteSetting::get('contact_email', config('atelier.studio.email', 'atelier@maisonresine.com'));
                     @endphp
 
-                    {{-- Direct Contact Box (Styled identically to Homepage Custom Card with dark theme) --}}
+                    {{-- Direct Contact Box --}}
                     <div class="bg-[#1C1917] text-white rounded-[1.75rem] p-7 lg:p-9 space-y-7 border border-white/10 shadow-sm relative overflow-hidden">
                         {{-- Subtle background gold aura glow --}}
-                        <div class="absolute -right-16 -top-16 w-32 h-32 bg-[#AD9575]/10 blur-2xl rounded-full"></div>
+                        <div class="absolute -right-16 -top-16 w-32 h-32 bg-[#D4AF37]/15 blur-2xl rounded-full"></div>
                         
                         <div class="space-y-3 relative z-10">
-                            <span class="text-[10px] uppercase tracking-[0.2em] font-semibold text-[#AD9575] block">DIRECT CONTACT</span>
+                            <span class="text-[10px] uppercase tracking-[0.2em] font-semibold text-[#D4AF37] block">DIRECT CONCIERGE</span>
                             <h3 class="font-editorial text-[26px] text-white font-normal leading-[1.25]">
-                                Artisan Consultation
+                                Master Jeweller Advisory
                             </h3>
                         </div>
 
                         <div class="text-[13px] text-white/80 font-light leading-[1.6] relative z-10">
-                            Prefer an immediate conversation? Connect directly with our lead artisan on WhatsApp or send us an email inquiry.
+                            Prefer an immediate conversation? Connect directly with our lead jewellery consultant on WhatsApp or send an email inquiry.
                         </div>
 
                         <div class="space-y-3 pt-1 relative z-10">
-                            {{-- High-Contrast WhatsApp Button with perfect spacing and smooth hover scale --}}
-                            <a href="https://wa.me/{{ $whatsappNum }}?text=Hello%20Maison%20R%C3%A9sine,%20I%20am%20interested%20in%20a%20custom%20resin%20artwork." 
+                            <a href="https://wa.me/{{ $whatsappNum }}?text=Hello,%20I%20am%20inquiring%20about%20bespoke%20jewellery%20and%20bulk%20orders." 
                                target="_blank" 
                                rel="noopener noreferrer" 
-                               style="background-color: #25D366; color: #FFFFFF; transition: all 0.3s ease-out;"
-                               onmouseover="this.style.backgroundColor='#128C7E'; this.style.transform='translateY(-2px)'; this.style.boxShadow='0 10px 15px -3px rgba(0, 0, 0, 0.3)';"
-                               onmouseout="this.style.backgroundColor='#25D366'; this.style.transform='translateY(0)'; this.style.boxShadow='none';"
-                               class="w-full inline-flex items-center justify-center gap-3 rounded-xl px-5 py-4 text-xs font-bold uppercase tracking-[0.2em] cursor-pointer text-center">
+                               class="w-full inline-flex items-center justify-center gap-3 rounded-xl px-5 py-4 text-xs font-bold uppercase tracking-[0.2em] cursor-pointer text-center bg-[#25D366] hover:bg-[#1fa951] text-white transition-all shadow-md">
                                 <svg class="w-5 h-5 fill-current shrink-0" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
                                 <span>CHAT ON WHATSAPP</span>
                             </a>
 
-                            {{-- High-Contrast Email Link with Envelope SVG Icon (White themed) with smooth hover --}}
-                            <a href="mailto:{{ $studioEmail }}?subject=Custom%20Artwork%20Inquiry" 
-                               style="background-color: transparent; color: #FFFFFF; border-color: rgba(255,255,255,0.3); transition: all 0.3s ease-out;"
-                               onmouseover="this.style.backgroundColor='#FFFFFF'; this.style.color='#1C1917'; this.style.borderColor='#FFFFFF'; this.style.transform='translateY(-2px)'; this.style.boxShadow='0 10px 15px -3px rgba(0, 0, 0, 0.3)';"
-                               onmouseout="this.style.backgroundColor='transparent'; this.style.color='#FFFFFF'; this.style.borderColor='rgba(255,255,255,0.3)'; this.style.transform='translateY(0)'; this.style.boxShadow='none';"
-                               class="w-full inline-flex items-center justify-center gap-3 rounded-xl border px-5 py-3.5 text-xs font-semibold uppercase tracking-[0.2em] cursor-pointer text-center">
+                            <a href="mailto:{{ $studioEmail }}?subject=Bespoke%20Jewellery%20Inquiry" 
+                               class="w-full inline-flex items-center justify-center gap-3 rounded-xl border border-white/30 hover:border-white hover:bg-white hover:text-[#1C1917] px-5 py-3.5 text-xs font-semibold uppercase tracking-[0.2em] transition-all cursor-pointer text-center text-white">
                                 <svg class="w-4 h-4 stroke-[2] shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75" /></svg>
                                 <span>SEND EMAIL INQUIRY</span>
                             </a>
                         </div>
                     </div>
 
-                    {{-- Atelier Guarantees Box --}}
+                    {{-- Guarantees Box --}}
                     <div class="bg-[oklch(98.5%_0.008_85)] rounded-[1.75rem] p-7 space-y-4 border border-[#E5DFD3] shadow-sm">
-                        <span class="text-[10px] uppercase tracking-[0.2em] font-semibold text-[#8E877D] block">BESPOKE GUARANTEES</span>
+                        <span class="text-[10px] uppercase tracking-[0.2em] font-semibold text-[#8E877D] block">JEWELLERY GUARANTEES</span>
                         <ul class="text-xs text-[#78716C] font-light space-y-2.5">
                             <li class="flex items-center space-x-2">
                                 <span class="w-1.5 h-1.5 rounded-full bg-[#1C1917]"></span>
-                                <span>100% Handcrafted Resin & Wood</span>
+                                <span>100% Certified Diamonds (IGI / SGL / GIA)</span>
                             </li>
                             <li class="flex items-center space-x-2">
                                 <span class="w-1.5 h-1.5 rounded-full bg-[#1C1917]"></span>
-                                <span>Custom Color & Size Matching</span>
+                                <span>BIS Hallmarked 14KT, 18KT &amp; 22KT Gold</span>
                             </li>
                             <li class="flex items-center space-x-2">
                                 <span class="w-1.5 h-1.5 rounded-full bg-[#1C1917]"></span>
-                                <span>Safe Doorstep Delivery</span>
+                                <span>100% Insured Pan-India Express Delivery</span>
+                            </li>
+                            <li class="flex items-center space-x-2">
+                                <span class="w-1.5 h-1.5 rounded-full bg-[#1C1917]"></span>
+                                <span>Transparent Diamond Pricing &amp; Certification</span>
                             </li>
                         </ul>
                     </div>
@@ -98,18 +94,35 @@
                 </div>
 
 
-                {{-- RIGHT COLUMN: Minimalist Custom Requirement Form --}}
+                {{-- RIGHT COLUMN: Custom Requirement & Inquiry Form --}}
                 <div class="flex-1 w-full">
                     <div class="bg-[oklch(98.5%_0.008_85)] rounded-[2.5rem] p-8 sm:p-12 border border-[#E5DFD3] shadow-sm space-y-8">
                         
                         <div class="space-y-2 border-b border-[#E5DFD3]/80 pb-6">
                             <span class="text-[10px] uppercase tracking-[0.25em] font-semibold text-[#8E877D]">
-                                REQUIREMENT FORM
+                                INQUIRY FORM
                             </span>
                             <h2 class="font-editorial text-3xl sm:text-4xl text-[#1C1917] font-light">
                                 Share your requirement.
                             </h2>
                         </div>
+
+                        {{-- Optional Product Reference Banner --}}
+                        @if(isset($product) && $product)
+                            <div class="p-4 bg-white border border-[#DFD9CE] rounded-2xl flex items-center justify-between gap-4 shadow-2xs">
+                                <div class="flex items-center gap-3.5 min-w-0">
+                                    @if($product->primary_image_url)
+                                        <img src="{{ $product->primary_image_url }}" alt="{{ $product->name }}" class="w-14 h-14 object-cover rounded-xl border border-[#EBE6DD] shrink-0">
+                                    @endif
+                                    <div class="min-w-0">
+                                        <span class="text-[9.5px] uppercase tracking-wider text-[#8B1E3F] font-bold block">Inquiring About Piece:</span>
+                                        <h4 class="text-sm font-semibold text-[#1C1917] truncate">{{ $product->name }}</h4>
+                                        <p class="text-xs text-[#78716C]">₹ {{ number_format($product->effective_price) }}</p>
+                                    </div>
+                                </div>
+                                <a href="{{ route('shop.show', $product->slug) }}" target="_blank" class="text-xs text-[#8B1E3F] underline font-medium hover:text-[#1C1917] shrink-0">View Piece ↗</a>
+                            </div>
+                        @endif
 
                         @if ($errors->any())
                             <div class="p-6 bg-red-50/90 border border-red-200 rounded-2xl space-y-2">
@@ -135,18 +148,48 @@
                                 <input type="text" name="website_url_honey" tabindex="-1" autocomplete="off">
                             </div>
 
-                            {{-- 1. Main Requirement Description Textarea --}}
+                            {{-- 1. Inquiry Type Selector --}}
+                            <div class="space-y-2">
+                                <label for="project_type" class="block text-xs uppercase tracking-[0.22em] font-semibold text-[#1C1917]">
+                                    Inquiry Type <span class="text-red-500">*</span>
+                                </label>
+                                <select id="project_type" name="project_type" required class="input-pill w-full bg-white text-xs sm:text-sm font-medium">
+                                    <option value="Bespoke Jewellery Design" {{ old('project_type', $inquiryType ?? '') === 'Bespoke Jewellery Design' || old('project_type', $inquiryType ?? '') === 'bespoke' ? 'selected' : '' }}>
+                                        Bespoke Jewellery Design (Custom Ring, Necklace, Pendant, Bracelet)
+                                    </option>
+                                    <option value="Bulk / Wholesale B2B Order" {{ old('project_type', $inquiryType ?? '') === 'Bulk / Wholesale B2B Order' || old('project_type', $inquiryType ?? '') === 'bulk' ? 'selected' : '' }}>
+                                        Bulk / Wholesale B2B Order (Volume Corporate or Retail Order)
+                                    </option>
+                                    <option value="Solitaire Diamond Sourcing" {{ old('project_type', $inquiryType ?? '') === 'Solitaire Diamond Sourcing' ? 'selected' : '' }}>
+                                        Solitaire Diamond Sourcing (Specific Carat, Cut, Color &amp; Clarity)
+                                    </option>
+                                    <option value="Product Customization / Sizing" {{ old('project_type', $inquiryType ?? '') === 'Product Customization / Sizing' ? 'selected' : '' }}>
+                                        Product Customization / Sizing &amp; Engraving
+                                    </option>
+                                    <option value="General Inquiry" {{ old('project_type', $inquiryType ?? '') === 'General Inquiry' ? 'selected' : '' }}>
+                                        General Jewellery Inquiry
+                                    </option>
+                                </select>
+                            </div>
+
+                            {{-- 2. Main Requirement Description Textarea --}}
                             <div class="space-y-2">
                                 <label for="idea_description" class="block text-xs uppercase tracking-[0.22em] font-semibold text-[#1C1917]">
                                     Describe Your Requirement In Your Own Words <span class="text-red-500">*</span>
                                 </label>
+                                @php
+                                    $defaultDesc = old('idea_description');
+                                    if (!$defaultDesc && isset($product) && $product) {
+                                        $defaultDesc = "Inquiring regarding {$product->name} (SKU: {$product->sku}). ";
+                                    }
+                                @endphp
                                 <textarea id="idea_description" 
                                           name="idea_description" 
                                           rows="5" 
                                           required
-                                          placeholder="e.g. Looking for an 8-seater emerald green river dining table with aged French walnut timber for my villa in Dubai..." 
-                                          class="textarea-rounded w-full leading-relaxed resize-y @error('idea_description') border-[#D97706] @enderror">{{ old('idea_description') }}</textarea>
-                                <p class="text-[11px] text-[#8E877D] font-light">No complex measurements needed — describe what you have in mind and our team will discuss details with you.</p>
+                                          placeholder="e.g. Looking for an 18KT Yellow Gold engagement ring with a 2.50ct natural diamond (VVS1, E Color), or requesting bulk wholesale pricing for 20 units..." 
+                                          class="textarea-rounded w-full leading-relaxed resize-y @error('idea_description') border-[#D97706] @enderror">{{ $defaultDesc }}</textarea>
+                                <p class="text-[11px] text-[#8E877D] font-light">Describe what you have in mind — diamond carat, gold purity, ring size, or bulk order quantities. Our team will contact you with options.</p>
                             </div>
 
                             {{-- 2. Custom Reference File Uploader with Live Image Previews & Working Remove (X) Button --}}
