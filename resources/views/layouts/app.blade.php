@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="overflow-x-hidden">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="overflow-x-clip">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
@@ -24,9 +24,9 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @stack('head')
 </head>
-<body class="min-h-full flex flex-col bg-[#FAF8F5] text-[#1C1917] antialiased relative overflow-x-hidden w-full max-w-full">
+<body class="min-h-full flex flex-col bg-[#FAF8F5] text-[#1C1917] antialiased relative overflow-x-clip w-full max-w-full">
     @if(request()->is('/') || request()->routeIs('shop.index'))
-        <!-- Premium Resin Art Branded Initial Site Entrance Loader Component (First Visit Only) -->
+        <!-- Fine Jewellery Branded Initial Site Entrance Loader Component (First Visit Only) -->
         <x-site-loader />
     @endif
 
@@ -45,12 +45,12 @@
         <div class="absolute inset-0 bg-noise opacity-35 pointer-events-none"></div>
     </div>
 
-    <div class="relative z-10 flex-grow flex flex-col w-full max-w-full overflow-x-hidden">
+    <div class="relative z-10 flex-grow flex flex-col w-full max-w-full">
         <!-- Navigation Header -->
         <x-navbar />
 
         <!-- Main Body Content -->
-        <main class="flex-grow w-full max-w-full overflow-x-hidden {{ request()->is('/') ? '' : 'pt-24 sm:pt-28' }}">
+        <main class="flex-grow w-full max-w-full {{ request()->is('/') ? '' : 'pt-16 sm:pt-20' }}">
             {{ $slot }}
         </main>
 
@@ -245,7 +245,7 @@
                                                     <path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
                                                 </svg>
                                                 <h3 class="font-editorial text-2xl text-[#1C1917] font-light mb-2">No saved pieces</h3>
-                                                <p class="text-xs text-[#78716C] mb-6">Save your favorite resin art creations to your wishlist while exploring.</p>
+                                                <p class="text-xs text-[#78716C] mb-6">Save your favourite fine jewellery and solitaire creations to your wishlist while exploring.</p>
                                                 <a href="{{ route('shop.index') }}" class="inline-block bg-[#1C1917] text-white text-xs uppercase tracking-widest px-8 py-3.5 rounded-full font-semibold">
                                                     Browse Catalogue
                                                 </a>
@@ -276,6 +276,9 @@
 
                 const mobileNavCount = document.getElementById('mobile-nav-cart-count');
                 if (mobileNavCount) mobileNavCount.textContent = count;
+
+                const drawerCount = document.getElementById('drawer-cart-count');
+                if (drawerCount) drawerCount.textContent = count;
 
                 const mobileHeaderCount = document.getElementById('mobile-header-cart-count');
                 if (mobileHeaderCount) {
@@ -364,5 +367,26 @@
             });
         });
     </script>
+
+    {{-- Floating WhatsApp Quick Contact Button --}}
+    @php
+        $floatingWaPhone = preg_replace('/[^0-9]/', '', \App\Models\SiteSetting::get('contact_whatsapp') ?: \App\Models\SiteSetting::get('contact_phone', '919876543210'));
+        if (!$floatingWaPhone) $floatingWaPhone = '919876543210';
+        $brandTitle = \App\Models\SiteSetting::get('invoice_brand_name', 'Solitaire Fine Jewels');
+    @endphp
+    <a href="https://wa.me/{{ $floatingWaPhone }}?text={{ urlencode('Hello, I would like to inquire about fine jewellery at ' . $brandTitle . '.') }}"
+       target="_blank"
+       rel="noopener noreferrer"
+       aria-label="Chat on WhatsApp"
+       id="floating-whatsapp-btn"
+       class="fixed bottom-6 right-6 z-[9990] w-13 h-13 sm:w-14 sm:h-14 bg-[#25D366] hover:bg-[#20ba5a] text-white rounded-full flex items-center justify-center shadow-xl hover:shadow-2xl hover:scale-105 active:scale-95 transition-all duration-300 group cursor-pointer"
+       title="Chat with us on WhatsApp">
+        <span class="absolute -top-9 right-0 bg-[#1C1917] text-white text-[11px] font-medium py-1 px-3 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap shadow-md">
+            Chat on WhatsApp
+        </span>
+        <svg class="w-7 h-7 sm:w-7.5 sm:h-7.5 fill-current" viewBox="0 0 24 24">
+            <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/>
+        </svg>
+    </a>
 </body>
 </html>

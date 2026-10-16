@@ -1,4 +1,4 @@
-<x-app-layout title="Order Confirmed — Maison Résine">
+<x-app-layout title="Order Confirmed — Solitaire Fine Jewels">
     <div class="max-w-[920px] mx-auto w-full min-w-0 px-4 sm:px-6 py-10 sm:py-20 text-center space-y-8 sm:space-y-10">
 
         <!-- Top Centered Hero Header -->

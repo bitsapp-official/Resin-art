@@ -1,5 +1,5 @@
-<x-app-layout title="Order Tracking — Maison Résine">
-    <div class="min-h-[75vh] py-8 sm:py-16 px-3.5 sm:px-6 lg:px-8 max-w-[1060px] mx-auto w-full min-w-0 space-y-8 sm:space-y-10">
+<x-app-layout title="Order Tracking — Solitaire Fine Jewels">
+    <div class="min-h-[70vh] pt-2 sm:pt-4 pb-12 sm:pb-16 px-3.5 sm:px-6 lg:px-8 max-w-[1060px] mx-auto w-full min-w-0 space-y-6 sm:space-y-8">
 
         {{-- Header --}}
         <div class="space-y-2.5 sm:space-y-3 min-w-0">
@@ -238,12 +238,10 @@
                                     <div class="flex items-center justify-between gap-4 pb-3 border-b border-[#E6E1D7]/50 last:border-b-0 last:pb-0">
                                         <div class="flex items-center space-x-3.5 min-w-0">
                                             <div class="w-12 h-12 min-w-[48px] max-w-[48px] rounded-xl bg-white border border-[#E6E1D7] overflow-hidden shrink-0 flex items-center justify-center">
-                                                @if(!empty($item->product_snapshot['images']) && isset($item->product_snapshot['images'][0]))
-                                                    <img src="{{ $item->product_snapshot['images'][0] }}" alt="{{ $item->product_name }}" class="w-full h-full object-cover rounded-xl">
-                                                @elseif($item->product && $item->product->primary_image_url)
-                                                    <img src="{{ $item->product->primary_image_url }}" alt="{{ $item->product_name }}" class="w-full h-full object-cover rounded-xl">
+                                                @if($item->primary_image_url)
+                                                    <img src="{{ $item->primary_image_url }}" alt="{{ $item->product_name }}" class="w-full h-full object-cover rounded-xl">
                                                 @else
-                                                    <span class="text-[8px] font-mono text-[#8E877D]">R&Eacute;SINE</span>
+                                                    <span class="text-[8px] font-mono text-[#8E877D]">JEWEL</span>
                                                 @endif
                                             </div>
                                             <div class="min-w-0">

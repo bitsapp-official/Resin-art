@@ -249,7 +249,7 @@ class AboutPageResource extends Resource
 
                                         Forms\Components\TextInput::make('seo_title')
                                             ->label('SEO Meta Title')
-                                            ->placeholder('About Us — Maison Résine Atelier'),
+                                            ->placeholder('About Us — Solitaire Fine Jewels Atelier'),
 
                                         Forms\Components\Textarea::make('seo_description')
                                             ->label('SEO Meta Description')

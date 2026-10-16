@@ -154,11 +154,11 @@ class AboutPageTest extends TestCase
             'is_admin' => true,
         ]);
 
-        $response = $this->actingAs($admin)->get('/admin/about-pages');
+        $response = $this->actingAs($admin, 'admin')->get('/admin/about-pages');
 
         $response->assertRedirect('/admin/about-pages/manage');
 
-        $editResponse = $this->actingAs($admin)->get('/admin/about-pages/manage');
+        $editResponse = $this->actingAs($admin, 'admin')->get('/admin/about-pages/manage');
         $editResponse->assertStatus(200);
     }
 

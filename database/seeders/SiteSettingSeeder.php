@@ -31,12 +31,15 @@ class SiteSettingSeeder extends Seeder
             ['key' => 'footer_facebook_url', 'value' => 'https://facebook.com', 'group' => 'footer', 'label' => 'Facebook Page URL', 'type' => 'url'],
             
             // Global Trust Badges
+            ['key' => 'global_badge_1_icon', 'value' => 'diamond', 'group' => 'general', 'label' => 'Global Trust Badge 1 Icon', 'type' => 'text'],
             ['key' => 'global_badge_1_title', 'value' => '100% Certified', 'group' => 'general', 'label' => 'Global Trust Badge 1 Title', 'type' => 'text'],
             ['key' => 'global_badge_1_subtitle', 'value' => 'NATURAL DIAMONDS', 'group' => 'general', 'label' => 'Global Trust Badge 1 Subtitle', 'type' => 'text'],
+            ['key' => 'global_badge_2_icon', 'value' => 'hallmark', 'group' => 'general', 'label' => 'Global Trust Badge 2 Icon', 'type' => 'text'],
             ['key' => 'global_badge_2_title', 'value' => 'BIS Hallmarked', 'group' => 'general', 'label' => 'Global Trust Badge 2 Title', 'type' => 'text'],
             ['key' => 'global_badge_2_subtitle', 'value' => '14K - 22K GOLD', 'group' => 'general', 'label' => 'Global Trust Badge 2 Subtitle', 'type' => 'text'],
+            ['key' => 'global_badge_3_icon', 'value' => 'globe', 'group' => 'general', 'label' => 'Global Trust Badge 3 Icon', 'type' => 'text'],
             ['key' => 'global_badge_3_title', 'value' => 'Free Insured', 'group' => 'general', 'label' => 'Global Trust Badge 3 Title', 'type' => 'text'],
-            ['key' => 'global_badge_3_subtitle', 'value' => 'PAN INDIA DISPATCH', 'group' => 'general', 'label' => 'Global Trust Badge 3 Subtitle', 'type' => 'text'],
+            ['key' => 'global_badge_3_subtitle', 'value' => 'WORLDWIDE DISPATCH', 'group' => 'general', 'label' => 'Global Trust Badge 3 Subtitle', 'type' => 'text'],
 
             // Invoice & GST Settings
             ['key' => 'invoice_brand_name', 'value' => 'Solitaire Fine Jewels', 'group' => 'invoice', 'label' => 'Brand Name', 'type' => 'text'],

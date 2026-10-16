@@ -64,7 +64,7 @@ class EditCustomRequest extends EditRecord
                 ->url(function () {
                     $phone = preg_replace('/[^0-9]/', '', $this->record->whatsapp ?: $this->record->phone);
                     if (!$phone) return '#';
-                    $msg = rawurlencode("Hello {$this->record->name}, this is Maison Résine Atelier regarding your custom artwork request ({$this->record->public_reference}).");
+                    $msg = rawurlencode("Hello {$this->record->name}, this is Solitaire Fine Jewels Atelier regarding your custom fine jewellery inquiry ({$this->record->public_reference}).");
                     return "https://wa.me/{$phone}?text={$msg}";
                 })
                 ->openUrlInNewTab(true)

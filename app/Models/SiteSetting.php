@@ -46,7 +46,7 @@ class SiteSetting extends Model
             [
                 'value' => $value,
                 'group' => $group,
-                'label' => $label ?? title_case(str_replace('_', ' ', $key)),
+                'label' => $label ?? \Illuminate\Support\Str::title(str_replace('_', ' ', $key)),
                 'type' => $type,
             ]
         );

@@ -155,7 +155,7 @@ class GalleryTest extends TestCase
     {
         $admin = User::where('email', 'admin@maisonresine.com')->first();
 
-        $response = $this->actingAs($admin)->get('/admin/gallery-items');
+        $response = $this->actingAs($admin, 'admin')->get('/admin/gallery-items');
         $response->assertStatus(200);
     }
 }

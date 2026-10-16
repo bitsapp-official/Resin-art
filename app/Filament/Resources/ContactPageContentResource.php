@@ -78,20 +78,20 @@ class ContactPageContentResource extends Resource
 
                                 Forms\Components\Textarea::make('studio_hours')
                                     ->label('Workshop Opening & Visiting Hours')
-                                    ->default("By appointment · Tuesday – Saturday\n10h – 18h")
+                                    ->default("Monday – Saturday: 11:00 AM – 8:00 PM\nSunday: By appointment")
                                     ->rows(3)
                                     ->required(),
 
                                 Forms\Components\TextInput::make('studio_email')
                                     ->label('Contact / Workshop Email')
                                     ->email()
-                                    ->default('hello@maisonresine.co')
+                                    ->default('concierge@solitairefinejewels.com')
                                     ->required()
                                     ->maxLength(255),
 
                                 Forms\Components\TextInput::make('studio_phone')
                                     ->label('Contact / Workshop Phone')
-                                    ->default('+33 5 56 00 00 00')
+                                    ->default('+91 98201 45678')
                                     ->required()
                                     ->maxLength(255),
                             ])->columns(2),

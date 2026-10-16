@@ -20,14 +20,14 @@ class ContactPageContent extends Model
     public static function getContent(): self
     {
         return static::firstOrCreate([], [
-            'hero_badge' => 'Correspondence',
-            'hero_title' => 'Write to the atelier.',
-            'hero_subtitle' => 'Custom orders, trade inquiries, press or simply to say hello. We answer every inquiry within 24 hours.',
-            'workshop_label' => 'Workshop',
-            'studio_address' => "14 rue des Étoiles\n33000 Bordeaux, France",
-            'studio_hours' => "By appointment · Tuesday – Saturday\n10h – 18h",
-            'studio_email' => 'hello@maisonresine.co',
-            'studio_phone' => '+33 5 56 00 00 00',
+            'hero_badge' => 'Jewellery Concierge',
+            'hero_title' => 'Connect with our master jewellers.',
+            'hero_subtitle' => 'Bespoke solitaires, diamond certifications, custom sizing or showroom appointments. We answer every inquiry promptly.',
+            'workshop_label' => 'Atelier Showroom',
+            'studio_address' => "Atelier Plaza, Fine Arts Quarter\nMumbai, India",
+            'studio_hours' => "Monday – Saturday: 11:00 AM – 8:00 PM\nSunday: By appointment",
+            'studio_email' => 'concierge@solitairefinejewels.com',
+            'studio_phone' => '+91 98201 45678',
         ]);
     }
 }

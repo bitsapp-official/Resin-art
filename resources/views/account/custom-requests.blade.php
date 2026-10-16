@@ -2,7 +2,7 @@
     title="Custom Requests" 
     header-title="Custom" 
     header-italic=" requests." 
-    header-subtitle="Every bespoke fluid resin &amp; woodwork piece crafted to your specifications.">
+    header-subtitle="Every bespoke diamond, solitaire ring &amp; fine jewellery piece crafted to your specifications.">
 
     <div x-data="{
         nextPageUrl: '{{ $customRequests->nextPageUrl() }}',
@@ -169,7 +169,7 @@
 
                                 @php
                                     $whatsappNumber = config('atelier.whatsapp.number', '919876543210');
-                                    $msg = rawurlencode("Hello Maison Résine, I am inquiring regarding my custom request ({$req->public_reference}).");
+                                    $msg = rawurlencode("Hello Solitaire Fine Jewels, I am inquiring regarding my custom request ({$req->public_reference}).");
                                 @endphp
                                 <a href="https://wa.me/{{ $whatsappNumber }}?text={{ $msg }}" 
                                    target="_blank"
@@ -207,13 +207,13 @@
                 <div class="space-y-1">
                     <h3 class="text-sm font-semibold text-[#1C1917]">No custom requests submitted yet</h3>
                     <p class="text-xs text-[#78716C] font-light max-w-sm mx-auto">
-                        Looking for a bespoke ocean table, resin clock, or wall art? Submit your vision and receive a personalized quote.
+                        Looking for a bespoke solitaire ring, diamond necklace, or bridal jewellery? Submit your vision and receive a personalized quote.
                     </p>
                 </div>
                 <div class="pt-2">
                     <a href="{{ route('custom.index') }}" 
                        class="inline-block bg-[#1C1917] hover:bg-[#2C2724] text-white text-[9.5px] uppercase tracking-[0.25em] font-semibold py-3 px-7 rounded-full transition-all duration-300 shadow-xs">
-                        + COMMISSION BESPOKE ARTWORK
+                        + COMMISSION BESPOKE JEWELLERY
                     </a>
                 </div>
             </div>

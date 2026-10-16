@@ -55,7 +55,7 @@ class EditInvoice extends EditRecord
                 ->url(function () {
                     $phone = preg_replace('/[^0-9]/', '', $this->record->client_phone);
                     if (!$phone) return '#';
-                    $msg = rawurlencode("Hello {$this->record->client_name}, here is your payment receipt / invoice ({$this->record->invoice_number}) from Maison Résine Atelier.");
+                    $msg = rawurlencode("Hello {$this->record->client_name}, here is your payment receipt / invoice ({$this->record->invoice_number}) from Solitaire Fine Jewels Atelier.");
                     return "https://wa.me/{$phone}?text={$msg}";
                 })
                 ->openUrlInNewTab(true)

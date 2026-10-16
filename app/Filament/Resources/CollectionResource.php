@@ -80,7 +80,7 @@ class CollectionResource extends Resource
                             ->schema([
                                 Forms\Components\TextInput::make('meta_title')
                                     ->label('SEO Title')
-                                    ->placeholder('Default: Collection Name | Maison Résine')
+                                    ->placeholder('Default: Collection Name | Solitaire Fine Jewels')
                                     ->maxLength(255),
 
                                 Forms\Components\Textarea::make('meta_description')

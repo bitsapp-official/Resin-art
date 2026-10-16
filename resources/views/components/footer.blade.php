@@ -48,7 +48,7 @@
                     <li><a href="{{ route('shop.new-arrivals') }}" class="text-[#CCC5B9] hover:text-white hover:translate-x-1 transition-all duration-200 inline-block">New arrivals</a></li>
                     <li><a href="{{ route('shop.best-sellers') }}" class="text-[#CCC5B9] hover:text-white hover:translate-x-1 transition-all duration-200 inline-block">Solitaires &amp; Rings</a></li>
                     <li><a href="{{ route('collections.index') }}" class="text-[#CCC5B9] hover:text-white hover:translate-x-1 transition-all duration-200 inline-block">All collections</a></li>
-                    <li><a href="{{ route('custom.index') }}" class="text-[#CCC5B9] hover:text-white hover:translate-x-1 transition-all duration-200 inline-block">Bespoke &amp; Bulk Orders</a></li>
+                    <li><a href="{{ route('custom.index') }}" class="text-[#CCC5B9] hover:text-white hover:translate-x-1 transition-all duration-200 inline-block">Bespoke &amp; Bulk Inquiries</a></li>
                 </ul>
             </div>
 
@@ -93,7 +93,7 @@
             
             <!-- Left: Copyright -->
             <div class="text-[11.5px] text-[#9C9488] font-medium tracking-wider text-center sm:text-left">
-                {{ \App\Models\SiteSetting::get('footer_copyright_text', '© 2026 MAISON RÉSINE · BORDEAUX') }}
+                {{ \App\Models\SiteSetting::get('footer_copyright_text', '© 2026 SOLITAIRE FINE JEWELS · ALL RIGHTS RESERVED') }}
             </div>
 
             <!-- Right: E-Commerce Social Media Icons with Luxury Hover Effects -->

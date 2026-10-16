@@ -245,10 +245,10 @@
     <table class="header-table">
         <tr>
             <td style="width:55%;">
-                <div class="brand-name">Maison Résine Atelier</div>
-                <div class="brand-tagline">Custom Resin Artwork Studio</div>
+                <div class="brand-name">Solitaire Fine Jewels Atelier</div>
+                <div class="brand-tagline">Certified Diamonds & Bespoke Fine Jewellery</div>
                 <div class="brand-contact">
-                    Email: {{ config('mail.from.address', 'studio@maisonresine.com') }}<br>
+                    Email: {{ config('mail.from.address', 'concierge@solitairefinejewels.com') }}<br>
                     @if(config('app.business_whatsapp')) WhatsApp: {{ config('app.business_whatsapp') }}<br> @endif
                     @if(config('app.business_gst')) GST: {{ config('app.business_gst') }} @endif
                 </div>

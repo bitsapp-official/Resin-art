@@ -381,7 +381,7 @@ class StoreReportsPage extends Page implements HasForms
         }
 
         $dateSuffix = $startDate->format('Ymd') . '_to_' . $endDate->format('Ymd');
-        $baseFilename = 'maison_resine_' . $reportType . '_' . $dateSuffix;
+        $baseFilename = 'solitaire_fine_jewels_' . $reportType . '_' . $dateSuffix;
 
         if ($exportFormat === 'xlsx') {
             $filename = $baseFilename . '.xlsx';

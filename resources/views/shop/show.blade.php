@@ -1,12 +1,55 @@
-<x-app-layout :title="$product->name . ' — Maison Résine Atelier'">
+<x-app-layout :title="$product->name . ' — Solitaire Fine Jewels'">
 <div class="min-h-screen bg-transparent w-full min-w-0">
     @php
         $mediaList = [];
-        $productImages = !empty($product->images) ? (array) $product->images : [];
+        $colorGalleries = $product->color_galleries ?: [];
+        $rawProductImages = !empty($product->images) ? (array) $product->images : [];
 
+        // Match initial color from query param ?color= if provided
+        $reqColor = request('color');
+        $matchedReqColor = null;
+        if ($reqColor && !empty($product->metal_colors)) {
+            foreach ($product->metal_colors as $mc) {
+                if (strcasecmp($mc, $reqColor) === 0) {
+                    $matchedReqColor = $mc;
+                    break;
+                }
+            }
+        }
+        $firstColor = $matchedReqColor ?: (!empty($product->metal_colors) ? ($product->metal_colors[0] ?? 'Yellow Gold') : 'Yellow Gold');
+
+        $addedUrls = [];
+        $allMedia = [];
+
+        // Helper to extract a clean unique deduplication key for images
+        $getMediaKey = function ($url) {
+            if (empty($url) || !is_string($url)) return null;
+            $path = parse_url($url, PHP_URL_PATH) ?: $url;
+            return strtolower(basename($path));
+        };
+
+        // 1. Collect photos for the primary/default metal color
+        $primaryColorPhotos = [];
+        if (!empty($colorGalleries[$firstColor])) {
+            foreach ((array) $colorGalleries[$firstColor] as $cUrl) {
+                if (!empty($cUrl)) {
+                    $key = $getMediaKey($cUrl);
+                    if ($key && empty($addedUrls[$key])) {
+                        $primaryColorPhotos[] = [
+                            'type' => 'image',
+                            'src' => $cUrl,
+                            'thumb' => $cUrl,
+                            'color' => $firstColor,
+                        ];
+                        $addedUrls[$key] = true;
+                    }
+                }
+            }
+        }
+
+        // 2. Video item
         $videoItem = null;
         if ($product->has_video) {
-            // Priority: Direct uploaded MP4 video takes precedence over external link
             $hasUpload = !empty($product->video_path);
             $videoSrc = $product->video_asset_url;
             $isYoutube = !$hasUpload && !empty($product->youtube_id);
@@ -23,47 +66,106 @@
                 'isVimeo' => $isVimeo,
                 'embedUrl' => $embedUrl,
                 'originalUrl' => $product->video_url,
+                'color' => null,
             ];
         }
 
-        if (count($productImages) > 0) {
-            // Position 1: Hero / Cover Image
-            $mediaList[] = [
-                'type' => 'image',
-                'src' => $productImages[0],
-                'thumb' => $productImages[0],
-            ];
-
-            // Position 2: Video (if product has a video)
-            if ($videoItem) {
-                $mediaList[] = $videoItem;
+        // Position 1: First photo of primary color (or first general photo if piece has no metal color photos)
+        $firstGeneralPhoto = null;
+        if (!empty($primaryColorPhotos)) {
+            $allMedia[] = $primaryColorPhotos[0];
+        } elseif (!empty($rawProductImages)) {
+            foreach ($rawProductImages as $pImg) {
+                if (!empty($pImg)) {
+                    $key = $getMediaKey($pImg);
+                    if ($key && empty($addedUrls[$key])) {
+                        $firstGeneralPhoto = [
+                            'type' => 'image',
+                            'src' => $pImg,
+                            'thumb' => $pImg,
+                            'color' => null,
+                        ];
+                        $allMedia[] = $firstGeneralPhoto;
+                        $addedUrls[$key] = true;
+                        break;
+                    }
+                }
             }
-
-            // Remaining images follow after the video
-            for ($i = 1; $i < count($productImages); $i++) {
-                $mediaList[] = [
-                    'type' => 'image',
-                    'src' => $productImages[$i],
-                    'thumb' => $productImages[$i],
-                ];
-            }
-        } elseif ($videoItem) {
-            // If product has video but no images
-            $mediaList[] = $videoItem;
         }
+
+        // Position 2: Video Showcase (if product has video)
+        if ($videoItem) {
+            $allMedia[] = $videoItem;
+        }
+
+        // Position 3+: Remaining photos of primary color
+        if (count($primaryColorPhotos) > 1) {
+            for ($i = 1; $i < count($primaryColorPhotos); $i++) {
+                $allMedia[] = $primaryColorPhotos[$i];
+            }
+        }
+
+        // 3. Add photos from all other metal colors
+        foreach ($colorGalleries as $cName => $cList) {
+            if ($cName === $firstColor) continue;
+            foreach ((array) $cList as $cUrl) {
+                if (!empty($cUrl)) {
+                    $key = $getMediaKey($cUrl);
+                    if ($key && empty($addedUrls[$key])) {
+                        $allMedia[] = [
+                            'type' => 'image',
+                            'src' => $cUrl,
+                            'thumb' => $cUrl,
+                            'color' => $cName,
+                        ];
+                        $addedUrls[$key] = true;
+                    }
+                }
+            }
+        }
+
+        // 4. Add any additional gallery photos that are not already added
+        foreach ($rawProductImages as $pImg) {
+            if (!empty($pImg)) {
+                $key = $getMediaKey($pImg);
+                if ($key && empty($addedUrls[$key])) {
+                    // Check if this image matches any color
+                    $matchedColor = null;
+                    foreach ($colorGalleries as $cName => $cList) {
+                        foreach ((array) $cList as $cUrl) {
+                            if ($getMediaKey($cUrl) === $key) {
+                                $matchedColor = $cName;
+                                break 2;
+                            }
+                        }
+                    }
+                    $allMedia[] = [
+                        'type' => 'image',
+                        'src' => $pImg,
+                        'thumb' => $pImg,
+                        'color' => $matchedColor,
+                    ];
+                    $addedUrls[$key] = true;
+                }
+            }
+        }
+
+        $mediaList = $allMedia;
     @endphp
     <script>
         function productDetail(config) {
             return {
-                mediaItems: config.mediaItems || [],
+                rawMediaItems: config.mediaItems || [],
                 activeMedia: 0,
                 selectedSize: config.selectedSize || '',
                 sizeLabel: config.sizeLabel || 'Size',
                 sizeVariants: config.sizeVariants || [],
+                purityPrices: config.purityPrices || null,
                 goldPurities: config.goldPurities || ['14KT Gold', '18KT Gold', '22KT Gold'],
                 selectedPurity: config.selectedPurity || '14KT Gold',
                 metalColors: config.metalColors || ['Yellow Gold', 'White Gold', 'Rose Gold'],
                 selectedColor: config.selectedColor || 'Yellow Gold',
+                colorImages: config.colorImages || {},
                 productTitle: config.productTitle || '',
                 productSku: config.productSku || '',
                 whatsappNumber: config.whatsappNumber || '919876543210',
@@ -79,16 +181,158 @@
                 dragStartX: 0,
                 dragStartY: 0,
 
+                // Dynamic Solitairekart-style gallery:
+                // Pos 1: Primary front photo of selected metal color
+                // Pos 2: Product Showcase Video (if available)
+                // Pos 3+: Remaining angle photos of selected color, followed by other metal colors
+                // Pos Last: General Photos (Templates, Size Chart, Dimensions)
+                get mediaItems() {
+                    const videoItems = (this.rawMediaItems || []).filter(m => m && m.type === 'video');
+                    const generalItems = (this.rawMediaItems || []).filter(m => m && m.type !== 'video' && !m.color);
+                    const colorItems = (this.rawMediaItems || []).filter(m => m && m.color);
+
+                    // Case A: Pure Single Piece or Product with NO color variants at all
+                    if (colorItems.length === 0) {
+                        const firstGeneral = generalItems.slice(0, 1);
+                        const restGeneral = generalItems.slice(1);
+                        return [...firstGeneral, ...videoItems, ...restGeneral];
+                    }
+
+                    if (!this.selectedColor || !this.rawMediaItems || this.rawMediaItems.length === 0) {
+                        const firstColor = colorItems.slice(0, 1);
+                        const restColor = colorItems.slice(1);
+                        return [...firstColor, ...videoItems, ...restColor, ...generalItems];
+                    }
+                    const sel = (this.selectedColor || '').toLowerCase().trim();
+                    const activeColorItems = this.rawMediaItems.filter(m => m && m.color && m.color.toLowerCase().trim() === sel);
+                    const otherColorItems = this.rawMediaItems.filter(m => m && m.color && m.color.toLowerCase().trim() !== sel);
+
+                    if (activeColorItems.length === 0) {
+                        if (otherColorItems.length > 0) {
+                            const firstOther = otherColorItems.slice(0, 1);
+                            const restOther = otherColorItems.slice(1);
+                            return [...firstOther, ...videoItems, ...restOther, ...generalItems];
+                        }
+                        const firstGeneral = generalItems.slice(0, 1);
+                        const restGeneral = generalItems.slice(1);
+                        return [...firstGeneral, ...videoItems, ...restGeneral];
+                    }
+
+                    const firstActive = activeColorItems.slice(0, 1);
+                    const restActive = activeColorItems.slice(1);
+
+                    return [...firstActive, ...videoItems, ...restActive, ...otherColorItems, ...generalItems];
+                },
+
                 get currentMedia() {
                     return this.mediaItems[this.activeMedia] || null;
                 },
                 
+                canScrollThumbLeft: false,
+                canScrollThumbRight: false,
+
                 init() {
                     window.addEventListener('touchmove', (e) => {
                         if (this.showLightbox && (this.lightboxZoom <= 1 || !e.target.closest('[x-ref="lightboxImg"]'))) {
                             e.preventDefault();
                         }
                     }, { passive: false });
+
+                    window.addEventListener('resize', () => {
+                        this.updateThumbScrollState();
+                    });
+
+                    this.activeMedia = 0;
+                    this.$nextTick(() => {
+                        this.updateThumbScrollState();
+                    });
+                    setTimeout(() => this.updateThumbScrollState(), 200);
+                    setTimeout(() => this.updateThumbScrollState(), 600);
+
+                    // Dynamically synchronize browser URL whenever color, purity, or size is switched
+                    this.$watch('selectedColor', () => this.syncUrlWithState());
+                    this.$watch('selectedPurity', () => this.syncUrlWithState());
+                    this.$watch('selectedSize', () => this.syncUrlWithState());
+
+                    // Check URL query parameters on initial page load
+                    try {
+                        const urlParams = new URLSearchParams(window.location.search);
+                        const qColor = urlParams.get('color');
+                        const qPurity = urlParams.get('purity');
+                        const qSize = urlParams.get('size');
+                        if (qColor) {
+                            const foundColor = (this.metalColors || []).find(c => c.toLowerCase().trim() === qColor.toLowerCase().trim());
+                            if (foundColor) this.selectedColor = foundColor;
+                        }
+                        if (qPurity) {
+                            const foundPurity = (this.goldPurities || []).find(p => p.toLowerCase().trim() === qPurity.toLowerCase().trim() || p.toLowerCase().includes(qPurity.toLowerCase().trim()));
+                            if (foundPurity) this.selectedPurity = foundPurity;
+                        }
+                        if (qSize) {
+                            const foundSize = (this.sizeVariants || []).find(v => (v.size || '').toLowerCase().trim() === qSize.toLowerCase().trim());
+                            if (foundSize) this.selectedSize = foundSize.size;
+                        }
+                    } catch(e) {}
+
+                    // Initial URL sync so shareable query params are in the address bar
+                    this.syncUrlWithState();
+                },
+
+                syncUrlWithState() {
+                    try {
+                        const url = new URL(window.location.href);
+                        if (this.selectedColor) {
+                            url.searchParams.set('color', this.selectedColor);
+                        } else {
+                            url.searchParams.delete('color');
+                        }
+                        if (this.selectedPurity) {
+                            url.searchParams.set('purity', this.selectedPurity);
+                        } else {
+                            url.searchParams.delete('purity');
+                        }
+                        if (this.selectedSize) {
+                            url.searchParams.set('size', this.selectedSize);
+                        } else {
+                            url.searchParams.delete('size');
+                        }
+                        window.history.replaceState({}, '', url.pathname + url.search + url.hash);
+                    } catch(e) {}
+                },
+
+                updateThumbScrollState() {
+                    const el = this.$refs.thumbContainer;
+                    if (!el) return;
+                    this.canScrollThumbLeft = el.scrollLeft > 4;
+                    this.canScrollThumbRight = Math.ceil(el.scrollLeft + el.clientWidth) < (el.scrollWidth - 4);
+                },
+
+                scrollThumbLeft() {
+                    const el = this.$refs.thumbContainer;
+                    if (el) {
+                        el.scrollBy({ left: -220, behavior: 'smooth' });
+                        setTimeout(() => this.updateThumbScrollState(), 320);
+                    }
+                },
+
+                scrollThumbRight() {
+                    const el = this.$refs.thumbContainer;
+                    if (el) {
+                        el.scrollBy({ left: 220, behavior: 'smooth' });
+                        setTimeout(() => this.updateThumbScrollState(), 320);
+                    }
+                },
+
+                scrollActiveThumbIntoView() {
+                    this.$nextTick(() => {
+                        const el = this.$refs.thumbContainer;
+                        if (!el) return;
+                        const activeBtn = el.querySelector('[data-thumb-idx="' + this.activeMedia + '"]');
+                        if (activeBtn) {
+                            activeBtn.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+                        }
+                        setTimeout(() => this.updateThumbScrollState(), 320);
+                    });
                 },
 
                 isVideoPlaying: false,
@@ -192,11 +436,42 @@
                 },
                 
                 get currentPrice() {
-                    if (this.sizeVariants.length > 0) {
+                    let base = Number(this.basePrice) || 0;
+                    if (this.sizeVariants.length > 0 && this.selectedSize) {
                         const variant = this.sizeVariants.find(v => v.size === this.selectedSize);
-                        return variant ? variant.price : this.basePrice;
+                        if (variant && variant.price && Number(variant.price) > 0) {
+                            base = Number(variant.price);
+                        }
                     }
-                    return this.basePrice;
+
+                    // Apply Gold Purity Price (Supports both Direct Selling Price and Legacy Add-ons)
+                    if (this.purityPrices && this.selectedPurity && this.purityPrices[this.selectedPurity] !== undefined && this.purityPrices[this.selectedPurity] !== null && this.purityPrices[this.selectedPurity] !== '') {
+                        const val = Number(this.purityPrices[this.selectedPurity]);
+                        // If admin entered a full direct price (e.g. ₹288,270), use it directly
+                        if (val >= base * 0.5 && val > 0) {
+                            return val;
+                        }
+                        // Otherwise treat as add-on difference
+                        return base + val;
+                    }
+
+                    return base;
+                },
+                get currentMrp() {
+                    // Check if selected purity has its own specific MRP entered
+                    if (this.purityMrp && this.selectedPurity && this.purityMrp[this.selectedPurity] !== undefined && this.purityMrp[this.selectedPurity] !== null && this.purityMrp[this.selectedPurity] !== '') {
+                        const val = Number(this.purityMrp[this.selectedPurity]);
+                        if (val > 0) return val;
+                    }
+                    // Default to product base regular MRP
+                    const reg = Number(this.regularPrice) || 0;
+                    return reg > this.currentPrice ? reg : null;
+                },
+                get discountPercent() {
+                    if (this.currentMrp && this.currentMrp > this.currentPrice) {
+                        return Math.round(((this.currentMrp - this.currentPrice) / this.currentMrp) * 100);
+                    }
+                    return 0;
                 },
                 formatPrice(price) {
                     return new Intl.NumberFormat('en-IN').format(price);
@@ -205,8 +480,8 @@
                     let msg = `Hello, I would like to order / inquire about this piece:\n\n` +
                               `• Product: ${this.productTitle}\n` +
                               (this.productSku ? `• SKU: ${this.productSku}\n` : '') +
-                              `• Metal Color: ${this.selectedColor}\n` +
-                              `• Gold Purity: ${this.selectedPurity}\n` +
+                              (this.selectedColor ? `• Metal Color: ${this.selectedColor}\n` : '') +
+                              (this.selectedPurity ? `• Gold Purity: ${this.selectedPurity}\n` : '') +
                               (this.selectedSize ? `• ${this.sizeLabel}: ${this.selectedSize}\n` : '') +
                               `• Quantity: ${this.qty}\n` +
                               `• Price: ₹ ${this.formatPrice(this.currentPrice * this.qty)}\n\n` +
@@ -261,6 +536,7 @@
                         this.activeMedia = (this.activeMedia + 1) % this.mediaItems.length;
                         this.resetLightboxZoom();
                         this.playActiveVideo();
+                        this.scrollActiveThumbIntoView();
                     }
                 },
                 prevMedia() {
@@ -269,7 +545,18 @@
                         this.activeMedia = (this.activeMedia - 1 + this.mediaItems.length) % this.mediaItems.length;
                         this.resetLightboxZoom();
                         this.playActiveVideo();
+                        this.scrollActiveThumbIntoView();
                     }
+                },
+                selectColor(color) {
+                    if (!color) return;
+                    this.selectedColor = color;
+                    this.pauseAllVideos();
+                    this.activeMedia = 0;
+                    this.resetLightboxZoom();
+                    this.playActiveVideo();
+                    this.scrollActiveThumbIntoView();
+                    this.syncUrlWithState();
                 },
                 selectMedia(idx) {
                     if (this.activeMedia !== idx) {
@@ -277,13 +564,16 @@
                         this.activeMedia = idx;
                         this.resetLightboxZoom();
                         this.playActiveVideo();
+                        this.scrollActiveThumbIntoView();
                     } else if (this.currentMedia && this.currentMedia.type === 'video' && this.currentMedia.isUpload) {
                         const v = this.showLightbox ? this.$refs.lightboxVideo : this.$refs.mainVideo;
                         if (v) {
                             if (v.paused) {
                                 v.play().catch(() => {});
+                                this.isVideoPlaying = true;
                             } else {
                                 v.pause();
+                                this.isVideoPlaying = false;
                             }
                         }
                     }
@@ -298,17 +588,21 @@
             };
         }
     </script>
-    <div class="max-w-[1320px] mx-auto px-4 sm:px-6 lg:px-12 xl:px-16 pt-6 sm:pt-8 pb-16 sm:pb-24 w-full min-w-0"
+    <div class="max-w-[1320px] mx-auto px-4 sm:px-6 lg:px-12 xl:px-16 pt-2 sm:pt-4 pb-16 sm:pb-24 w-full min-w-0"
          x-data="productDetail({
             mediaItems: @js($mediaList),
             sizeVariants: @js($product->attributes['size_variants'] ?? []),
             basePrice: {{ (float) $product->effective_price }},
+            regularPrice: {{ (float) $product->price }},
             sizeLabel: @js($product->size_label),
-            selectedSize: @js(!empty($product->attributes['size_variants']) ? ($product->attributes['size_variants'][0]['size'] ?? '') : (!empty($product->attributes['sizes']) ? $product->attributes['sizes'][0] : '')),
+            selectedSize: @js(request('size') ?: (!empty($product->attributes['size_variants']) ? ($product->attributes['size_variants'][0]['size'] ?? '') : (!empty($product->attributes['sizes']) ? $product->attributes['sizes'][0] : ''))),
             goldPurities: @js($product->gold_purities),
-            selectedPurity: @js($product->gold_purities[0] ?? '14KT Gold'),
+            selectedPurity: @js((request('purity') && in_array(request('purity'), $product->gold_purities)) ? request('purity') : (!empty($product->gold_purities) ? $product->gold_purities[0] : '')),
+            purityPrices: @js($product->attributes['purity_prices'] ?? null),
+            purityMrp: @js($product->attributes['purity_mrp'] ?? null),
             metalColors: @js($product->metal_colors),
-            selectedColor: @js($product->metal_colors[0] ?? 'Yellow Gold'),
+            selectedColor: @js($firstColor),
+            colorImages: @js($product->color_images ?: []),
             productTitle: @js($product->name),
             productSku: @js($product->sku ?? ''),
             whatsappNumber: @js(preg_replace('/[^0-9]/', '', \App\Models\SiteSetting::get('contact_whatsapp') ?: \App\Models\SiteSetting::get('contact_phone', '919876543210')))
@@ -448,7 +742,7 @@
                 {{-- Lightbox Thumbnails Navigation (Images + Video with Play badge) --}}
                 <template x-if="mediaItems.length > 1">
                     <div @click.stop="" class="flex items-center justify-center gap-2 sm:gap-3 pt-2 pb-1 z-50 cursor-default max-w-full overflow-x-auto no-scrollbar px-4 shrink-0">
-                        <template x-for="(item, idx) in mediaItems" :key="idx">
+                        <template x-for="(item, idx) in mediaItems" :key="item.src || ('lightbox_' + idx)">
                             <button type="button" @click="selectMedia(idx)"
                                     class="relative shrink-0 w-12 h-12 sm:w-14 sm:h-14 rounded-xl overflow-hidden border-2 transition-all cursor-pointer p-0.5 bg-white shadow-xs"
                                     :class="activeMedia === idx ? 'border-[#1C1917] ring-2 ring-[#1C1917]/25 scale-105 shadow-md opacity-100' : 'border-[#DFD9CE] opacity-70 hover:opacity-100 hover:border-[#1C1917]/50'">
@@ -581,7 +875,7 @@
 
                         {{-- Dot Indicators for mobile --}}
                         <div class="absolute bottom-3.5 left-1/2 -translate-x-1/2 flex items-center gap-1.5 sm:hidden z-10 pointer-events-none">
-                            <template x-for="(item, idx) in mediaItems" :key="idx">
+                            <template x-for="(item, idx) in mediaItems" :key="item.src || ('dot_' + idx)">
                                 <span class="h-1.5 rounded-full transition-all duration-300"
                                       :class="activeMedia === idx ? 'bg-[#1C1917] w-4' : 'bg-[#1C1917]/35 w-1.5'"></span>
                             </template>
@@ -591,77 +885,152 @@
 
                 {{-- Media Thumbnails: Images & Video Showcase --}}
                 @if(count($mediaList) > 1)
-                    <div class="flex items-center gap-2.5 sm:gap-3 overflow-x-auto no-scrollbar py-1 px-0.5">
-                        <template x-for="(item, idx) in mediaItems" :key="idx">
-                            <button type="button" 
-                                    @click="selectMedia(idx)"
-                                    class="shrink-0 w-16 h-16 sm:w-20 sm:h-20 aspect-square overflow-hidden rounded-xl sm:rounded-2xl bg-[#F5F2EB] border-2 transition-all duration-200 cursor-pointer relative p-0.5 select-none"
-                                    :class="activeMedia === idx ? 'border-[#1C1917] ring-2 ring-[#1C1917]/25 scale-105 opacity-100 shadow-xs' : 'border-[#DFD9CE]/70 opacity-70 hover:opacity-100 hover:border-[#1C1917]/50'">
-                                
-                                {{-- 1. If uploaded MP4 video, display actual video frame --}}
-                                <template x-if="item.type === 'video' && item.isUpload">
-                                    <div class="w-full h-full relative overflow-hidden rounded-lg sm:rounded-xl bg-[#141210]">
-                                        <video :src="item.src + '#t=0.5'"
-                                               preload="metadata"
-                                               muted
-                                               playsinline
-                                               tabindex="-1"
-                                               aria-hidden="true"
-                                               x-init="$el.muted = true; $el.volume = 0; $el.pause()"
-                                               class="w-full h-full object-cover pointer-events-none bg-[#141210]">
-                                        </video>
-                                    </div>
-                                </template>
+                    <div class="relative w-full group/thumbstrip py-1"
+                         @mouseenter="updateThumbScrollState()">
+                        
+                        {{-- Left Arrow Button --}}
+                        <button type="button"
+                                x-show="canScrollThumbLeft"
+                                x-cloak
+                                x-transition:enter="transition ease-out duration-200"
+                                x-transition:enter-start="opacity-0 -translate-x-2 scale-90"
+                                x-transition:enter-end="opacity-100 translate-x-0 scale-100"
+                                x-transition:leave="transition ease-in duration-150"
+                                x-transition:leave-start="opacity-100 translate-x-0 scale-100"
+                                x-transition:leave-end="opacity-0 -translate-x-2 scale-90"
+                                @click.stop="scrollThumbLeft()"
+                                class="absolute -left-2 sm:-left-3.5 top-1/2 -translate-y-1/2 w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-white/95 hover:bg-[#1C1917] text-[#1C1917] hover:text-white border border-[#DFD9CE] shadow-md flex items-center justify-center transition-all duration-200 hover:scale-110 active:scale-95 z-30 cursor-pointer"
+                                aria-label="Previous thumbnails">
+                            <svg class="w-4 h-4 stroke-[2.2]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/>
+                            </svg>
+                        </button>
 
-                                {{-- 2. If YouTube / Vimeo, display official API thumbnail --}}
-                                <template x-if="item.type === 'video' && (item.isYoutube || item.isVimeo)">
-                                    <img :src="item.thumb" :alt="'Video ' + (idx + 1)" class="w-full h-full object-cover rounded-lg sm:rounded-xl pointer-events-none">
-                                </template>
+                        {{-- Left Gradient Edge Shadow (Soft fade hint) --}}
+                        <div x-show="canScrollThumbLeft"
+                             x-cloak
+                             x-transition.opacity.duration.200ms
+                             class="pointer-events-none absolute left-0 top-0 bottom-0 w-8 sm:w-10 bg-gradient-to-r from-[#FAF8F5] via-[#FAF8F5]/80 to-transparent z-10 rounded-l-xl"></div>
 
-                                {{-- 3. If standard product image, display photo --}}
-                                <template x-if="item.type === 'image'">
-                                    <img :src="item.thumb || item.src" :alt="'Media ' + (idx + 1)" class="w-full h-full object-cover rounded-lg sm:rounded-xl">
-                                </template>
-
-                                {{-- Video Badge & Overlay (if video item) --}}
-                                <template x-if="item.type === 'video'">
-                                    <div class="absolute inset-0 bg-black/40 rounded-lg sm:rounded-xl flex flex-col items-center justify-center text-white transition-colors hover:bg-black/25">
-                                        {{-- Center Play Disc --}}
-                                        <div class="w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-white text-[#1C1917] flex items-center justify-center shadow-md mb-0.5">
-                                            <svg class="w-3 h-3 fill-current ml-0.5" viewBox="0 0 24 24">
-                                                <path d="M8 5v14l11-7z"/>
-                                            </svg>
+                        {{-- Thumbnails Scroll Track --}}
+                        <div x-ref="thumbContainer"
+                             @scroll.passive="updateThumbScrollState()"
+                             class="flex items-center gap-2.5 sm:gap-3 overflow-x-auto no-scrollbar scroll-smooth py-1 px-1">
+                            <template x-for="(item, idx) in mediaItems" :key="item.src || ('thumb_' + idx)">
+                                <button type="button" 
+                                        :data-thumb-idx="idx"
+                                        @click="selectMedia(idx)"
+                                        class="shrink-0 w-16 h-16 sm:w-20 sm:h-20 aspect-square overflow-hidden rounded-xl sm:rounded-2xl bg-[#F5F2EB] border-2 transition-all duration-200 cursor-pointer relative p-0.5 select-none"
+                                        :class="activeMedia === idx ? 'border-[#1C1917] ring-2 ring-[#1C1917]/25 scale-105 opacity-100 shadow-xs' : 'border-[#DFD9CE]/70 opacity-70 hover:opacity-100 hover:border-[#1C1917]/50'">
+                                    
+                                    {{-- 1. If uploaded MP4 video, display actual video frame --}}
+                                    <template x-if="item.type === 'video' && item.isUpload">
+                                        <div class="w-full h-full relative overflow-hidden rounded-lg sm:rounded-xl bg-[#141210]">
+                                            <video :src="item.src + '#t=0.5'"
+                                                   preload="metadata"
+                                                   muted
+                                                   playsinline
+                                                   tabindex="-1"
+                                                   aria-hidden="true"
+                                                   x-init="$el.muted = true; $el.volume = 0; $el.pause()"
+                                                   class="w-full h-full object-cover pointer-events-none bg-[#141210]">
+                                            </video>
                                         </div>
-                                        {{-- Video Pill Indicator --}}
-                                        <span class="bg-[#1C1917]/95 text-white text-[8px] sm:text-[8.5px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-xs shadow-xs">
-                                            VIDEO
-                                        </span>
-                                    </div>
-                                </template>
-                            </button>
-                        </template>
+                                    </template>
+
+                                    {{-- 2. If YouTube / Vimeo, display official API thumbnail --}}
+                                    <template x-if="item.type === 'video' && (item.isYoutube || item.isVimeo)">
+                                        <img :src="item.thumb" :alt="'Video ' + (idx + 1)" class="w-full h-full object-cover rounded-lg sm:rounded-xl pointer-events-none">
+                                    </template>
+
+                                    {{-- 3. If standard product image, display photo --}}
+                                    <template x-if="item.type === 'image'">
+                                        <img :src="item.thumb || item.src" :alt="'Media ' + (idx + 1)" class="w-full h-full object-cover rounded-lg sm:rounded-xl">
+                                    </template>
+
+                                    {{-- Video Badge & Overlay (if video item) --}}
+                                    <template x-if="item.type === 'video'">
+                                        <div class="absolute inset-0 bg-black/40 rounded-lg sm:rounded-xl flex flex-col items-center justify-center text-white transition-colors hover:bg-black/25">
+                                            {{-- Center Play Disc --}}
+                                            <div class="w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-white text-[#1C1917] flex items-center justify-center shadow-md mb-0.5">
+                                                <svg class="w-3 h-3 fill-current ml-0.5" viewBox="0 0 24 24">
+                                                    <path d="M8 5v14l11-7z"/>
+                                                </svg>
+                                            </div>
+                                            {{-- Video Pill Indicator --}}
+                                            <span class="bg-[#1C1917]/95 text-white text-[8px] sm:text-[8.5px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-xs shadow-xs">
+                                                VIDEO
+                                            </span>
+                                        </div>
+                                    </template>
+                                </button>
+                            </template>
+                        </div>
+
+                        {{-- Right Gradient Edge Shadow (Soft fade hint) --}}
+                        <div x-show="canScrollThumbRight"
+                             x-cloak
+                             x-transition.opacity.duration.200ms
+                             class="pointer-events-none absolute right-0 top-0 bottom-0 w-8 sm:w-10 bg-gradient-to-l from-[#FAF8F5] via-[#FAF8F5]/80 to-transparent z-10 rounded-r-xl"></div>
+
+                        {{-- Right Arrow Button --}}
+                        <button type="button"
+                                x-show="canScrollThumbRight"
+                                x-cloak
+                                x-transition:enter="transition ease-out duration-200"
+                                x-transition:enter-start="opacity-0 translate-x-2 scale-90"
+                                x-transition:enter-end="opacity-100 translate-x-0 scale-100"
+                                x-transition:leave="transition ease-in duration-150"
+                                x-transition:leave-start="opacity-100 translate-x-0 scale-100"
+                                x-transition:leave-end="opacity-0 translate-x-2 scale-90"
+                                @click.stop="scrollThumbRight()"
+                                class="absolute -right-2 sm:-right-3.5 top-1/2 -translate-y-1/2 w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-white/95 hover:bg-[#1C1917] text-[#1C1917] hover:text-white border border-[#DFD9CE] shadow-md flex items-center justify-center transition-all duration-200 hover:scale-110 active:scale-95 z-30 cursor-pointer"
+                                aria-label="Next thumbnails">
+                            <svg class="w-4 h-4 stroke-[2.2]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
+                            </svg>
+                        </button>
                     </div>
                 @endif
             </div>
 
-            {{-- RIGHT: Product Info & Actions (Jewellery Layout matching Solitairekart) --}}
-            <div class="space-y-5">
-                {{-- Category & Title --}}
+            {{-- RIGHT: Product Info & Actions (Restored to Exact Atelier Luxury Design Look) --}}
+            <div class="space-y-6">
+                {{-- Category & Inventory Status Pill Tag --}}
                 <div>
-                    <p class="text-[10px] uppercase tracking-[0.28em] font-medium text-[#8E877D] mb-1.5">
-                        {{ $product->category?->name ?? 'FINE JEWELLERY' }}
-                    </p>
-                    <h1 class="font-editorial text-2xl sm:text-3xl lg:text-[2.25rem] text-[#1C1917] font-normal leading-[1.2] tracking-tight">
+                    <div class="flex items-center justify-between gap-3 mb-2">
+                        <p class="text-[10px] uppercase tracking-[0.28em] font-medium text-[#8E877D]">
+                            {{ $product->category?->name ?? 'FINE JEWELLERY' }}
+                        </p>
+                        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[9px] uppercase tracking-[0.18em] font-medium {{ $product->inventory_type === 'MADE_TO_ORDER' ? 'bg-[#F5F2EB] text-[#78716C] border border-[#DFD9CE]' : 'bg-[#EBF5ED] text-[#2E7D32] border border-[#C8E6C9]' }}">
+                            <span class="w-1.5 h-1.5 rounded-full {{ $product->inventory_type === 'MADE_TO_ORDER' ? 'bg-[#A8A29E]' : 'bg-[#2E7D32]' }}"></span>
+                            {{ $product->inventory_type === 'MADE_TO_ORDER' ? 'MADE TO ORDER' : 'READY TO SHIP' }}
+                        </span>
+                    </div>
+                    <h1 class="font-editorial text-3xl sm:text-4xl lg:text-5xl text-[#1C1917] font-light leading-[1.12] sm:leading-[1.08] tracking-tight">
                         {{ $product->name }}
                     </h1>
-                    @if($product->diamond_carat || $product->diamond_color_clarity || $product->certification)
-                        <p class="text-[11.5px] uppercase tracking-[0.16em] text-[#8E877D] font-medium mt-2">
-                            {{ collect([$product->diamond_carat, $product->diamond_color_clarity, $product->certification ? $product->certification . ' CERTIFIED' : null])->filter()->join(' · ') }}
-                        </p>
-                    @endif
+                    @php
+                        $cert = trim($product->certification ?? '');
+                        if ($cert !== '') {
+                            $certUpper = strtoupper($cert);
+                            $certLabel = str_ends_with($certUpper, 'CERTIFIED') ? $certUpper : $certUpper . ' CERTIFIED';
+                        } else {
+                            $certLabel = null;
+                        }
+                        $specItems = collect([
+                            $product->diamond_carat ? strtoupper($product->diamond_carat) : null,
+                            $product->diamond_color_clarity ? strtoupper($product->diamond_color_clarity) : null,
+                            $certLabel,
+                            $product->inventory_type === 'MADE_TO_ORDER' ? 'MADE TO ORDER' : 'READY TO SHIP',
+                        ])->filter();
+                    @endphp
+                    <p class="text-[10.5px] uppercase tracking-[0.18em] text-[#8E877D] font-light mt-3.5 flex items-center flex-wrap gap-x-2 gap-y-1">
+                        {{ $specItems->join(' · ') }}
+                    </p>
                 </div>
 
-                {{-- Price & Review Rating --}}
+                {{-- Price & Review Rating (Interlinked to Customer Reviews) --}}
                 @php
                     $revCount = $product->reviews_count ?? ($product->reviews ? $product->reviews->count() : 0);
                     $avgRating = $product->average_rating ?? 5.0;
@@ -669,19 +1038,22 @@
                     $hasHalfStar = ($avgRating - $fullStars) >= 0.5;
                     $emptyStars = 5 - $fullStars - ($hasHalfStar ? 1 : 0);
                 @endphp
-                <div class="flex items-baseline flex-wrap gap-x-4 gap-y-2 pt-1 border-b border-[#EBE6DD] pb-4">
-                    <div class="flex items-baseline gap-2.5 sm:gap-3">
-                        <span class="font-sans font-semibold text-2xl sm:text-3xl text-[#8B1E3F] tracking-tight">
+                <div class="flex items-baseline flex-wrap gap-x-4 gap-y-2 pt-1">
+                    <div class="flex items-baseline gap-2.5 sm:gap-3 flex-wrap">
+                        <span class="font-sans font-medium text-2xl sm:text-3.5xl text-[#1C1917] tracking-tight">
                             ₹ <span x-text="formatPrice(currentPrice)">{{ number_format($product->effective_price) }}</span>
                         </span>
-                        @if($product->sale_price && $product->sale_price < $product->price)
-                            <s class="text-sm sm:text-base text-[#8E877D] font-light font-sans line-through" x-show="sizeVariants.length === 0">
-                                ₹ {{ number_format($product->price) }}
-                            </s>
-                            <span class="bg-[#8B1E3F] text-white text-[9.5px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-xs">
-                                SALE
+                        <template x-if="currentMrp && currentMrp > currentPrice">
+                            <span class="inline-flex items-baseline gap-2">
+                                <s class="text-sm sm:text-base text-[#8E877D] font-light font-sans tracking-tight">
+                                    ₹ <span x-text="formatPrice(currentMrp)">{{ number_format($product->price) }}</span>
+                                </s>
+                                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] sm:text-[11px] font-semibold bg-[#FAF4EB] text-[#A87432] border border-[#E9DAC6] tracking-wide"
+                                      x-show="discountPercent > 0">
+                                    <span x-text="discountPercent + '% OFF'"></span>
+                                </span>
                             </span>
-                        @endif
+                        </template>
                     </div>
                     <a href="#customer-reviews" onclick="document.getElementById('customer-reviews')?.scrollIntoView({ behavior: 'smooth' });"
                        class="text-[10px] uppercase tracking-[0.16em] sm:tracking-[0.18em] text-[#8E877D] hover:text-[#1C1917] font-light flex items-center gap-1.5 transition-colors cursor-pointer">
@@ -692,119 +1064,103 @@
                     </a>
                 </div>
 
-                {{-- Solitairekart 4 Highlights: Authenticity, Pricing, Craftsmanship, Customer Care --}}
-                <div class="space-y-1.5 text-xs text-[#57534E] py-2 border-b border-[#EBE6DD] leading-relaxed">
-                    <p><strong class="font-semibold text-[#8B1E3F]">Authenticity:</strong> 100% certified, genuine diamonds and gemstones.</p>
-                    <p><strong class="font-semibold text-[#8B1E3F]">Transparent Pricing:</strong> Competitive rates with no hidden costs.</p>
-                    <p><strong class="font-semibold text-[#8B1E3F]">Craftsmanship:</strong> Elegant designs with lasting quality.</p>
-                    <p><strong class="font-semibold text-[#8B1E3F]">Customer Care:</strong> Hassle-free shopping and dedicated support.</p>
-                </div>
-
-                {{-- 1. Gold Purity Selector --}}
-                <template x-if="goldPurities && goldPurities.length > 0">
+                {{-- 1. Gold Purity Selector (Multiple purities show pills; single purity shows label; empty hides) --}}
+                <template x-if="goldPurities && goldPurities.length > 1">
                     <div class="space-y-2">
-                        <p class="text-xs text-[#1C1917]">
-                            Gold Purity : <strong class="font-semibold text-[#1C1917]" x-text="selectedPurity"></strong>
+                        <p class="text-[10px] uppercase tracking-[0.2em] font-semibold text-[#1C1917]">
+                            GOLD PURITY <span class="font-normal text-[#8E877D] tracking-normal ml-1" x-text="selectedPurity ? '· ' + selectedPurity : ''"></span>
                         </p>
                         <div class="flex items-center gap-2 flex-wrap">
                             <template x-for="purity in goldPurities" :key="purity">
                                 <button type="button" @click="selectedPurity = purity"
-                                        :class="selectedPurity === purity ? 'border-[#1C1917] bg-[#1C1917] text-white shadow-xs font-semibold' : 'border-[#DFD9CE] bg-white text-[#1C1917] hover:border-[#1C1917] font-normal'"
-                                        class="px-4 py-2 border text-xs tracking-wide transition-all cursor-pointer rounded-xs"
+                                        :class="selectedPurity === purity ? 'bg-[#1C1917] text-white border-[#1C1917]' : 'bg-transparent text-[#1C1917] border-[#EBE6DD] hover:border-[#1C1917]'"
+                                        class="px-4 sm:px-5 py-2 rounded-full border text-[9px] sm:text-[9.5px] uppercase tracking-[0.18em] sm:tracking-[0.2em] font-medium transition-all duration-200 cursor-pointer"
                                         x-text="purity">
                                 </button>
                             </template>
                         </div>
                     </div>
                 </template>
+                <template x-if="goldPurities && goldPurities.length === 1">
+                    <p class="text-[10px] uppercase tracking-[0.2em] font-semibold text-[#8E877D]">
+                        GOLD PURITY · <span class="text-[#1C1917]" x-text="goldPurities[0]"></span>
+                    </p>
+                </template>
 
-                {{-- 2. Dynamic Size Selector (Necklace Size, Ring Size, Bracelet Size, etc.) --}}
+                {{-- 2. Dynamic Size Selector (Necklace Length, Ring Size, etc.) --}}
                 <template x-if="sizeVariants && sizeVariants.length > 0">
                     <div class="space-y-2">
-                        <p class="text-xs text-[#1C1917]">
-                            <span x-text="sizeLabel || 'Size'"></span> : <strong class="font-semibold text-[#1C1917]" x-text="selectedSize"></strong>
+                        <p class="text-[10px] uppercase tracking-[0.2em] font-semibold text-[#1C1917]">
+                            <span x-text="(sizeLabel || 'SIZE').toUpperCase()"></span>
+                            <span class="font-normal text-[#8E877D] tracking-normal ml-1" x-text="selectedSize ? '· ' + selectedSize : ''"></span>
                         </p>
                         <div class="flex items-center gap-2 flex-wrap">
                             <template x-for="v in sizeVariants" :key="v.size">
                                 <button type="button" @click="selectedSize = v.size"
-                                        :class="selectedSize === v.size ? 'border-[#1C1917] bg-[#1C1917] text-white shadow-xs font-semibold' : 'border-[#DFD9CE] bg-white text-[#1C1917] hover:border-[#1C1917] font-normal'"
-                                        class="px-4 py-2 border text-xs tracking-wide transition-all cursor-pointer rounded-xs">
+                                        :class="selectedSize === v.size ? 'bg-[#1C1917] text-white border-[#1C1917]' : 'bg-transparent text-[#1C1917] border-[#EBE6DD] hover:border-[#1C1917]'"
+                                        class="px-4 sm:px-5 py-2 rounded-full border text-[9px] sm:text-[9.5px] uppercase tracking-[0.18em] sm:tracking-[0.2em] font-medium transition-all duration-200 cursor-pointer">
                                     <span x-text="v.size"></span>
-                                    <template x-if="v.price && v.price != basePrice">
-                                        <span class="text-[10px] ml-1 opacity-80" x-text="'(₹' + formatPrice(v.price) + ')'"></span>
-                                    </template>
                                 </button>
                             </template>
                         </div>
                     </div>
                 </template>
 
-                {{-- 3. Metal Color Swatches (Yellow Gold, White Gold, Rose Gold) --}}
-                <template x-if="metalColors && metalColors.length > 0">
+                {{-- 3. Metal Color Swatches (Multiple colors show swatches; single color shows clean label; empty hides) --}}
+                <template x-if="metalColors && metalColors.length > 1">
                     <div class="space-y-2">
-                        <p class="text-xs text-[#1C1917]">
-                            Color : <strong class="font-semibold text-[#1C1917]" x-text="selectedColor"></strong>
+                        <p class="text-[10px] uppercase tracking-[0.2em] font-semibold text-[#1C1917]">
+                            COLOR <span class="font-normal text-[#8E877D] tracking-normal ml-1" x-text="selectedColor ? '· ' + selectedColor : ''"></span>
                         </p>
-                        <div class="flex items-center gap-3">
+                        <div class="flex items-center gap-2.5">
                             <template x-for="color in metalColors" :key="color">
-                                <button type="button" @click="selectedColor = color"
+                                <button type="button" @click="selectColor(color)"
                                         :title="color"
-                                        class="w-8 h-8 rounded-full border-2 transition-all p-0.5 relative cursor-pointer focus:outline-none"
-                                        :class="selectedColor === color ? 'border-[#1C1917] ring-2 ring-[#1C1917]/30 scale-110' : 'border-transparent hover:border-[#A8A29E]'">
+                                        class="w-7 h-7 rounded-full border-2 transition-all p-0.5 relative cursor-pointer focus:outline-none"
+                                        :class="selectedColor === color ? 'border-[#1C1917] ring-2 ring-[#1C1917]/25 scale-110' : 'border-[#DFD9CE] hover:border-[#8E877D]'">
                                     <span class="block w-full h-full rounded-full shadow-inner border border-black/10" :style="getColorStyle(color)"></span>
                                 </button>
                             </template>
                         </div>
                     </div>
                 </template>
+                <template x-if="metalColors && metalColors.length === 1">
+                    <p class="text-[10px] uppercase tracking-[0.2em] font-semibold text-[#8E877D]">
+                        COLOR · <span class="text-[#1C1917]" x-text="metalColors[0]"></span>
+                    </p>
+                </template>
 
-                {{-- 4. Quantity + Add to Cart + Buy It Now Row --}}
-                <div class="space-y-3 pt-2" x-data="{ showShareModal: false, copied: false }">
-                    <div class="flex items-center gap-2 sm:gap-3 flex-wrap sm:flex-nowrap">
-                        {{-- Qty Counter Pill --}}
-                        <div class="flex items-center justify-between border border-[#DFD9CE] rounded-xs px-3 bg-white w-24 h-12 shrink-0">
-                            <button type="button" @click="if(qty > 1) qty--"
-                                    class="w-6 h-full flex items-center justify-center text-[#78716C] hover:text-[#1C1917] text-lg font-light cursor-pointer select-none">−</button>
-                            <span class="text-xs font-semibold text-[#1C1917]" x-text="qty"></span>
-                            <button type="button" @click="qty++"
-                                    class="w-6 h-full flex items-center justify-center text-[#78716C] hover:text-[#1C1917] text-lg font-light cursor-pointer select-none">+</button>
-                        </div>
-
-                        {{-- ADD TO CART FORM --}}
-                        <form method="POST" action="{{ route('cart.add') }}" class="flex-1 min-w-[140px]">
+                {{-- 4. Quantity + Add to Bag + Wishlist Row (Original Luxury Pill Aesthetic) --}}
+                <div class="space-y-2.5 pt-1" x-data="{ showShareModal: false, copied: false }">
+                    <div class="flex items-center gap-2.5 sm:gap-3">
+                        {{-- Add to Bag Form --}}
+                        <form method="POST" action="{{ route('cart.add') }}" class="flex items-center gap-2.5 sm:gap-3 flex-1 min-w-0">
                             @csrf
                             <input type="hidden" name="product_id" value="{{ $product->id }}">
-                            <input type="hidden" name="quantity" :value="qty">
                             <input type="hidden" name="options[gold_purity]" :value="selectedPurity">
                             <input type="hidden" name="options[metal_color]" :value="selectedColor">
                             <template x-if="selectedSize">
                                 <input type="hidden" name="options[size]" :value="selectedSize">
                             </template>
+
+                            {{-- Qty Counter Pill --}}
+                            <div class="flex items-center justify-between border border-[#DFD9CE] rounded-full px-3 sm:px-4 bg-white w-24 sm:w-28 h-12 shrink-0">
+                                <button type="button" @click="if(qty > 1) qty--"
+                                        class="w-6 h-6 flex items-center justify-center text-[#78716C] hover:text-[#1C1917] text-base leading-none font-light cursor-pointer select-none">−</button>
+                                <span class="text-xs font-semibold text-[#1C1917]" x-text="qty"></span>
+                                <button type="button" @click="qty++"
+                                        class="w-6 h-6 flex items-center justify-center text-[#78716C] hover:text-[#1C1917] text-base leading-none font-light cursor-pointer select-none">+</button>
+                                <input type="hidden" name="quantity" :value="qty">
+                            </div>
+
+                            {{-- Add to Bag Button --}}
                             <button type="submit"
-                                    class="w-full h-12 bg-[#1C1917] hover:bg-[#2D2825] text-white text-xs sm:text-[13px] font-bold uppercase tracking-wider rounded-xs transition-all duration-200 cursor-pointer shadow-xs flex items-center justify-center">
-                                ADD TO CART
+                                    class="flex-1 h-12 bg-[#1C1917] hover:bg-[#2D2825] text-white text-[10px] sm:text-[11px] uppercase tracking-[0.16em] sm:tracking-[0.25em] font-semibold rounded-full transition-all duration-300 shadow-xs cursor-pointer flex items-center justify-center text-center px-2">
+                                ADD TO BAG
                             </button>
                         </form>
 
-                        {{-- BUY IT NOW FORM (Burgundy #8B1E3F like Solitairekart) --}}
-                        <form method="POST" action="{{ route('cart.buy-now') }}" class="flex-1 min-w-[140px]">
-                            @csrf
-                            <input type="hidden" name="product_id" value="{{ $product->id }}">
-                            <input type="hidden" name="quantity" :value="qty">
-                            <input type="hidden" name="options[gold_purity]" :value="selectedPurity">
-                            <input type="hidden" name="options[metal_color]" :value="selectedColor">
-                            <template x-if="selectedSize">
-                                <input type="hidden" name="options[size]" :value="selectedSize">
-                            </template>
-                            <button type="submit"
-                                    class="w-full h-12 bg-[#8B1E3F] hover:bg-[#731833] text-white text-xs sm:text-[13px] font-bold uppercase tracking-wider rounded-xs transition-all duration-200 cursor-pointer shadow-xs flex items-center justify-center">
-                                BUY IT NOW
-                            </button>
-                        </form>
-                    </div>
-
-                    {{-- Wishlist + Share Row --}}
-                    <div class="flex items-center justify-between text-xs pt-1">
+                        {{-- Independent Wishlist Toggle Form (Matching Original Circular Styling) --}}
                         @php
                             $isWishlisted = false;
                             if (Auth::check()) {
@@ -813,51 +1169,75 @@
                                 $isWishlisted = in_array($product->id, session('guest_wishlist', []));
                             }
                         @endphp
-                        <form method="POST" action="{{ route('wishlist.toggle') }}" class="wishlist-toggle-form inline" data-product-id="{{ $product->id }}">
+                        <form method="POST" action="{{ route('wishlist.toggle') }}" class="wishlist-toggle-form inline shrink-0" data-product-id="{{ $product->id }}">
                             @csrf
                             <input type="hidden" name="product_id" value="{{ $product->id }}">
-                            <button type="submit"
-                                    class="wishlist-btn inline-flex items-center gap-1.5 text-[#1C1917] hover:text-[#8B1E3F] transition-colors cursor-pointer font-medium py-1"
+                            <button type="submit" title="{{ $isWishlisted ? 'Remove from Wishlist' : 'Add to Wishlist' }}"
+                                    class="wishlist-btn w-12 h-12 rounded-full transition-all cursor-pointer shrink-0 flex items-center justify-center {{ $isWishlisted ? 'bg-[#1C1917] text-white shadow-xs' : 'bg-white border border-[#DFD9CE] text-[#1C1917] hover:border-[#1C1917] shadow-2xs' }}"
                                     data-product-id="{{ $product->id }}"
-                                    data-wishlisted="{{ $isWishlisted ? 'true' : 'false' }}">
-                                <svg class="wishlist-icon w-4 h-4 stroke-[1.75] {{ $isWishlisted ? 'fill-[#8B1E3F] text-[#8B1E3F]' : 'fill-none text-current' }}" viewBox="0 0 24 24" stroke="currentColor">
+                                    data-wishlisted="{{ $isWishlisted ? 'true' : 'false' }}"
+                                    data-style-type="detail-main">
+                                <svg class="wishlist-icon w-4 h-4 stroke-[1.75] transition-all duration-200 {{ $isWishlisted ? 'fill-current' : 'fill-none' }}" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
                                 </svg>
-                                <span x-text="'{{ $isWishlisted ? 'In Your Wishlist' : 'Add To Wishlist' }}'"></span>
+                            </button>
+                        </form>
+                    </div>
+
+                    {{-- Buy Now + Share Row (Original Rounded-Full Pill Styling) --}}
+                    <div class="flex items-center gap-2.5">
+                        <form method="POST" action="{{ route('cart.buy-now') }}" class="flex-1 min-w-0">
+                            @csrf
+                            <input type="hidden" name="product_id" value="{{ $product->id }}">
+                            <input type="hidden" name="quantity" :value="qty">
+                            <input type="hidden" name="options[gold_purity]" :value="selectedPurity">
+                            <input type="hidden" name="options[metal_color]" :value="selectedColor">
+                            <template x-if="selectedSize">
+                                <input type="hidden" name="options[size]" :value="selectedSize">
+                            </template>
+                            <button type="submit"
+                                    class="w-full h-12 flex items-center justify-center text-center border border-[#DFD9CE] hover:border-[#1C1917] bg-white text-[#1C1917] text-[10px] sm:text-[11px] uppercase tracking-[0.16em] sm:tracking-[0.25em] font-semibold rounded-full transition-all duration-300 shadow-2xs cursor-pointer">
+                                BUY NOW
                             </button>
                         </form>
 
-                        <button type="button" @click="showShareModal = true"
-                                class="inline-flex items-center gap-1.5 text-[#78716C] hover:text-[#1C1917] transition-colors cursor-pointer font-medium py-1">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"/></svg>
-                            <span>Share</span>
+                        <button type="button"
+                                @click="
+                                    const sharePayload = {
+                                        title: {{ Js::from($product->name) }},
+                                        text: {{ Js::from('Discover ' . $product->name . ' — fine certified jewellery.') }},
+                                        url: window.location.href
+                                    };
+                                    if (navigator.share) {
+                                        navigator.share(sharePayload).catch(err => {
+                                            if (err.name !== 'AbortError') {
+                                                showShareModal = true;
+                                            }
+                                        });
+                                    } else {
+                                        showShareModal = true;
+                                    }
+                                "
+                                class="h-12 shrink-0 px-5 sm:px-6 flex items-center justify-center border border-[#DFD9CE] hover:border-[#1C1917] bg-white text-[#1C1917] text-[10px] sm:text-[11px] uppercase tracking-[0.16em] sm:tracking-[0.25em] font-semibold rounded-full transition-all duration-300 shadow-2xs cursor-pointer">
+                            SHARE
                         </button>
                     </div>
 
-                    {{-- WhatsApp Direct Order & Bulk Wholesale Inquiry Buttons --}}
+                    {{-- WhatsApp Direct Order & Bulk Wholesale Inquiry (Matching Original Rounded-Full Pill Styling) --}}
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-1">
                         <a :href="whatsappOrderUrl" target="_blank"
-                           class="flex items-center justify-center gap-2 bg-[#25D366] hover:bg-[#20BA5A] text-white text-xs font-semibold py-3 px-4 rounded-xs transition-all shadow-xs cursor-pointer">
-                            <svg class="w-4 h-4 fill-current shrink-0" viewBox="0 0 24 24"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.711 2.598 2.664-.699c.971.53 1.83.81 2.805.81h.001c3.182 0 5.768-2.587 5.769-5.766.001-3.182-2.585-5.796-5.77-5.796zm0 10.427c-.881 0-1.683-.243-2.378-.669l-.17-.104-1.58.414.422-1.54-.112-.178c-.469-.747-.717-1.464-.716-2.584.001-2.433 1.979-4.411 4.414-4.411 2.435 0 4.413 1.979 4.413 4.412 0 2.434-1.977 4.66-4.413 4.66z"/></svg>
-                            <span>Order / Inquire via WhatsApp</span>
+                           class="h-12 flex items-center justify-center gap-2.5 bg-[#25D366] hover:bg-[#1fa951] text-white text-[10px] sm:text-[11px] uppercase tracking-[0.16em] font-semibold rounded-full px-4 transition-all duration-300 shadow-2xs cursor-pointer">
+                            <svg class="w-4 h-4 fill-current shrink-0" viewBox="0 0 24 24">
+                                <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/>
+                            </svg>
+                            <span>Order via WhatsApp</span>
                         </a>
 
                         <a :href="whatsappBulkUrl" target="_blank"
-                           class="flex items-center justify-center gap-2 bg-white hover:bg-[#F5F2EB] border border-[#1C1917] text-[#1C1917] text-xs font-semibold py-3 px-4 rounded-xs transition-all shadow-2xs cursor-pointer">
-                            <span>📦 Bulk / Wholesale Inquiry</span>
+                           class="h-12 flex items-center justify-center gap-2 border border-[#DFD9CE] hover:border-[#1C1917] bg-white text-[#1C1917] text-[10px] sm:text-[11px] uppercase tracking-[0.16em] font-semibold rounded-full px-4 transition-all duration-300 shadow-2xs cursor-pointer">
+                            <svg class="w-3.5 h-3.5 text-[#8E877D] shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
+                            <span>Bulk / Wholesale Inquiry</span>
                         </a>
-                    </div>
-
-                    {{-- Showroom & Delivery Availability Badges (Solitairekart style) --}}
-                    <div class="space-y-1.5 pt-2 text-xs text-[#44403C]">
-                        <div class="flex items-center gap-2 text-[#059669] font-medium">
-                            <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
-                            <span>Pickup available at Showroom &amp; Flagship Boutique</span>
-                        </div>
-                        <div class="flex items-center gap-2 text-[#57534E]">
-                            <svg class="w-4 h-4 shrink-0 text-[#C8A96E]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                            <span>100% Insured Pan-India Express Delivery · Certified Natural Diamonds</span>
-                        </div>
                     </div>
 
                     {{-- SHARE POPUP MODAL --}}
@@ -908,40 +1288,58 @@
                     </div>
                 </div>
 
-                {{-- Bespoke Jewellery Custom Inquiry Card --}}
-                <a href="{{ route('custom.index', ['product_id' => $product->id, 'type' => 'bespoke']) }}"
-                   class="flex items-center justify-between bg-[#F7F4EE] border border-[#DFD9CE]/60 rounded-xl px-5 sm:px-6 py-3.5 sm:py-4 hover:border-[#8E877D]/60 hover:bg-[#F2EDE4] transition-all duration-300 group shadow-2xs">
-                    <div class="space-y-0.5">
-                        <p class="text-xs sm:text-[13px] font-semibold text-[#1C1917]">Request Bespoke Customization</p>
-                        <p class="text-[11px] text-[#8E877D] font-light leading-normal">Custom diamond carat, gold purity, size or custom engraving</p>
-                    </div>
-                    <span class="text-base text-[#8E877D] group-hover:text-[#1C1917] group-hover:translate-x-1 transition-all ml-4 shrink-0">→</span>
-                </a>
-
                 {{-- Atelier Trust Highlights / E-Commerce Badges (Managed globally via Admin Panel → Site Settings) --}}
                 @php
-                    $b1Title = \App\Models\SiteSetting::get('global_badge_1_title', 'Hand-Poured');
-                    $b1Sub   = \App\Models\SiteSetting::get('global_badge_1_subtitle', '100% HANDMADE');
+                    $b1Icon  = \App\Models\SiteSetting::get('global_badge_1_icon', 'diamond');
+                    $b1Title = \App\Models\SiteSetting::get('global_badge_1_title', '100% Certified');
+                    $b1Sub   = \App\Models\SiteSetting::get('global_badge_1_subtitle', 'NATURAL DIAMONDS');
 
-                    $defaultB2Title = $product->inventory_type === 'MADE_TO_ORDER' ? 'Custom Made' : 'Atelier Piece';
+                    $b2Icon  = \App\Models\SiteSetting::get('global_badge_2_icon', 'hallmark');
+                    $defaultB2Title = $product->inventory_type === 'MADE_TO_ORDER' ? 'Custom Made' : 'BIS Hallmarked';
                     $b2Title = \App\Models\SiteSetting::get('global_badge_2_title', $defaultB2Title);
-                    $b2Sub   = \App\Models\SiteSetting::get('global_badge_2_subtitle', 'ORIGINAL ART');
+                    $b2Sub   = \App\Models\SiteSetting::get('global_badge_2_subtitle', '14K - 22K GOLD');
 
-                    $b3Title = \App\Models\SiteSetting::get('global_badge_3_title', 'Free Express');
-                    $b3Sub   = \App\Models\SiteSetting::get('global_badge_3_subtitle', 'PAN INDIA SHIP');
+                    $b3Icon  = \App\Models\SiteSetting::get('global_badge_3_icon', 'globe');
+                    $b3Title = \App\Models\SiteSetting::get('global_badge_3_title', 'Free Insured');
+                    $b3Sub   = \App\Models\SiteSetting::get('global_badge_3_subtitle', 'WORLDWIDE DISPATCH');
+
+                    $renderBadgeIcon = function($iconKey) {
+                        $iconClass = "w-4 h-4 sm:w-5 sm:h-5 mx-auto mb-1.5 text-[#9C8262] transition-transform duration-300 group-hover:scale-110";
+                        switch ($iconKey) {
+                            case 'diamond':
+                                return '<svg class="'.$iconClass.'" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 3.75h12l4 5.25L12 21 2 9l4-5.25z"/><path stroke-linecap="round" stroke-linejoin="round" d="M2.5 9h19M8 3.75l2 5.25-2 11M16 3.75l-2 5.25 2 11M12 9v12"/></svg>';
+                            case 'hallmark':
+                                return '<svg class="'.$iconClass.'" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><circle cx="12" cy="9" r="6" stroke-linecap="round" stroke-linejoin="round"/><path stroke-linecap="round" stroke-linejoin="round" d="M9 14.5L7 21l5-2.5 5 2.5-2-6.5"/><path stroke-linecap="round" stroke-linejoin="round" d="M10 9l1.5 1.5L14 7.5"/></svg>';
+                            case 'globe':
+                                return '<svg class="'.$iconClass.'" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><circle cx="12" cy="12" r="9.5" stroke-linecap="round" stroke-linejoin="round"/><path stroke-linecap="round" stroke-linejoin="round" d="M2.5 12h19M12 2.5a15.3 15.3 0 014 9.5 15.3 15.3 0 01-4 9.5 15.3 15.3 0 01-4-9.5 15.3 15.3 0 014-9.5z"/></svg>';
+                            case 'shield':
+                                return '<svg class="'.$iconClass.'" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3s7 2.5 7 8c0 5-3.5 8-7 10-3.5-2-7-5-7-10 0-5.5 7-8 7-8z"/><path stroke-linecap="round" stroke-linejoin="round" d="M9.5 11.5l2 2 3.5-3.5"/></svg>';
+                            case 'sparkles':
+                                return '<svg class="'.$iconClass.'" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 2v4m0 12v4M2 12h4m12 0h4m-3.5-6.5l-2.8 2.8m-7.4 7.4l-2.8 2.8m0-13l2.8 2.8m7.4 7.4l2.8 2.8"/></svg>';
+                            case 'truck':
+                                return '<svg class="'.$iconClass.'" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M2 5h12v11H2V5zm12 4h4l3 3.5V16h-7V9z"/><circle cx="6" cy="18" r="2"/><circle cx="17" cy="18" r="2"/></svg>';
+                            case 'certificate':
+                                return '<svg class="'.$iconClass.'" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h4m-6-8h6M5 3h14a2 2 0 012 2v14a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2z"/></svg>';
+                            default:
+                                return '<svg class="'.$iconClass.'" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><circle cx="12" cy="12" r="9" stroke-linecap="round" stroke-linejoin="round"/><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4"/></svg>';
+                        }
+                    };
                 @endphp
                 <div class="grid grid-cols-3 gap-2 sm:gap-3.5 pt-1">
-                    <div class="text-center glass border border-[#DFD9CE]/80 rounded-[1.25rem] sm:rounded-[1.5rem] py-3 px-1.5 sm:py-3.5 sm:px-2 shadow-2xs overflow-hidden">
+                    <div class="group text-center glass border border-[#DFD9CE]/80 rounded-[1.25rem] sm:rounded-[1.5rem] py-3 px-1.5 sm:py-3.5 sm:px-2 shadow-2xs overflow-hidden transition-all duration-300 hover:border-[#C4AB82] hover:shadow-xs">
+                        {!! $renderBadgeIcon($b1Icon) !!}
                         <p class="font-editorial text-sm sm:text-base lg:text-lg font-normal text-[#1C1917] leading-none truncate">{{ $b1Title }}</p>
-                        <p class="text-[7px] sm:text-[9px] uppercase tracking-[0.08em] sm:tracking-[0.1em] text-[#8E877D] font-medium mt-1.5 truncate">{{ $b1Sub }}</p>
+                        <p class="text-[7px] sm:text-[9px] uppercase tracking-[0.08em] sm:tracking-[0.1em] text-[#8E877D] font-medium mt-1 truncate">{{ $b1Sub }}</p>
                     </div>
-                    <div class="text-center glass border border-[#DFD9CE]/80 rounded-[1.25rem] sm:rounded-[1.5rem] py-3 px-1.5 sm:py-3.5 sm:px-2 shadow-2xs overflow-hidden">
+                    <div class="group text-center glass border border-[#DFD9CE]/80 rounded-[1.25rem] sm:rounded-[1.5rem] py-3 px-1.5 sm:py-3.5 sm:px-2 shadow-2xs overflow-hidden transition-all duration-300 hover:border-[#C4AB82] hover:shadow-xs">
+                        {!! $renderBadgeIcon($b2Icon) !!}
                         <p class="font-editorial text-sm sm:text-base lg:text-lg font-normal text-[#1C1917] leading-none truncate">{{ $b2Title }}</p>
-                        <p class="text-[7px] sm:text-[9px] uppercase tracking-[0.08em] sm:tracking-[0.1em] text-[#8E877D] font-medium mt-1.5 truncate">{{ $b2Sub }}</p>
+                        <p class="text-[7px] sm:text-[9px] uppercase tracking-[0.08em] sm:tracking-[0.1em] text-[#8E877D] font-medium mt-1 truncate">{{ $b2Sub }}</p>
                     </div>
-                    <div class="text-center glass border border-[#DFD9CE]/80 rounded-[1.25rem] sm:rounded-[1.5rem] py-3 px-1.5 sm:py-3.5 sm:px-2 shadow-2xs overflow-hidden">
+                    <div class="group text-center glass border border-[#DFD9CE]/80 rounded-[1.25rem] sm:rounded-[1.5rem] py-3 px-1.5 sm:py-3.5 sm:px-2 shadow-2xs overflow-hidden transition-all duration-300 hover:border-[#C4AB82] hover:shadow-xs">
+                        {!! $renderBadgeIcon($b3Icon) !!}
                         <p class="font-editorial text-sm sm:text-base lg:text-lg font-normal text-[#1C1917] leading-none truncate">{{ $b3Title }}</p>
-                        <p class="text-[7px] sm:text-[9px] uppercase tracking-[0.08em] sm:tracking-[0.1em] text-[#8E877D] font-medium mt-1.5 truncate">{{ $b3Sub }}</p>
+                        <p class="text-[7px] sm:text-[9px] uppercase tracking-[0.08em] sm:tracking-[0.1em] text-[#8E877D] font-medium mt-1 truncate">{{ $b3Sub }}</p>
                     </div>
                 </div>
             </div>
@@ -967,7 +1365,7 @@
                 <div class="space-y-6">
                     <div x-show="activeTab === 'description'">
                         <div class="artisan-rich-text">
-                            {!! $product->description ?? 'A unique handcrafted fluid resin art piece. Each carries its own tide — no two are alike.' !!}
+                            {!! $product->description ?? 'Master handcrafted fine jewellery featuring certified natural diamonds set in hallmarked gold. Created with enduring luxury and bespoke attention to detail.' !!}
                         </div>
                     </div>
 
@@ -1034,7 +1432,7 @@
                             $shippingNote = \App\Models\SiteSetting::get('product_tab_shipping_note', 'Ships within 24–48 business hours.');
 
                             $c1Title = \App\Models\SiteSetting::get('product_tab_ship_badge_1_title', 'Free Ship');
-                            $c1Sub   = \App\Models\SiteSetting::get('product_tab_ship_badge_1_subtitle', 'PAN INDIA');
+                            $c1Sub   = \App\Models\SiteSetting::get('product_tab_ship_badge_1_subtitle', 'WORLDWIDE');
 
                             $c2Title = \App\Models\SiteSetting::get('product_tab_ship_badge_2_title', '24–48 hrs');
                             $c2Sub   = \App\Models\SiteSetting::get('product_tab_ship_badge_2_subtitle', 'DISPATCH');
@@ -1042,9 +1440,9 @@
                             $c3Title = \App\Models\SiteSetting::get('product_tab_ship_badge_3_title', 'Insured');
                             $c3Sub   = \App\Models\SiteSetting::get('product_tab_ship_badge_3_subtitle', 'PACKAGING');
 
-                            $b1 = \App\Models\SiteSetting::get('product_tab_policy_bullet_1', '3 hours to cancel after placing order');
-                            $b2 = \App\Models\SiteSetting::get('product_tab_policy_bullet_2', 'No returns once dispatched (handcrafted / made-to-order)');
-                            $b3 = \App\Models\SiteSetting::get('product_tab_policy_bullet_3', 'Damage claims accepted within 48 hrs of delivery');
+                            $b1 = \App\Models\SiteSetting::get('product_tab_policy_bullet_1', 'Orders can be modified or cancelled within 3 hours');
+                            $b2 = \App\Models\SiteSetting::get('product_tab_policy_bullet_2', '100% insured courier delivery with signature confirmation');
+                            $b3 = \App\Models\SiteSetting::get('product_tab_policy_bullet_3', 'Complimentary ring sizing & lifetime authenticity guarantee');
                         @endphp
 
                         {{-- Shipping line --}}
@@ -1251,9 +1649,7 @@
                                     @endif
                                 </a>
 
-                                @if($rel->is_bestseller) <span class="glass-pill absolute top-2 sm:top-3 left-2 sm:left-3 text-[#1C1917] text-[7.5px] sm:text-[8.5px] uppercase tracking-[0.14em] sm:tracking-[0.18em] font-medium px-2 sm:px-3 py-0.5 sm:py-1 rounded-full pointer-events-none">BESTSELLER</span> @endif
-                                @if($rel->is_featured) <span class="glass-pill absolute top-2 sm:top-3 left-2 sm:left-3 text-[#1C1917] text-[7.5px] sm:text-[8.5px] uppercase tracking-[0.14em] sm:tracking-[0.18em] font-medium px-2 sm:px-3 py-0.5 sm:py-1 rounded-full pointer-events-none">FEATURED</span> @endif
-                                @if($rel->is_new) <span class="glass-pill absolute top-2 sm:top-3 left-2 sm:left-3 text-[#1C1917] text-[7.5px] sm:text-[8.5px] uppercase tracking-[0.14em] sm:tracking-[0.18em] font-medium px-2 sm:px-3 py-0.5 sm:py-1 rounded-full pointer-events-none">NEW</span> @endif
+
 
                                 {{-- Action Buttons (Visible on mobile, hover-animated on desktop) --}}
                                 @php
@@ -1295,7 +1691,7 @@
                                     <h3 class="font-editorial text-xs sm:text-[1.1rem] text-[#1C1917] font-normal leading-snug truncate">
                                         <a href="{{ route('shop.show', $rel->slug) }}" class="hover:text-[#8E877D] transition-colors">{{ $rel->name }}</a>
                                     </h3>
-                                    <p class="text-[8.5px] sm:text-[10px] uppercase tracking-[0.1em] sm:tracking-[0.12em] text-[#8E877D] font-medium mt-0.5 truncate">{{ $rel->category?->name ?? 'Handcrafted Art' }}</p>
+                                    <p class="text-[8.5px] sm:text-[10px] uppercase tracking-[0.1em] sm:tracking-[0.12em] text-[#8E877D] font-medium mt-0.5 truncate">{{ $rel->category?->name ?? 'Fine Jewellery' }}</p>
                                 </div>
                                 <span class="text-[11px] sm:text-[12.5px] font-semibold text-[#1C1917] whitespace-nowrap shrink-0 pt-0.5">₹ {{ number_format($rel->effective_price) }}</span>
                             </div>
@@ -1320,9 +1716,7 @@
                                     @endif
                                 </a>
 
-                                @if($recent->is_bestseller) <span class="glass-pill absolute top-2 sm:top-3 left-2 sm:left-3 text-[#1C1917] text-[7.5px] sm:text-[8.5px] uppercase tracking-[0.14em] sm:tracking-[0.18em] font-medium px-2 sm:px-3 py-0.5 sm:py-1 rounded-full pointer-events-none">BESTSELLER</span> @endif
-                                @if($recent->is_featured) <span class="glass-pill absolute top-2 sm:top-3 left-2 sm:left-3 text-[#1C1917] text-[7.5px] sm:text-[8.5px] uppercase tracking-[0.14em] sm:tracking-[0.18em] font-medium px-2 sm:px-3 py-0.5 sm:py-1 rounded-full pointer-events-none">FEATURED</span> @endif
-                                @if($recent->is_new) <span class="glass-pill absolute top-2 sm:top-3 left-2 sm:left-3 text-[#1C1917] text-[7.5px] sm:text-[8.5px] uppercase tracking-[0.14em] sm:tracking-[0.18em] font-medium px-2 sm:px-3 py-0.5 sm:py-1 rounded-full pointer-events-none">NEW</span> @endif
+
 
                                 {{-- Action Buttons --}}
                                 <div class="absolute top-2 sm:top-3 right-2 sm:right-3 flex flex-col space-y-1 sm:space-y-1.5 z-20 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 sm:translate-x-2 sm:group-hover:translate-x-0 transition-all duration-300 ease-out">
@@ -1352,7 +1746,7 @@
                                     <h3 class="font-editorial text-xs sm:text-[1.1rem] text-[#1C1917] font-normal leading-snug truncate">
                                         <a href="{{ route('shop.show', $recent->slug) }}" class="hover:text-[#8E877D] transition-colors">{{ $recent->name }}</a>
                                     </h3>
-                                    <p class="text-[8.5px] sm:text-[10px] uppercase tracking-[0.1em] sm:tracking-[0.12em] text-[#8E877D] font-medium mt-0.5 truncate">{{ $recent->category?->name ?? 'Handcrafted Art' }}</p>
+                                    <p class="text-[8.5px] sm:text-[10px] uppercase tracking-[0.1em] sm:tracking-[0.12em] text-[#8E877D] font-medium mt-0.5 truncate">{{ $recent->category?->name ?? 'Fine Jewellery' }}</p>
                                 </div>
                                 <span class="text-[11px] sm:text-[12.5px] font-semibold text-[#1C1917] whitespace-nowrap shrink-0 pt-0.5">₹ {{ number_format($recent->effective_price) }}</span>
                             </div>

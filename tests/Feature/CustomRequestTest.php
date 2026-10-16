@@ -14,10 +14,13 @@ class CustomRequestTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_custom_request_page_redirects_guests_to_login(): void
+    public function test_custom_request_page_allows_guest_access_without_login(): void
     {
         $response = $this->get('/custom');
-        $response->assertRedirect(route('login'));
+        $response->assertStatus(200);
+
+        $response2 = $this->get('/inquiry');
+        $response2->assertStatus(200);
     }
 
     public function test_custom_request_page_shows_form_to_authenticated_users(): void
@@ -31,7 +34,7 @@ class CustomRequestTest extends TestCase
 
         $response = $this->actingAs($user)->get('/custom');
         $response->assertStatus(200);
-        $response->assertSee('Made for your space.');
+        $response->assertSee('Crafted for your signature elegance');
     }
 
     public function test_custom_request_submission_creates_record_and_redirects(): void

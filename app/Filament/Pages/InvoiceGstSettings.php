@@ -50,18 +50,18 @@ class InvoiceGstSettings extends Page implements HasForms
     public function mount(): void
     {
         $this->form->fill([
-            'invoice_brand_name'        => SiteSetting::get('invoice_brand_name', 'Maison Résine'),
-            'invoice_brand_tagline'     => SiteSetting::get('invoice_brand_tagline', 'Haute Résine Atelier · Art Contemporain'),
-            'invoice_address'           => SiteSetting::get('invoice_address', '14 rue des Étoiles, 33000 Bordeaux, France'),
-            'invoice_email'             => SiteSetting::get('invoice_email', 'atelier@maisonresine.com'),
+            'invoice_brand_name'        => SiteSetting::get('invoice_brand_name', 'Solitaire Fine Jewels'),
+            'invoice_brand_tagline'     => SiteSetting::get('invoice_brand_tagline', 'Certified Natural Solitaires & Fine Gold Jewellery'),
+            'invoice_address'           => SiteSetting::get('invoice_address', 'Flagship Showroom, Delhi, India'),
+            'invoice_email'             => SiteSetting::get('invoice_email', 'care@solitairefinejewels.com'),
             'invoice_phone'             => SiteSetting::get('invoice_phone', '+91 98201 45678'),
-            'invoice_website'           => SiteSetting::get('invoice_website', 'www.maisonresine.com'),
+            'invoice_website'           => SiteSetting::get('invoice_website', 'www.solitairefinejewels.com'),
             'invoice_gstin'             => SiteSetting::get('invoice_gstin', ''),
-            'invoice_tax_rate'          => SiteSetting::get('invoice_tax_rate', '5'),
-            'invoice_tax_label'         => SiteSetting::get('invoice_tax_label', 'Estimated Taxes (GST 5%)'),
+            'invoice_tax_rate'          => SiteSetting::get('invoice_tax_rate', '3'),
+            'invoice_tax_label'         => SiteSetting::get('invoice_tax_label', 'GST (3% Jewellery)'),
             'invoice_show_tax'          => (bool) SiteSetting::get('invoice_show_tax', '1'),
-            'invoice_footer_note'       => SiteSetting::get('invoice_footer_note', 'Thank you for choosing Maison Résine. Handcrafted resin art and bespoke custom pieces.'),
-            'invoice_authenticity_note' => SiteSetting::get('invoice_authenticity_note', 'Every artwork is accompanied by an embossed physical Certificate of Authenticity.'),
+            'invoice_footer_note'       => SiteSetting::get('invoice_footer_note', 'Thank you for choosing Solitaire Fine Jewels. Every diamond is certified and BIS hallmarked.'),
+            'invoice_authenticity_note' => SiteSetting::get('invoice_authenticity_note', 'Accompanied by an official laboratory diamond certification & BIS Hallmarking guarantee.'),
         ]);
     }
 
@@ -77,17 +77,17 @@ class InvoiceGstSettings extends Page implements HasForms
                                 TextInput::make('invoice_brand_name')
                                     ->label('Brand / Company Name')
                                     ->required()
-                                    ->placeholder('e.g. Maison Résine'),
+                                    ->placeholder('e.g. Solitaire Fine Jewels'),
 
                                 TextInput::make('invoice_brand_tagline')
                                     ->label('Brand Subtitle / Tagline')
-                                    ->placeholder('e.g. Haute Résine Atelier · Art Contemporain'),
+                                    ->placeholder('e.g. Certified Natural Solitaires & Fine Gold Jewellery'),
 
                                 TextInput::make('invoice_email')
                                     ->label('Official Billing Email')
                                     ->email()
                                     ->required()
-                                    ->placeholder('e.g. atelier@maisonresine.com'),
+                                    ->placeholder('e.g. care@solitairefinejewels.com'),
 
                                 TextInput::make('invoice_phone')
                                     ->label('Official Contact / Support Phone')
@@ -95,14 +95,14 @@ class InvoiceGstSettings extends Page implements HasForms
 
                                 TextInput::make('invoice_website')
                                     ->label('Website URL')
-                                    ->placeholder('e.g. www.maisonresine.com')
+                                    ->placeholder('e.g. www.solitairefinejewels.com')
                                     ->columnSpan(2),
 
                                 Textarea::make('invoice_address')
                                     ->label('Atelier Registered Address')
                                     ->rows(2)
                                     ->required()
-                                    ->placeholder('e.g. 14 rue des Étoiles, 33000 Bordeaux, France')
+                                    ->placeholder('e.g. Flagship Showroom, Delhi, India')
                                     ->columnSpan(2),
                             ]),
                     ]),
@@ -144,12 +144,12 @@ class InvoiceGstSettings extends Page implements HasForms
                         Textarea::make('invoice_authenticity_note')
                             ->label('Authenticity Box Note')
                             ->rows(2)
-                            ->default('Every artwork is accompanied by an embossed physical Certificate of Authenticity.'),
+                            ->default('Accompanied by an official laboratory diamond certification & BIS Hallmarking guarantee.'),
 
                         Textarea::make('invoice_footer_note')
                             ->label('Footer Disclaimer Note')
                             ->rows(2)
-                            ->default('Thank you for choosing Maison Résine. This is a computer-generated tax invoice.'),
+                            ->default('Thank you for choosing Solitaire Fine Jewels. Every diamond is certified and BIS hallmarked.'),
                     ]),
             ]);
     }

@@ -1,7 +1,7 @@
-<x-app-layout :title="$collection->meta_title ?? ($collection->name . ' Collection — Maison Résine Atelier')">
+<x-app-layout :title="$collection->meta_title ?? ($collection->name . ' Collection — Solitaire Fine Jewels')">
     @push('head')
         <meta name="description" content="{{ $collection->meta_description ?? ($collection->short_description ?? Str::limit(strip_tags($collection->description), 160)) }}">
-        <meta property="og:title" content="{{ $collection->meta_title ?? ($collection->name . ' Collection — Maison Résine') }}">
+        <meta property="og:title" content="{{ $collection->meta_title ?? ($collection->name . ' Collection — Solitaire Fine Jewels') }}">
         <meta property="og:description" content="{{ $collection->meta_description ?? ($collection->short_description ?? Str::limit(strip_tags($collection->description), 160)) }}">
         <meta property="og:type" content="website">
         <meta property="og:url" content="{{ route('collections.show', $collection->slug) }}">
@@ -11,7 +11,7 @@
     @endpush
 
     <div class="min-h-screen bg-transparent w-full min-w-0">
-        <div class="max-w-[1360px] mx-auto px-4 sm:px-6 lg:px-12 xl:px-16 pt-6 sm:pt-10 pb-16 sm:pb-28 space-y-6 sm:space-y-10 w-full min-w-0">
+        <div class="max-w-[1360px] mx-auto px-4 sm:px-6 lg:px-12 xl:px-16 pt-2 sm:pt-4 pb-16 sm:pb-24 space-y-5 sm:space-y-8 w-full min-w-0">
 
             {{-- ── BREADCRUMB ──────────────────────────────────────── --}}
             <nav class="flex items-center flex-wrap gap-x-2 gap-y-1 text-[10px] uppercase tracking-[0.16em] sm:tracking-[0.2em] text-[#8E877D] font-medium">
@@ -88,7 +88,7 @@
                         </div>
                         <h3 class="font-editorial text-2xl sm:text-3xl text-[#1C1917] font-light tracking-tight">This collection is currently being curated.</h3>
                         <p class="text-xs sm:text-[13px] text-[#78716C] max-w-md mx-auto font-light leading-relaxed">
-                            New one-of-a-kind resin art pieces are actively being poured in our studio for this series.
+                            New fine diamond & gold jewellery pieces are actively being crafted in our atelier for this collection.
                         </p>
                         <div class="pt-2">
                             <a href="{{ route('shop.index') }}" class="inline-flex items-center justify-center gap-2 rounded-full bg-[#1C1917] px-6 sm:px-8 py-3 sm:py-3.5 text-[10px] sm:text-[10.5px] uppercase tracking-[0.2em] sm:tracking-[0.24em] font-medium text-[#FAF8F5] hover:bg-[#AD9575] transition-colors shadow-xs w-full sm:w-auto text-center">

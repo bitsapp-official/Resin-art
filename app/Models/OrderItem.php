@@ -39,4 +39,45 @@ class OrderItem extends Model
     {
         return $this->belongsTo(Product::class);
     }
+
+    public function getPrimaryImageUrlAttribute(): ?string
+    {
+        $color = $this->options['metal_color'] ?? ($this->options['color'] ?? null);
+        if ($color && $this->product) {
+            $cImgs = $this->product->color_images;
+            if (!empty($cImgs[$color])) {
+                $img = is_array($cImgs[$color]) ? ($cImgs[$color][0] ?? null) : $cImgs[$color];
+                if ($img) return $img;
+            }
+        }
+
+        if ($color && !empty($this->product_snapshot['color_images'][$color])) {
+            $ci = $this->product_snapshot['color_images'][$color];
+            $img = is_array($ci) ? ($ci[0] ?? null) : $ci;
+            if ($img) {
+                if (!str_starts_with($img, 'http://') && !str_starts_with($img, 'https://') && !str_starts_with($img, '/')) {
+                    return asset('storage/' . $img);
+                }
+                return $img;
+            }
+        }
+
+        if ($this->product?->primary_image_url) {
+            return $this->product->primary_image_url;
+        }
+
+        if (!empty($this->product_snapshot['images'][0])) {
+            $img = $this->product_snapshot['images'][0];
+            if (!str_starts_with($img, 'http://') && !str_starts_with($img, 'https://') && !str_starts_with($img, '/')) {
+                return asset('storage/' . $img);
+            }
+            return $img;
+        }
+
+        if (!empty($this->product?->images[0])) {
+            return $this->product->images[0];
+        }
+
+        return null;
+    }
 }

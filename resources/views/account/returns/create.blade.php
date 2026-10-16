@@ -26,7 +26,7 @@
                 <label class="block font-medium text-[#1C1917] mb-1">Return Reason *</label>
                 <select name="reason" required class="w-full px-4 py-2.5 bg-white border border-[#E6E1D7] rounded-xl focus:outline-none focus:border-[#1C1917]">
                     <option value="Damaged in transit">Damaged during transit</option>
-                    <option value="Defect in resin casting">Defect in resin casting</option>
+                    <option value="Defect in gemstone setting or metal finish">Defect in gemstone setting or metal finish</option>
                     <option value="Incorrect item received">Incorrect item received</option>
                     <option value="Size or dimension mismatch">Size or dimension mismatch</option>
                     <option value="Other">Other reason</option>

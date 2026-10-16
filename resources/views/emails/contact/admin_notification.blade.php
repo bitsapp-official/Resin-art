@@ -52,8 +52,10 @@
         <div class="message-box">{{ $inquiry->message }}</div>
 
         <p style="margin-top: 28px; text-align: center;">
-            <a href="{{ url('/admin/contact-inquiries/' . $inquiry->id) }}" class="action-btn">
-                View &amp; Reply in Admin Panel →
+            <a href="{{ url('/admin/contact-inquiries/' . $inquiry->id) }}"
+               class="action-btn"
+               style="display: inline-block; background-color: #2A2016; color: #FFFFFF !important; padding: 12px 28px; border-radius: 6px; text-decoration: none !important; font-weight: 500; font-size: 14px;">
+                <span style="color: #FFFFFF !important; text-decoration: none !important;">View &amp; Reply in Admin Panel &rarr;</span>
             </a>
         </p>
     </div>

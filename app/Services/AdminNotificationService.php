@@ -16,6 +16,7 @@ class AdminNotificationService
         // Find all admin users
         $admins = User::where('is_admin', true)
             ->orWhere('id', 1)
+            ->orWhere('email', config('atelier.admin_email', 'admin@solitairefinejewels.com'))
             ->orWhere('email', 'admin@maisonresine.com')
             ->get();
 

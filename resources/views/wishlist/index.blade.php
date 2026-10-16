@@ -1,5 +1,5 @@
-<x-app-layout title="Saved Wishlist — Maison Résine">
-    <div class="max-w-[1200px] mx-auto w-full min-w-0 px-3.5 sm:px-6 lg:px-12 py-6 sm:py-10">
+<x-app-layout title="Saved Wishlist — Solitaire Fine Jewels">
+    <div class="max-w-[1200px] mx-auto w-full min-w-0 px-3.5 sm:px-6 lg:px-12 pt-2 sm:pt-4 pb-12 sm:pb-16">
 
         <!-- Alerts -->
         @if(session('success'))
@@ -78,7 +78,7 @@
                         <path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
                     </svg>
                     <h3 class="font-editorial text-2xl text-[#1C1917] font-light mb-2">No saved pieces</h3>
-                    <p class="text-xs text-[#78716C] mb-6">Save your favorite resin art creations to your wishlist while exploring.</p>
+                    <p class="text-xs text-[#78716C] mb-6">Save your favourite fine jewellery & diamond pieces to your wishlist while exploring.</p>
                     <a href="{{ route('shop.index') }}" class="inline-block bg-[#1C1917] text-white text-xs uppercase tracking-widest px-8 py-3.5 rounded-full font-semibold">
                         Browse Catalogue
                     </a>

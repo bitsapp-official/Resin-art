@@ -17,19 +17,7 @@
                                     <span class="absolute top-3 left-3 bg-white/90 backdrop-blur-md px-3 py-1 rounded-full text-[9px] font-bold uppercase tracking-[0.18em] text-[#1C1917]">
                                         {{ $p->badge_text }}
                                     </span>
-                                @elseif($loop->first)
-                                    <span class="absolute top-3 left-3 bg-white/90 backdrop-blur-md px-3 py-1 rounded-full text-[9px] font-bold uppercase tracking-[0.18em] text-[#1C1917]">
-                                        FEATURED
-                                    </span>
-                                @elseif($loop->iteration == 2)
-                                    <span class="absolute top-3 left-3 bg-white/90 backdrop-blur-md px-3 py-1 rounded-full text-[9px] font-bold uppercase tracking-[0.18em] text-[#1C1917]">
-                                        FEATURED
-                                    </span>
-                                @elseif($loop->iteration == 3)
-                                    <span class="absolute top-3 left-3 bg-[#1C1917] text-white px-3 py-1 rounded-full text-[9px] font-bold uppercase tracking-[0.18em]">
-                                        BESTSELLER
-                                    </span>
-                                @endif
+
 
                                 @if(!empty($p->images) && isset($p->images[0]))
                                     <img src="{{ $p->images[0] }}" alt="{{ $p->name }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
@@ -47,7 +35,7 @@
                                     </span>
                                 </div>
                                 <div class="text-[9.5px] uppercase tracking-[0.15em] font-semibold text-[#8E877D]">
-                                    {{ $p->dimensions ?? $p->category?->name ?? 'BESPOKE RESIN CREATION' }}
+                                    {{ $p->dimensions ?? $p->category?->name ?? 'BESPOKE FINE JEWELLERY' }}
                                 </div>
                             </div>
                         </div>

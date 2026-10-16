@@ -34,7 +34,7 @@ class AdminPanelProvider extends PanelProvider
                 'purple' => Color::Purple,
                 'sky' => Color::Sky,
             ])
-            ->brandName('Maison Résine Admin')
+            ->brandName('Solitaire Fine Jewels Admin')
             ->navigationGroups([
                 'Orders & Sales',
                 'Shop & Catalog',
@@ -47,10 +47,45 @@ class AdminPanelProvider extends PanelProvider
             ->pages([
                 \App\Filament\Pages\Dashboard::class,
             ])
+            ->spa()
             ->databaseNotifications()
             ->renderHook(
                 \Filament\View\PanelsRenderHook::HEAD_END,
                 fn (): string => '<style>
+                    /* General Product Photos: 2-Column Grid (instead of 3) */
+                    .filepond-grid-2 .filepond--item,
+                    .filepond-grid-2 .filepond--list .filepond--item,
+                    [class*="filepond-grid-2"] .filepond--item {
+                        width: calc(50% - 0.5em) !important;
+                    }
+
+                    /* Filament Tabs Positioning & Width Constraint for FilePond */
+                    .fi-fo-tabs {
+                        position: relative !important;
+                    }
+                    .fi-fo-tabs-tab {
+                        width: 100% !important;
+                        max-width: 100% !important;
+                        box-sizing: border-box !important;
+                    }
+                    .fi-fo-tabs-tab.invisible,
+                    .fi-fo-tabs-tab[class*="invisible"] {
+                        position: absolute !important;
+                        top: 0 !important;
+                        left: 0 !important;
+                        right: 0 !important;
+                        width: 100% !important;
+                        max-width: 100% !important;
+                        height: 0 !important;
+                        overflow: hidden !important;
+                        padding: 0 !important;
+                        margin: 0 !important;
+                        border: 0 !important;
+                        box-sizing: border-box !important;
+                        pointer-events: none !important;
+                        visibility: hidden !important;
+                    }
+
                     /* Floating Toast Notifications: Solid 100% opaque, elevated shadow, high z-index */
                     .fi-notifications,
                     [class*="fi-notifications"] {
@@ -141,6 +176,83 @@ class AdminPanelProvider extends PanelProvider
                         width: 100% !important;
                     }
                 </style>'
+            )
+            ->renderHook(
+                \Filament\View\PanelsRenderHook::BODY_END,
+                fn (): string => '<script>
+                    (function () {
+                        function refreshPond(root) {
+                            if (!root) return;
+                            try {
+                                var pond = (window.FilePond && window.FilePond.find(root)) ||
+                                           (window.Alpine && window.Alpine.$data && window.Alpine.$data(root) && window.Alpine.$data(root).pond);
+                                if (pond) {
+                                    var cur = pond.itemInsertInterval || 75;
+                                    pond.setOptions({
+                                        itemInsertInterval: cur === 75 ? 76 : 75
+                                    });
+                                    if (typeof pond.sort === "function") {
+                                        pond.sort(function () { return 0; });
+                                    }
+                                }
+                            } catch (e) {}
+                        }
+
+                        function recomputeAllVisiblePonds() {
+                            if (window.__framePainter) {
+                                try {
+                                    window.__framePainter.readers.forEach(function (r) { r(); });
+                                    window.__framePainter.writers.forEach(function (w) { w(performance.now()); });
+                                } catch (e) {}
+                            }
+
+                            document.querySelectorAll(".fi-fo-tabs-tab.fi-active .filepond--root, .filepond--root").forEach(function (root) {
+                                if (root.offsetParent !== null) {
+                                    refreshPond(root);
+                                }
+                            });
+                        }
+
+                        document.addEventListener("DOMContentLoaded", function () {
+                            // 1. Observe tabs gaining fi-active class
+                            var observer = new MutationObserver(function (mutations) {
+                                var hasTabChange = false;
+                                mutations.forEach(function (mutation) {
+                                    if (mutation.type === "attributes" && mutation.attributeName === "class") {
+                                        var target = mutation.target;
+                                        if (target.classList && target.classList.contains("fi-fo-tabs-tab") && target.classList.contains("fi-active")) {
+                                            hasTabChange = true;
+                                            target.querySelectorAll(".filepond--root").forEach(function (root) {
+                                                refreshPond(root);
+                                            });
+                                        }
+                                    }
+                                });
+                                if (hasTabChange) {
+                                    [10, 50, 150, 300].forEach(function (t) {
+                                        setTimeout(recomputeAllVisiblePonds, t);
+                                    });
+                                }
+                            });
+
+                            observer.observe(document.body, {
+                                attributes: true,
+                                subtree: true,
+                                attributeFilter: ["class"]
+                            });
+
+                            // 2. Also listen to clicks on tab buttons
+                            document.addEventListener("click", function (e) {
+                                var btn = e.target.closest("button, [role=\'tab\'], .fi-tabs-item");
+                                if (btn) {
+                                    [10, 50, 120, 250, 450].forEach(function (t) {
+                                        setTimeout(recomputeAllVisiblePonds, t);
+                                    });
+                                }
+                            }, true);
+                        });
+                    })();
+                </script>'
             )
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\\Filament\\Widgets')
             ->widgets([])

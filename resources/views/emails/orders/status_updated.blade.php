@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Order Status Update — Maison Résine</title>
+    <title>Order Status Update — Solitaire Fine Jewels</title>
     <style>
         body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; background-color: #FAF8F5; color: #1C1917; margin: 0; padding: 0; }
         .container { max-width: 600px; margin: 30px auto; background-color: #FFFFFF; border: 1px solid #E5DFD3; border-radius: 16px; overflow: hidden; }
@@ -15,15 +15,18 @@
         .order-title { font-size: 22px; margin: 0 0 12px; font-family: Georgia, serif; font-weight: normal; color: #1C1917; }
         .lead { font-size: 14px; line-height: 1.6; color: #524C46; margin: 0 0 24px; }
         .tracking-card { background-color: #FAF8F5; border: 1px solid #EAE4D9; border-radius: 12px; padding: 20px; margin-bottom: 24px; }
-        .btn { display: inline-block; background-color: #1C1917; color: #FAF8F5; text-decoration: none; padding: 14px 28px; border-radius: 9999px; font-size: 11px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.2em; margin-top: 10px; }
+        .btn { display: inline-block; background-color: #1C1917 !important; color: #FAF8F5 !important; text-decoration: none !important; padding: 14px 34px; border-radius: 9999px; font-size: 11px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.2em; margin-top: 10px; }
+        .btn, .btn:visited, .btn:hover, .btn:active, .btn span { color: #FAF8F5 !important; text-decoration: none !important; }
         .footer { background-color: #FAF8F5; border-top: 1px solid #E5DFD3; padding: 20px 30px; text-align: center; font-size: 11px; color: #8E877D; }
+        /* Prevent auto blue links in Gmail/Apple Mail for address & numbers */
+        a[x-apple-data-detectors], u + #body a { color: inherit !important; text-decoration: none !important; font-size: inherit !important; font-family: inherit !important; font-weight: inherit !important; line-height: inherit !important; }
     </style>
 </head>
-<body>
+<body id="body">
     <div class="container">
         <div class="header">
-            <h1>Maison Résine</h1>
-            <p>Atelier &middot; Bordeaux</p>
+            <h1 style="color: #FAF8F5 !important;">Solitaire Fine Jewels</h1>
+            <p style="color: #8E877D !important;">Certified Diamonds &middot; Fine Jewellery Atelier</p>
         </div>
 
         <div class="content">
@@ -68,16 +71,19 @@
                 </div>
             @endif
 
-            <div style="text-align: center; margin-top: 24px;">
-                <a href="{{ route('tracking.index', ['order_reference' => $order->order_reference, 'email' => $order->email]) }}" class="btn">
-                    Track Live Shipment &rarr;
+            <div style="text-align: center; margin-top: 28px;">
+                <a href="{{ route('tracking.index', ['order_reference' => $order->order_reference, 'email' => $order->email]) }}"
+                   class="btn"
+                   target="_blank"
+                   style="display: inline-block; background-color: #1C1917; color: #FAF8F5 !important; text-decoration: none !important; padding: 14px 34px; border-radius: 9999px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 11px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.2em; line-height: 1; mso-padding-alt: 0;">
+                    <span style="color: #FAF8F5 !important; text-decoration: none !important; font-weight: bold; text-transform: uppercase; letter-spacing: 0.2em;">Track Live Shipment &rarr;</span>
                 </a>
             </div>
         </div>
 
         <div class="footer">
-            &copy; {{ date('Y') }} Maison R&eacute;sine Atelier &middot; Handcrafted Resin Art &amp; Custom Works.<br>
-            If you have any questions, reply to this email or visit our Atelier Support.
+            &copy; {{ date('Y') }} Solitaire Fine Jewels Atelier &middot; Certified Fine Jewellery &amp; Bespoke Creations.<br>
+            If you have any questions, reply to this email or visit our Atelier Concierge.
         </div>
     </div>
 </body>

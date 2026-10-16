@@ -1,12 +1,12 @@
 <x-app-layout title="Bespoke Jewellery & Bulk Inquiry — Fine Diamond & Gold Jewellery">
 
-    <div class="py-6 sm:py-10 lg:py-16 bg-transparent w-full min-w-0">
+    <div class="pt-2 sm:pt-4 lg:pt-5 pb-12 sm:pb-16 lg:pb-20 bg-transparent w-full min-w-0">
         <div class="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-12 xl:px-16 w-full min-w-0">
 
             {{-- ══════════════════════════════════════════════════════════════════
                  1. HERO SECTION
                  ══════════════════════════════════════════════════════════════════ --}}
-            <div class="max-w-3xl mb-8 sm:mb-12 lg:mb-16 space-y-3 sm:space-y-4 animate-fade-up min-w-0">
+            <div class="max-w-3xl mb-6 sm:mb-8 lg:mb-10 space-y-2.5 sm:space-y-3 animate-fade-up min-w-0">
                 <div class="flex items-center space-x-3 text-[10px] uppercase tracking-[0.25em] font-semibold text-[#8E877D]">
                     <span class="w-8 h-[1px] bg-[#D9D2C5] inline-block"></span>
                     <span>BESPOKE JEWELLERY &amp; BULK INQUIRIES</span>
@@ -32,7 +32,7 @@
 
                     @php
                         $whatsappNum = preg_replace('/[^0-9]/', '', \App\Models\SiteSetting::get('contact_whatsapp') ?: \App\Models\SiteSetting::get('contact_phone', config('atelier.studio.whatsapp', '919876543210')));
-                        $studioEmail = \App\Models\SiteSetting::get('contact_email', config('atelier.studio.email', 'atelier@maisonresine.com'));
+                        $studioEmail = \App\Models\SiteSetting::get('contact_email', config('atelier.studio.email', 'concierge@solitairefinejewels.com'));
                     @endphp
 
                     {{-- Direct Contact Box --}}
@@ -82,7 +82,7 @@
                             </li>
                             <li class="flex items-center space-x-2">
                                 <span class="w-1.5 h-1.5 rounded-full bg-[#1C1917]"></span>
-                                <span>100% Insured Pan-India Express Delivery</span>
+                                <span>100% Insured Worldwide Express Delivery</span>
                             </li>
                             <li class="flex items-center space-x-2">
                                 <span class="w-1.5 h-1.5 rounded-full bg-[#1C1917]"></span>
@@ -140,39 +140,92 @@
                             </div>
                         @endif
 
-                        <form action="{{ route('custom.store') }}" method="POST" enctype="multipart/form-data" class="space-y-7">
+                        <form action="{{ (request()->routeIs('inquiry.*') || request()->is('inquiry*')) ? route('inquiry.store') : route('custom.store') }}" method="POST" enctype="multipart/form-data" class="space-y-7">
                             @csrf
 
-                            {{-- Honeypot Anti-Spam --}}
-                            <div class="opacity-0 absolute -z-50 pointer-events-none w-0 h-0 overflow-hidden">
+                            {{-- Honeypot & Anti-Spam Security Fields --}}
+                            <div class="opacity-0 absolute -z-50 pointer-events-none w-0 h-0 overflow-hidden" aria-hidden="true">
                                 <input type="text" name="website_url_honey" tabindex="-1" autocomplete="off">
                             </div>
+                            <input type="hidden" name="form_time_token" value="{{ $timeToken ?? '' }}">
+                            <input type="hidden" name="recaptcha_token" id="recaptcha_token">
 
-                            {{-- 1. Inquiry Type Selector --}}
-                            <div class="space-y-2">
-                                <label for="project_type" class="block text-xs uppercase tracking-[0.22em] font-semibold text-[#1C1917]">
-                                    Inquiry Type <span class="text-red-500">*</span>
-                                </label>
-                                <select id="project_type" name="project_type" required class="input-pill w-full bg-white text-xs sm:text-sm font-medium">
-                                    <option value="Bespoke Jewellery Design" {{ old('project_type', $inquiryType ?? '') === 'Bespoke Jewellery Design' || old('project_type', $inquiryType ?? '') === 'bespoke' ? 'selected' : '' }}>
-                                        Bespoke Jewellery Design (Custom Ring, Necklace, Pendant, Bracelet)
-                                    </option>
-                                    <option value="Bulk / Wholesale B2B Order" {{ old('project_type', $inquiryType ?? '') === 'Bulk / Wholesale B2B Order' || old('project_type', $inquiryType ?? '') === 'bulk' ? 'selected' : '' }}>
-                                        Bulk / Wholesale B2B Order (Volume Corporate or Retail Order)
-                                    </option>
-                                    <option value="Solitaire Diamond Sourcing" {{ old('project_type', $inquiryType ?? '') === 'Solitaire Diamond Sourcing' ? 'selected' : '' }}>
-                                        Solitaire Diamond Sourcing (Specific Carat, Cut, Color &amp; Clarity)
-                                    </option>
-                                    <option value="Product Customization / Sizing" {{ old('project_type', $inquiryType ?? '') === 'Product Customization / Sizing' ? 'selected' : '' }}>
-                                        Product Customization / Sizing &amp; Engraving
-                                    </option>
-                                    <option value="General Inquiry" {{ old('project_type', $inquiryType ?? '') === 'General Inquiry' ? 'selected' : '' }}>
-                                        General Jewellery Inquiry
-                                    </option>
-                                </select>
+                            {{-- 1. Contact & Inquiry Details in a Balanced 2-Column Grid --}}
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-5 sm:gap-6">
+                                {{-- Full Name --}}
+                                <div class="space-y-1.5">
+                                    <label for="name" class="block text-xs uppercase tracking-[0.22em] font-semibold text-[#1C1917]">
+                                        Full Name <span class="text-red-500">*</span>
+                                    </label>
+                                    <input type="text" 
+                                           id="name" 
+                                           name="name" 
+                                           required 
+                                           value="{{ old('name', Auth::check() ? Auth::user()->name : '') }}" 
+                                           placeholder="e.g. Sandip Rathod" 
+                                           class="input-pill w-full @error('name') border-red-500 @enderror">
+                                    @error('name')
+                                        <p class="text-xs text-red-600 font-medium mt-1">{{ $message }}</p>
+                                    @enderror
+                                </div>
+
+                                {{-- Email Address --}}
+                                <div class="space-y-1.5">
+                                    <label for="email" class="block text-xs uppercase tracking-[0.22em] font-semibold text-[#1C1917]">
+                                        Email Address <span class="text-red-500">*</span>
+                                    </label>
+                                    <input type="email" 
+                                           id="email" 
+                                           name="email" 
+                                           required 
+                                           value="{{ old('email', Auth::check() ? Auth::user()->email : '') }}" 
+                                           placeholder="sandip@example.com" 
+                                           class="input-pill w-full @error('email') border-red-500 @enderror">
+                                    @error('email')
+                                        <p class="text-xs text-red-600 font-medium mt-1">{{ $message }}</p>
+                                    @enderror
+                                </div>
+
+                                {{-- Phone / WhatsApp --}}
+                                <div class="space-y-1.5">
+                                    <label for="whatsapp" class="block text-xs uppercase tracking-[0.22em] font-semibold text-[#1C1917]">
+                                        Phone / WhatsApp <span class="text-red-500">*</span>
+                                    </label>
+                                    <input type="tel" 
+                                           id="whatsapp" 
+                                           name="whatsapp" 
+                                           required
+                                           value="{{ old('whatsapp', Auth::check() ? Auth::user()->phone : '') }}" 
+                                           placeholder="e.g. +91 98201 45678" 
+                                           class="input-pill w-full @error('whatsapp') border-red-500 @enderror">
+                                    @error('whatsapp')
+                                        <p class="text-xs text-red-600 font-medium mt-1">{{ $message }}</p>
+                                    @enderror
+                                </div>
+
+                                {{-- Inquiry Type Selector --}}
+                                <div class="space-y-1.5">
+                                    <label for="project_type" class="block text-xs uppercase tracking-[0.22em] font-semibold text-[#1C1917]">
+                                        Inquiry Type <span class="text-red-500">*</span>
+                                    </label>
+                                    <select id="project_type" name="project_type" required class="input-pill w-full bg-white text-xs sm:text-sm font-medium">
+                                        <option value="Bespoke Jewellery Design" {{ old('project_type', $inquiryType ?? '') === 'Bespoke Jewellery Design' || old('project_type', $inquiryType ?? '') === 'bespoke' || old('project_type', $inquiryType ?? '') === 'Bespoke Handcrafted Design' ? 'selected' : '' }}>
+                                            Bespoke / Custom Jewellery Design
+                                        </option>
+                                        <option value="Bulk & Wholesale B2B Order" {{ old('project_type', $inquiryType ?? '') === 'Bulk & Wholesale B2B Order' || old('project_type', $inquiryType ?? '') === 'bulk' || old('project_type', $inquiryType ?? '') === 'Bulk & Wholesale Inquiries' ? 'selected' : '' }}>
+                                            Bulk &amp; Wholesale B2B Order
+                                        </option>
+                                        <option value="General Inquiry & Consultation" {{ old('project_type', $inquiryType ?? '') === 'General Inquiry & Consultation' || old('project_type', $inquiryType ?? '') === 'general' ? 'selected' : '' }}>
+                                            General Inquiry &amp; Consultation
+                                        </option>
+                                    </select>
+                                    @error('project_type')
+                                        <p class="text-xs text-red-600 font-medium mt-1">{{ $message }}</p>
+                                    @enderror
+                                </div>
                             </div>
 
-                            {{-- 2. Main Requirement Description Textarea --}}
+                            {{-- 3. Main Requirement Description Textarea --}}
                             <div class="space-y-2">
                                 <label for="idea_description" class="block text-xs uppercase tracking-[0.22em] font-semibold text-[#1C1917]">
                                     Describe Your Requirement In Your Own Words <span class="text-red-500">*</span>
@@ -187,19 +240,19 @@
                                           name="idea_description" 
                                           rows="5" 
                                           required
-                                          placeholder="e.g. Looking for an 18KT Yellow Gold engagement ring with a 2.50ct natural diamond (VVS1, E Color), or requesting bulk wholesale pricing for 20 units..." 
+                                          placeholder="Describe what you have in mind — diamond carat, gold purity, preferred metal tone, or custom concept requirements..." 
                                           class="textarea-rounded w-full leading-relaxed resize-y @error('idea_description') border-[#D97706] @enderror">{{ $defaultDesc }}</textarea>
-                                <p class="text-[11px] text-[#8E877D] font-light">Describe what you have in mind — diamond carat, gold purity, ring size, or bulk order quantities. Our team will contact you with options.</p>
+                                <p class="text-[11px] text-[#8E877D] font-light">Describe what you have in mind — diamond specifications, gold purity, sizing, or volume requirements. Our atelier team will contact you with options.</p>
                             </div>
 
-                            {{-- 2. Custom Reference File Uploader with Live Image Previews & Working Remove (X) Button --}}
+                            {{-- 4. Custom Reference File Uploader with Live Image Previews & Working Remove (X) Button (Max 5 Images) --}}
                             <div class="pt-1">
                                 <div x-data="{
                                     files: [],
                                     previews: [],
                                     handleFileSelect(event) {
                                         const newFiles = Array.from(event.target.files);
-                                        this.files = [...this.files, ...newFiles].slice(0, 3);
+                                        this.files = [...this.files, ...newFiles].slice(0, 5);
                                         this.updatePreviewsAndInput();
                                     },
                                     removeFile(index) {
@@ -241,7 +294,7 @@
                                                     @click="$refs.fileInput.click()" 
                                                     class="w-full flex items-center justify-center space-x-2 text-xs text-[#78716C] font-light py-2 cursor-pointer hover:text-[#1C1917] transition-colors">
                                                 <svg class="w-4 h-4 text-[#8E877D]" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
-                                                <span>Click or drop photos to upload (Max 3, 5MB each)</span>
+                                                <span>Click or drop photos to upload (Max 5, 5MB each)</span>
                                             </button>
                                         </template>
 
@@ -265,8 +318,8 @@
                                                     </div>
                                                 </template>
 
-                                                {{-- Add More Button if less than 3 --}}
-                                                <template x-if="previews.length < 3">
+                                                {{-- Add More Button if less than 5 --}}
+                                                <template x-if="previews.length < 5">
                                                     <button type="button" 
                                                             @click="$refs.fileInput.click()" 
                                                             class="w-20 h-20 rounded-2xl border-2 border-dashed border-[#DFD9CE] bg-white flex flex-col items-center justify-center text-[#8E877D] hover:border-[#1C1917] hover:text-[#1C1917] transition-all cursor-pointer shadow-sm">
@@ -278,124 +331,48 @@
                                         </template>
 
                                     </div>
-                                    <p class="text-[11px] text-[#8E877D] font-light">Upload reference photos to help our atelier understand your design vision (Max 3 images, 5MB each).</p>
-                                </div>
-                            </div>
-
-                            {{-- 3. Contact & Shipping Details --}}
-                            <div class="pt-4 border-t border-[#E5DFD3]/80 space-y-6">
-                                <span class="block text-xs uppercase tracking-[0.22em] font-semibold text-[#1C1917]">
-                                    Your Contact & Shipping Destination <span class="text-red-500">*</span>
-                                </span>
-
-                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                                    <div>
-                                        <label for="name" class="block text-[11px] uppercase tracking-wider font-medium text-[#78716C] mb-1">Full Name <span class="text-red-500">*</span></label>
-                                        <input type="text" 
-                                               id="name" 
-                                               name="name" 
-                                               required 
-                                               value="{{ old('name', Auth::check() ? Auth::user()->name : '') }}" 
-                                               placeholder="John Doe" 
-                                               class="input-pill w-full @error('name') border-red-500 @enderror">
-                                        @error('name')
-                                            <p class="text-xs text-red-600 font-medium mt-1.5">{{ $message }}</p>
-                                        @enderror
-                                    </div>
-
-                                    <div>
-                                        <label for="email" class="block text-[11px] uppercase tracking-wider font-medium text-[#78716C] mb-1">Email Address <span class="text-red-500">*</span></label>
-                                        <input type="email" 
-                                               id="email" 
-                                               name="email" 
-                                               required 
-                                               value="{{ old('email', Auth::check() ? Auth::user()->email : '') }}" 
-                                               placeholder="john@example.com" 
-                                               class="input-pill w-full @error('email') border-red-500 @enderror">
-                                        @error('email')
-                                            <p class="text-xs text-red-600 font-medium mt-1.5">{{ $message }}</p>
-                                        @enderror
-                                    </div>
-
-                                    <div>
-                                        <label for="whatsapp" class="block text-[11px] uppercase tracking-wider font-medium text-[#78716C] mb-1">Phone / WhatsApp Number <span class="text-red-500">*</span></label>
-                                        <input type="tel" 
-                                               id="whatsapp" 
-                                               name="whatsapp" 
-                                               required
-                                               minlength="10"
-                                               maxlength="16"
-                                               value="{{ old('whatsapp', Auth::check() ? Auth::user()->phone : '') }}" 
-                                               placeholder="e.g. +91 98201 45678" 
-                                               class="input-pill w-full @error('whatsapp') border-red-500 @enderror">
-                                        @error('whatsapp')
-                                            <p class="text-xs text-red-600 font-medium mt-1.5">{{ $message }}</p>
-                                        @enderror
-                                    </div>
-
-                                    <div>
-                                        <label for="phone" class="block text-[11px] uppercase tracking-wider font-medium text-[#78716C] mb-1">
-                                             Delivery Address / Destination <span class="text-red-500">*</span>
-                                        </label>
-
-                                        @php
-                                            $defaultAddressText = '';
-                                            $savedAddresses = collect();
-                                            if (Auth::check()) {
-                                                $savedAddresses = Auth::user()->addresses ?? collect();
-                                                $defaultAddr = $savedAddresses->where('is_default', true)->first() ?? $savedAddresses->first();
-                                                if ($defaultAddr) {
-                                                    $defaultAddressText = trim("{$defaultAddr->address_line_1}, {$defaultAddr->city}, {$defaultAddr->state} {$defaultAddr->postal_code}, {$defaultAddr->country}", ', ');
-                                                }
-                                            }
-                                        @endphp
-
-                                        @if($savedAddresses->count() > 0)
-                                            <div class="mb-2 flex items-center gap-1.5 flex-wrap">
-                                                <span class="text-[10px] uppercase tracking-wider text-[#A8A29E]">Use Saved:</span>
-                                                @foreach($savedAddresses as $sAddr)
-                                                    @php
-                                                        $formattedAddr = trim("{$sAddr->address_line_1}, {$sAddr->city}, {$sAddr->state} {$sAddr->postal_code}, {$sAddr->country}", ', ');
-                                                    @endphp
-                                                    <button type="button" 
-                                                            onclick="document.getElementById('phone').value = '{{ addslashes($formattedAddr) }}'"
-                                                            class="text-[9.5px] px-2 py-0.5 rounded-full border border-[#DDD6CA] hover:border-[#1C1917] hover:bg-[#1C1917] hover:text-white transition-all text-[#57534E]">
-                                                        {{ $sAddr->city }} ({{ ucfirst($sAddr->type ?? 'Address') }})
-                                                    </button>
-                                                @endforeach
-                                            </div>
-                                        @endif
-
-                                        <input type="text" 
-                                               id="phone" 
-                                               name="phone" 
-                                               required
-                                               value="{{ old('phone', $defaultAddressText) }}" 
-                                               placeholder="e.g. 102 Green Park, Mumbai, Maharashtra, India" 
-                                               class="input-pill w-full @error('phone') border-red-500 @enderror">
-                                        @error('phone')
-                                            <p class="text-xs text-red-600 font-medium mt-1.5">{{ $message }}</p>
-                                        @enderror
-                                    </div>
+                                    <p class="text-[11px] text-[#8E877D] font-light">Upload up to 5 reference photos to help our atelier understand your design vision (5MB each).</p>
                                 </div>
                             </div>
 
                             {{-- Submit Button --}}
                             <div class="pt-4 flex flex-col sm:flex-row items-center justify-between gap-6">
                                 <button type="submit" 
+                                        id="inquiry-submit-btn"
                                         class="w-full sm:w-auto inline-flex items-center justify-center rounded-full bg-[#1C1917] hover:bg-[#AD9575] text-white px-9 py-4 text-xs font-semibold uppercase tracking-[0.25em] transition-all duration-300 shadow-md group cursor-pointer">
-                                    <span>SUBMIT REQUEST</span>
+                                    <span>SUBMIT INQUIRY</span>
                                     <svg class="w-4 h-4 ml-3 group-hover:translate-x-1 transition-transform stroke-[2]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"/>
                                     </svg>
                                 </button>
 
                                 <p class="text-[11px] text-[#8E877D] font-light text-center sm:text-right">
-                                    Free consultation • No upfront obligation
+                                    Free atelier consultation • No upfront obligation
                                 </p>
                             </div>
 
                         </form>
+
+                        @if(config('services.recaptcha.site_key'))
+                            <script src="https://www.google.com/recaptcha/api.js?render={{ config('services.recaptcha.site_key') }}"></script>
+                            <script>
+                                document.addEventListener('DOMContentLoaded', function () {
+                                    const form = document.querySelector('form');
+                                    if (!form) return;
+                                    form.addEventListener('submit', function (e) {
+                                        if (window.grecaptcha && '{{ config('services.recaptcha.site_key') }}') {
+                                            e.preventDefault();
+                                            grecaptcha.ready(function () {
+                                                grecaptcha.execute('{{ config('services.recaptcha.site_key') }}', { action: 'inquiry_submit' }).then(function (token) {
+                                                    document.getElementById('recaptcha_token').value = token;
+                                                    form.submit();
+                                                });
+                                            });
+                                        }
+                                    });
+                                });
+                            </script>
+                        @endif
 
                     </div>
                 </div>

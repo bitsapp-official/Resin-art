@@ -228,16 +228,16 @@
 <div class="page">
 
     @php
-        $brandName    = \App\Models\SiteSetting::get('invoice_brand_name', 'Maison Résine');
-        $brandTagline = \App\Models\SiteSetting::get('invoice_brand_tagline', 'Haute Résine Atelier · Art Contemporain');
-        $address      = \App\Models\SiteSetting::get('invoice_address', '14 rue des Étoiles, 33000 Bordeaux, France');
-        $email        = \App\Models\SiteSetting::get('invoice_email', 'atelier@maisonresine.com');
+        $brandName    = \App\Models\SiteSetting::get('invoice_brand_name', 'Solitaire Fine Jewels');
+        $brandTagline = \App\Models\SiteSetting::get('invoice_brand_tagline', 'Certified Diamonds & Bespoke Fine Jewellery Atelier');
+        $address      = \App\Models\SiteSetting::get('invoice_address', 'Atelier Plaza, Fine Arts Quarter, Mumbai, India');
+        $email        = \App\Models\SiteSetting::get('invoice_email', 'concierge@solitairefinejewels.com');
         $phone        = \App\Models\SiteSetting::get('invoice_phone', '+91 98201 45678');
-        $website      = \App\Models\SiteSetting::get('invoice_website', 'www.maisonresine.com');
+        $website      = \App\Models\SiteSetting::get('invoice_website', 'www.solitairefinejewels.com');
         $gstin        = trim(\App\Models\SiteSetting::get('invoice_gstin', ''));
-        $taxLabel     = \App\Models\SiteSetting::get('invoice_tax_label', 'Estimated Taxes (GST 5%)');
-        $authNote     = \App\Models\SiteSetting::get('invoice_authenticity_note', 'Every artwork is accompanied by an embossed physical Certificate of Authenticity.');
-        $footerNote   = \App\Models\SiteSetting::get('invoice_footer_note', 'Thank you for choosing Maison Résine. This is a computer-generated tax invoice.');
+        $taxLabel     = \App\Models\SiteSetting::get('invoice_tax_label', 'Estimated Taxes (GST 3%)');
+        $authNote     = \App\Models\SiteSetting::get('invoice_authenticity_note', 'Every fine jewellery piece is accompanied by an official Certificate of Authenticity (IGI/GIA/BIS Hallmarked).');
+        $footerNote   = \App\Models\SiteSetting::get('invoice_footer_note', 'Thank you for choosing Solitaire Fine Jewels. This is a computer-generated tax invoice.');
     @endphp
 
     <!-- Header Table -->
@@ -405,7 +405,7 @@
     <div class="footer">
         <strong>{{ $footerNote }}</strong><br>
         This document is a computer-generated tax invoice and requires no physical signature.<br>
-        {{ $brandName }} Atelier &middot; Handcrafted Resin Art &amp; Custom Orders &middot; All Rights Reserved.
+        {{ $brandName }} Atelier &middot; Certified Fine Jewellery &amp; Bespoke Creations &middot; All Rights Reserved.
     </div>
 
 </div>

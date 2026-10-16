@@ -17,7 +17,7 @@
                 <div class="p-4 sm:p-5 rounded-2xl sm:rounded-3xl border text-xs space-y-2 {{ $msg->is_admin ? 'bg-[#FAF8F5] border-[#E6E1D7] ml-2 sm:ml-8' : 'bg-white border-[#E6E1D7] mr-2 sm:mr-8' }}">
                     <div class="flex items-center justify-between text-[#78716C] gap-2">
                         <span class="font-semibold text-[#1C1917] truncate">
-                            {{ $msg->is_admin ? 'Maison Résine Concierge' : ($msg->user?->name ?? 'You') }}
+                            {{ $msg->is_admin ? 'Solitaire Concierge' : ($msg->user?->name ?? 'You') }}
                         </span>
                         <span class="shrink-0 text-[10.5px] sm:text-xs">{{ $msg->created_at->format('M d, Y \a\t h:i A') }}</span>
                     </div>

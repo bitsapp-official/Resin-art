@@ -82,7 +82,7 @@ class PolicyPageResource extends Resource
                 ->schema([
                     Forms\Components\TextInput::make('meta_title')
                         ->label('Meta Title')
-                        ->placeholder('e.g. Shipping Policy — Maison Résine')
+                        ->placeholder('e.g. Shipping Policy — Solitaire Fine Jewels')
                         ->maxLength(70),
 
                     Forms\Components\Textarea::make('meta_description')

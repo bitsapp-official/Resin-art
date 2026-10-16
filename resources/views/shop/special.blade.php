@@ -1,9 +1,9 @@
-<x-app-layout :title="$title . ' — Maison Résine Atelier'">
+<x-app-layout :title="$title . ' — Solitaire Fine Jewels'">
 <div class="min-h-screen bg-transparent">
-    <div class="max-w-[1360px] mx-auto px-4 sm:px-6 lg:px-12 xl:px-16 pt-4 sm:pt-8 pb-24">
+    <div class="max-w-[1360px] mx-auto px-4 sm:px-6 lg:px-12 xl:px-16 pt-2 sm:pt-4 pb-20">
 
         {{-- ── HERO HEADER SECTION ──────────────────────────────── --}}
-        <div class="py-8 sm:py-10 border-b border-[#E5DFD3]/80 space-y-3 animate-fade-up">
+        <div class="pt-1 pb-6 sm:pb-8 border-b border-[#E5DFD3]/80 space-y-2 sm:space-y-3 animate-fade-up">
             <div class="flex items-center space-x-3 text-[10px] uppercase tracking-[0.28em] font-medium text-[#8E877D]">
                 <span class="w-8 h-[1px] bg-[#D9D2C5] inline-block"></span>
                 <span>{{ $eyebrow }}</span>
@@ -59,7 +59,7 @@
                 </div>
                 <h3 class="font-editorial text-2xl text-[#1C1917]">No pieces are currently listed under this selection.</h3>
                 <p class="text-xs text-[#78716C] max-w-md mx-auto font-light leading-relaxed">
-                    Explore our main boutique gallery for other active resin art listings.
+                    Explore our main jewellery boutique for other fine diamond & gold listings.
                 </p>
                 <div class="pt-2">
                     <a href="{{ route('shop.index') }}" class="inline-flex items-center gap-2 rounded-full bg-[#1C1917] px-8 py-3.5 text-[10.5px] uppercase tracking-[0.24em] font-medium text-[#FAF8F5] hover:bg-[#AD9575] transition-colors shadow-xs">

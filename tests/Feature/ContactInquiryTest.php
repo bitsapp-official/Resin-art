@@ -20,9 +20,8 @@ class ContactInquiryTest extends TestCase
         $response = $this->get('/contact');
 
         $response->assertStatus(200);
-        $response->assertSee('Write to the');
-        $response->assertSee('atelier.');
-        $response->assertSee('Custom Orders');
+        $response->assertSee('Connect with our master jewellers.');
+        $response->assertSee('Jewellery Concierge');
     }
 
     public function test_valid_contact_form_submission_creates_inquiry_and_dispatches_emails(): void
@@ -32,10 +31,10 @@ class ContactInquiryTest extends TestCase
         $payload = [
             'name' => 'Eleanor Vance',
             'email' => 'eleanor@example.com',
-            'phone' => '+33 6 12 34 56 78',
+            'phone' => '9820112345',
             'inquiry_type' => 'custom',
-            'subject' => 'Bespoke Resin Dining Table Custom Order',
-            'message' => 'I would like to request a bespoke 8-seater dining table with oceanic resin fluid dynamics.',
+            'subject' => 'Bespoke Solitaire Diamond Ring Custom Inquiry',
+            'message' => 'I would like to inquire about a bespoke 2-carat solitaire diamond engagement ring in 18KT gold.',
         ];
 
         $response = $this->post('/contact', $payload);
@@ -48,7 +47,7 @@ class ContactInquiryTest extends TestCase
             'name' => 'Eleanor Vance',
             'email' => 'eleanor@example.com',
             'inquiry_type' => ContactInquiryType::CUSTOM->value,
-            'subject' => 'Bespoke Resin Dining Table Custom Order',
+            'subject' => 'Bespoke Solitaire Diamond Ring Custom Inquiry',
             'status' => ContactInquiryStatus::NEW->value,
         ]);
 

@@ -221,13 +221,13 @@
 <div class="page">
 
     @php
-        $brandName    = \App\Models\SiteSetting::get('invoice_brand_name', 'Maison Résine');
-        $brandTagline = \App\Models\SiteSetting::get('invoice_brand_tagline', 'Haute Résine Atelier · Art Contemporain');
-        $address      = \App\Models\SiteSetting::get('invoice_address', '14 rue des Étoiles, 33000 Bordeaux, France');
-        $email        = \App\Models\SiteSetting::get('invoice_email', 'atelier@maisonresine.com');
+        $brandName    = \App\Models\SiteSetting::get('invoice_brand_name', 'Solitaire Fine Jewels');
+        $brandTagline = \App\Models\SiteSetting::get('invoice_brand_tagline', 'Certified Diamonds & Bespoke Fine Jewellery Atelier');
+        $address      = \App\Models\SiteSetting::get('invoice_address', 'Atelier Plaza, Fine Arts Quarter, Mumbai, India');
+        $email        = \App\Models\SiteSetting::get('invoice_email', 'concierge@solitairefinejewels.com');
         $phone        = \App\Models\SiteSetting::get('invoice_phone', '+91 98765 43210');
-        $website      = \App\Models\SiteSetting::get('invoice_website', 'www.maisonresine.com');
-        $footerNote   = \App\Models\SiteSetting::get('invoice_footer_note', 'Thank you for choosing Maison Résine. This is an official bespoke custom invoice.');
+        $website      = \App\Models\SiteSetting::get('invoice_website', 'www.solitairefinejewels.com');
+        $footerNote   = \App\Models\SiteSetting::get('invoice_footer_note', 'Thank you for choosing Solitaire Fine Jewels. This is an official bespoke fine jewellery invoice.');
         $cleanStatus  = match(strtolower(str_replace(' ', '_', $paymentStatus))) {
             'fully_paid', 'paid' => 'PAID',
             'advance_paid', 'partially_paid' => 'PARTIAL PAID',
@@ -281,7 +281,7 @@
                 <div class="info-label">Shipping / Destination</div>
                 <div class="info-value">
                     <strong>Destination:</strong> {{ $customRequest->phone ?: 'Custom Client Address' }}<br>
-                    <strong>Project Category:</strong> {{ ucfirst(str_replace('_', ' ', $customRequest->project_type ?: 'Custom Resin Art')) }}<br>
+                    <strong>Project Category:</strong> {{ ucfirst(str_replace('_', ' ', $customRequest->project_type ?: 'Bespoke Fine Jewellery')) }}<br>
                     @if($customRequest->budget_range)
                         <strong>Budget Preference:</strong> {{ $customRequest->budget_range }}
                     @endif
@@ -356,8 +356,8 @@
     <!-- Footer / Terms -->
     <div class="footer">
         <strong>{{ $footerNote }}</strong><br>
-        This document is a computer-generated bespoke artwork invoice.<br>
-        {{ $brandName }} Atelier &middot; Handcrafted Resin Art &amp; Custom Orders &middot; All Rights Reserved.
+        This document is a computer-generated bespoke fine jewellery invoice.<br>
+        {{ $brandName }} Atelier &middot; Handcrafted Fine Jewellery &amp; Certified Diamonds &middot; All Rights Reserved.
     </div>
 
 </div>

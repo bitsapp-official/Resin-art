@@ -1,10 +1,10 @@
-<x-app-layout title="Journal — Maison Résine Atelier">
+<x-app-layout title="Journal — Solitaire Fine Jewels Atelier">
 
-    <div class="py-8 sm:py-10 lg:py-16">
-        <div class="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-12 xl:px-16 space-y-8 sm:space-y-12 lg:space-y-16 w-full min-w-0">
+    <div class="pt-2 sm:pt-4 pb-12 sm:pb-16 lg:pb-20">
+        <div class="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-12 xl:px-16 space-y-6 sm:space-y-8 lg:space-y-10 w-full min-w-0">
 
             <!-- Hero Header Section -->
-            <div class="max-w-3xl space-y-3 sm:space-y-4 animate-fade-up">
+            <div class="max-w-3xl space-y-2.5 sm:space-y-3 animate-fade-up">
                 <div class="flex items-center space-x-3 text-[10px] uppercase tracking-[0.25em] font-medium text-[#8E877D]">
                     <span class="w-8 h-[1px] bg-[#D9D2C5] inline-block"></span>
                     <span>JOURNAL</span>
@@ -15,7 +15,7 @@
                 </h1>
 
                 <p class="text-[14px] sm:text-base text-[#78716C] font-light leading-relaxed max-w-xl pt-1">
-                    Essays on material, light, process and the slow craft of pouring resin.
+                    Essays on craftsmanship, gemstones, gold and the timeless art of fine jewellery.
                 </p>
             </div>
 
@@ -56,13 +56,13 @@
                 <!-- Elegant Empty State -->
                 <div class="max-w-2xl mx-auto bg-[oklch(98.5%_0.008_85)] border border-[#E5DFD3] rounded-[2rem] p-12 lg:p-16 text-center space-y-5 my-12 shadow-sm animate-fade-in">
                     <span class="text-[10px] uppercase tracking-[0.25em] font-semibold text-[#8E877D]">
-                        Maison Résine Journal
+                        Solitaire Fine Jewels Journal
                     </span>
                     <h2 class="font-editorial text-3xl lg:text-4xl text-[#1C1917] font-light">
                         No pieces in this journal category yet.
                     </h2>
                     <p class="text-sm text-[#78716C] font-light leading-relaxed max-w-md mx-auto">
-                        The atelier team is preparing new essays on resin craft and material light.
+                        The atelier team is preparing new essays on fine jewellery, diamonds, and precious metals.
                     </p>
                     <div class="pt-3">
                         <a href="{{ route('blog.index') }}" 

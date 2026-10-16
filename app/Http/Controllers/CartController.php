@@ -47,7 +47,7 @@ class CartController extends Controller
         $quantity = (int) ($request->quantity ?? 1);
         $options = $request->options ?? [];
 
-        // SECURITY: Price is ALWAYS derived server-side from the product's size_variants.
+        // SECURITY: Price is ALWAYS derived server-side from the product's size_variants and purity.
         // Never accept a price from the client (prevents price tampering).
         $price = $product->effective_price;
         if (!empty($options['size'])) {
@@ -66,11 +66,42 @@ class CartController extends Controller
             }
         }
 
+        // Apply Gold Purity Price (Supports both Direct Selling Price and Add-on)
+        if (!empty($options['gold_purity'])) {
+            $purityPrices = $product->attributes['purity_prices'] ?? [];
+            if (isset($purityPrices[$options['gold_purity']]) && $purityPrices[$options['gold_purity']] !== null && $purityPrices[$options['gold_purity']] !== '') {
+                $val = (float) $purityPrices[$options['gold_purity']];
+                if ($val >= $price * 0.5 && $val > 0) {
+                    $price = $val;
+                } else {
+                    $price += $val;
+                }
+            } else {
+                $p = strtolower($options['gold_purity']);
+                if (str_contains($p, '18k')) {
+                    $price = round(($price * 1.18) / 100) * 100;
+                } elseif (str_contains($p, '22k')) {
+                    $price = round(($price * 1.35) / 100) * 100;
+                }
+            }
+        }
+
         $cart = $this->getCart();
 
+        // Normalize options array (strip empty strings and nulls, sort keys for consistent comparison)
+        $normalizedOptions = array_filter($options, function ($val) {
+            return $val !== null && trim((string)$val) !== '';
+        });
+        ksort($normalizedOptions);
+
         // Find existing item with exact same options
-        $cartItem = $cart->items()->where('product_id', $product->id)->get()->first(function ($item) use ($options) {
-            return ($item->options ?? []) == $options;
+        $cartItem = $cart->items()->where('product_id', $product->id)->get()->first(function ($item) use ($normalizedOptions) {
+            $existingOpts = is_array($item->options) ? $item->options : (json_decode($item->options, true) ?: []);
+            $existingOpts = array_filter($existingOpts, function ($val) {
+                return $val !== null && trim((string)$val) !== '';
+            });
+            ksort($existingOpts);
+            return $existingOpts == $normalizedOptions;
         });
 
         if ($cartItem) {
@@ -80,7 +111,7 @@ class CartController extends Controller
             }
             $cartItem->quantity = $newQuantity;
             $cartItem->price = $price; // Update price in case it changed
-            $cartItem->options = $options;
+            $cartItem->options = $normalizedOptions;
             $cartItem->save();
         } else {
             CartItem::create([
@@ -88,7 +119,7 @@ class CartController extends Controller
                 'product_id' => $product->id,
                 'quantity' => $quantity,
                 'price' => $price,
-                'options' => $options,
+                'options' => $normalizedOptions,
             ]);
         }
 
@@ -101,7 +132,7 @@ class CartController extends Controller
                 'success' => true,
                 'message' => 'Piece added to your bag.',
                 'cart_total' => number_format($cart->total),
-                'cart_count' => $cartItems->count(),
+                'cart_count' => (int) $cartItems->sum('quantity'),
                 'drawer_html' => view('components.cart-drawer-content', compact('cart', 'cartItems'))->render(),
             ]);
         }
@@ -146,6 +177,26 @@ class CartController extends Controller
                 if (($variant['size'] ?? '') === $options['size'] && isset($variant['price']) && (float)$variant['price'] > 0) {
                     $price = (float) $variant['price'];
                     break;
+                }
+            }
+        }
+
+        // Apply Gold Purity Price (Supports both Direct Selling Price and Add-on)
+        if (!empty($options['gold_purity'])) {
+            $purityPrices = $product->attributes['purity_prices'] ?? [];
+            if (isset($purityPrices[$options['gold_purity']]) && $purityPrices[$options['gold_purity']] !== null && $purityPrices[$options['gold_purity']] !== '') {
+                $val = (float) $purityPrices[$options['gold_purity']];
+                if ($val >= $price * 0.5 && $val > 0) {
+                    $price = $val;
+                } else {
+                    $price += $val;
+                }
+            } else {
+                $p = strtolower($options['gold_purity']);
+                if (str_contains($p, '18k')) {
+                    $price = round(($price * 1.18) / 100) * 100;
+                } elseif (str_contains($p, '22k')) {
+                    $price = round(($price * 1.35) / 100) * 100;
                 }
             }
         }
@@ -216,7 +267,7 @@ class CartController extends Controller
                 'message' => 'Bag updated.',
                 'item_id' => (int) $request->item_id,
                 'cart_total' => number_format($cart->total),
-                'cart_count' => $cartItems->count(),
+                'cart_count' => (int) $cartItems->sum('quantity'),
                 'drawer_html' => view('components.cart-drawer-content', compact('cart', 'cartItems'))->render(),
             ]);
         }
@@ -243,7 +294,7 @@ class CartController extends Controller
                 'message' => 'Item removed.',
                 'item_id' => (int) $request->item_id,
                 'cart_total' => number_format($cart->total),
-                'cart_count' => $cartItems->count(),
+                'cart_count' => (int) $cartItems->sum('quantity'),
                 'drawer_html' => view('components.cart-drawer-content', compact('cart', 'cartItems'))->render(),
             ]);
         }

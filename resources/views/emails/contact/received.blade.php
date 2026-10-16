@@ -15,21 +15,21 @@
 </head>
 <body>
     <div class="container">
-        <div class="brand">Maison Résine</div>
+        <div class="brand">Solitaire Fine Jewels</div>
         <p>Dear {{ $inquiry->name }},</p>
         <p>Thank you for writing to our atelier. We have received your correspondence regarding <strong>{{ $inquiry->subject }}</strong>.</p>
         
         <p>Your unique reference code is:</p>
         <div class="reference-badge">{{ $inquiry->public_reference }}</div>
 
-        <p>Our artisans and correspondence team review every letter carefully. We aim to reply within two working days.</p>
+        <p>Our master craftsmen and concierge team review every inquiry carefully. We aim to reply within two working days.</p>
         
         <div class="divider"></div>
         
-        <p style="font-style: italic; color: #57534e;">"Handcrafted fine resin art, poured with intention in Bordeaux."</p>
+        <p style="font-style: italic; color: #57534e;">"Master handcrafted fine jewellery and certified diamonds, crafted with timeless precision."</p>
         
         <div class="footer">
-            &copy; {{ date('Y') }} Maison Résine Atelier. 14 Rue des Beaux-Arts, 33000 Bordeaux, France.<br>
+            &copy; {{ date('Y') }} Solitaire Fine Jewels Atelier. Atelier Plaza, Mumbai, India.<br>
             This is an automated acknowledgment.
         </div>
     </div>

@@ -27,7 +27,7 @@ class ContactInquiryReceived extends Mailable implements ShouldQueue
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: "Letter Received — [{$this->inquiry->public_reference}] Maison Résine Atelier",
+            subject: "Inquiry Received — [{$this->inquiry->public_reference}] Solitaire Fine Jewels",
         );
     }
 

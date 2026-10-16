@@ -1,4 +1,4 @@
-<x-app-layout title="Maison Résine — Handcrafted Resin Art & Objects">
+<x-app-layout title="Shop Fine Jewellery & Diamond Rings — Solitaire Fine Jewels">
 
     <div class="min-h-screen bg-transparent space-y-24 md:space-y-36 pb-24 overflow-x-clip">
 
@@ -8,19 +8,19 @@
         @php
             $slidesData = $homeSlides->isNotEmpty() ? $homeSlides->map(function($slide) {
                 return [
-                    'tag' => $slide->tag ?: 'HANDCRAFTED & MADE TO ORDER',
+                    'tag' => $slide->tag ?: 'CERTIFIED NATURAL DIAMONDS & FINE GOLD',
                     'title' => $slide->title,
-                    'desc' => $slide->description ?: 'Poured slowly, one piece at a time. Each work is a still moment — a river held between hands, a landscape suspended in glass.',
+                    'desc' => $slide->description ?: 'Every piece is a quiet declaration. Crafted in 18KT gold, set with certified natural diamonds — jewellery made to be worn for a lifetime.',
                     'image' => $slide->image_url,
                     'link' => $slide->link ?: route('collections.index'),
                 ];
             })->values()->toArray() : [
                 [
-                    'tag' => 'HANDCRAFTED & MADE TO ORDER',
-                    'title' => 'The quiet language of resin.',
-                    'desc' => 'Poured slowly, one piece at a time. Each work is a still moment — a river held between hands, a landscape suspended in glass.',
-                    'image' => asset('images/segre_river_table.webp'),
-                    'link' => route('collections.show', 'river-tables'),
+                    'tag' => 'CERTIFIED NATURAL DIAMONDS & FINE GOLD',
+                    'title' => 'Where diamonds meet craftsmanship.',
+                    'desc' => 'Every piece is a quiet declaration. Crafted in 18KT gold, set with certified natural diamonds — jewellery made to be worn for a lifetime.',
+                    'image' => asset('images/hero-jewellery.webp'),
+                    'link' => route('collections.index'),
                 ]
             ];
         @endphp
@@ -74,8 +74,8 @@
                 <div class="absolute inset-0 bg-gradient-to-r from-black/85 via-black/55 to-black/20 lg:via-black/45 lg:to-transparent pointer-events-none"></div>
                 <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-black/30 pointer-events-none"></div>
 
-                {{-- Hero Content Overlay (Aligned with Site Container) --}}
-                <div class="relative z-10 max-w-[1400px] w-full mx-auto px-4 sm:px-6 lg:px-12 xl:px-16 pt-20 sm:pt-28 lg:pt-32 min-w-0">
+                {{-- Hero Content Overlay (Carefully tuned optical vertical positioning) --}}
+                <div class="relative z-10 max-w-[1400px] w-full mx-auto px-4 sm:px-6 lg:px-12 xl:px-16 pt-16 sm:pt-20 pb-10 sm:pb-12 min-w-0">
                     <div class="max-w-2xl lg:max-w-3xl space-y-5 sm:space-y-6 text-white min-w-0">
                         
                         {{-- Tag Badge --}}
@@ -104,14 +104,30 @@
 
                             <a href="{{ route('custom.index') }}" 
                                class="inline-flex items-center justify-center rounded-full bg-white/10 hover:bg-white/20 text-white border border-white/30 backdrop-blur-md px-6 sm:px-9 py-3.5 sm:py-4 text-[10px] sm:text-[10.5px] uppercase tracking-[0.22em] sm:tracking-[0.25em] font-semibold transition-all duration-300 shadow-lg whitespace-nowrap">
-                                <span>Custom Request</span>
+                                <span>Bespoke Inquiry</span>
                             </a>
                         </div>
+
+                        {{-- Slide Progress Indicator Dots (Directly below action buttons with refined breathing space) --}}
+                        @if(count($slidesData) > 1)
+                            <div class="pt-5 sm:pt-7 flex items-center">
+                                <div class="inline-flex items-center space-x-2.5 bg-black/45 backdrop-blur-md border border-white/20 px-3.5 py-2 rounded-full shadow-lg">
+                                    @foreach($slidesData as $sIndex => $sItem)
+                                        <button type="button" 
+                                                @click.stop.prevent="goTo({{ $sIndex }})" 
+                                                :class="currentSlide === {{ $sIndex }} ? 'w-8 bg-[#DFD4C0]' : 'w-2.5 bg-white/40 hover:bg-white/80'"
+                                                aria-label="Go to slide {{ $sIndex + 1 }}"
+                                                class="h-2 rounded-full transition-all duration-300 focus:outline-none cursor-pointer">
+                                        </button>
+                                    @endforeach
+                                </div>
+                            </div>
+                        @endif
 
                     </div>
                 </div>
 
-                {{-- Navigation Controls (Prev/Next Arrows + Progress Dots) --}}
+                {{-- Navigation Controls (Prev/Next Arrows on Screen Edges) --}}
                 @if(count($slidesData) > 1)
                     {{-- Left Prev Arrow Button (Appears on Hover) --}}
                     <button type="button" 
@@ -128,22 +144,6 @@
                             class="absolute top-1/2 -translate-y-1/2 right-6 lg:right-10 z-30 w-12 h-12 rounded-full bg-white/20 hover:bg-white text-white hover:text-[#1C1917] backdrop-blur-md border border-white/30 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 shadow-xl cursor-pointer hover:scale-110 active:scale-95">
                         <svg class="w-5 h-5 stroke-[2]" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5"/></svg>
                     </button>
-
-                    {{-- Bottom Pagination Dots: Aligned Exactly with Content Text Container --}}
-                    <div class="absolute bottom-8 sm:bottom-10 inset-x-0 z-30 pointer-events-none">
-                        <div class="max-w-[1400px] mx-auto px-6 lg:px-12 xl:px-16">
-                            <div class="pointer-events-auto inline-flex items-center space-x-2.5 bg-black/45 backdrop-blur-md border border-white/20 px-3.5 py-2 rounded-full shadow-lg">
-                                @foreach($slidesData as $sIndex => $sItem)
-                                    <button type="button" 
-                                            @click.stop.prevent="goTo({{ $sIndex }})" 
-                                            :class="currentSlide === {{ $sIndex }} ? 'w-8 bg-[#DFD4C0]' : 'w-2.5 bg-white/40 hover:bg-white/80'"
-                                            aria-label="Go to slide {{ $sIndex + 1 }}"
-                                            class="h-2 rounded-full transition-all duration-300 focus:outline-none cursor-pointer">
-                                    </button>
-                                @endforeach
-                            </div>
-                        </div>
-                    </div>
                 @endif
 
             </div>
@@ -468,7 +468,7 @@
                                     {{ $col2->name }}
                                 </h3>
                                 <p class="text-xs text-white/80 font-light">
-                                    {{ $col2->subtitle ?: $col2->effective_short_description ?: 'Unique Resin Artwork Series' }}
+                                    {{ $col2->subtitle ?: $col2->effective_short_description ?: 'Fine Diamond & Gold Jewellery' }}
                                 </p>
                             </div>
                         </a>
@@ -503,7 +503,7 @@
                                     {{ $col3->name }}
                                 </h3>
                                 <p class="text-xs text-white/80 font-light">
-                                    {{ $col3->subtitle ?: $col3->effective_short_description ?: 'Unique Resin Artwork Series' }}
+                                    {{ $col3->subtitle ?: $col3->effective_short_description ?: 'Fine Diamond & Gold Jewellery' }}
                                 </p>
                             </div>
                         </a>
@@ -591,7 +591,7 @@
 
 
         {{-- ══════════════════════════════════════════════════════════════════
-             7. CUSTOM RESIN ARTWORK (Custom Request Process Showcase)
+             7. BESPOKE JEWELLERY INQUIRY (Custom Order Process Showcase)
              ══════════════════════════════════════════════════════════════════ --}}
         <section class="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-12 xl:px-16 w-full min-w-0">
             <div class="rounded-[1.75rem] sm:rounded-[2.5rem] bg-[#1C1917] text-white p-5 sm:p-10 lg:p-16 relative overflow-hidden shadow-2xl">

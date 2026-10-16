@@ -259,6 +259,7 @@ class CheckoutController extends Controller
                         'name'           => $prod->name,
                         'sku'            => $prod->sku,
                         'images'         => $prod->images,
+                        'color_images'   => $prod->color_images,
                         'inventory_type' => $prod->inventory_type,
                         'options'        => $authItem['options'],
                     ],
@@ -292,7 +293,7 @@ class CheckoutController extends Controller
                         'currency'     => $currency,
                         'product_data' => [
                             'name'        => $authItem['product']->name,
-                            'description' => "Maison Résine Handcrafted Artwork (SKU: " . ($authItem['product']->sku ?? 'RESIN') . ")",
+                            'description' => "Solitaire Fine Jewels Creation (SKU: " . ($authItem['product']->sku ?? 'JEWEL') . ")",
                         ],
                         'unit_amount'  => $unitAmountPaise,
                     ],

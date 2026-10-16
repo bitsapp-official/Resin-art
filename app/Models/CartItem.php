@@ -46,4 +46,26 @@ class CartItem extends Model
     {
         return (float) ($this->price * $this->quantity);
     }
+
+    public function getPrimaryImageUrlAttribute(): ?string
+    {
+        $color = $this->options['metal_color'] ?? ($this->options['color'] ?? null);
+        if ($color && $this->product) {
+            $colorImages = $this->product->color_images;
+            if (!empty($colorImages[$color])) {
+                $img = is_array($colorImages[$color]) ? ($colorImages[$color][0] ?? null) : $colorImages[$color];
+                if ($img) return $img;
+            }
+        }
+
+        if ($this->product?->primary_image_url) {
+            return $this->product->primary_image_url;
+        }
+
+        if (!empty($this->product?->images[0])) {
+            return $this->product->images[0];
+        }
+
+        return null;
+    }
 }

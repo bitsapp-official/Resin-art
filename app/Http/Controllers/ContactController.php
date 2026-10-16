@@ -14,7 +14,8 @@ class ContactController extends Controller
      */
     public function index(): View
     {
-        return view('contact.index');
+        $timeToken = \App\Services\BotProtectionService::generateTimeToken();
+        return view('contact.index', compact('timeToken'));
     }
 
     /**
@@ -22,15 +23,27 @@ class ContactController extends Controller
      */
     public function store(ContactInquiryRequest $request, ContactInquiryService $service): View|RedirectResponse
     {
-        $validated = $request->validated();
-
-        // Honeypot trap check
-        if (!empty($request->input('website_url'))) {
+        // 1. Anti-Bot Security (Honeypot, Fast-Submit Time Trap, reCAPTCHA v3)
+        if (\App\Services\BotProtectionService::isHoneypotTriggered($request->input('website_url'))) {
             // Silently complete without error to deceive automated bots
             return view('contact.index', [
-                'successName' => $validated['name'] ?? 'Patron',
+                'successName' => $request->input('name') ?? 'Patron',
             ]);
         }
+
+        if (\App\Services\BotProtectionService::isSubmissionTooFast($request->input('form_time_token'), 2)) {
+            return redirect()->back()->withInput()->withErrors([
+                'message' => 'Security check: Form was submitted too quickly. Please try again.',
+            ]);
+        }
+
+        if (!\App\Services\BotProtectionService::verifyRecaptcha($request->input('recaptcha_token'), $request->ip())) {
+            return redirect()->back()->withInput()->withErrors([
+                'message' => 'Security check: Google reCAPTCHA anti-spam verification failed. Please try again.',
+            ]);
+        }
+
+        $validated = $request->validated();
 
         $inquiry = $service->createInquiry($validated);
 

@@ -263,19 +263,44 @@
                             <div class="flex items-center justify-between gap-4 pb-4 border-b border-[#E6E1D7]/50 last:border-b-0 last:pb-0">
                                 <div class="flex items-center space-x-3.5 min-w-0">
                                     {{-- Strictly bounded thumbnail image --}}
+                                    @php
+                                        $options = is_array($item->options) ? $item->options : (json_decode($item->options, true) ?: []);
+                                        $color = $options['metal_color'] ?? ($options['color'] ?? null);
+                                        $purity = $options['gold_purity'] ?? ($options['purity'] ?? null);
+                                        $size = $options['size'] ?? null;
+
+                                        $itemImg = $item->primary_image_url;
+                                    @endphp
                                     <div class="w-12 h-12 min-w-[48px] max-w-[48px] h-[48px] rounded-xl bg-white border border-[#E6E1D7] overflow-hidden shrink-0 flex items-center justify-center">
-                                        @if(!empty($item->product_snapshot['images']) && isset($item->product_snapshot['images'][0]))
-                                            <img src="{{ $item->product_snapshot['images'][0] }}" alt="{{ $item->product_name }}" class="w-full h-full object-cover rounded-xl shrink-0">
-                                        @elseif($item->product && $item->product->primary_image_url)
-                                            <img src="{{ $item->product->primary_image_url }}" alt="{{ $item->product_name }}" class="w-full h-full object-cover rounded-xl shrink-0">
+                                        @if($itemImg)
+                                            <img src="{{ $itemImg }}" alt="{{ $item->product_name }}" class="w-full h-full object-cover rounded-xl shrink-0">
                                         @else
-                                            <span class="text-[8px] font-mono text-[#8E877D]">R&Eacute;SINE</span>
+                                            <span class="text-[8px] font-mono text-[#8E877D]">JEWEL</span>
                                         @endif
                                     </div>
                                     <div class="min-w-0">
                                         <h4 class="font-sans text-xs sm:text-[13px] font-medium text-[#1C1917] leading-snug truncate">
                                             {{ $item->product_name }} &times; {{ $item->quantity }}
                                         </h4>
+                                        @if($color || $purity || $size)
+                                            <div class="flex items-center gap-1.5 flex-wrap pt-1">
+                                                @if($color)
+                                                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium bg-[#FAF6F0] text-[#A87432] border border-[#EBE3D7]">
+                                                        {{ $color }}
+                                                    </span>
+                                                @endif
+                                                @if($purity)
+                                                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium bg-[#F0FDF4] text-[#16A34A] border border-[#DCFCE7]">
+                                                        {{ $purity }}
+                                                    </span>
+                                                @endif
+                                                @if($size)
+                                                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium bg-[#F5F3FF] text-[#7C3AED] border border-[#EDE9FE]">
+                                                        {{ $size }}
+                                                    </span>
+                                                @endif
+                                            </div>
+                                        @endif
                                         <span class="text-[10px] font-mono text-[#8E877D] block pt-0.5">
                                             {{ $item->sku ?? ('MR-TBL-' . str_pad($item->id, 3, '0', STR_PAD_LEFT)) }}
                                         </span>
@@ -406,7 +431,7 @@
 
         </div>
 
-        {{-- Cancel Confirmation Modal (Luxury Maison Résine Signature Solid Palette) --}}
+        {{-- Cancel Confirmation Modal (Solitaire Fine Jewels Palette) --}}
         <template x-teleport="body">
             <div x-show="cancelModal" 
                  x-cloak 

@@ -20,7 +20,7 @@
         <header class="max-w-[1400px] mx-auto glass-nav rounded-full px-5 sm:px-6 lg:px-8 py-2.5 sm:py-3 border border-[#EBE6DD]/80 shadow-sm backdrop-blur-md">
             <div class="flex items-center justify-between">
 
-                <!-- LEFT: Brand Logo Area (M Script + MAISON RÉSINE) -->
+                <!-- LEFT: Brand Logo Area (S Script + SOLITAIRE FINE JEWELS) -->
                 <div class="flex items-center">
                     <a href="{{ route('home') }}" class="group flex items-center space-x-2 sm:space-x-2.5">
                         <span class="font-editorial italic text-2xl font-light text-[oklch(18%_0.012_50)] group-hover:opacity-75 transition-opacity leading-none">
@@ -38,7 +38,7 @@
                         $navLinks = [
                             ['route' => 'shop.index', 'label' => 'Shop', 'active' => 'shop.*'],
                             ['route' => 'collections.index', 'label' => 'Collections', 'active' => 'collections.*'],
-                            ['route' => 'custom.index', 'label' => 'Custom', 'active' => 'custom.*'],
+                            ['route' => 'custom.index', 'label' => 'Inquiry', 'active' => 'custom.*'],
                             ['route' => 'gallery.index', 'label' => 'Gallery', 'active' => 'gallery.index'],
                             ['route' => 'blog.index', 'label' => 'Journal', 'active' => 'blog.*'],
                             ['route' => 'about.index', 'label' => 'About', 'active' => 'about.index'],
@@ -88,7 +88,7 @@
                     <!-- Shopping Bag Pill (with Teal Badge) -->
                     @php
                         $cart = \App\Models\Cart::current();
-                        $cartItemCount = $cart ? $cart->items->count() : 0;
+                        $cartItemCount = $cart ? (int) $cart->items->sum('quantity') : 0;
                     @endphp
                     <button @click="cartOpen = true" type="button" class="flex items-center space-x-2 border border-[#DFD9CE] rounded-full px-3.5 py-1 text-[10.5px] tracking-[0.18em] font-medium text-[oklch(18%_0.012_50)] bg-white/80 hover:bg-white hover:border-[#1C1917] transition-all duration-200 cursor-pointer">
                         <svg class="w-3.5 h-3.5 stroke-[1.75]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -181,7 +181,7 @@
                         $primaryLinks = [
                             ['route' => 'shop.index', 'label' => 'Shop', 'active' => 'shop.index'],
                             ['route' => 'collections.index', 'label' => 'Collections', 'active' => 'collections.*'],
-                            ['route' => 'custom.index', 'label' => 'Custom Orders', 'active' => 'custom.*'],
+                            ['route' => 'custom.index', 'label' => 'Bespoke Inquiry', 'active' => 'custom.*'],
                             ['route' => 'gallery.index', 'label' => 'Gallery', 'active' => 'gallery.index'],
                             ['route' => 'our-process.index', 'label' => 'Our Process', 'active' => 'our-process.index'],
                             ['route' => 'blog.index', 'label' => 'Blog', 'active' => 'blog.*'],

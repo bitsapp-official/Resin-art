@@ -1,5 +1,5 @@
-<x-app-layout title="Your Bag — Maison Résine">
-    <div class="max-w-[1200px] mx-auto w-full min-w-0 px-3.5 sm:px-6 lg:px-12 py-6 sm:py-10">
+<x-app-layout title="Your Bag — Solitaire Fine Jewels">
+    <div class="max-w-[1200px] mx-auto w-full min-w-0 px-3.5 sm:px-6 lg:px-12 pt-2 sm:pt-4 pb-12 sm:pb-16">
 
         <!-- Alerts -->
         @if(session('success'))
@@ -16,7 +16,7 @@
 
         <div class="border-b border-[#E6E1D7] pb-4 sm:pb-6 mb-6 sm:mb-8 flex items-baseline justify-between">
             <h1 class="font-editorial text-3xl sm:text-5xl italic text-[#1C1917] font-light">Your bag</h1>
-            <span class="text-xs uppercase tracking-widest text-[#78716C] font-semibold">{{ $cart->items->count() }} Piece(s)</span>
+            <span class="text-xs uppercase tracking-widest text-[#78716C] font-semibold">{{ (int) $cart->items->sum('quantity') }} Piece(s)</span>
         </div>
 
         @if($cart->items->count() > 0)
@@ -27,9 +27,12 @@
                     @foreach($cart->items->sortByDesc('id') as $item)
                         <div class="bg-[#FAF8F5] border border-[#E6E1D7] rounded-[1.5rem] sm:rounded-3xl p-4 sm:p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-6 shadow-xs w-full min-w-0">
                             <div class="flex items-center space-x-3.5 sm:space-x-4 min-w-0 flex-1">
-                                <div class="w-20 h-20 sm:w-24 sm:h-24 bg-[#F5F2EB] rounded-2xl border border-[#E6E1D7] overflow-hidden shrink-0">
-                                    @if(!empty($item->product?->images) && isset($item->product->images[0]))
-                                        <img src="{{ $item->product->images[0] }}" alt="{{ $item->product_name }}" class="w-full h-full object-cover">
+                                <div class="w-20 h-20 sm:w-24 sm:h-24 bg-[#F5F2EB] rounded-2xl border border-[#E6E1D7] overflow-hidden shrink-0 flex items-center justify-center">
+                                    @php $cartImg = $item->primary_image_url; @endphp
+                                    @if($cartImg)
+                                        <img src="{{ $cartImg }}" alt="{{ $item->product_name }}" class="w-full h-full object-cover">
+                                    @else
+                                        <span class="text-[10px] text-[#A8A29E] uppercase tracking-wider font-medium">Piece</span>
                                     @endif
                                 </div>
                                 <div>

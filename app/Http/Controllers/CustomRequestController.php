@@ -18,6 +18,9 @@ class CustomRequestController extends Controller
     /**
      * Display the custom jewellery requirement and bulk inquiry request form.
      */
+    /**
+     * Display the custom jewellery requirement and bulk inquiry request form.
+     */
     public function create(Request $request): View
     {
         $product = null;
@@ -25,8 +28,9 @@ class CustomRequestController extends Controller
             $product = \App\Models\Product::find($request->product_id);
         }
         $inquiryType = $request->query('type', 'Bespoke Jewellery Design');
+        $timeToken = \App\Services\BotProtectionService::generateTimeToken();
 
-        return view('custom.create', compact('product', 'inquiryType'));
+        return view('custom.create', compact('product', 'inquiryType', 'timeToken'));
     }
 
     /**
@@ -34,7 +38,25 @@ class CustomRequestController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
-        // 1. Backend Validation
+        // 1. Anti-Bot Security Checks (Honeypot, Fast-Submit Time Trap, reCAPTCHA v3)
+        if (\App\Services\BotProtectionService::isHoneypotTriggered($request->input('website_url_honey'))) {
+            // Silently discard automated spambots
+            return redirect()->route('home');
+        }
+
+        if (\App\Services\BotProtectionService::isSubmissionTooFast($request->input('form_time_token'), 2)) {
+            return redirect()->back()->withInput()->withErrors([
+                'idea_description' => 'Security check: Form was submitted too quickly. Please try again.',
+            ]);
+        }
+
+        if (!\App\Services\BotProtectionService::verifyRecaptcha($request->input('recaptcha_token'), $request->ip())) {
+            return redirect()->back()->withInput()->withErrors([
+                'idea_description' => 'Security check: Google reCAPTCHA anti-spam verification failed. Please try again.',
+            ]);
+        }
+
+        // 2. Backend Validation (Delivery address removed; international phone supported; max 5 images)
         $validated = $request->validate([
             'project_type' => ['nullable', 'string', 'max:255'],
             'project_type_other' => ['nullable', 'string', 'max:255'],
@@ -42,46 +64,42 @@ class CustomRequestController extends Controller
             
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'email', 'max:255'],
-            'phone' => ['required', 'string', 'max:255'],
-            'whatsapp' => ['required', 'string', new IndianPhoneNumber()],
-            
-            // Honeypot anti-spam
-            'website_url_honey' => ['nullable', 'string', 'max:0'],
+            'phone' => ['nullable', 'string', 'max:255'],
+            'whatsapp' => ['required', 'string', new \App\Rules\InternationalPhoneNumber()],
 
-            // Optional reference images
+            // Optional reference images (up to 5 images)
+            'reference_images' => ['nullable', 'array', 'max:5'],
             'reference_images.*' => ['nullable', 'image', 'mimes:jpeg,png,webp,jpg', 'max:5120'], // max 5MB
+        ], [
+            'reference_images.max' => 'You can upload a maximum of 5 inspiration photos.',
+            'whatsapp.required' => 'Please provide a valid phone or WhatsApp number so our atelier can contact you.',
         ]);
-
-        if (!empty($validated['website_url_honey'])) {
-            // Silently abort for spam bots
-            return redirect()->route('home');
-        }
 
         // Generate Reference Number
         $reference = CustomRequest::generateReference();
 
         DB::transaction(function () use ($validated, $request, $reference) {
-            // 2. Create the Custom Request Record
+            // 3. Create the Custom Request Record (Works for both Guests user_id=null and Authenticated users)
             $customRequest = CustomRequest::create([
                 'public_reference' => $reference,
                 'user_id' => auth()->id(), // null for guests, ID for logged-in users
-                'project_type' => $validated['project_type'] ?? 'Custom Artwork',
+                'project_type' => $validated['project_type'] ?? 'Bespoke Handcrafted Design',
                 'project_type_other' => $validated['project_type_other'] ?? null,
                 'quantity' => 1,
                 'idea_description' => $validated['idea_description'],
                 'timeline_type' => 'Flexible',
                 'name' => $validated['name'],
                 'email' => $validated['email'],
-                'phone' => $validated['phone'] ?? null,
+                'phone' => $validated['phone'] ?? $validated['whatsapp'] ?? null,
                 'whatsapp' => $validated['whatsapp'] ?? null,
                 'status' => CustomRequestStatus::SUBMITTED,
                 'submitted_at' => now(),
             ]);
 
-            // 3. Handle Optional Reference Images
+            // 4. Handle Optional Reference Images (Max 5 images)
             if ($request->hasFile('reference_images')) {
                 $files = $request->file('reference_images');
-                $files = array_slice($files, 0, 3); // Max 3 images
+                $files = array_slice($files, 0, 5); // Max 5 images
                 
                 foreach ($files as $index => $file) {
                     $path = $file->store('custom-requests/references', 'public');
@@ -104,7 +122,8 @@ class CustomRequestController extends Controller
             }
         });
 
-        return redirect()->route('custom.success', ['reference' => $reference]);
+        $redirectRoute = ($request->routeIs('inquiry.*') || $request->is('inquiry*')) ? 'inquiry.success' : 'custom.success';
+        return redirect()->route($redirectRoute, ['reference' => $reference]);
     }
 
     /**
@@ -115,7 +134,8 @@ class CustomRequestController extends Controller
         $reference = $request->query('reference');
         
         if (!$reference) {
-            return redirect()->route('custom.index');
+            $fallback = ($request->routeIs('inquiry.*') || $request->is('inquiry*')) ? 'inquiry.index' : 'custom.index';
+            return redirect()->route($fallback);
         }
 
         return view('custom.success', compact('reference'));

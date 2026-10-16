@@ -12,7 +12,7 @@
                     A house built on patience.
                 </h2>
                 <p class="text-[14px] sm:text-[15px] text-[#78716C] font-light max-w-lg mx-auto">
-                    Maison Résine began with one poured panel in a rented flat and a stubborn belief that resin could be quiet.
+                    Solitaire Fine Jewels began with an uncompromising passion for certified diamonds, hallmarked gold, and timeless bespoke heirlooms.
                 </p>
             </div>
 

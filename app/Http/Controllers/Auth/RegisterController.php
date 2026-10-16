@@ -52,8 +52,8 @@ class RegisterController extends Controller
 
         \App\Models\CustomerNotification::create([
             'user_id' => $user->id,
-            'title'   => 'Welcome to Maison Résine',
-            'message' => 'Your atelier account is now active. Explore our handcrafted resin creations, track upcoming orders, and commission bespoke artwork.',
+            'title'   => 'Welcome to Solitaire Fine Jewels',
+            'message' => 'Your atelier account is now active. Explore our certified diamond solitaires, save pieces to your wishlist, and commission bespoke fine jewellery.',
             'type'    => 'welcome',
             'is_read' => false,
         ]);

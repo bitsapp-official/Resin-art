@@ -221,13 +221,13 @@
 <div class="page">
 
     @php
-        $brandName    = \App\Models\SiteSetting::get('invoice_brand_name', 'Maison Résine');
-        $brandTagline = \App\Models\SiteSetting::get('invoice_brand_tagline', 'Haute Résine Atelier · Art Contemporain');
-        $address      = \App\Models\SiteSetting::get('invoice_address', '14 rue des Étoiles, 33000 Bordeaux, France');
-        $email        = \App\Models\SiteSetting::get('invoice_email', 'atelier@maisonresine.com');
+        $brandName    = \App\Models\SiteSetting::get('invoice_brand_name', 'Solitaire Fine Jewels');
+        $brandTagline = \App\Models\SiteSetting::get('invoice_brand_tagline', 'Certified Diamonds & Bespoke Fine Jewellery Atelier');
+        $address      = \App\Models\SiteSetting::get('invoice_address', 'Atelier Plaza, Fine Arts Quarter, Mumbai, India');
+        $email        = \App\Models\SiteSetting::get('invoice_email', 'concierge@solitairefinejewels.com');
         $phone        = \App\Models\SiteSetting::get('invoice_phone', '+91 98765 43210');
-        $website      = \App\Models\SiteSetting::get('invoice_website', 'www.maisonresine.com');
-        $footerNote   = \App\Models\SiteSetting::get('invoice_footer_note', 'Thank you for choosing Maison Résine. This is an official payment receipt & tax invoice.');
+        $website      = \App\Models\SiteSetting::get('invoice_website', 'www.solitairefinejewels.com');
+        $footerNote   = \App\Models\SiteSetting::get('invoice_footer_note', 'Thank you for choosing Solitaire Fine Jewels. This is an official payment receipt & tax invoice.');
         
         $balanceDue   = max(0, $invoice->total_amount - $invoice->paid_amount);
         $statusLabel  = match(strtolower($invoice->payment_status)) {
@@ -337,7 +337,7 @@
                 <tr>
                     <td class="center">1</td>
                     <td>
-                        <strong>{{ $invoice->item_title ?: 'Bespoke Resin Artwork' }}</strong>
+                        <strong>{{ $invoice->item_title ?: 'Bespoke Fine Jewellery Piece' }}</strong>
                         @if($invoice->item_description)
                             <div style="font-size: 8px; color: #78716C; margin-top: 4px;">
                                 {{ $invoice->item_description }}
@@ -398,7 +398,7 @@
     <div class="footer">
         <strong>{{ $footerNote }}</strong><br>
         All prices are inclusive of 18% GST (CGST 9% + SGST 9%). This document is an official computer-generated tax invoice and payment receipt.<br>
-        {{ $brandName }} Atelier &middot; Handcrafted Luxury Resin Art &middot; All Rights Reserved.
+        {{ $brandName }} Atelier &middot; Handcrafted Luxury Fine Jewellery &middot; All Rights Reserved.
     </div>
 
 </div>

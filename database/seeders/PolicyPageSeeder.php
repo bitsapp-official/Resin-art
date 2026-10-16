@@ -12,96 +12,85 @@ class PolicyPageSeeder extends Seeder
         $pages = [
             [
                 'slug'             => 'shipping',
-                'title'            => 'Shipping Policy',
-                'hero_badge'       => 'DISPATCH & DELIVERY',
-                'hero_label'       => 'How we pack & ship your piece.',
-                'meta_title'       => 'Shipping Policy — Maison Résine',
-                'meta_description' => 'Learn how Maison Résine ships handcrafted resin art pieces safely across India.',
-                'content'          => '<h2>Free Insured Shipping Across India</h2>
-<p>Every Maison Résine piece ships free with complimentary insured delivery across India. We partner with premium logistics providers to ensure your piece arrives safely.</p>
+                'title'            => 'Shipping & Delivery Policy',
+                'hero_badge'       => 'SECURE INSURED TRANSIT',
+                'hero_label'       => 'How we securely package & dispatch your fine jewellery.',
+                'meta_title'       => 'Shipping & Delivery Policy — Solitaire Fine Jewels',
+                'meta_description' => 'Learn how Solitaire Fine Jewels ships certified diamond and gold jewellery with 100% insured delivery worldwide.',
+                'content'          => '<h2>Complimentary Insured Shipping Worldwide</h2>
+<p>Every Solitaire Fine Jewels piece is dispatched via tamper-evident, fully insured white-glove courier services. Your shipment is 100% insured against loss or damage until handed over to you directly.</p>
 
 <h2>Dispatch Timeline</h2>
-<p>Standard pieces ship within <strong>24–48 business hours</strong> of order confirmation. Custom made-to-order pieces ship within <strong>7–21 working days</strong> depending on complexity and curing time.</p>
+<p>Ready-to-ship catalog pieces dispatch within <strong>24–48 business hours</strong> following laboratory verification. Custom bespoke solitaires and customized ring sizes require <strong>7–14 working days</strong> for master casting and precision micro-setting.</p>
 
-<h2>Packaging</h2>
-<p>All pieces are individually wrapped in archival tissue, nested in custom-cut foam inserts, and dispatched in double-walled corrugated boxes. Large works and river tables ship in bespoke wooden crates.</p>
+<h2>Vault Packaging & Security</h2>
+<p>Each jewel arrives nested in a custom plush velvet presentation case, accompanied by your tamper-sealed physical Certificate of Authenticity (IGI/GIA) and BIS Hallmarking guarantee card, enclosed in a discreet outer security parcel.</p>
 
-<h2>Tracking</h2>
-<p>Once dispatched, you will receive an email with your AWB tracking number. You can track your shipment directly from your account dashboard under <em>My Orders</em>.</p>
+<h2>Tracking & Signature on Delivery</h2>
+<p>Once dispatched, you will receive real-time SMS and email tracking links. An adult signature and OTP verification are mandatory upon courier handover for your complete peace of mind.</p>
 
-<h2>International Shipping</h2>
-<p>We currently ship only within India. For international inquiries, please write to us via our <a href="/contact">contact page</a>.</p>',
+<h2>International Delivery</h2>
+<p>We ship securely to collectors across the United States, United Kingdom, UAE, Europe, and Asia. For bespoke international logistics questions, connect with our concierge.</p>',
             ],
             [
                 'slug'             => 'return',
-                'title'            => 'Return & Cancellation Policy',
-                'hero_badge'       => 'CANCELLATIONS & RETURNS',
-                'hero_label'       => 'Important before you order.',
-                'meta_title'       => 'Return & Cancellation Policy — Maison Résine',
-                'meta_description' => 'Maison Résine cancellation and return policy for handcrafted resin art pieces.',
-                'content'          => '<h2>3-Hour Cancellation Window</h2>
-<p>Orders may be cancelled within <strong>3 hours of placement</strong>. Once 3 hours have passed, bespoke curing and crafting has already begun and the order cannot be cancelled.</p>
-<p>To cancel within the window, visit <em>My Orders</em> in your account and click <strong>"Cancel Order"</strong>. Refunds are processed to your original payment method within 5–7 business days.</p>
+                'title'            => 'Return & Exchange Policy',
+                'hero_badge'       => 'ASSURANCE & GUARANTEE',
+                'hero_label'       => 'Our commitment to diamond integrity.',
+                'meta_title'       => 'Return & Exchange Policy — Solitaire Fine Jewels',
+                'meta_description' => 'Solitaire Fine Jewels exchange, resizing, and lifetime authenticity guarantee for fine jewellery.',
+                'content'          => '<h2>Lifetime Authenticity & Certificate Guarantee</h2>
+<p>Every natural diamond and gold jewel crafted by Solitaire Fine Jewels is guaranteed authentic for life. Each piece is accompanied by an independent gemological laboratory certificate (IGI / GIA) and official BIS Hallmark imprint.</p>
 
-<h2>No Returns Policy</h2>
-<p>As all Maison Résine pieces are <strong>handcrafted and made-to-order</strong>, we do not accept returns once an order has been dispatched. Each piece is unique and created specifically for your order.</p>
-<p>This policy reflects the nature of bespoke artisan work — no two pours are ever identical, and materials are sourced and used for your specific piece.</p>
+<h2>Complimentary Ring Resizing</h2>
+<p>We provide one <strong>complimentary ring resizing</strong> within 30 days of receiving your bespoke piece to ensure an absolute, comfortable fit on your finger.</p>
 
-<h2>Damaged or Defective Pieces</h2>
-<p>If your piece arrives damaged due to a logistics failure, please photograph the damage and contact us within <strong>48 hours of delivery</strong>. We will arrange a replacement or refund at no additional cost.</p>
+<h2>Cancellation Window</h2>
+<p>Orders may be cancelled or modified within <strong>24 hours of placement</strong>. Following this window, precious metal alloy casting and customized stone setting commence.</p>
 
-<h2>Custom Orders & Made-to-Order Pieces</h2>
-<p>Custom orders are non-refundable and non-cancellable once the design brief has been confirmed and crafting has commenced, as timber slabs and materials are prepared specifically for your piece.</p>',
+<h2>15-Day Exchange Guarantee</h2>
+<p>Catalog pieces in pristine, unworn condition with original laboratory certification cards and tamper tags intact may be exchanged within 15 days of delivery.</p>
+
+<h2>Damaged or Setting Inquiries</h2>
+<p>Every piece undergoes dual-stage microscopic inspection before dispatch. In the rare event of transit damage, contact our concierge within <strong>48 hours of receipt</strong> for immediate insured collection and resolution.</p>',
             ],
             [
                 'slug'             => 'privacy',
-                'title'            => 'Privacy Policy',
-                'hero_badge'       => 'DATA INTEGRITY',
-                'hero_label'       => 'How we handle your information.',
-                'meta_title'       => 'Privacy Policy — Maison Résine',
-                'meta_description' => 'Maison Résine privacy policy — how we collect, use, and protect your personal data.',
-                'content'          => '<h2>Information We Collect</h2>
-<p>We collect information you provide directly, including your name, email address, shipping address, and payment details when you place an order or create an account.</p>
-
-<h2>How We Use Your Information</h2>
-<p>Your information is used to process orders, manage your account, communicate about your purchase, and improve our services. We do not sell your personal data to third parties.</p>
+                'title'            => 'Privacy & Data Protection',
+                'hero_badge'       => 'CLIENT CONFIDENTIALITY',
+                'hero_label'       => 'How we safeguard your personal & financial privacy.',
+                'meta_title'       => 'Privacy Policy — Solitaire Fine Jewels',
+                'meta_description' => 'Solitaire Fine Jewels privacy policy — how we collect, use, and protect your personal information with absolute confidentiality.',
+                'content'          => '<h2>Strict Confidentiality</h2>
+<p>We collect essential information required to fulfill your custom commission, including contact details, delivery addresses, and ring sizing measurements. We never sell or share client information with external third parties.</p>
 
 <h2>Payment Security</h2>
-<p>All payments are processed through secure, PCI-DSS compliant payment gateways. We do not store your full card details on our servers.</p>
+<p>All financial transactions are encrypted through 256-bit bank-grade TLS and processed via PCI-DSS Level 1 compliant gateways. We do not store sensitive payment card details.</p>
 
-<h2>Cookies</h2>
-<p>We use essential cookies to keep your cart session active and optional analytics cookies (which you may decline) to understand how visitors use our site.</p>
+<h2>Discreet Communication</h2>
+<p>For surprise engagements and private milestones, our concierge offers discreet correspondence options so your celebration remains an intimate surprise.</p>
 
 <h2>Your Rights</h2>
-<p>You may request access to, correction of, or deletion of your personal data at any time by writing to us at our contact email. We will respond within 30 days.</p>
-
-<h2>Data Retention</h2>
-<p>We retain your order data for 7 years to comply with Indian tax and accounting regulations. Account data is deleted upon account closure.</p>',
+<p>You may request access to, modification of, or deletion of your stored account data at any time by contacting our concierge team.</p>',
             ],
             [
                 'slug'             => 'terms',
                 'title'            => 'Terms & Conditions',
-                'hero_badge'       => 'ATELIER AGREEMENTS',
-                'hero_label'       => 'Terms of engaging with Maison Résine.',
-                'meta_title'       => 'Terms & Conditions — Maison Résine',
-                'meta_description' => 'Terms and conditions governing purchases and use of Maison Résine website and services.',
-                'content'          => '<h2>Acceptance of Terms</h2>
-<p>By accessing or placing an order on this website, you agree to be bound by these terms and conditions. If you do not agree, please do not use this site.</p>
+                'hero_badge'       => 'MAISON AGREEMENTS',
+                'hero_label'       => 'Terms governing your engagement with Solitaire Fine Jewels.',
+                'meta_title'       => 'Terms & Conditions — Solitaire Fine Jewels',
+                'meta_description' => 'Terms and conditions governing fine jewellery purchases, certifications, and commissions with Solitaire Fine Jewels.',
+                'content'          => '<h2>Authenticity & Valuation</h2>
+<p>All prices are listed in Indian Rupees (₹) inclusive of applicable GST taxes. Diamond carat weights and gold purities are guaranteed as stated on your accompanying certificate.</p>
 
-<h2>Products & Pricing</h2>
-<p>All prices are listed in Indian Rupees (₹) and include applicable taxes. We reserve the right to amend prices at any time. Orders confirmed at a specific price will honour that price.</p>
+<h2>Custom Commissions</h2>
+<p>Bespoke custom designs approved by the client are crafted specifically to bespoke dimensions and specifications. Deposit terms and delivery milestones are established in your formal quote.</p>
 
 <h2>Intellectual Property</h2>
-<p>All photographs, artwork, design concepts, and written content on this website are the intellectual property of Maison Résine. Reproduction without written permission is prohibited.</p>
-
-<h2>Limitation of Liability</h2>
-<p>Maison Résine is not liable for indirect or consequential losses arising from the use of our website or products beyond the original purchase price paid.</p>
+<p>All jewellery design concepts, 3D CAD renders, editorial photography, and written materials remain the intellectual property of Solitaire Fine Jewels.</p>
 
 <h2>Governing Law</h2>
-<p>These terms are governed by the laws of India. Any disputes will be subject to the exclusive jurisdiction of courts in India.</p>
-
-<h2>Changes to Terms</h2>
-<p>We reserve the right to update these terms at any time. Material changes will be communicated to registered account holders via email.</p>',
+<p>These terms are governed by the laws of India. Any disputes will be subject to the exclusive jurisdiction of the competent courts in Mumbai, India.</p>',
             ],
         ];
 

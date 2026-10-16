@@ -1,4 +1,4 @@
-<x-app-layout title="Journal — Maison Résine">
+<x-app-layout title="Journal — Solitaire Fine Jewels">
 
     <!-- Structured Data (JSON-LD BlogPosting Schema) -->
     @php
@@ -16,7 +16,7 @@
             ],
             'publisher' => [
                 '@type' => 'Organization',
-                'name' => 'Maison Résine',
+                'name' => 'Solitaire Fine Jewels',
             ],
         ]);
     @endphp
@@ -24,8 +24,8 @@
         {!! json_encode($jsonLd, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT) !!}
     </script>
 
-    <div class="py-8 sm:py-10 lg:py-16">
-        <div class="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-12 xl:px-16 space-y-8 sm:space-y-12 lg:space-y-16 w-full min-w-0">
+    <div class="pt-2 sm:pt-4 pb-12 sm:pb-16 lg:pb-20">
+        <div class="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-12 xl:px-16 space-y-6 sm:space-y-8 lg:space-y-10 w-full min-w-0">
 
             <!-- Back to Journal Link -->
             <div class="animate-fade-up">

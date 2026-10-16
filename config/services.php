@@ -46,4 +46,15 @@ return [
         'currency'       => 'inr', // Authoritative store base currency (ISO 4217). Hardcoded to INR to prevent financial mismatch exploits and satisfy RBI regulations.
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Google reCAPTCHA v3
+    |--------------------------------------------------------------------------
+    */
+    'recaptcha' => [
+        'site_key'   => env('RECAPTCHA_SITE_KEY', ''),
+        'secret_key' => env('RECAPTCHA_SECRET_KEY', ''),
+        'min_score'  => (float) env('RECAPTCHA_MIN_SCORE', 0.5),
+    ],
+
 ];

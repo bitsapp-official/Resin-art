@@ -1,9 +1,9 @@
-<x-app-layout title="Shop All Resin Art — Maison Résine Atelier">
+<x-app-layout title="Shop Fine Jewellery & Diamond Rings — Solitaire Fine Jewels">
 <div class="min-h-screen bg-transparent w-full min-w-0">
-    <div class="max-w-[1360px] mx-auto px-4 sm:px-6 lg:px-12 xl:px-16 pt-6 sm:pt-8 pb-16 sm:pb-24 w-full min-w-0">
+    <div class="max-w-[1360px] mx-auto px-4 sm:px-6 lg:px-12 xl:px-16 pt-2 sm:pt-4 pb-16 sm:pb-24 w-full min-w-0">
 
         {{-- ── HERO HEADER SECTION ──────────────────────────────── --}}
-        <div class="py-6 sm:py-10 border-b border-[#E5DFD3]/80 space-y-2 sm:space-y-3.5">
+        <div class="pt-1 pb-6 sm:pb-8 border-b border-[#E5DFD3]/80 space-y-2 sm:space-y-3">
             <div class="flex items-center space-x-3 text-[10px] uppercase tracking-[0.28em] font-medium text-[#8E877D]">
                 <span class="w-8 h-[1px] bg-[#D9D2C5] inline-block"></span>
                 <span>THE INDEX</span>
@@ -14,7 +14,7 @@
             </h1>
 
             <p class="text-xs sm:text-[14px] md:text-[15px] text-[#78716C] font-light leading-relaxed max-w-xl pt-1">
-                Poured by hand in Bordeaux with resin, hardwood, and raw pigments. Unrepeatable design. Objects for residence.
+                Master handcrafted in hallmarked gold with certified natural & lab-grown diamonds. Uncompromising brilliance. Modern heirlooms.
             </p>
         </div>
 
@@ -39,13 +39,18 @@
 
         {{-- ── FILTER & SORT BAR ────────────────────────────────── --}}
         <form method="GET" action="{{ route('shop.index') }}"
-              class="flex flex-wrap items-center justify-between gap-4 py-4 mb-6">
+              class="flex flex-wrap items-center justify-between gap-3.5 py-4 mb-4">
             
-            <div class="flex flex-wrap items-center gap-3">
-                {{-- Categories Pill Dropdown --}}
+            {{-- Retain search query if present --}}
+            @if(request()->filled('q') || request()->filled('search'))
+                <input type="hidden" name="q" value="{{ request('q') ?: request('search') }}">
+            @endif
+
+            <div class="flex flex-wrap items-center gap-2.5 sm:gap-3">
+                {{-- 1. Categories Pill Dropdown --}}
                 <div class="relative">
                     <select name="category" onchange="this.form.submit()"
-                            class="appearance-none [appearance:none] [-webkit-appearance:none] [-moz-appearance:none] bg-white/80 border border-[#DFD9CE] rounded-full pl-5 pr-10 py-2.5 text-[10.5px] uppercase tracking-[0.18em] font-medium text-[#1C1917] hover:border-[#1C1917] focus:outline-none cursor-pointer transition-all bg-[url('data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20fill%3D%22none%22%20viewBox%3D%220%200%2024%2024%22%20stroke%3D%22%231C1917%22%20stroke-width%3D%222%22%3E%3Cpath%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%20d%3D%22M19%209l-7%207-7-7%22%2F%3E%3C%2Fsvg%3E')] bg-[length:12px_12px] bg-[right_14px_center] bg-no-repeat">
+                            class="appearance-none [appearance:none] [-webkit-appearance:none] [-moz-appearance:none] bg-white/80 border border-[#DFD9CE] rounded-full pl-4 sm:pl-5 pr-9 sm:pr-10 py-2 sm:py-2.5 text-[10px] sm:text-[10.5px] uppercase tracking-[0.16em] sm:tracking-[0.18em] font-medium text-[#1C1917] hover:border-[#1C1917] focus:outline-none cursor-pointer transition-all bg-[url('data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20fill%3D%22none%22%20viewBox%3D%220%200%2024%2024%22%20stroke%3D%22%231C1917%22%20stroke-width%3D%222%22%3E%3Cpath%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%20d%3D%22M19%209l-7%207-7-7%22%2F%3E%3C%2Fsvg%3E')] bg-[length:12px_12px] bg-[right_12px_center] bg-no-repeat">
                         <option value="">All Categories</option>
                         @foreach($categories as $cat)
                             <option value="{{ $cat->slug }}" {{ request('category') == $cat->slug ? 'selected' : '' }}>{{ $cat->name }}</option>
@@ -53,11 +58,32 @@
                     </select>
                 </div>
 
+                {{-- 2. Metal Color / Tone Filter Dropdown --}}
+                <div class="relative">
+                    <select name="color" onchange="this.form.submit()"
+                            class="appearance-none [appearance:none] [-webkit-appearance:none] [-moz-appearance:none] bg-white/80 border {{ request('color') ? 'border-[#1C1917] bg-[#F7F4EE] font-semibold' : 'border-[#DFD9CE]' }} rounded-full pl-4 sm:pl-5 pr-9 sm:pr-10 py-2 sm:py-2.5 text-[10px] sm:text-[10.5px] uppercase tracking-[0.16em] sm:tracking-[0.18em] font-medium text-[#1C1917] hover:border-[#1C1917] focus:outline-none cursor-pointer transition-all bg-[url('data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20fill%3D%22none%22%20viewBox%3D%220%200%2024%2024%22%20stroke%3D%22%231C1917%22%20stroke-width%3D%222%22%3E%3Cpath%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%20d%3D%22M19%209l-7%207-7-7%22%2F%3E%3C%2Fsvg%3E')] bg-[length:12px_12px] bg-[right_12px_center] bg-no-repeat">
+                        <option value="">Metal: All Tones</option>
+                        <option value="Yellow Gold" {{ in_array(request('color'), ['Yellow Gold', 'yellow', 'yellow-gold']) ? 'selected' : '' }}>Yellow Gold</option>
+                        <option value="White Gold" {{ in_array(request('color'), ['White Gold', 'white', 'white-gold']) ? 'selected' : '' }}>White Gold</option>
+                        <option value="Rose Gold" {{ in_array(request('color'), ['Rose Gold', 'rose', 'rose-gold']) ? 'selected' : '' }}>Rose Gold</option>
+                    </select>
+                </div>
 
-                {{-- Price Filter Slider Indicator / Dropdown Pill --}}
+                {{-- 3. Gold Purity Filter Dropdown --}}
+                <div class="relative">
+                    <select name="purity" onchange="this.form.submit()"
+                            class="appearance-none [appearance:none] [-webkit-appearance:none] [-moz-appearance:none] bg-white/80 border {{ request('purity') ? 'border-[#1C1917] bg-[#F7F4EE] font-semibold' : 'border-[#DFD9CE]' }} rounded-full pl-4 sm:pl-5 pr-9 sm:pr-10 py-2 sm:py-2.5 text-[10px] sm:text-[10.5px] uppercase tracking-[0.16em] sm:tracking-[0.18em] font-medium text-[#1C1917] hover:border-[#1C1917] focus:outline-none cursor-pointer transition-all bg-[url('data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20fill%3D%22none%22%20viewBox%3D%220%200%2024%2024%22%20stroke%3D%22%231C1917%22%20stroke-width%3D%222%22%3E%3Cpath%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%20d%3D%22M19%209l-7%207-7-7%22%2F%3E%3C%2Fsvg%3E')] bg-[length:12px_12px] bg-[right_12px_center] bg-no-repeat">
+                        <option value="">Purity: All Purities</option>
+                        <option value="14KT Gold" {{ in_array(request('purity'), ['14KT Gold', '14KT', '14kt', '14k']) ? 'selected' : '' }}>14KT Gold</option>
+                        <option value="18KT Gold" {{ in_array(request('purity'), ['18KT Gold', '18KT', '18kt', '18k']) ? 'selected' : '' }}>18KT Gold</option>
+                        <option value="22KT Gold" {{ in_array(request('purity'), ['22KT Gold', '22KT', '22kt', '22k']) ? 'selected' : '' }}>22KT Gold</option>
+                    </select>
+                </div>
+
+                {{-- 4. Price Filter Dropdown Pill --}}
                 <div class="relative">
                     <select name="price" onchange="this.form.submit()"
-                            class="appearance-none [appearance:none] [-webkit-appearance:none] [-moz-appearance:none] bg-white/80 border border-[#DFD9CE] rounded-full pl-5 pr-10 py-2.5 text-[10.5px] uppercase tracking-[0.18em] font-medium text-[#1C1917] hover:border-[#1C1917] focus:outline-none cursor-pointer transition-all bg-[url('data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20fill%3D%22none%22%20viewBox%3D%220%200%2024%2024%22%20stroke%3D%22%231C1917%22%20stroke-width%3D%222%22%3E%3Cpath%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%20d%3D%22M19%209l-7%207-7-7%22%2F%3E%3C%2Fsvg%3E')] bg-[length:12px_12px] bg-[right_14px_center] bg-no-repeat">
+                            class="appearance-none [appearance:none] [-webkit-appearance:none] [-moz-appearance:none] bg-white/80 border {{ request('price') ? 'border-[#1C1917] bg-[#F7F4EE] font-semibold' : 'border-[#DFD9CE]' }} rounded-full pl-4 sm:pl-5 pr-9 sm:pr-10 py-2 sm:py-2.5 text-[10px] sm:text-[10.5px] uppercase tracking-[0.16em] sm:tracking-[0.18em] font-medium text-[#1C1917] hover:border-[#1C1917] focus:outline-none cursor-pointer transition-all bg-[url('data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20fill%3D%22none%22%20viewBox%3D%220%200%2024%2024%22%20stroke%3D%22%231C1917%22%20stroke-width%3D%222%22%3E%3Cpath%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%20d%3D%22M19%209l-7%207-7-7%22%2F%3E%3C%2Fsvg%3E')] bg-[length:12px_12px] bg-[right_12px_center] bg-no-repeat">
                         <option value="">Price: All Ranges</option>
                         <option value="under_15000" {{ request('price') == 'under_15000' ? 'selected' : '' }}>Under ₹ 15,000</option>
                         <option value="under_50000" {{ request('price') == 'under_50000' ? 'selected' : '' }}>Under ₹ 50,000</option>
@@ -70,7 +96,7 @@
             {{-- Right side Sort Dropdown --}}
             <div class="relative">
                 <select name="sort" onchange="this.form.submit()"
-                        class="appearance-none [appearance:none] [-webkit-appearance:none] [-moz-appearance:none] bg-white/80 border border-[#DFD9CE] rounded-full pl-5 pr-10 py-2.5 text-[10.5px] uppercase tracking-[0.18em] font-medium text-[#1C1917] hover:border-[#1C1917] focus:outline-none cursor-pointer transition-all bg-[url('data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20fill%3D%22none%22%20viewBox%3D%220%200%2024%2024%22%20stroke%3D%22%231C1917%22%20stroke-width%3D%222%22%3E%3Cpath%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%20d%3D%22M19%209l-7%207-7-7%22%2F%3E%3C%2Fsvg%3E')] bg-[length:12px_12px] bg-[right_14px_center] bg-no-repeat">
+                        class="appearance-none [appearance:none] [-webkit-appearance:none] [-moz-appearance:none] bg-white/80 border border-[#DFD9CE] rounded-full pl-4 sm:pl-5 pr-9 sm:pr-10 py-2 sm:py-2.5 text-[10px] sm:text-[10.5px] uppercase tracking-[0.16em] sm:tracking-[0.18em] font-medium text-[#1C1917] hover:border-[#1C1917] focus:outline-none cursor-pointer transition-all bg-[url('data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20fill%3D%22none%22%20viewBox%3D%220%200%2024%2024%22%20stroke%3D%22%231C1917%22%20stroke-width%3D%222%22%3E%3Cpath%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%20d%3D%22M19%209l-7%207-7-7%22%2F%3E%3C%2Fsvg%3E')] bg-[length:12px_12px] bg-[right_12px_center] bg-no-repeat">
                     <option value="curated" {{ request('sort','curated') == 'curated' ? 'selected' : '' }}>Sort: Curated</option>
                     <option value="latest" {{ request('sort') == 'latest' ? 'selected' : '' }}>Sort: Newest First</option>
                     <option value="price_low" {{ request('sort') == 'price_low' ? 'selected' : '' }}>Sort: Price Low to High</option>
@@ -79,114 +105,195 @@
             </div>
         </form>
 
-        {{-- ── PRODUCT GRID ─────────────────────────────────────── --}}
+        {{-- ── ACTIVE FILTER CHIPS (Quick Clear Bar) ─────────────── --}}
+        @php
+            $hasActiveFilters = request()->filled('category') || request()->filled('color') || request()->filled('purity') || request()->filled('price');
+        @endphp
+        @if($hasActiveFilters)
+            <div class="flex items-center gap-2 flex-wrap mb-6 pt-1">
+                <span class="text-[9.5px] uppercase tracking-[0.2em] font-semibold text-[#8E877D] mr-1">Active:</span>
+
+                {{-- Category Chip --}}
+                @if(request()->filled('category'))
+                    @php
+                        $activeCat = $categories->firstWhere('slug', request('category'));
+                    @endphp
+                    <a href="{{ route('shop.index', request()->except('category')) }}"
+                       class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#1C1917] text-white text-[9px] uppercase tracking-[0.16em] hover:bg-[#8E877D] transition-colors shadow-2xs">
+                        <span>{{ $activeCat?->name ?? request('category') }}</span>
+                        <span class="text-xs leading-none">&times;</span>
+                    </a>
+                @endif
+
+                {{-- Color Chip --}}
+                @if(request()->filled('color'))
+                    <a href="{{ route('shop.index', request()->except('color')) }}"
+                       class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#1C1917] text-white text-[9px] uppercase tracking-[0.16em] hover:bg-[#8E877D] transition-colors shadow-2xs">
+                        <span>{{ request('color') }}</span>
+                        <span class="text-xs leading-none">&times;</span>
+                    </a>
+                @endif
+
+                {{-- Purity Chip --}}
+                @if(request()->filled('purity'))
+                    <a href="{{ route('shop.index', request()->except('purity')) }}"
+                       class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#1C1917] text-white text-[9px] uppercase tracking-[0.16em] hover:bg-[#8E877D] transition-colors shadow-2xs">
+                        <span>{{ request('purity') }}</span>
+                        <span class="text-xs leading-none">&times;</span>
+                    </a>
+                @endif
+
+                {{-- Price Chip --}}
+                @if(request()->filled('price'))
+                    @php
+                        $priceLabels = [
+                            'under_15000' => 'Under ₹15k',
+                            'under_50000' => 'Under ₹50k',
+                            'under_150000' => 'Under ₹1.5L',
+                            'under_500000' => 'Under ₹5L',
+                        ];
+                    @endphp
+                    <a href="{{ route('shop.index', request()->except('price')) }}"
+                       class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#1C1917] text-white text-[9px] uppercase tracking-[0.16em] hover:bg-[#8E877D] transition-colors shadow-2xs">
+                        <span>{{ $priceLabels[request('price')] ?? request('price') }}</span>
+                        <span class="text-xs leading-none">&times;</span>
+                    </a>
+                @endif
+
+                {{-- Clear All Reset Link --}}
+                <a href="{{ route('shop.index', request()->only(['q', 'search'])) }}"
+                   class="text-[9.5px] uppercase tracking-[0.18em] text-[#8E877D] hover:text-[#1C1917] underline underline-offset-4 font-medium ml-2 transition-colors">
+                    Reset All
+                </a>
+            </div>
+        @endif
+
+        <style>
+            @keyframes luxuryShimmer {
+                0% { transform: translateX(-100%); }
+                100% { transform: translateX(100%); }
+            }
+            .animate-luxury-shimmer {
+                animation: luxuryShimmer 1.6s infinite ease-in-out;
+            }
+        </style>
+
+        {{-- ── PRODUCT GRID WITH INFINITE SCROLL & SKELETON LOADERS ── --}}
         @if($products->count() > 0)
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-12 pt-4 pb-16">
-                @foreach($products as $product)
-                    <div class="group">
-                        {{-- Rounded Product Image Card --}}
-                        <div class="relative overflow-hidden aspect-[4/5] rounded-[2rem] bg-[#F5F2EB] border border-[#DFD9CE]/60 shadow-2xs mb-4 group/card">
-                            <a href="{{ route('shop.show', $product->slug) }}" class="block w-full h-full">
-                                @if(!empty($product->images) && isset($product->images[0]))
-                                    <img src="{{ $product->images[0] }}"
-                                         alt="{{ $product->name }}"
-                                         class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out">
-                                @else
-                                    <div class="w-full h-full flex items-center justify-center text-[#C4BDB4]">
-                                        <svg class="w-12 h-12 stroke-[1]" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z"/></svg>
-                                    </div>
-                                @endif
-                            </a>
+            <div x-data="{
+                    nextPageUrl: @js($products->nextPageUrl()),
+                    hasMore: @js($products->hasMorePages()),
+                    loading: false,
+                    observer: null,
+                    init() {
+                        this.setupObserver();
+                    },
+                    setupObserver() {
+                        if (!this.hasMore || !this.nextPageUrl) return;
+                        if (this.observer) this.observer.disconnect();
 
-                            {{-- Badge top-left --}}
-                            @if($product->is_bestseller)
-                                <span class="glass-pill absolute top-4 left-4 text-[#1C1917] text-[9px] uppercase tracking-[0.18em] font-medium px-3.5 py-1.5 rounded-full pointer-events-none">BESTSELLER</span>
-                            @elseif($product->is_featured)
-                                <span class="glass-pill absolute top-4 left-4 text-[#1C1917] text-[9px] uppercase tracking-[0.18em] font-medium px-3.5 py-1.5 rounded-full pointer-events-none">FEATURED</span>
-                            @elseif($product->is_new)
-                                <span class="glass-pill absolute top-4 left-4 text-[#1C1917] text-[9px] uppercase tracking-[0.18em] font-medium px-3.5 py-1.5 rounded-full pointer-events-none">NEW</span>
-                            @endif
+                        this.observer = new IntersectionObserver((entries) => {
+                            if (entries[0] && entries[0].isIntersecting && !this.loading && this.hasMore && this.nextPageUrl) {
+                                this.loadMore();
+                            }
+                        }, {
+                            rootMargin: '300px 0px'
+                        });
 
-                            @php
-                                $isWishlisted = in_array($product->id, $wishlistIds ?? []);
-                            @endphp
+                        this.$nextTick(() => {
+                            if (this.$refs.scrollTrigger) {
+                                this.observer.observe(this.$refs.scrollTrigger);
+                            }
+                        });
+                    },
+                    async loadMore() {
+                        if (this.loading || !this.hasMore || !this.nextPageUrl) return;
+                        this.loading = true;
 
-                            {{-- Floating Action Buttons (Top Right): Always visible on mobile, hover-reveal on desktop --}}
-                            <div class="absolute top-3.5 right-3.5 sm:top-4 sm:right-4 flex flex-col space-y-2 z-20 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 translate-x-0 sm:translate-x-2 sm:group-hover:translate-x-0 transition-all duration-300 ease-out pointer-events-auto sm:pointer-events-none sm:group-hover:pointer-events-auto">
-                                {{-- Wishlist Toggle Button --}}
-                                <form method="POST" action="{{ route('wishlist.toggle') }}" class="wishlist-toggle-form" data-product-id="{{ $product->id }}">
-                                    @csrf
-                                    <input type="hidden" name="product_id" value="{{ $product->id }}">
-                                    <button type="submit" title="{{ $isWishlisted ? 'Remove from Wishlist' : 'Add to Wishlist' }}"
-                                            class="wishlist-btn w-9 h-9 rounded-full flex items-center justify-center transition-all duration-200 cursor-pointer shadow-md {{ $isWishlisted ? 'bg-[#1C1917] text-white' : 'glass-pill border border-white/70 text-[#1C1917] hover:bg-[#1C1917] hover:text-white' }}"
-                                            data-product-id="{{ $product->id }}"
-                                            data-wishlisted="{{ $isWishlisted ? 'true' : 'false' }}"
-                                            data-style-type="shop-grid">
-                                        <svg class="wishlist-icon w-4 h-4 stroke-[1.75] transition-all duration-200 {{ $isWishlisted ? 'fill-current' : 'fill-none' }}" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
-                                        </svg>
-                                    </button>
-                                </form>
+                        try {
+                            const url = new URL(this.nextPageUrl, window.location.origin);
+                            url.searchParams.set('ajax', '1');
 
-                                {{-- Quick Add to Bag Button --}}
-                                <form method="POST" action="{{ route('cart.add') }}">
-                                    @csrf
-                                    <input type="hidden" name="product_id" value="{{ $product->id }}">
-                                    <input type="hidden" name="quantity" value="1">
-                                    <button type="submit" title="Add to Bag"
-                                            class="glass-pill border border-white/70 w-9 h-9 rounded-full text-[#1C1917] hover:bg-[#1C1917] hover:text-white flex items-center justify-center transition-all duration-200 cursor-pointer">
-                                        <svg class="w-4 h-4 stroke-[1.75]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 10.5V6a3.75 3.75 0 10-7.5 0v4.5m11.356-1.993l1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 01-1.12-1.243l1.264-12A1.125 1.125 0 015.513 7.5h12.974c.576 0 1.059.435 1.119 1.007zM8.625 10.5a.375.375 0 11-.75 0 .375.375 0 01.75 0zm7.5 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
-                                        </svg>
-                                    </button>
-                                </form>
-                            </div>
-                        </div>
+                            const res = await fetch(url.toString(), {
+                                headers: {
+                                    'X-Requested-With': 'XMLHttpRequest',
+                                    'Accept': 'application/json'
+                                }
+                            });
 
-                        {{-- Card Metadata --}}
-                        <div class="flex items-start justify-between gap-3 px-1">
-                            <div class="min-w-0">
-                                <h3 class="font-editorial text-[1.2rem] text-[#1C1917] font-normal leading-snug group-hover:text-[#8E877D] transition-colors">
-                                    <a href="{{ route('shop.show', $product->slug) }}">
-                                        {{ $product->name }}
-                                    </a>
-                                </h3>
-                                <p class="text-[11px] text-[#8E877D] font-light mt-0.5 truncate">
-                                    {{ $product->category?->name ?? 'Handcrafted Resin Art' }}
-                                </p>
-                            </div>
-                            <div class="text-right shrink-0 pt-0.5">
-                                <div class="flex items-baseline justify-end gap-2">
-                                    <span class="text-[13.5px] font-semibold text-[#1C1917] tracking-tight">
-                                        ₹{{ number_format($product->effective_price) }}
-                                    </span>
-                                    @if($product->sale_price && $product->sale_price < $product->price)
-                                        <s class="text-[11px] text-[#8E877D] font-light">
-                                            ₹{{ number_format($product->price) }}
-                                        </s>
-                                    @endif
+                            if (!res.ok) throw new Error('Network error');
+
+                            const data = await res.json();
+
+                            if (data.html && this.$refs.productGrid) {
+                                const tempDiv = document.createElement('div');
+                                tempDiv.innerHTML = data.html;
+                                const newCards = Array.from(tempDiv.children);
+                                newCards.forEach(card => {
+                                    this.$refs.productGrid.appendChild(card);
+                                    if (window.Alpine) {
+                                        window.Alpine.initTree(card);
+                                    }
+                                });
+                            }
+
+                            this.hasMore = !!data.has_more;
+                            this.nextPageUrl = data.next_page_url;
+
+                            if (this.hasMore && this.nextPageUrl) {
+                                this.$nextTick(() => this.setupObserver());
+                            } else if (this.observer) {
+                                this.observer.disconnect();
+                            }
+                        } catch (e) {
+                            console.error('Infinite scroll error:', e);
+                        } finally {
+                            this.loading = false;
+                        }
+                    }
+                 }"
+                 class="w-full">
+
+                {{-- Product Grid Container --}}
+                <div x-ref="productGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-12 pt-4 pb-8">
+                    @include('shop.partials.product-grid-items', ['products' => $products, 'wishlistIds' => $wishlistIds])
+                </div>
+
+                {{-- Skeleton Loading Grid (Shown during scroll fetching) --}}
+                <div x-show="loading" x-cloak class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-12 pb-12 transition-opacity duration-300">
+                    @for($i = 0; $i < 3; $i++)
+                        <div class="space-y-4 animate-pulse">
+                            {{-- Skeleton Image Card with Luxury Shimmer --}}
+                            <div class="relative overflow-hidden aspect-[4/5] rounded-[2rem] bg-[#EFECE6] border border-[#DFD9CE]/50">
+                                <div class="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/50 to-transparent animate-luxury-shimmer"></div>
+                                <div class="absolute bottom-4 left-4 flex gap-1.5 px-3 py-1.5 rounded-full bg-white/60">
+                                    <div class="w-3.5 h-3.5 rounded-full bg-[#DFD9CE]"></div>
+                                    <div class="w-3.5 h-3.5 rounded-full bg-[#DFD9CE]"></div>
+                                    <div class="w-3.5 h-3.5 rounded-full bg-[#DFD9CE]"></div>
                                 </div>
                             </div>
+                            {{-- Skeleton Typography Bars --}}
+                            <div class="flex items-start justify-between gap-3 px-1 pt-1">
+                                <div class="space-y-2 flex-1">
+                                    <div class="h-4 bg-[#E5DFD3] rounded-full w-3/4"></div>
+                                    <div class="h-3 bg-[#EAE4D9] rounded-full w-1/2"></div>
+                                </div>
+                                <div class="h-4 bg-[#E5DFD3] rounded-full w-20 shrink-0"></div>
+                            </div>
                         </div>
-                    </div>
-                @endforeach
-            </div>
-
-            {{-- Load More Pagination Button --}}
-            @if($products->hasMorePages())
-                <div class="text-center pt-4 pb-12">
-                    <a href="{{ $products->nextPageUrl() }}"
-                       class="inline-flex items-center justify-center border border-[#DFD9CE] hover:border-[#1C1917] bg-white text-[#1C1917] hover:bg-[#1C1917] hover:text-white text-[10.5px] uppercase tracking-[0.25em] font-semibold px-10 py-3.5 rounded-full transition-all duration-300 shadow-2xs">
-                        LOAD MORE
-                    </a>
+                    @endfor
                 </div>
-            @else
-                <div class="text-center pt-4 pb-12">
-                    <span class="inline-flex items-center justify-center border border-[#DFD9CE] text-[#8E877D] text-[10.5px] uppercase tracking-[0.25em] font-semibold px-10 py-3.5 rounded-full bg-white/50 cursor-default">
+
+                {{-- Intersection Observer Sentinel Trigger --}}
+                <div x-ref="scrollTrigger" class="h-10 w-full pointer-events-none"></div>
+
+                {{-- End of Catalog Subtle Indicator --}}
+                <div x-show="!hasMore" class="text-center pt-6 pb-14">
+                    <span class="inline-flex items-center justify-center border border-[#DFD9CE] text-[#8E877D] text-[10px] uppercase tracking-[0.25em] font-medium px-8 py-3 rounded-full bg-white/60 shadow-2xs cursor-default">
                         ALL PIECES SHOWN
                     </span>
                 </div>
-            @endif
+            </div>
         @else
             <div class="py-24 text-center space-y-4">
                 <p class="font-editorial text-4xl italic text-[#1C1917]">No pieces found.</p>

@@ -1,15 +1,15 @@
-<x-app-layout title="Contact — Maison Résine">
+<x-app-layout title="Contact & Inquiries — Solitaire Fine Jewels">
 
     @php
         $contactContent = \App\Models\ContactPageContent::getContent();
     @endphp
 
-    <div class="py-6 sm:py-10 lg:py-16 w-full min-w-0">
+    <div class="pt-2 sm:pt-4 lg:pt-5 pb-12 sm:pb-16 lg:pb-20 w-full min-w-0">
 
         <div class="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-12 xl:px-16 w-full min-w-0">
 
             <!-- Hero Section (Preceding line + CORRESPONDENCE, Editorial Title & Subtitle) -->
-            <div class="max-w-3xl mb-8 sm:mb-12 lg:mb-16 space-y-3 sm:space-y-4 animate-fade-up min-w-0">
+            <div class="max-w-3xl mb-6 sm:mb-8 lg:mb-10 space-y-2.5 sm:space-y-3 animate-fade-up min-w-0">
                 <div class="flex items-center space-x-3 text-[10px] uppercase tracking-[0.25em] font-medium text-[#8E877D]">
                     <span class="w-8 h-[1px] bg-[#D9D2C5] inline-block"></span>
                     <span>{{ $contactContent->hero_badge }}</span>
@@ -121,7 +121,7 @@
                                 </h2>
 
                                 <p class="text-sm text-[#78716C] font-light leading-relaxed max-w-md mx-auto">
-                                    We have received your letter. Our Bordeaux atelier team will review it attentively and send a response to your email address within 48 hours.
+                                    We have received your letter. Our atelier team will review it attentively and send a response to your email address within 24–48 hours.
                                 </p>
 
                                 <div class="pt-4">
@@ -133,7 +133,7 @@
                             </div>
                         @else
                             <!-- Main Form -->
-                            <form action="{{ route('contact.store') }}" method="POST" class="space-y-6" novalidate>
+                            <form action="{{ route('contact.store') }}" method="POST" class="space-y-6" novalidate id="contact-form">
                                 @csrf
 
                                 <!-- Hidden Input for Inquiry Type -->
@@ -144,6 +144,8 @@
                                     <label for="website_url">Website (Do not fill)</label>
                                     <input type="text" name="website_url" id="website_url" tabindex="-1" autocomplete="off">
                                 </div>
+                                <input type="hidden" name="form_time_token" value="{{ $timeToken ?? '' }}">
+                                <input type="hidden" name="recaptcha_token" id="recaptcha_token_contact">
 
                                 <!-- Name & Email Row -->
                                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
@@ -227,6 +229,28 @@
                                 </div>
 
                             </form>
+
+                            @if(config('services.recaptcha.site_key'))
+                                <script src="https://www.google.com/recaptcha/api.js?render={{ config('services.recaptcha.site_key') }}"></script>
+                                <script>
+                                    document.addEventListener('DOMContentLoaded', function () {
+                                        const form = document.getElementById('contact-form');
+                                        if (!form) return;
+                                        form.addEventListener('submit', function (e) {
+                                            if (window.grecaptcha && '{{ config('services.recaptcha.site_key') }}') {
+                                                e.preventDefault();
+                                                grecaptcha.ready(function () {
+                                                    grecaptcha.execute('{{ config('services.recaptcha.site_key') }}', { action: 'contact_submit' }).then(function (token) {
+                                                        const tokenInput = document.getElementById('recaptcha_token_contact');
+                                                        if (tokenInput) tokenInput.value = token;
+                                                        form.submit();
+                                                    });
+                                                });
+                                            }
+                                        });
+                                    });
+                                </script>
+                            @endif
                         @endif
                     </div>
                 </div>

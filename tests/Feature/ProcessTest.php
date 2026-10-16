@@ -155,11 +155,11 @@ class ProcessTest extends TestCase
             'is_admin' => true,
         ]);
 
-        $response = $this->actingAs($admin)->get('/admin/process-pages');
+        $response = $this->actingAs($admin, 'admin')->get('/admin/process-pages');
 
         $response->assertRedirect('/admin/process-pages/manage');
 
-        $editResponse = $this->actingAs($admin)->get('/admin/process-pages/manage');
+        $editResponse = $this->actingAs($admin, 'admin')->get('/admin/process-pages/manage');
         $editResponse->assertStatus(200);
     }
 

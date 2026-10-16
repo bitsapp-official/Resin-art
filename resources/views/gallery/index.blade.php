@@ -1,6 +1,6 @@
-<x-app-layout title="Gallery — Maison Résine Atelier">
+<x-app-layout title="Gallery — Solitaire Fine Jewels Atelier">
 
-    <div class="py-10 lg:py-16" 
+    <div class="pt-2 sm:pt-4 pb-12 sm:pb-16 lg:pb-20" 
          x-data="galleryLightbox({
             nextPageUrl: @js($items->nextPageUrl()),
             hasMore: @js($items->hasMorePages()),
@@ -19,10 +19,10 @@
                 @endforeach
             ]
          })">
-        <div class="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-12 xl:px-16 space-y-8 sm:space-y-10 lg:space-y-14 w-full min-w-0">
+        <div class="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-12 xl:px-16 space-y-6 sm:space-y-8 lg:space-y-10 w-full min-w-0">
 
             <!-- Hero Header Section -->
-            <div class="max-w-3xl space-y-3 sm:space-y-4 animate-fade-up">
+            <div class="max-w-3xl space-y-2.5 sm:space-y-3 animate-fade-up">
                 <div class="flex items-center space-x-3 text-[10px] uppercase tracking-[0.25em] font-medium text-[#8E877D]">
                     <span class="w-8 h-[1px] bg-[#D9D2C5] inline-block"></span>
                     <span>GALLERY</span>
@@ -33,7 +33,7 @@
                 </h1>
 
                 <p class="text-[14px] sm:text-base text-[#78716C] font-light leading-relaxed max-w-xl pt-1">
-                    Our work photographed in the homes, offices and spaces it now lives in.
+                    Our fine diamond jewellery photographed in the moments, celebrations and spaces it now illuminates.
                 </p>
             </div>
 
@@ -89,7 +89,7 @@
                 <!-- Empty State -->
                 <div class="max-w-2xl mx-auto bg-[oklch(98.5%_0.008_85)] border border-[#E5DFD3] rounded-[1.5rem] sm:rounded-[2.5rem] p-6 sm:p-12 lg:p-16 text-center space-y-5 sm:space-y-6 my-10 sm:my-16 shadow-sm">
                     <span class="text-[10px] uppercase tracking-[0.3em] font-bold text-[#8E877D]">
-                        MAISON RÉSINE GALLERY
+                        SOLITAIRE FINE JEWELS GALLERY
                     </span>
                     <h2 class="font-editorial text-2xl sm:text-3xl lg:text-4xl text-[#1C1917] font-light">
                         No pieces in this category yet.

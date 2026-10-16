@@ -28,7 +28,7 @@ class ContactInquiryReply extends Mailable implements ShouldQueue
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: "Re: {$this->inquiry->subject} [{$this->inquiry->public_reference}] — Maison Résine Atelier",
+            subject: "Re: {$this->inquiry->subject} [{$this->inquiry->public_reference}] — Solitaire Fine Jewels Concierge",
         );
     }
 

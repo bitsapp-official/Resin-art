@@ -36,7 +36,12 @@
 
             {{-- Header --}}
             <div class="flex items-center justify-between px-7 py-6 border-b border-[#DFD9CE]/60">
-                <h2 class="font-editorial text-2xl sm:text-3xl text-[#1C1917] font-light">Your bag</h2>
+                <div class="flex items-center gap-2.5">
+                    <h2 class="font-editorial text-2xl sm:text-3xl text-[#1C1917] font-light">Your bag</h2>
+                    <span class="w-[22px] h-[22px] min-w-[22px] rounded-full bg-[#0E5E6F] text-white font-bold text-[10px] tracking-normal inline-flex items-center justify-center shrink-0 shadow-2xs">
+                        <span id="drawer-cart-count" class="inline-block translate-y-[0.5px] leading-none">{{ (int) ($cart ? $cart->items->sum('quantity') : 0) }}</span>
+                    </span>
+                </div>
                 <button type="button" @click="cartOpen = false"
                         class="text-[9.5px] uppercase tracking-[0.25em] font-semibold text-[#8E877D] hover:text-[#1C1917] transition-colors cursor-pointer">
                     CLOSE

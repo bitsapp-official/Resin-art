@@ -169,7 +169,7 @@ class CustomRequestResource extends Resource
                     ->url(function ($record) {
                         $phone = preg_replace('/[^0-9]/', '', $record->whatsapp ?: $record->phone);
                         if (!$phone) return '#';
-                        $msg = rawurlencode("Hello {$record->name}, this is Maison Résine Atelier regarding your custom artwork request ({$record->public_reference}).");
+                        $msg = rawurlencode("Hello {$record->name}, this is Solitaire Fine Jewels Atelier regarding your custom fine jewellery inquiry ({$record->public_reference}).");
                         return "https://wa.me/{$phone}?text={$msg}";
                     })
                     ->openUrlInNewTab(true)

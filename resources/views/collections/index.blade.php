@@ -1,6 +1,6 @@
-<x-app-layout title="Collections — Maison Résine Atelier">
+<x-app-layout title="Collections — Solitaire Fine Jewels">
 <div class="min-h-screen bg-transparent w-full min-w-0">
-    <div class="max-w-[1240px] mx-auto px-4 sm:px-6 lg:px-10 pt-6 sm:pt-10 pb-16 sm:pb-28 space-y-12 sm:space-y-16 lg:space-y-24 w-full min-w-0">
+    <div class="max-w-[1240px] mx-auto px-4 sm:px-6 lg:px-10 pt-2 sm:pt-4 pb-16 sm:pb-24 space-y-6 sm:space-y-8 lg:space-y-10 w-full min-w-0">
 
         {{-- ── BREADCRUMB ──────────────────────────────────────── --}}
         <nav class="flex items-center flex-wrap gap-x-2 gap-y-1 text-[10px] uppercase tracking-[0.16em] sm:tracking-[0.2em] text-[#8E877D] font-medium">
@@ -10,7 +10,7 @@
         </nav>
 
         {{-- ── HERO HEADER SECTION ──────────────────────────────── --}}
-        <div class="space-y-3 sm:space-y-4 max-w-3xl">
+        <div class="space-y-2.5 sm:space-y-3 max-w-3xl">
             <div class="flex items-center space-x-3 text-[10px] uppercase tracking-[0.25em] sm:tracking-[0.3em] font-medium text-[#8E877D]">
                 <span class="w-8 h-[1px] bg-[#C5BEB2] inline-block"></span>
                 <span>COLLECTIONS</span>
@@ -19,7 +19,7 @@
             </div>
 
             <h1 class="font-editorial text-3xl sm:text-5xl lg:text-6xl xl:text-[68px] text-[#1C1917] font-light leading-[1.1] sm:leading-[1.08] tracking-tight">
-                Four ways to <em class="italic font-normal">live with resin.</em>
+                Four ways to <em class="italic font-normal">wear fine diamonds.</em>
             </h1>
 
             <p class="text-xs sm:text-[14px] md:text-[15px] text-[#78716C] font-light leading-relaxed max-w-xl pt-0.5">

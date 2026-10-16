@@ -221,10 +221,10 @@ class BlogTest extends TestCase
             'is_admin' => true,
         ]);
 
-        $response1 = $this->actingAs($admin)->get('/admin/blog-posts');
+        $response1 = $this->actingAs($admin, 'admin')->get('/admin/blog-posts');
         $response1->assertStatus(200);
 
-        $response2 = $this->actingAs($admin)->get('/admin/blog-categories');
+        $response2 = $this->actingAs($admin, 'admin')->get('/admin/blog-categories');
         $response2->assertStatus(200);
     }
 }

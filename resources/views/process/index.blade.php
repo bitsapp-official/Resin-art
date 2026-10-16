@@ -1,10 +1,10 @@
-<x-app-layout title="Our Process — Maison Résine Atelier">
+<x-app-layout title="Our Jewellery Crafting Process — Solitaire Fine Jewels">
 
-    <div class="py-6 sm:py-10 lg:py-16 w-full min-w-0">
-        <div class="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-12 xl:px-16 space-y-8 sm:space-y-12 lg:space-y-16 w-full min-w-0">
+    <div class="pt-2 sm:pt-4 pb-12 sm:pb-16 lg:pb-20 w-full min-w-0">
+        <div class="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-12 xl:px-16 space-y-6 sm:space-y-8 lg:space-y-10 w-full min-w-0">
 
             <!-- Hero Header Section -->
-            <div class="max-w-3xl space-y-3 sm:space-y-4 animate-fade-up min-w-0">
+            <div class="max-w-3xl space-y-2.5 sm:space-y-3 animate-fade-up min-w-0">
                 <div class="flex items-center space-x-3 text-[10px] uppercase tracking-[0.25em] font-medium text-[#8E877D]">
                     <span class="w-8 h-[1px] bg-[#D9D2C5] inline-block"></span>
                     <span>{{ $processPage->eyebrow ?? 'OUR PROCESS' }}</span>
@@ -15,7 +15,7 @@
                 </h1>
 
                 <p class="text-xs sm:text-[15px] md:text-base text-[#78716C] font-light leading-relaxed max-w-xl pt-1">
-                    {{ $processPage->description ?? 'From timber selection to the final hand-polish, nothing here is hurried.' }}
+                    {{ $processPage->description ?? 'From gemstone selection and CAD precision to master hand-setting and final polish, nothing here is hurried.' }}
                 </p>
             </div>
 

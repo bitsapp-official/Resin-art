@@ -101,11 +101,11 @@
                             @foreach($latestOrder->items->take(2) as $item)
                                 <div class="flex items-center justify-between py-1">
                                     <div class="flex items-center space-x-3.5">
-                                        <div class="w-12 h-12 bg-white rounded-xl overflow-hidden shrink-0 border border-[#E6E1D7]/40">
-                                            @if(!empty($item->product?->images) && isset($item->product->images[0]))
-                                                <img src="{{ $item->product->images[0] }}" alt="" class="w-full h-full object-cover">
+                                        <div class="w-12 h-12 bg-white rounded-xl overflow-hidden shrink-0 border border-[#E6E1D7]/40 flex items-center justify-center">
+                                            @if($item->primary_image_url)
+                                                <img src="{{ $item->primary_image_url }}" alt="{{ $item->product_name }}" class="w-full h-full object-cover">
                                             @else
-                                                <div class="w-full h-full bg-[#FAF8F5] flex items-center justify-center text-[10px] text-[#8E877D]">Art</div>
+                                                <div class="w-full h-full bg-[#FAF8F5] flex items-center justify-center text-[10px] text-[#8E877D]">JEWEL</div>
                                             @endif
                                         </div>
                                         <div>

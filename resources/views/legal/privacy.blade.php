@@ -1,4 +1,4 @@
-<x-app-layout title="Privacy Policy — Maison Résine">
+<x-app-layout title="Privacy Policy — Solitaire Fine Jewels">
     <div class="min-h-[70vh] max-w-4xl mx-auto px-4 sm:px-6 py-10 sm:py-20 space-y-8 sm:space-y-12 w-full min-w-0">
         
         <div class="space-y-3 sm:space-y-4 border-b border-[#E5DFD3]/80 pb-6 sm:pb-8">

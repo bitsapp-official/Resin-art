@@ -6,7 +6,7 @@
         <div class="rounded-[1.5rem] sm:rounded-[2rem] overflow-hidden shadow-[0_15px_45px_rgba(0,0,0,0.04)] border border-[#E5DFD3] bg-[oklch(98.5%_0.008_85)]">
             @if(!empty($aboutPage->hero_image))
                 <img src="{{ asset('storage/' . $aboutPage->hero_image) }}" 
-                     alt="{{ $aboutPage->hero_image_alt ?? 'Atelier artisan craftsman pouring resin' }}" 
+                     alt="{{ $aboutPage->hero_image_alt ?? 'Atelier master goldsmith crafting diamond solitaire jewellery' }}" 
                      class="w-full h-[260px] sm:h-[450px] lg:h-[580px] object-cover transition-transform duration-700 hover:scale-[1.02]"
                      loading="eager"
                      decoding="async">

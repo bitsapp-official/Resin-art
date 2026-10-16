@@ -20,9 +20,9 @@
 
 {{-- Premium Branded Entrance Preloader Component (First Time Website Open Only) --}}
 <div id="atelier-site-loader" class="fixed inset-0 z-[999999] bg-[#FAF8F5] flex flex-col items-center justify-center overflow-hidden transition-all duration-700 ease-out">
-    {{-- Translucent Fluid Organic Resin Ambient Blobs --}}
-    <div class="absolute -top-32 -left-32 w-[550px] h-[550px] bg-[#0E5E6F]/12 rounded-full blur-[100px] pointer-events-none animate-resin-blob-1"></div>
-    <div class="absolute -bottom-32 -right-32 w-[550px] h-[550px] bg-[#C5A070]/14 rounded-full blur-[100px] pointer-events-none animate-resin-blob-2"></div>
+    {{-- Translucent Gold & Diamond Ambient Light Blobs --}}
+    <div class="absolute -top-32 -left-32 w-[550px] h-[550px] bg-[#C5A070]/12 rounded-full blur-[100px] pointer-events-none animate-resin-blob-1"></div>
+    <div class="absolute -bottom-32 -right-32 w-[550px] h-[550px] bg-[#0E5E6F]/14 rounded-full blur-[100px] pointer-events-none animate-resin-blob-2"></div>
     <div class="absolute inset-0 bg-noise opacity-30 pointer-events-none"></div>
 
     {{-- Center Branded Reveal Content --}}
@@ -30,12 +30,12 @@
         
         {{-- Brand Serif Logo --}}
         <div class="font-editorial text-4xl sm:text-5xl lg:text-6xl text-[#1C1917] font-light tracking-tight leading-none animate-brand-reveal">
-            Maison <em class="italic font-normal">R&eacute;sine</em>
+            {{ \App\Models\SiteSetting::get('invoice_brand_name', 'Solitaire Fine Jewels') }}
         </div>
 
         {{-- Subtitle --}}
         <div class="text-[9.5px] uppercase tracking-[0.38em] font-medium text-[#8E877D] mt-3 animate-brand-reveal-sub">
-            Atelier &middot; Bordeaux
+            Certified Natural Diamonds &middot; Fine Gold
         </div>
 
         {{-- Thin Organic Progress Bar --}}

@@ -28,7 +28,7 @@
                         <input type="checkbox" name="promotional_email" value="1" {{ $settings->promotional_email ? 'checked' : '' }} class="accent-[#1C1917] rounded">
                         <div>
                             <span class="font-normal text-[#1C1917] block" style="font-family: 'Plus Jakarta Sans', system-ui, sans-serif;">Atelier Journal & Drop Previews</span>
-                            <span class="text-[#78716C] text-[11px] font-light">Early access invitations to new resin drops.</span>
+                            <span class="text-[#78716C] text-[11px] font-light">Early access invitations to new fine jewellery collections & rare diamond drops.</span>
                         </div>
                     </label>
                 </div>

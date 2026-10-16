@@ -40,9 +40,9 @@ class ProductResource extends Resource
                                 ),
 
                             Forms\Components\TextInput::make('slug')
+                                ->label('Slug (Auto-generated)')
                                 ->required()
                                 ->maxLength(255)
-                                ->helperText('Auto-generated from product name (can also be edited manually).')
                                 ->unique(Product::class, 'slug', ignoreRecord: true),
 
                             Forms\Components\TextInput::make('sku')
@@ -83,19 +83,10 @@ class ProductResource extends Resource
                                 ->columnSpanFull(),
                         ])->columns(2),
 
-                    Forms\Components\Section::make('Pricing & Inventory')
+                    Forms\Components\Section::make('Inventory & Fulfillment')
                         ->schema([
-                            Forms\Components\TextInput::make('price')
-                                ->numeric()
-                                ->prefix('₹')
-                                ->required(),
-
-                            Forms\Components\TextInput::make('sale_price')
-                                ->numeric()
-                                ->prefix('₹')
-                                ->nullable(),
-
                             Forms\Components\Select::make('inventory_type')
+                                ->label('Fulfillment / Inventory Type')
                                 ->options([
                                     'MADE_TO_ORDER' => 'Made to Order (Crafted on Demand)',
                                     'READY_TO_SHIP' => 'Ready to Ship (Stock Tracked)',
@@ -119,8 +110,8 @@ class ProductResource extends Resource
                                 ->visible(fn (Forms\Get $get) => $get('inventory_type') === 'READY_TO_SHIP'),
                         ])->columns(2),
 
-                    Forms\Components\Section::make('Jewellery Customization & Variant Options')
-                        ->description('Configure dynamic Gold Purity, Metal Colors, Size variants (Ring/Necklace/Bracelet), and Diamond specifications.')
+                    Forms\Components\Section::make('Gold Purity & Pricing')
+                        ->description('Select available gold purities and configure exact Selling Price and optional MRP / Strikethrough Price for each Karat.')
                         ->schema([
                             Forms\Components\CheckboxList::make('attributes.gold_purities')
                                 ->label('Available Gold Purities')
@@ -129,11 +120,97 @@ class ProductResource extends Resource
                                     '18KT Gold' => '18KT Gold',
                                     '22KT Gold' => '22KT Gold',
                                 ])
-                                ->default(['14KT Gold', '18KT Gold', '22KT Gold'])
                                 ->columns(3)
-                                ->helperText('Select the gold purity options offered on the product page.')
+                                ->live()
+                                ->helperText('Select the gold purities offered. Enter the exact selling price for each selected purity below.')
                                 ->columnSpanFull(),
 
+                            Forms\Components\Grid::make(1)
+                                ->schema([
+                                    // 14KT Row
+                                    Forms\Components\Grid::make(2)
+                                        ->visible(fn (Forms\Get $get) => in_array('14KT Gold', (array) ($get('attributes.gold_purities') ?? []), true))
+                                        ->schema([
+                                            Forms\Components\TextInput::make('attributes.purity_prices.14KT Gold')
+                                                ->label('14KT Selling Price (₹)')
+                                                ->numeric()
+                                                ->prefix('₹')
+                                                ->placeholder('e.g. 288270')
+                                                ->required(fn (Forms\Get $get) => in_array('14KT Gold', (array) ($get('attributes.gold_purities') ?? []), true)),
+
+                                            Forms\Components\TextInput::make('attributes.purity_mrp.14KT Gold')
+                                                ->label('14KT MRP (₹ Optional)')
+                                                ->numeric()
+                                                ->prefix('₹')
+                                                ->placeholder('e.g. 387612'),
+                                        ]),
+
+                                    // 18KT Row
+                                    Forms\Components\Grid::make(2)
+                                        ->visible(fn (Forms\Get $get) => in_array('18KT Gold', (array) ($get('attributes.gold_purities') ?? []), true))
+                                        ->schema([
+                                            Forms\Components\TextInput::make('attributes.purity_prices.18KT Gold')
+                                                ->label('18KT Selling Price (₹)')
+                                                ->numeric()
+                                                ->prefix('₹')
+                                                ->placeholder('e.g. 304721')
+                                                ->required(fn (Forms\Get $get) => in_array('18KT Gold', (array) ($get('attributes.gold_purities') ?? []), true)),
+
+                                            Forms\Components\TextInput::make('attributes.purity_mrp.18KT Gold')
+                                                ->label('18KT MRP (₹ Optional)')
+                                                ->numeric()
+                                                ->prefix('₹')
+                                                ->placeholder('e.g. 387612'),
+                                        ]),
+
+                                    // 22KT Row
+                                    Forms\Components\Grid::make(2)
+                                        ->visible(fn (Forms\Get $get) => in_array('22KT Gold', (array) ($get('attributes.gold_purities') ?? []), true))
+                                        ->schema([
+                                            Forms\Components\TextInput::make('attributes.purity_prices.22KT Gold')
+                                                ->label('22KT Selling Price (₹)')
+                                                ->numeric()
+                                                ->prefix('₹')
+                                                ->placeholder('e.g. 325364')
+                                                ->required(fn (Forms\Get $get) => in_array('22KT Gold', (array) ($get('attributes.gold_purities') ?? []), true)),
+
+                                            Forms\Components\TextInput::make('attributes.purity_mrp.22KT Gold')
+                                                ->label('22KT MRP (₹ Optional)')
+                                                ->numeric()
+                                                ->prefix('₹')
+                                                ->placeholder('e.g. 410000'),
+                                        ]),
+                                ])
+                                ->columnSpanFull(),
+
+                            // Fallback pricing for pieces where no gold purities are selected (e.g. silver / fashion / single price)
+                            Forms\Components\Grid::make(2)
+                                ->visible(fn (Forms\Get $get) => empty(array_filter((array) ($get('attributes.gold_purities') ?? []))))
+                                ->schema([
+                                    Forms\Components\TextInput::make('price')
+                                        ->label('MRP / Regular Price (₹)')
+                                        ->numeric()
+                                        ->prefix('₹')
+                                        ->required(fn (Forms\Get $get) => empty(array_filter((array) ($get('attributes.gold_purities') ?? []))))
+                                        ->placeholder('e.g. 50000')
+                                        ->helperText('Regular catalog MRP (shown when piece does not use Karat purities).'),
+
+                                    Forms\Components\TextInput::make('sale_price')
+                                        ->label('Special Offer Price (₹ Optional)')
+                                        ->numeric()
+                                        ->prefix('₹')
+                                        ->nullable()
+                                        ->placeholder('Leave blank if no discount')
+                                        ->helperText('Optional discounted selling price.'),
+                                ])
+                                ->columnSpanFull(),
+                        ]),
+
+                    Forms\Components\Section::make('Jewellery Customization & Variant Options')
+                        ->description('Configure Metal Colors & Photos, Size variants (with 1-click presets), and Diamond specifications.')
+                        ->collapsible(false)
+                        ->schema([
+                            // 1. Metal Colors & Photos
                             Forms\Components\CheckboxList::make('attributes.metal_colors')
                                 ->label('Available Metal Colors / Tones')
                                 ->options([
@@ -141,62 +218,186 @@ class ProductResource extends Resource
                                     'White Gold'  => 'White Gold',
                                     'Rose Gold'   => 'Rose Gold',
                                 ])
-                                ->default(['Yellow Gold', 'White Gold', 'Rose Gold'])
                                 ->columns(3)
-                                ->helperText('Select metal tones. Customers can select interactive circular swatches.')
+                                ->live()
+                                ->helperText('Select the gold colors offered. Only selected colors will show photo upload tabs below.')
                                 ->columnSpanFull(),
 
+                            Forms\Components\Tabs::make('Metal Tone Photos & Angle Views (Dynamic Swatch Switcher)')
+                                ->visible(fn (Forms\Get $get) => !empty(array_filter((array) ($get('attributes.metal_colors') ?? []))))
+                                ->tabs([
+                                    Forms\Components\Tabs\Tab::make('Yellow Gold')
+                                        ->visible(fn (Forms\Get $get) => in_array('Yellow Gold', (array) ($get('attributes.metal_colors') ?? []), true))
+                                        ->badge(fn (Forms\Get $get) => count(array_filter((array) ($get('attributes.color_images.Yellow Gold') ?? []))))
+                                        ->schema([
+                                            Forms\Components\FileUpload::make('attributes.color_images.Yellow Gold')
+                                                ->label('Yellow Gold Photos')
+                                                ->multiple()
+                                                ->appendFiles()
+                                                ->reorderable()
+                                                ->panelLayout('grid')
+                                                ->imagePreviewHeight('180')
+                                                ->image()
+                                                ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp', 'image/jpg'])
+                                                ->maxSize(5120)
+                                                ->disk('public')
+                                                ->directory('products/colors')
+                                                ->openable()
+                                                ->downloadable()
+                                                ->formatStateUsing(fn ($state) => is_string($state) ? [$state] : (array) ($state ?? []))
+                                                ->helperText('Upload 1 or multiple angle photos (front, side, hand-worn). Shown first by default. Click ↗ to view in full size. Drag to reorder.')
+                                                ->columnSpanFull(),
+                                        ]),
+
+                                    Forms\Components\Tabs\Tab::make('White Gold')
+                                        ->visible(fn (Forms\Get $get) => in_array('White Gold', (array) ($get('attributes.metal_colors') ?? []), true))
+                                        ->badge(fn (Forms\Get $get) => count(array_filter((array) ($get('attributes.color_images.White Gold') ?? []))))
+                                        ->schema([
+                                            Forms\Components\FileUpload::make('attributes.color_images.White Gold')
+                                                ->label('White Gold Photos')
+                                                ->multiple()
+                                                ->appendFiles()
+                                                ->reorderable()
+                                                ->panelLayout('grid')
+                                                ->imagePreviewHeight('180')
+                                                ->image()
+                                                ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp', 'image/jpg'])
+                                                ->maxSize(5120)
+                                                ->disk('public')
+                                                ->directory('products/colors')
+                                                ->openable()
+                                                ->downloadable()
+                                                ->formatStateUsing(fn ($state) => is_string($state) ? [$state] : (array) ($state ?? []))
+                                                ->helperText('Upload 1 or multiple angle photos. Switches dynamically when White Gold is clicked. Click ↗ to view in full size. Drag to reorder.')
+                                                ->columnSpanFull(),
+                                        ]),
+
+                                    Forms\Components\Tabs\Tab::make('Rose Gold')
+                                        ->visible(fn (Forms\Get $get) => in_array('Rose Gold', (array) ($get('attributes.metal_colors') ?? []), true))
+                                        ->badge(fn (Forms\Get $get) => count(array_filter((array) ($get('attributes.color_images.Rose Gold') ?? []))))
+                                        ->schema([
+                                            Forms\Components\FileUpload::make('attributes.color_images.Rose Gold')
+                                                ->label('Rose Gold Photos')
+                                                ->multiple()
+                                                ->appendFiles()
+                                                ->reorderable()
+                                                ->panelLayout('grid')
+                                                ->imagePreviewHeight('180')
+                                                ->image()
+                                                ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp', 'image/jpg'])
+                                                ->maxSize(5120)
+                                                ->disk('public')
+                                                ->directory('products/colors')
+                                                ->openable()
+                                                ->downloadable()
+                                                ->formatStateUsing(fn ($state) => is_string($state) ? [$state] : (array) ($state ?? []))
+                                                ->helperText('Upload 1 or multiple angle photos. Switches dynamically when Rose Gold is clicked. Click ↗ to view in full size. Drag to reorder.')
+                                                ->columnSpanFull(),
+                                        ]),
+                                ])
+                                ->columnSpanFull(),
+
+                            // 2. Sizes & Preset Loaders
                             Forms\Components\TextInput::make('attributes.size_label')
                                 ->label('Size Attribute Label')
-                                ->placeholder('e.g. Necklace Size, Ring Size, Bracelet Size')
-                                ->default('Size')
-                                ->helperText('Custom label displayed above size options (e.g. "Necklace Size" or "Ring Size").')
+                                ->placeholder('e.g. Ring Size, Chain Length, Wrist Size')
+                                ->default('Ring Size')
+                                ->helperText('Label displayed above the size options on the product page.')
                                 ->columnSpanFull(),
 
+                            Forms\Components\Actions::make([
+                                Forms\Components\Actions\Action::make('loadRingSizes')
+                                    ->label('+ Quick Preset: Ring Sizes (10 to 18)')
+                                    ->color('gray')
+                                    ->icon('heroicon-m-sparkles')
+                                    ->action(function (Forms\Set $set) {
+                                        $set('attributes.size_label', 'Ring Size');
+                                        $set('attributes.size_variants', [
+                                            ['size' => 'Size 10', 'price' => null],
+                                            ['size' => 'Size 12', 'price' => null],
+                                            ['size' => 'Size 14', 'price' => null],
+                                            ['size' => 'Size 16', 'price' => null],
+                                            ['size' => 'Size 18', 'price' => null],
+                                        ]);
+                                    }),
+
+                                Forms\Components\Actions\Action::make('loadChainSizes')
+                                    ->label('+ Quick Preset: Chain Lengths (16, 18, 20 Inch)')
+                                    ->color('gray')
+                                    ->icon('heroicon-m-sparkles')
+                                    ->action(function (Forms\Set $set) {
+                                        $set('attributes.size_label', 'Chain Length');
+                                        $set('attributes.size_variants', [
+                                            ['size' => '16 Inch', 'price' => null],
+                                            ['size' => '18 Inch', 'price' => null],
+                                            ['size' => '20 Inch', 'price' => null],
+                                        ]);
+                                    }),
+
+                                Forms\Components\Actions\Action::make('loadBraceletSizes')
+                                    ->label('+ Quick Preset: Wrist Sizes (6.5, 7.0, 7.5 Inch)')
+                                    ->color('gray')
+                                    ->icon('heroicon-m-sparkles')
+                                    ->action(function (Forms\Set $set) {
+                                        $set('attributes.size_label', 'Wrist Size');
+                                        $set('attributes.size_variants', [
+                                            ['size' => '6.5 Inch', 'price' => null],
+                                            ['size' => '7.0 Inch', 'price' => null],
+                                            ['size' => '7.5 Inch', 'price' => null],
+                                        ]);
+                                    }),
+                            ])
+                            ->columnSpanFull(),
+
                             Forms\Components\Repeater::make('attributes.size_variants')
-                                ->label('Available Sizes & Prices')
+                                ->label('Available Sizes & Price')
                                 ->schema([
                                     Forms\Components\TextInput::make('size')
-                                        ->label('Size Name (e.g. 16 Inch or 12)')
+                                        ->label('Size')
+                                        ->placeholder('e.g. Size 12, 18 Inch, 6.5 Inch')
                                         ->required(),
                                     Forms\Components\TextInput::make('price')
                                         ->label('Price (₹)')
                                         ->numeric()
                                         ->prefix('₹')
-                                        ->required(),
+                                        ->required()
+                                        ->placeholder('e.g. 24999'),
                                 ])
                                 ->columns(2)
                                 ->collapsible()
-                                ->helperText('Add sizes with their respective prices. Leave empty if this piece does not have sizes.')
                                 ->columnSpanFull(),
 
-                            Forms\Components\Fieldset::make('Diamond & Gemstone Specifications')
+                            // 4. Diamond & Gemstone Specifications
+                            Forms\Components\Fieldset::make('Diamond & Gemstone Specifications (Optional)')
                                 ->schema([
                                     Forms\Components\TextInput::make('attributes.diamond_carat')
-                                        ->label('Carat Weight')
-                                        ->placeholder('e.g. 2.83 ct or 21.18 ct'),
+                                        ->label('Diamond Carat Weight')
+                                        ->placeholder('e.g. 1.50 Carat or 2.83 Carat TW')
+                                        ->helperText('Optional: Solitaire / total carat weight.'),
 
                                     Forms\Components\TextInput::make('attributes.diamond_color_clarity')
-                                        ->label('Color & Clarity')
-                                        ->placeholder('e.g. H Color, VS2 Clarity or J Color, SI1'),
+                                        ->label('Diamond Color & Clarity')
+                                        ->placeholder('e.g. E-F Color · VVS1 Clarity')
+                                        ->helperText('Optional: Color and clarity grade.'),
 
                                     Forms\Components\TextInput::make('attributes.diamond_cut')
-                                        ->label('Cut / Shape')
-                                        ->placeholder('e.g. Round Brilliant, Emerald Cut'),
+                                        ->label('Diamond Cut / Shape')
+                                        ->placeholder('e.g. Round Brilliant, Emerald Cut')
+                                        ->helperText('Optional: Shape or cut grade.'),
 
                                     Forms\Components\TextInput::make('attributes.certification')
                                         ->label('Certification')
-                                        ->placeholder('e.g. 100% Certified Natural Diamonds (IGI / SGL)')
-                                        ->default('100% Certified Natural Diamonds'),
+                                        ->placeholder('e.g. IGI / GIA Certified')
+                                        ->helperText('Optional: Leave empty if not certified or not applicable.'),
 
                                     Forms\Components\TextInput::make('attributes.gold_weight')
                                         ->label('Approx Gold Weight')
-                                        ->placeholder('e.g. 4.85 gms approx'),
+                                        ->placeholder('e.g. 3.85 gms approx')
+                                        ->helperText('Optional: Net gold weight.'),
                                 ])
                                 ->columns(2)
                                 ->columnSpanFull(),
-                        ])
-                        ->collapsible(),
+                        ]),
 
                 ])->columnSpan(2),
 
@@ -213,9 +414,8 @@ class ProductResource extends Resource
                                 ->default('published')
                                 ->required(),
 
-                            Forms\Components\Toggle::make('is_featured')
-                                ->label('Featured Piece')
-                                ->default(false),
+                            Forms\Components\Hidden::make('is_featured')
+                                ->default(true),
 
                             Forms\Components\Toggle::make('is_new')
                                 ->label('New Arrival')
@@ -227,10 +427,59 @@ class ProductResource extends Resource
                         ]),
 
                     Forms\Components\Section::make('Product Gallery & Media')
-                        ->description('High-resolution product photography and craft showcase video.')
+                        ->description('Product photos and craft video.')
                         ->schema([
                             Forms\Components\FileUpload::make('images')
+                                ->label('Product Photos')
+                                ->formatStateUsing(function ($record, $state) {
+                                    $colorImgs = [];
+                                    if ($record) {
+                                        $attrs = $record->jewellery_attributes ?? [];
+                                        if (!empty($attrs['color_images']) && is_array($attrs['color_images'])) {
+                                            foreach ($attrs['color_images'] as $list) {
+                                                foreach ((array) $list as $ci) {
+                                                    if (!empty($ci)) $colorImgs[] = ltrim($ci, '/');
+                                                }
+                                            }
+                                        }
+                                        $raw = $record->getAttributes()['images'] ?? null;
+                                        $imgs = is_string($raw) ? (json_decode($raw, true) ?: []) : (array) ($raw ?? []);
+                                    } else {
+                                        $imgs = is_string($state) ? [$state] : (array) ($state ?? []);
+                                    }
+
+                                    return array_values(array_filter($imgs, function ($img) use ($colorImgs) {
+                                        if (empty($img) || !is_string($img)) return false;
+                                        $clean = ltrim($img, '/');
+                                        if (str_starts_with($clean, 'products/colors/')) return false;
+                                        if (in_array($clean, $colorImgs, true)) return false;
+                                        return true;
+                                    }));
+                                })
+                                ->mutateDehydratedStateUsing(function ($state, Forms\Get $get) {
+                                    $colorData = $get('attributes.color_images') ?? [];
+                                    $colorImgs = [];
+                                    if (is_array($colorData)) {
+                                        foreach ($colorData as $list) {
+                                            foreach ((array) $list as $ci) {
+                                                if (!empty($ci)) $colorImgs[] = ltrim($ci, '/');
+                                            }
+                                        }
+                                    }
+                                    $imgs = (array) ($state ?? []);
+                                    return array_values(array_filter($imgs, function ($img) use ($colorImgs) {
+                                        if (empty($img) || !is_string($img)) return false;
+                                        $clean = ltrim($img, '/');
+                                        if (str_starts_with($clean, 'products/colors/')) return false;
+                                        if (in_array($clean, $colorImgs, true)) return false;
+                                        return true;
+                                    }));
+                                })
                                 ->multiple()
+                                ->appendFiles()
+                                ->panelLayout('grid')
+                                ->extraAttributes(['class' => 'filepond-grid-2'])
+                                ->imagePreviewHeight('180')
                                 ->image()
                                 ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp', 'image/jpg'])
                                 ->maxSize(5120)
@@ -239,9 +488,7 @@ class ProductResource extends Resource
                                 ->directory('products')
                                 ->reorderable()
                                 ->openable()
-                                ->downloadable()
-                                ->helperText('Upload up to 10 images. Max 5 MB each (JPG, PNG, WEBP).')
-                                ->label('Product Images'),
+                                ->downloadable(),
 
                             Forms\Components\FileUpload::make('video_path')
                                 ->label('Product Showcase Video (Upload MP4 / WebM)')
@@ -272,9 +519,10 @@ class ProductResource extends Resource
             ->columns([
                 Tables\Columns\ImageColumn::make('images')
                     ->label('Image')
-                    ->disk('public')
                     ->circular()
-                    ->getStateUsing(fn ($record) => is_array($record->images) ? ($record->images[0] ?? null) : $record->images),
+                    ->getStateUsing(function ($record) {
+                        return $record->primary_image_url;
+                    }),
 
                 Tables\Columns\IconColumn::make('video_path')
                     ->label('Video')
@@ -297,6 +545,13 @@ class ProductResource extends Resource
                     ->sortable()
                     ->badge()
                     ->color('gray'),
+
+                Tables\Columns\TextColumn::make('attributes.diamond_carat')
+                    ->label('Diamond')
+                    ->badge()
+                    ->color('info')
+                    ->placeholder('—')
+                    ->toggleable(),
 
                 Tables\Columns\TextColumn::make('price')
                     ->label('Price')
@@ -363,7 +618,8 @@ class ProductResource extends Resource
             ->actions([
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\DeleteAction::make(),
-            ]);
+            ])
+            ->defaultSort('id', 'desc');
     }
 
     public static function getPages(): array
@@ -373,5 +629,10 @@ class ProductResource extends Resource
             'create' => Pages\CreateProduct::route('/create'),
             'edit' => Pages\EditProduct::route('/{record}/edit'),
         ];
+    }
+
+    public static function getEloquentQuery(): \Illuminate\Database\Eloquent\Builder
+    {
+        return parent::getEloquentQuery()->latest('id');
     }
 }

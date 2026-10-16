@@ -48,14 +48,38 @@ class Product extends Model
 
     public function getImagesAttribute($value): array
     {
-        if (empty($value)) {
-            return [];
-        }
-        $images = is_string($value) ? (json_decode($value, true) ?: []) : (array) $value;
+        $rawImages = is_string($value) ? (json_decode($value, true) ?: []) : (array) ($value ?? []);
+        // Strictly filter out any color photos that might have been stored in the images column
+        $rawImages = array_values(array_filter($rawImages, function ($img) {
+            return !empty($img) && is_string($img) && !str_starts_with(ltrim($img, '/'), 'products/colors/');
+        }));
 
-        // In Filament Admin Panel, return raw storage paths so FileUpload and ImageColumn resolve files natively on disk
-        if (request()->is('admin*') || request()->routeIs('filament.*')) {
-            return array_values(array_filter($images));
+        // In Filament Admin Panel and Livewire admin updates, return raw storage paths of actual generic images ONLY.
+        // Never bleed color-specific photos into the generic images uploader!
+        if ((function_exists('filament') && filament()->isServing()) || request()->is('admin*') || request()->routeIs('filament.*') || request()->is('livewire/*')) {
+            return $rawImages;
+        }
+
+        // On customer-facing frontend, if generic images column is empty, fall back to all images from color_galleries
+        $images = $rawImages;
+        if (empty($images)) {
+            $attrs = $this->jewellery_attributes;
+            $colorData = !empty($attrs['color_images']) && is_array($attrs['color_images']) ? $attrs['color_images'] : [];
+            $firstColor = $this->metal_colors[0] ?? 'Yellow Gold';
+            if (!empty($colorData[$firstColor])) {
+                $list = is_array($colorData[$firstColor]) ? $colorData[$firstColor] : [$colorData[$firstColor]];
+                foreach ($list as $f) {
+                    if (!empty($f) && is_string($f)) $images[] = $f;
+                }
+            }
+            foreach ($colorData as $cName => $val) {
+                if ($cName === $firstColor) continue;
+                $list = is_array($val) ? $val : [$val];
+                foreach ($list as $f) {
+                    if (!empty($f) && is_string($f)) $images[] = $f;
+                }
+            }
+            $images = array_values(array_unique(array_filter($images)));
         }
 
         // On customer-facing frontend, return web asset URLs (auto-upgrading to WebP when available)
@@ -75,6 +99,31 @@ class Product extends Model
             }
             return $url;
         }, $images)));
+    }
+
+    public function getPrimaryImageUrlAttribute(): ?string
+    {
+        // 1. Check if first metal color (e.g. Yellow Gold) has an image
+        $colorImages = $this->color_images;
+        if (!empty($colorImages)) {
+            $firstColor = $this->metal_colors[0] ?? 'Yellow Gold';
+            if (!empty($colorImages[$firstColor])) {
+                return $colorImages[$firstColor];
+            }
+            $first = reset($colorImages);
+            if (!empty($first)) {
+                return is_string($first) ? $first : reset($first);
+            }
+        }
+
+        // 2. Fall back to images array
+        $images = $this->images;
+        return !empty($images) ? $images[0] : null;
+    }
+
+    public function getImageUrlAttribute(): ?string
+    {
+        return $this->primary_image_url;
     }
 
     public function category(): BelongsTo
@@ -121,6 +170,18 @@ class Product extends Model
     // Helper attribute: effective price
     public function getEffectivePriceAttribute(): float
     {
+        $attrs = $this->jewellery_attributes;
+        $purities = $this->gold_purities;
+        if (!empty($purities) && !empty($attrs['purity_prices'])) {
+            $firstPurity = $purities[0];
+            if (isset($attrs['purity_prices'][$firstPurity]) && is_numeric($attrs['purity_prices'][$firstPurity])) {
+                $val = (float) $attrs['purity_prices'][$firstPurity];
+                if ($val > 0) {
+                    return $val;
+                }
+            }
+        }
+
         return (float) ($this->sale_price && $this->sale_price < $this->price ? $this->sale_price : $this->price);
     }
 
@@ -139,13 +200,88 @@ class Product extends Model
     public function getGoldPuritiesAttribute(): array
     {
         $attrs = $this->jewellery_attributes;
-        return !empty($attrs['gold_purities']) ? (array) $attrs['gold_purities'] : ['14KT Gold', '18KT Gold', '22KT Gold'];
+        if (array_key_exists('gold_purities', $attrs)) {
+            $purities = is_array($attrs['gold_purities']) ? array_values(array_filter($attrs['gold_purities'])) : [];
+            $canonicalOrder = ['14KT Gold', '18KT Gold', '22KT Gold'];
+            usort($purities, function ($a, $b) use ($canonicalOrder) {
+                $posA = array_search($a, $canonicalOrder);
+                $posB = array_search($b, $canonicalOrder);
+                $idxA = $posA !== false ? $posA : 999;
+                $idxB = $posB !== false ? $posB : 999;
+                return $idxA <=> $idxB;
+            });
+            return $purities;
+        }
+        return ['14KT Gold', '18KT Gold', '22KT Gold'];
     }
 
     public function getMetalColorsAttribute(): array
     {
         $attrs = $this->jewellery_attributes;
-        return !empty($attrs['metal_colors']) ? (array) $attrs['metal_colors'] : ['Yellow Gold', 'White Gold', 'Rose Gold'];
+        if (array_key_exists('metal_colors', $attrs)) {
+            $colors = is_array($attrs['metal_colors']) ? array_values(array_filter($attrs['metal_colors'])) : [];
+            $canonicalOrder = ['Yellow Gold', 'White Gold', 'Rose Gold'];
+            usort($colors, function ($a, $b) use ($canonicalOrder) {
+                $posA = array_search($a, $canonicalOrder);
+                $posB = array_search($b, $canonicalOrder);
+                $idxA = $posA !== false ? $posA : 999;
+                $idxB = $posB !== false ? $posB : 999;
+                return $idxA <=> $idxB;
+            });
+            return $colors;
+        }
+        return ['Yellow Gold', 'White Gold', 'Rose Gold'];
+    }
+
+    public function getColorGalleriesAttribute(): array
+    {
+        $attrs = $this->jewellery_attributes;
+        $colorData = !empty($attrs['color_images']) ? (array) $attrs['color_images'] : [];
+
+        // In Filament Admin Panel, return raw storage paths
+        if (request()->is('admin*') || request()->routeIs('filament.*')) {
+            $galleries = [];
+            foreach ($colorData as $color => $val) {
+                $galleries[$color] = is_array($val) ? array_values(array_filter($val)) : (empty($val) ? [] : [$val]);
+            }
+            return $galleries;
+        }
+
+        // On frontend, resolve each photo to full public URLs
+        $resolved = [];
+        foreach ($colorData as $color => $val) {
+            $list = is_array($val) ? array_values(array_filter($val)) : (empty($val) ? [] : [$val]);
+            $resolved[$color] = array_values(array_filter(array_map(function ($imgPath) {
+                if (empty($imgPath) || !is_string($imgPath)) return null;
+                if (str_starts_with($imgPath, 'http://') || str_starts_with($imgPath, 'https://') || str_starts_with($imgPath, '/')) {
+                    $url = $imgPath;
+                } else {
+                    $url = asset('storage/' . $imgPath);
+                }
+                $path = parse_url($url, PHP_URL_PATH);
+                if ($path && str_starts_with($path, '/storage/')) {
+                    $relPath = substr($path, strlen('/storage/'));
+                    $webpRelPath = preg_replace('/\.(png|jpe?g)$/i', '.webp', $relPath);
+                    if (file_exists(storage_path('app/public/' . $webpRelPath))) {
+                        $url = asset('storage/' . $webpRelPath);
+                    }
+                }
+                return $url;
+            }, $list)));
+        }
+        return $resolved;
+    }
+
+    public function getColorImagesAttribute(): array
+    {
+        $galleries = $this->color_galleries;
+        $primary = [];
+        foreach ($galleries as $color => $list) {
+            if (!empty($list) && is_array($list)) {
+                $primary[$color] = $list[0];
+            }
+        }
+        return $primary;
     }
 
     public function getSizeLabelAttribute(): string

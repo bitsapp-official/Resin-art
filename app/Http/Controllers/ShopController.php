@@ -67,6 +67,56 @@ class ShopController extends Controller
             $query->where('price', '<=', (float) $request->input('max_price'));
         }
 
+        // Metal Color / Tone Filter (Yellow Gold, White Gold, Rose Gold)
+        if ($request->filled('color')) {
+            $rawColor = $request->input('color');
+            $colorMap = [
+                'yellow'      => 'Yellow Gold',
+                'white'       => 'White Gold',
+                'rose'        => 'Rose Gold',
+                'yellow-gold' => 'Yellow Gold',
+                'white-gold'  => 'White Gold',
+                'rose-gold'   => 'Rose Gold',
+                'Yellow Gold' => 'Yellow Gold',
+                'White Gold'  => 'White Gold',
+                'Rose Gold'   => 'Rose Gold',
+            ];
+            $resolvedColor = $colorMap[$rawColor] ?? $rawColor;
+
+            $query->where(function ($q) use ($resolvedColor) {
+                $q->whereJsonContains('attributes->metal_colors', $resolvedColor)
+                  ->orWhere('name', 'like', "%{$resolvedColor}%")
+                  ->orWhere('description', 'like', "%{$resolvedColor}%");
+            });
+        }
+
+        // Gold Purity Filter (14KT, 18KT, 22KT)
+        if ($request->filled('purity')) {
+            $rawPurity = $request->input('purity');
+            $purityMap = [
+                '14k'       => '14KT Gold',
+                '18k'       => '18KT Gold',
+                '22k'       => '22KT Gold',
+                '14kt'      => '14KT Gold',
+                '18kt'      => '18KT Gold',
+                '22kt'      => '22KT Gold',
+                '14KT'      => '14KT Gold',
+                '18KT'      => '18KT Gold',
+                '22KT'      => '22KT Gold',
+                '14KT Gold' => '14KT Gold',
+                '18KT Gold' => '18KT Gold',
+                '22KT Gold' => '22KT Gold',
+            ];
+            $resolvedPurity = $purityMap[$rawPurity] ?? $rawPurity;
+            $shortPurity = str_replace(' Gold', '', $resolvedPurity);
+
+            $query->where(function ($q) use ($resolvedPurity, $shortPurity) {
+                $q->whereJsonContains('attributes->gold_purities', $resolvedPurity)
+                  ->orWhere('name', 'like', "%{$shortPurity}%")
+                  ->orWhere('description', 'like', "%{$shortPurity}%");
+            });
+        }
+
         // Inventory Type Filter
         if ($request->filled('availability')) {
             $avail = strtoupper($request->input('availability'));
@@ -103,7 +153,7 @@ class ShopController extends Controller
                 break;
             case 'newest':
             default:
-                $query->orderBy('created_at', 'desc');
+                $query->orderBy('created_at', 'desc')->orderBy('id', 'desc');
                 break;
         }
 
@@ -117,6 +167,16 @@ class ShopController extends Controller
             $wishlistIds = \App\Models\Wishlist::where('user_id', Auth::id())->pluck('product_id')->toArray();
         } else {
             $wishlistIds = session('guest_wishlist', []);
+        }
+
+        if ($request->ajax() || $request->has('ajax') || $request->wantsJson()) {
+            return response()->json([
+                'html' => view('shop.partials.product-grid-items', compact('products', 'wishlistIds'))->render(),
+                'has_more' => $products->hasMorePages(),
+                'next_page_url' => $products->nextPageUrl(),
+                'current_page' => $products->currentPage(),
+                'total' => $products->total(),
+            ]);
         }
 
         return view('shop.index', compact('products', 'categories', 'collections', 'wishlistIds'));

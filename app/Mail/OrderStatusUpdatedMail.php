@@ -34,7 +34,7 @@ class OrderStatusUpdatedMail extends Mailable
             ?? "Order Update: [{$this->order->order_reference}] is {$statusLabel}";
 
         return new Envelope(
-            subject: "{$subject} — Maison Résine",
+            subject: "{$subject} — Solitaire Fine Jewels",
         );
     }
 

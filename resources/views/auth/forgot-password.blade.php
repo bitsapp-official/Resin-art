@@ -1,4 +1,4 @@
-<x-app-layout title="Recover Password — Maison Résine">
+<x-app-layout title="Recover Password — Solitaire Fine Jewels">
     <div class="min-h-[75vh] flex items-center justify-center py-10 sm:py-16 px-4 sm:px-6 lg:px-12 xl:px-20 w-full min-w-0">
         <div class="max-w-[1060px] w-full grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-16 items-center">
             

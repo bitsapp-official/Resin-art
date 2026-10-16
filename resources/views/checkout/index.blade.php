@@ -1,4 +1,4 @@
-<x-app-layout title="Checkout — Maison Résine">
+<x-app-layout title="Checkout — Solitaire Fine Jewels">
     @push('head')
     <style>
         body {
@@ -20,7 +20,7 @@
         $isLoggedIn = Auth::check();
     @endphp
 
-    <div class="max-w-[1320px] mx-auto w-full min-w-0 px-3.5 sm:px-6 lg:px-12 py-6 sm:py-10" 
+    <div class="max-w-[1320px] mx-auto w-full min-w-0 px-3.5 sm:px-6 lg:px-12 pt-2 sm:pt-4 pb-12 sm:pb-16" 
          x-data="{ 
             currentStep: 1, 
             isLoggedIn: @js($isLoggedIn),
@@ -597,9 +597,12 @@
                             @foreach($cartItems->sortByDesc('id') as $item)
                                 <div class="flex items-center justify-between py-1 gap-3">
                                     <div class="flex items-center space-x-3.5 min-w-0 flex-1">
-                                        <div class="w-12 h-12 sm:w-14 sm:h-14 bg-white rounded-xl sm:rounded-2xl overflow-hidden shrink-0 border border-[#DFD9CE]">
-                                            @if(!empty($item->product?->images) && isset($item->product->images[0]))
-                                                <img src="{{ $item->product->images[0] }}" alt="" class="w-full h-full object-cover">
+                                        <div class="w-12 h-12 sm:w-14 sm:h-14 bg-white rounded-xl sm:rounded-2xl overflow-hidden shrink-0 border border-[#DFD9CE] flex items-center justify-center">
+                                            @php $chkImg = $item->primary_image_url; @endphp
+                                            @if($chkImg)
+                                                <img src="{{ $chkImg }}" alt="" class="w-full h-full object-cover">
+                                            @else
+                                                <span class="text-[9px] text-[#A8A29E] uppercase tracking-wider font-medium">Piece</span>
                                             @endif
                                         </div>
                                         <div class="min-w-0 flex-1">

@@ -186,11 +186,17 @@ Route::post('/contact', [ContactController::class, 'store'])
     ->middleware("throttle:{$maxSubmissions},{$decayMinutes}")
     ->name('contact.store');
 
-Route::middleware(['auth', 'verified'])->group(function () {
-    Route::get('/custom', [CustomRequestController::class, 'create'])->name('custom.index');
-    Route::post('/custom', [CustomRequestController::class, 'store'])->name('custom.store');
-    Route::get('/custom/success', [CustomRequestController::class, 'success'])->name('custom.success');
-});
+// Custom Requirement & Inquiry Routes (Accessible to both Guests and Authenticated Patrons)
+Route::get('/custom', [CustomRequestController::class, 'create'])->name('custom.index');
+Route::get('/inquiry', [CustomRequestController::class, 'create'])->name('inquiry.index');
+Route::post('/custom', [CustomRequestController::class, 'store'])
+    ->middleware('throttle:6,1')
+    ->name('custom.store');
+Route::post('/inquiry', [CustomRequestController::class, 'store'])
+    ->middleware('throttle:6,1')
+    ->name('inquiry.store');
+Route::get('/custom/success', [CustomRequestController::class, 'success'])->name('custom.success');
+Route::get('/inquiry/success', [CustomRequestController::class, 'success'])->name('inquiry.success');
 Route::get('/private-media/custom-requests/{path}', [PrivateMediaController::class, 'show'])->where('path', '.*')->name('private.media.show');
 
 Route::get('/orders/{order}/invoice/download', [OrderInvoiceController::class, 'publicDownload'])->name('orders.invoice.public');

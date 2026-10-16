@@ -10,11 +10,14 @@
             <div class="flex gap-4 pb-6 border-b border-[#DFD9CE]/40 last:border-b-0">
                 {{-- Thumbnail (Strict 80x80 Size Container) --}}
                 <div class="w-20 h-20 shrink-0 bg-[#F5F2EB] border border-[#DFD9CE]/60 overflow-hidden rounded-xl" style="width: 80px; height: 80px; min-width: 80px; min-height: 80px; max-width: 80px; max-height: 80px;">
-                    @if(!empty($item->product?->images) && isset($item->product->images[0]))
-                        <img src="{{ $item->product->images[0] }}"
+                    @php $itemImg = $item->primary_image_url; @endphp
+                    @if($itemImg)
+                        <img src="{{ $itemImg }}"
                              alt="{{ $item->product_name }}"
                              class="w-full h-full object-cover"
                              style="width: 100%; height: 100%; object-fit: cover;">
+                    @else
+                        <div class="w-full h-full flex items-center justify-center text-[10px] text-[#A8A29E] font-medium uppercase tracking-wider">Piece</div>
                     @endif
                 </div>
 

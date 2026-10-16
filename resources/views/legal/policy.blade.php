@@ -1,5 +1,5 @@
-<x-app-layout :title="$page->meta_title ?? ($page->title . ' — Maison Résine')">
-    <div class="min-h-[70vh] max-w-4xl mx-auto px-4 sm:px-6 py-10 sm:py-20 space-y-8 sm:space-y-12 w-full min-w-0">
+<x-app-layout :title="$page->meta_title ?? ($page->title . ' — Solitaire Fine Jewels')">
+    <div class="min-h-[70vh] max-w-4xl mx-auto px-4 sm:px-6 pt-2 sm:pt-4 pb-12 sm:pb-16 space-y-6 sm:space-y-8 w-full min-w-0">
         
         {{-- Header block --}}
         <div class="space-y-3 sm:space-y-4 border-b border-[#E5DFD3]/80 pb-6 sm:pb-8">

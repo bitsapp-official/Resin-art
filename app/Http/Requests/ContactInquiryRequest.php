@@ -27,7 +27,7 @@ class ContactInquiryRequest extends FormRequest
         return [
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255'],
-            'phone' => ['nullable', 'string', new IndianPhoneNumber()],
+            'phone' => ['nullable', 'string', new \App\Rules\InternationalPhoneNumber()],
             'inquiry_type' => ['required', new Enum(ContactInquiryType::class)],
             'subject' => ['required', 'string', 'max:255'],
             'message' => ['required', 'string', 'min:10', 'max:5000'],
