@@ -43,18 +43,9 @@ class Cart extends Model
                 // Only use base price as fallback if price is somehow 0 or null.
                 $price = (float) $item->price;
                 if ($price <= 0) {
-                    // Derive from variant options if stored price is missing
-                    $price = $item->product->effective_price;
-                    $options = $item->options ?? [];
-                    if (!empty($options['size'])) {
-                        $sizeVariants = $item->product->attributes['size_variants'] ?? [];
-                        foreach ($sizeVariants as $variant) {
-                            if (($variant['size'] ?? '') === $options['size'] && !empty($variant['price'])) {
-                                $price = (float) $variant['price'];
-                                break;
-                            }
-                        }
-                    }
+                    // Derive authoritatively from variant options if stored price is missing
+                    $options = is_array($item->options) ? $item->options : (json_decode($item->options, true) ?: []);
+                    $price = \App\Services\BullionPricingService::resolveItemPrice($item->product, $options);
                     $item->price = $price;
                     $item->save();
                 }

@@ -47,44 +47,10 @@ class CartController extends Controller
         $quantity = (int) ($request->quantity ?? 1);
         $options = $request->options ?? [];
 
-        // SECURITY: Price is ALWAYS derived server-side from the product's size_variants and purity.
-        // Never accept a price from the client (prevents price tampering).
-        $price = $product->effective_price;
-        if (!empty($options['size'])) {
-            $sizeVariants = $product->attributes['size_variants'] ?? [];
-            $matched = false;
-            foreach ($sizeVariants as $variant) {
-                if (($variant['size'] ?? '') === $options['size'] && isset($variant['price']) && (float)$variant['price'] > 0) {
-                    $price = (float) $variant['price'];
-                    $matched = true;
-                    break;
-                }
-            }
-            // If size was submitted but didn't match any variant, unset size to avoid orphaned values
-            if (!$matched && !empty($sizeVariants)) {
-                unset($options['size']);
-            }
-        }
+        // AUTHORITATIVE PRICING CALCULATION (SECURITY ENFORCED):
+        // Derive exact bullion/variant price strictly server-side using BullionPricingService
+        $price = \App\Services\BullionPricingService::resolveItemPrice($product, $options);
 
-        // Apply Gold Purity Price (Supports both Direct Selling Price and Add-on)
-        if (!empty($options['gold_purity'])) {
-            $purityPrices = $product->attributes['purity_prices'] ?? [];
-            if (isset($purityPrices[$options['gold_purity']]) && $purityPrices[$options['gold_purity']] !== null && $purityPrices[$options['gold_purity']] !== '') {
-                $val = (float) $purityPrices[$options['gold_purity']];
-                if ($val >= $price * 0.5 && $val > 0) {
-                    $price = $val;
-                } else {
-                    $price += $val;
-                }
-            } else {
-                $p = strtolower($options['gold_purity']);
-                if (str_contains($p, '18k')) {
-                    $price = round(($price * 1.18) / 100) * 100;
-                } elseif (str_contains($p, '22k')) {
-                    $price = round(($price * 1.35) / 100) * 100;
-                }
-            }
-        }
 
         $cart = $this->getCart();
 
@@ -169,37 +135,9 @@ class CartController extends Controller
         $quantity = (int) ($request->quantity ?? 1);
         $options  = $request->options ?? [];
 
-        // SECURITY: Derive price server-side only
-        $price = $product->effective_price;
-        if (!empty($options['size'])) {
-            $sizeVariants = $product->attributes['size_variants'] ?? [];
-            foreach ($sizeVariants as $variant) {
-                if (($variant['size'] ?? '') === $options['size'] && isset($variant['price']) && (float)$variant['price'] > 0) {
-                    $price = (float) $variant['price'];
-                    break;
-                }
-            }
-        }
+        // SECURITY: Authoritative server-side price resolution
+        $price = \App\Services\BullionPricingService::resolveItemPrice($product, $options);
 
-        // Apply Gold Purity Price (Supports both Direct Selling Price and Add-on)
-        if (!empty($options['gold_purity'])) {
-            $purityPrices = $product->attributes['purity_prices'] ?? [];
-            if (isset($purityPrices[$options['gold_purity']]) && $purityPrices[$options['gold_purity']] !== null && $purityPrices[$options['gold_purity']] !== '') {
-                $val = (float) $purityPrices[$options['gold_purity']];
-                if ($val >= $price * 0.5 && $val > 0) {
-                    $price = $val;
-                } else {
-                    $price += $val;
-                }
-            } else {
-                $p = strtolower($options['gold_purity']);
-                if (str_contains($p, '18k')) {
-                    $price = round(($price * 1.18) / 100) * 100;
-                } elseif (str_contains($p, '22k')) {
-                    $price = round(($price * 1.35) / 100) * 100;
-                }
-            }
-        }
 
         $cart = $this->getCart();
 

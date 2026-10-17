@@ -108,20 +108,11 @@ class CheckoutController extends Controller
                 }
             }
 
-            // Determine authoritative price from database
-            $unitPrice = (float) $product->effective_price;
-            $options = $item->options ?? [];
-            if (!empty($options['size'])) {
-                $sizeVariants = $product->attributes['size_variants'] ?? [];
-                foreach ($sizeVariants as $variant) {
-                    if (($variant['size'] ?? '') === $options['size'] && !empty($variant['price'])) {
-                        $unitPrice = (float) $variant['price'];
-                        break;
-                    }
-                }
-            }
+            // Determine authoritative price strictly server-side from database
+            $options = is_array($item->options) ? $item->options : (json_decode($item->options, true) ?: []);
+            $unitPrice = \App\Services\BullionPricingService::resolveItemPrice($product, $options);
 
-            // Sync item price if mismatched
+            // Sync item price if mismatched (prevents client tampering)
             if (abs((float)$item->price - $unitPrice) > 0.001) {
                 $item->price = $unitPrice;
                 $item->save();

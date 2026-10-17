@@ -76,20 +76,22 @@ class GuestSessionMigrationService
                     && ($item->options ?? []) == $guestOptions;
             });
 
+            $authoritativePrice = \App\Services\BullionPricingService::resolveItemPrice($product, $guestOptions);
+
             if ($existingUserItem) {
                 $newQuantity = $existingUserItem->quantity + $guestItem->quantity;
                 if ($product->inventory_type === 'READY_TO_SHIP' && $product->stock > 0 && $newQuantity > $product->stock) {
                     $newQuantity = $product->stock;
                 }
                 $existingUserItem->quantity = $newQuantity;
-                $existingUserItem->price = $product->effective_price;
+                $existingUserItem->price = $authoritativePrice;
                 $existingUserItem->save();
             } else {
                 CartItem::create([
                     'cart_id'    => $userCart->id,
                     'product_id' => $guestItem->product_id,
                     'quantity'   => $guestItem->quantity,
-                    'price'      => $guestItem->price ?: $product->effective_price,
+                    'price'      => $guestItem->price ?: $authoritativePrice,
                     'options'    => $guestOptions,
                 ]);
             }

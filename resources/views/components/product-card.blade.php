@@ -114,9 +114,16 @@
                     {{ $product->name }}
                 </a>
             </h3>
-            <span class="text-[15px] sm:text-[16px] font-medium text-[#1C1917] shrink-0">
-                ₹{{ number_format($product->effective_price) }}
-            </span>
+            <div class="flex items-baseline gap-1.5 shrink-0">
+                <span class="text-[15px] sm:text-[16px] font-medium text-[#1C1917]">
+                    ₹{{ number_format($product->effective_price) }}
+                </span>
+                @if($product->effective_mrp && $product->effective_mrp > $product->effective_price)
+                    <s class="text-[11.5px] sm:text-[12px] text-[#8E877D] font-light">
+                        ₹{{ number_format($product->effective_mrp) }}
+                    </s>
+                @endif
+            </div>
         </div>
 
         <p class="text-[9.5px] sm:text-[10px] uppercase tracking-[0.2em] font-medium text-[#6E675E] truncate">

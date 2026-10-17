@@ -160,9 +160,8 @@
                 selectedSize: config.selectedSize || '',
                 sizeLabel: config.sizeLabel || 'Size',
                 sizeVariants: config.sizeVariants || [],
-                purityPrices: config.purityPrices || null,
-                goldPurities: config.goldPurities || ['14KT Gold', '18KT Gold', '22KT Gold'],
-                selectedPurity: config.selectedPurity || '14KT Gold',
+                goldPurities: (config.goldPurities && Array.isArray(config.goldPurities) && config.goldPurities.length > 0) ? config.goldPurities : [],
+                selectedPurity: config.selectedPurity || ((config.goldPurities && config.goldPurities.length > 0) ? config.goldPurities[0] : ''),
                 metalColors: config.metalColors || ['Yellow Gold', 'White Gold', 'Rose Gold'],
                 selectedColor: config.selectedColor || 'Yellow Gold',
                 colorImages: config.colorImages || {},
@@ -435,38 +434,168 @@
                     this.isDragging = false;
                 },
                 
-                get currentPrice() {
+                // ── DYNAMIC JEWELRY PRICING MATRIX ENGINE ──
+                pricingMode: config.pricingMode || 'manual',
+                baseGoldWeight: Number(config.baseGoldWeight) || 0,
+                makingChargePerGram: Number(config.makingChargePerGram) || 0,
+                diamondStoneValue: Number(config.diamondStoneValue) || 0,
+                rate24kt: Number(config.rate24kt) || 7600,
+                bullionRates: config.bullionRates || {},
+
+                getDensityMultiplier(purity) {
+                    if (!purity) return 1.185;
+                    const p = purity.toLowerCase().trim();
+                    if (p.includes('14k')) return 1.000;
+                    if (p.includes('22k')) return 1.365;
+                    return 1.185; // 18KT benchmark
+                },
+
+                getSizeMultiplier(size) {
+                    if (!size) return 1.000;
+                    const match = String(size).match(/([\d\.]+)/);
+                    if (match) {
+                        const num = parseFloat(match[1]);
+                        if (num >= 5 && num <= 25) {
+                            return 1.0 + ((num - 12.0) * 0.015);
+                        }
+                    }
+                    return 1.000;
+                },
+
+                getKaratGoldRate(purity) {
+                    const r24 = this.rate24kt || 7600;
+                    const p = (purity || '').toLowerCase().trim();
+                    if (p.includes('14k')) return Math.round(r24 * (14 / 24) * 100) / 100;
+                    if (p.includes('22k')) return Math.round(r24 * (22 / 24) * 100) / 100;
+                    return Math.round(r24 * (18 / 24) * 100) / 100;
+                },
+
+                get priceBreakdown() {
+                    // Check if product uses Dynamic Gold Pricing Matrix
+                    if (this.baseGoldWeight > 0 && this.pricingMode === 'dynamic' && this.goldPurities && this.goldPurities.length > 0) {
+                        const purity = this.selectedPurity || this.goldPurities[0] || '18KT Gold';
+                        const size = this.selectedSize || 'Size 12';
+                        
+                        // Check if current selected size has explicit custom weight
+                        let sizeVariant = null;
+                        if (this.sizeVariants && this.sizeVariants.length > 0) {
+                            sizeVariant = this.sizeVariants.find(v => v.size === size);
+                        }
+
+                        // Exact gold weight: use size-specific weight if provided, else product base weight.
+                        // No artificial scale multipliers or density weight distortions.
+                        let finalWeight = 0;
+                        if (sizeVariant && sizeVariant.weight_grams && Number(sizeVariant.weight_grams) > 0) {
+                            finalWeight = Number(sizeVariant.weight_grams);
+                        } else {
+                            finalWeight = this.baseGoldWeight;
+                        }
+                        finalWeight = Math.round(finalWeight * 1000) / 1000;
+
+                        const karatRate = this.getKaratGoldRate(purity);
+
+                        const goldVal = Math.round(finalWeight * karatRate * 100) / 100;
+                        const makingVal = Math.round(finalWeight * this.makingChargePerGram * 100) / 100;
+                        const stoneVal = Math.round(this.diamondStoneValue * 100) / 100;
+                        const subtotal = Math.round((goldVal + makingVal + stoneVal) * 100) / 100;
+                        const gst = Math.round(subtotal * 0.03 * 100) / 100;
+                        const finalPrice = Math.round(subtotal * 1.03);
+
+                        const markupPercent = (this.bullionRates && this.bullionRates.mrp_markup_percent) ? Number(this.bullionRates.mrp_markup_percent) : 20;
+                        let mrp = Math.round(finalPrice * (1 + (markupPercent / 100)));
+
+                        // If admin entered specific MRP on this size variant for current purity, respect it
+                        if (sizeVariant) {
+                            const pLower = (purity || '').toLowerCase();
+                            if (pLower.includes('14') && sizeVariant.mrp_14k && Number(sizeVariant.mrp_14k) > 0) {
+                                mrp = Number(sizeVariant.mrp_14k);
+                            } else if (pLower.includes('22') && sizeVariant.mrp_22k && Number(sizeVariant.mrp_22k) > 0) {
+                                mrp = Number(sizeVariant.mrp_22k);
+                            } else if (sizeVariant.mrp_18k && Number(sizeVariant.mrp_18k) > 0) {
+                                mrp = Number(sizeVariant.mrp_18k);
+                            } else if (sizeVariant.mrp && Number(sizeVariant.mrp) > finalPrice) {
+                                mrp = Number(sizeVariant.mrp);
+                            }
+                        }
+
+                        return {
+                            isDynamic: true,
+                            finalWeight: finalWeight,
+                            goldValue: goldVal,
+                            makingValue: makingVal,
+                            diamondValue: stoneVal,
+                            subtotal: subtotal,
+                            gstAmount: gst,
+                            finalPrice: finalPrice,
+                            mrp: mrp
+                        };
+                    }
+
+                    // Fallback to Manual Pricing Mode
                     let base = Number(this.basePrice) || 0;
+                    let sizeVariant = null;
                     if (this.sizeVariants.length > 0 && this.selectedSize) {
-                        const variant = this.sizeVariants.find(v => v.size === this.selectedSize);
-                        if (variant && variant.price && Number(variant.price) > 0) {
-                            base = Number(variant.price);
+                        sizeVariant = this.sizeVariants.find(v => v.size === this.selectedSize);
+                        if (sizeVariant) {
+                            const pLower = (this.selectedPurity || '').toLowerCase();
+                            if (pLower.includes('14') && sizeVariant.price_14k && Number(sizeVariant.price_14k) > 0) {
+                                base = Number(sizeVariant.price_14k);
+                            } else if (pLower.includes('22') && sizeVariant.price_22k && Number(sizeVariant.price_22k) > 0) {
+                                base = Number(sizeVariant.price_22k);
+                            } else if (sizeVariant.price_18k && Number(sizeVariant.price_18k) > 0) {
+                                base = Number(sizeVariant.price_18k);
+                            } else if (sizeVariant.price && Number(sizeVariant.price) > 0) {
+                                base = Number(sizeVariant.price);
+                            }
                         }
                     }
 
-                    // Apply Gold Purity Price (Supports both Direct Selling Price and Legacy Add-ons)
                     if (this.purityPrices && this.selectedPurity && this.purityPrices[this.selectedPurity] !== undefined && this.purityPrices[this.selectedPurity] !== null && this.purityPrices[this.selectedPurity] !== '') {
                         const val = Number(this.purityPrices[this.selectedPurity]);
-                        // If admin entered a full direct price (e.g. ₹288,270), use it directly
                         if (val >= base * 0.5 && val > 0) {
-                            return val;
+                            base = val;
+                        } else {
+                            base += val;
                         }
-                        // Otherwise treat as add-on difference
-                        return base + val;
                     }
 
-                    return base;
-                },
-                get currentMrp() {
-                    // Check if selected purity has its own specific MRP entered
-                    if (this.purityMrp && this.selectedPurity && this.purityMrp[this.selectedPurity] !== undefined && this.purityMrp[this.selectedPurity] !== null && this.purityMrp[this.selectedPurity] !== '') {
-                        const val = Number(this.purityMrp[this.selectedPurity]);
-                        if (val > 0) return val;
+                    let mrp = null;
+                    if (sizeVariant) {
+                        const pLower = (this.selectedPurity || '').toLowerCase();
+                        if (pLower.includes('14') && sizeVariant.mrp_14k && Number(sizeVariant.mrp_14k) > 0) {
+                            mrp = Number(sizeVariant.mrp_14k);
+                        } else if (pLower.includes('22') && sizeVariant.mrp_22k && Number(sizeVariant.mrp_22k) > 0) {
+                            mrp = Number(sizeVariant.mrp_22k);
+                        } else if (sizeVariant.mrp_18k && Number(sizeVariant.mrp_18k) > 0) {
+                            mrp = Number(sizeVariant.mrp_18k);
+                        } else if (sizeVariant.mrp && Number(sizeVariant.mrp) > base) {
+                            mrp = Number(sizeVariant.mrp);
+                        }
                     }
-                    // Default to product base regular MRP
-                    const reg = Number(this.regularPrice) || 0;
-                    return reg > this.currentPrice ? reg : null;
+                    if (!mrp && this.purityMrp && this.selectedPurity && this.purityMrp[this.selectedPurity] !== undefined && this.purityMrp[this.selectedPurity] !== null && this.purityMrp[this.selectedPurity] !== '') {
+                        const mVal = Number(this.purityMrp[this.selectedPurity]);
+                        if (mVal > 0) mrp = mVal;
+                    }
+                    if (!mrp) {
+                        const reg = Number(this.regularPrice) || 0;
+                        if (reg > base) mrp = reg;
+                    }
+
+                    return {
+                        isDynamic: false,
+                        finalPrice: base,
+                        mrp: mrp
+                    };
                 },
+                
+                get currentPrice() {
+                    return this.priceBreakdown.finalPrice;
+                },
+
+                get currentMrp() {
+                    return this.priceBreakdown.mrp;
+                },
+
                 get discountPercent() {
                     if (this.currentMrp && this.currentMrp > this.currentPrice) {
                         return Math.round(((this.currentMrp - this.currentPrice) / this.currentMrp) * 100);
@@ -594,6 +723,12 @@
             sizeVariants: @js($product->attributes['size_variants'] ?? []),
             basePrice: {{ (float) $product->effective_price }},
             regularPrice: {{ (float) $product->price }},
+            pricingMode: @js($product->attributes['pricing_mode'] ?? 'manual'),
+            baseGoldWeight: {{ (float) $product->base_gold_weight }},
+            makingChargePerGram: {{ (float) $product->making_charge_per_gram }},
+            diamondStoneValue: {{ (float) $product->diamond_stone_value }},
+            rate24kt: {{ (float) \App\Services\BullionPricingService::getRates()['rate_24kt'] }},
+            bullionRates: @js(\App\Services\BullionPricingService::getRates()),
             sizeLabel: @js($product->size_label),
             selectedSize: @js(request('size') ?: (!empty($product->attributes['size_variants']) ? ($product->attributes['size_variants'][0]['size'] ?? '') : (!empty($product->attributes['sizes']) ? $product->attributes['sizes'][0] : ''))),
             goldPurities: @js($product->gold_purities),
@@ -1021,6 +1156,7 @@
                         $specItems = collect([
                             $product->diamond_carat ? strtoupper($product->diamond_carat) : null,
                             $product->diamond_color_clarity ? strtoupper($product->diamond_color_clarity) : null,
+                            $product->diamond_cut ? strtoupper($product->diamond_cut) : null,
                             $certLabel,
                             $product->inventory_type === 'MADE_TO_ORDER' ? 'MADE TO ORDER' : 'READY TO SHIP',
                         ])->filter();
@@ -1038,31 +1174,87 @@
                     $hasHalfStar = ($avgRating - $fullStars) >= 0.5;
                     $emptyStars = 5 - $fullStars - ($hasHalfStar ? 1 : 0);
                 @endphp
-                <div class="flex items-baseline flex-wrap gap-x-4 gap-y-2 pt-1">
-                    <div class="flex items-baseline gap-2.5 sm:gap-3 flex-wrap">
-                        <span class="font-sans font-medium text-2xl sm:text-3.5xl text-[#1C1917] tracking-tight">
-                            ₹ <span x-text="formatPrice(currentPrice)">{{ number_format($product->effective_price) }}</span>
-                        </span>
-                        <template x-if="currentMrp && currentMrp > currentPrice">
-                            <span class="inline-flex items-baseline gap-2">
-                                <s class="text-sm sm:text-base text-[#8E877D] font-light font-sans tracking-tight">
-                                    ₹ <span x-text="formatPrice(currentMrp)">{{ number_format($product->price) }}</span>
-                                </s>
-                                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] sm:text-[11px] font-semibold bg-[#FAF4EB] text-[#A87432] border border-[#E9DAC6] tracking-wide"
-                                      x-show="discountPercent > 0">
-                                    <span x-text="discountPercent + '% OFF'"></span>
-                                </span>
+                <div class="space-y-3 pt-1" x-data="{ openBreakdown: false }">
+                    <div class="flex items-baseline justify-between gap-4 flex-wrap">
+                        <div class="flex items-baseline gap-2.5 sm:gap-3 flex-wrap">
+                            <span class="font-sans font-medium text-2xl sm:text-3.5xl text-[#1C1917] tracking-tight">
+                                ₹ <span x-text="formatPrice(currentPrice)">{{ number_format($product->effective_price) }}</span>
                             </span>
-                        </template>
+                            <template x-if="currentMrp && currentMrp > currentPrice">
+                                <s class="text-sm sm:text-base text-[#8E877D] font-light font-sans tracking-tight">₹ <span x-text="formatPrice(currentMrp)">{{ number_format($product->price) }}</span></s>
+                            </template>
+                            <span class="text-[11px] text-[#8E877D] font-light tracking-wide">(Inclusive of all taxes)</span>
+                        </div>
+
+                        <a href="#customer-reviews" onclick="document.getElementById('customer-reviews')?.scrollIntoView({ behavior: 'smooth' });"
+                           class="text-[10px] uppercase tracking-[0.16em] sm:tracking-[0.18em] text-[#8E877D] hover:text-[#1C1917] font-light flex items-center gap-1.5 transition-colors cursor-pointer shrink-0">
+                            <span class="text-[#C8A96E] text-xs tracking-wider flex items-center">
+                                {!! str_repeat('★', $fullStars) !!}{!! $hasHalfStar ? '★' : '' !!}{!! str_repeat('☆', $emptyStars) !!}
+                            </span>
+                            <span>· {{ $revCount }} {{ Str::plural('REVIEW', $revCount) }}</span>
+                        </a>
                     </div>
-                    <a href="#customer-reviews" onclick="document.getElementById('customer-reviews')?.scrollIntoView({ behavior: 'smooth' });"
-                       class="text-[10px] uppercase tracking-[0.16em] sm:tracking-[0.18em] text-[#8E877D] hover:text-[#1C1917] font-light flex items-center gap-1.5 transition-colors cursor-pointer">
-                        <span class="text-[#C8A96E] text-xs tracking-wider flex items-center">
-                            {!! str_repeat('★', $fullStars) !!}{!! $hasHalfStar ? '★' : '' !!}{!! str_repeat('☆', $emptyStars) !!}
-                        </span>
-                        <span>· {{ $revCount }} {{ Str::plural('REVIEW', $revCount) }}</span>
-                    </a>
+
+                    {{-- Dynamic Price Breakdown Inline Card (Visible when dynamic pricing is active) --}}
+                    <template x-if="priceBreakdown.isDynamic">
+                        <div>
+                            <button type="button" @click="openBreakdown = !openBreakdown"
+                                    class="inline-flex items-center gap-1.5 text-[11px] font-medium text-[#A87432] hover:text-[#1C1917] transition-colors cursor-pointer group">
+                                <span class="underline underline-offset-4 decoration-[#E9DAC6] group-hover:decoration-[#1C1917]">View Price Breakup</span>
+                                <svg class="w-3 h-3 transition-transform duration-200" :class="openBreakdown ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                                </svg>
+                            </button>
+
+                            <div x-show="openBreakdown" x-cloak
+                                 x-transition:enter="transition ease-out duration-200"
+                                 x-transition:enter-start="opacity-0 -translate-y-2"
+                                 x-transition:enter-end="opacity-100 translate-y-0"
+                                 x-transition:leave="transition ease-in duration-150"
+                                 x-transition:leave-start="opacity-100 translate-y-0"
+                                 x-transition:leave-end="opacity-0 -translate-y-2"
+                                 class="mt-2.5 w-full bg-[#FAF8F5] rounded-2xl border border-[#DFD9CE]/70 p-4 sm:p-5 text-xs text-[#1C1917] space-y-2.5 shadow-2xs">
+                                <div class="flex items-center justify-between pb-2 border-b border-[#EAE4D9]">
+                                    <div class="flex items-center gap-2">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-[#A87432]"></span>
+                                        <p class="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#8E877D]">
+                                            Transparent Valuation
+                                        </p>
+                                    </div>
+                                    <div class="flex items-center gap-2">
+                                        <span class="text-[9.5px] font-mono font-semibold px-2 py-0.5 rounded bg-white text-[#A87432] border border-[#E9DAC6]" x-text="selectedPurity"></span>
+                                        <button type="button" @click="openBreakdown = false" class="text-[#8E877D] hover:text-[#1C1917] text-xs p-1 cursor-pointer" title="Close">✕</button>
+                                    </div>
+                                </div>
+                                <div class="flex justify-between items-center text-[12px]">
+                                    <span class="text-[#78716C]">Gold (<span x-text="priceBreakdown.finalWeight"></span>g @ ₹<span x-text="formatPrice(getKaratGoldRate(selectedPurity))"></span>/g):</span>
+                                    <span class="font-medium font-sans">₹ <span x-text="formatPrice(priceBreakdown.goldValue)"></span></span>
+                                </div>
+                                <div class="flex justify-between items-center text-[12px]">
+                                    <span class="text-[#78716C]">Making Charges:</span>
+                                    <span class="font-medium font-sans">₹ <span x-text="formatPrice(priceBreakdown.makingValue)"></span></span>
+                                </div>
+                                <div class="flex justify-between items-center text-[12px]">
+                                    <span class="text-[#78716C]">Diamonds &amp; Gemstones:</span>
+                                    <span class="font-medium font-sans">₹ <span x-text="formatPrice(priceBreakdown.diamondValue || 0)"></span></span>
+                                </div>
+                                <div class="flex justify-between items-center text-[12px] pt-1.5 border-t border-dashed border-[#EAE4D9] text-[#78716C]">
+                                    <span>Net Subtotal:</span>
+                                    <span class="font-medium font-sans text-[#1C1917]">₹ <span x-text="formatPrice(priceBreakdown.subtotal)"></span></span>
+                                </div>
+                                <div class="flex justify-between items-center text-[12px]">
+                                    <span class="text-[#78716C]">Applicable GST (3%):</span>
+                                    <span class="font-medium font-sans">₹ <span x-text="formatPrice(priceBreakdown.gstAmount)"></span></span>
+                                </div>
+                                <div class="pt-2.5 border-t border-[#EAE4D9] flex justify-between items-center font-semibold text-xs">
+                                    <span class="text-[#1C1917]">Final Calculated Price:</span>
+                                    <span class="text-[#A87432] font-sans text-sm sm:text-base font-bold">₹ <span x-text="formatPrice(priceBreakdown.finalPrice)"></span></span>
+                                </div>
+                            </div>
+                        </div>
+                    </template>
                 </div>
+
 
                 {{-- 1. Gold Purity Selector (Multiple purities show pills; single purity shows label; empty hides) --}}
                 <template x-if="goldPurities && goldPurities.length > 1">
@@ -1072,7 +1264,7 @@
                         </p>
                         <div class="flex items-center gap-2 flex-wrap">
                             <template x-for="purity in goldPurities" :key="purity">
-                                <button type="button" @click="selectedPurity = purity"
+                                <button type="button" @click="selectedPurity = purity; if (typeof syncUrlWithState === 'function') syncUrlWithState();"
                                         :class="selectedPurity === purity ? 'bg-[#1C1917] text-white border-[#1C1917]' : 'bg-transparent text-[#1C1917] border-[#EBE6DD] hover:border-[#1C1917]'"
                                         class="px-4 sm:px-5 py-2 rounded-full border text-[9px] sm:text-[9.5px] uppercase tracking-[0.18em] sm:tracking-[0.2em] font-medium transition-all duration-200 cursor-pointer"
                                         x-text="purity">
@@ -1096,7 +1288,7 @@
                         </p>
                         <div class="flex items-center gap-2 flex-wrap">
                             <template x-for="v in sizeVariants" :key="v.size">
-                                <button type="button" @click="selectedSize = v.size"
+                                <button type="button" @click="selectedSize = v.size; if (typeof syncUrlWithState === 'function') syncUrlWithState();"
                                         :class="selectedSize === v.size ? 'bg-[#1C1917] text-white border-[#1C1917]' : 'bg-transparent text-[#1C1917] border-[#EBE6DD] hover:border-[#1C1917]'"
                                         class="px-4 sm:px-5 py-2 rounded-full border text-[9px] sm:text-[9.5px] uppercase tracking-[0.18em] sm:tracking-[0.2em] font-medium transition-all duration-200 cursor-pointer">
                                     <span x-text="v.size"></span>

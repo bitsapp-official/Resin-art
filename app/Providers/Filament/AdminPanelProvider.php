@@ -52,11 +52,45 @@ class AdminPanelProvider extends PanelProvider
             ->renderHook(
                 \Filament\View\PanelsRenderHook::HEAD_END,
                 fn (): string => '<style>
-                    /* General Product Photos: 2-Column Grid (instead of 3) */
+                    /* Remove Stepper / Up-Down Arrows from all Number Inputs */
+                    input[type="number"]::-webkit-outer-spin-button,
+                    input[type="number"]::-webkit-inner-spin-button {
+                        -webkit-appearance: none !important;
+                        margin: 0 !important;
+                    }
+                    input[type="number"] {
+                        -moz-appearance: textfield !important;
+                        appearance: textfield !important;
+                    }
+
+                    /* General Product Photos: 2-Column Grid */
                     .filepond-grid-2 .filepond--item,
                     .filepond-grid-2 .filepond--list .filepond--item,
                     [class*="filepond-grid-2"] .filepond--item {
                         width: calc(50% - 0.5em) !important;
+                    }
+
+                    /* Color Variant Photos: Compact Fixed Size Cards (Auto-wrap row, never stretched) */
+                    .filepond-grid-3 .filepond--list.filepond--list {
+                        display: flex !important;
+                        flex-wrap: wrap !important;
+                        flex-direction: row !important;
+                        gap: 12px !important;
+                    }
+                    .filepond-grid-3 .filepond--item,
+                    .filepond-grid-3 .filepond--list .filepond--item,
+                    [class*="filepond-grid-3"] .filepond--item {
+                        width: 180px !important;
+                        max-width: 180px !important;
+                        min-width: 160px !important;
+                        height: 180px !important;
+                        margin: 0 !important;
+                    }
+                    /* Always keep FilePond upload browse label visible and clickable */
+                    .filepond-grid-3 .filepond--drop-label,
+                    .filepond--root .filepond--drop-label {
+                        min-height: 4.5em !important;
+                        cursor: pointer !important;
                     }
 
                     /* Filament Tabs Positioning & Width Constraint for FilePond */
@@ -175,7 +209,44 @@ class AdminPanelProvider extends PanelProvider
                     .fi-wi-table table {
                         width: 100% !important;
                     }
-                </style>'
+                </style>
+                <script>
+                    (function() {
+                        function richEditorFormComponent(config) {
+                            return {
+                                state: config ? config.state : null,
+                                init: function () {
+                                    if (this.$refs && this.$refs.trixValue) {
+                                        this.$refs.trixValue.value = this.state ?? "";
+                                    }
+                                    if (this.$refs && this.$refs.trix && this.$refs.trix.editor) {
+                                        this.$refs.trix.editor.loadHTML(this.state ?? "");
+                                    }
+                                    this.$watch("state", () => {
+                                        if (this.$refs && this.$refs.trix && document.activeElement === this.$refs.trix) {
+                                            return;
+                                        }
+                                        if (this.$refs && this.$refs.trixValue) {
+                                            this.$refs.trixValue.value = this.state ?? "";
+                                        }
+                                        if (this.$refs && this.$refs.trix && this.$refs.trix.editor) {
+                                            this.$refs.trix.editor.loadHTML(this.state ?? "");
+                                        }
+                                    });
+                                }
+                            };
+                        }
+                        window.richEditorFormComponent = richEditorFormComponent;
+                        if (window.Alpine) {
+                            window.Alpine.data("richEditorFormComponent", richEditorFormComponent);
+                        }
+                        document.addEventListener("alpine:init", function () {
+                            if (window.Alpine) {
+                                window.Alpine.data("richEditorFormComponent", richEditorFormComponent);
+                            }
+                        });
+                    })();
+                </script>'
             )
             ->renderHook(
                 \Filament\View\PanelsRenderHook::BODY_END,

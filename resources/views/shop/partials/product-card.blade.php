@@ -109,13 +109,13 @@
             </p>
         </div>
         <div class="text-right shrink-0 pt-0.5">
-            <div class="flex items-baseline justify-end gap-2">
+            <div class="flex items-baseline justify-end gap-1.5">
                 <span class="text-[13.5px] font-semibold text-[#1C1917] tracking-tight">
                     ₹{{ number_format($product->effective_price) }}
                 </span>
-                @if($product->sale_price && $product->sale_price < $product->price)
+                @if($product->effective_mrp && $product->effective_mrp > $product->effective_price)
                     <s class="text-[11px] text-[#8E877D] font-light">
-                        ₹{{ number_format($product->price) }}
+                        ₹{{ number_format($product->effective_mrp) }}
                     </s>
                 @endif
             </div>

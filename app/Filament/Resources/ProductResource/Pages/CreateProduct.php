@@ -13,6 +13,7 @@ class CreateProduct extends CreateRecord
     {
         $canonicalPurities = ['14KT Gold', '18KT Gold', '22KT Gold'];
         $purities = array_values(array_filter((array) ($data['attributes']['gold_purities'] ?? [])));
+
         if (!empty($purities)) {
             usort($purities, function ($a, $b) use ($canonicalPurities) {
                 $posA = array_search($a, $canonicalPurities);
@@ -22,6 +23,73 @@ class CreateProduct extends CreateRecord
                 return $idxA <=> $idxB;
             });
             $data['attributes']['gold_purities'] = $purities;
+            $data['attributes']['pricing_mode'] = 'dynamic';
+        } else {
+            $data['attributes']['gold_purities'] = [];
+            $data['attributes']['pricing_mode'] = 'manual';
+        }
+
+        // If Automatic Gold Formula is active
+        if ($data['attributes']['pricing_mode'] === 'dynamic') {
+            $rates = \App\Services\BullionPricingService::getRates();
+            $making = (float) ($data['attributes']['making_charge'] ?? $rates['making_per_gram']);
+            if ($making <= 0) {
+                $making = (float) ($rates['making_per_gram'] ?: 750);
+            }
+            $diamond = (float) ($data['attributes']['diamond_value'] ?? 0);
+
+            // 1. Calculate each size variant price and auto-derive benchmark weight
+            if (!empty($data['attributes']['size_variants'])) {
+                $derivedWeight = 0;
+
+                foreach ($data['attributes']['size_variants'] as $idx => $v) {
+                    $vWeight = (float) ($v['weight_grams'] ?? 0);
+                    if ($vWeight > 0) {
+                        $c14 = \App\Services\BullionPricingService::calculateFinalPrice($vWeight, $making, $diamond, '14KT Gold', null, null, $vWeight);
+                        $c18 = \App\Services\BullionPricingService::calculateFinalPrice($vWeight, $making, $diamond, '18KT Gold', null, null, $vWeight);
+                        $c22 = \App\Services\BullionPricingService::calculateFinalPrice($vWeight, $making, $diamond, '22KT Gold', null, null, $vWeight);
+
+                        $data['attributes']['size_variants'][$idx]['price_14k'] = $c14['final_price'];
+                        $data['attributes']['size_variants'][$idx]['mrp_14k']   = $c14['mrp_price'];
+
+                        $data['attributes']['size_variants'][$idx]['price_18k'] = $c18['final_price'];
+                        $data['attributes']['size_variants'][$idx]['mrp_18k']   = $c18['mrp_price'];
+
+                        $data['attributes']['size_variants'][$idx]['price_22k'] = $c22['final_price'];
+                        $data['attributes']['size_variants'][$idx]['mrp_22k']   = $c22['mrp_price'];
+
+                        $data['attributes']['size_variants'][$idx]['price']     = $c18['final_price'];
+                        $data['attributes']['size_variants'][$idx]['mrp']       = $c18['mrp_price'];
+
+                        if (($v['size'] ?? '') === 'Size 12' || $derivedWeight <= 0) {
+                            $derivedWeight = $vWeight;
+                        }
+                    }
+                }
+
+                if ($derivedWeight > 0) {
+                    $data['attributes']['gold_weight_grams'] = $derivedWeight;
+                }
+            }
+
+            $weight = (float) ($data['attributes']['gold_weight_grams'] ?? 0);
+            if ($weight > 0) {
+                foreach ($purities as $p) {
+                    $calc = \App\Services\BullionPricingService::calculatePurityPrice(
+                        $p,
+                        $weight,
+                        $making,
+                        'per_gram',
+                        $diamond,
+                        $rates
+                    );
+                    $data['attributes']['purity_prices'][$p] = $calc['selling_price'];
+                    $data['attributes']['purity_mrp'][$p] = $calc['mrp_price'];
+                }
+
+                $data['attributes']['gold_weight'] = "{$weight} gms approx";
+                $data['attributes']['gold_rates_synced_at'] = now()->toDateTimeString();
+            }
 
             $firstPurity = $purities[0];
             $purityPrices = $data['attributes']['purity_prices'] ?? [];

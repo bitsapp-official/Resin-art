@@ -41,6 +41,9 @@ class SiteSettingSeeder extends Seeder
             ['key' => 'global_badge_3_title', 'value' => 'Free Insured', 'group' => 'general', 'label' => 'Global Trust Badge 3 Title', 'type' => 'text'],
             ['key' => 'global_badge_3_subtitle', 'value' => 'WORLDWIDE DISPATCH', 'group' => 'general', 'label' => 'Global Trust Badge 3 Subtitle', 'type' => 'text'],
 
+            // Bullion & Showcase Settings
+            ['key' => 'gold_mrp_markup_percent', 'value' => '20', 'group' => 'general', 'label' => 'Showcase MRP Markup %', 'type' => 'text'],
+
             // Invoice & GST Settings
             ['key' => 'invoice_brand_name', 'value' => 'Solitaire Fine Jewels', 'group' => 'invoice', 'label' => 'Brand Name', 'type' => 'text'],
             ['key' => 'invoice_brand_tagline', 'value' => 'Certified Natural Solitaires & Fine Gold Jewellery', 'group' => 'invoice', 'label' => 'Brand Tagline', 'type' => 'text'],

@@ -108,7 +108,7 @@ class WishlistController extends Controller
                 'cart_id' => $cart->id,
                 'product_id' => $product->id,
                 'quantity' => 1,
-                'price' => $product->effective_price,
+                'price' => \App\Services\BullionPricingService::resolveItemPrice($product, []),
             ]);
         }
 
