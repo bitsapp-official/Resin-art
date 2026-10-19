@@ -293,14 +293,8 @@ class ProductResource extends Resource
                         // 3. Dynamic Mode: Sizes & Purity Breakdown Table
                         Forms\Components\Group::make()
                             ->schema([
-                                Forms\Components\Grid::make(2)
+                                Forms\Components\Grid::make(1)
                                     ->schema([
-                                        Forms\Components\TextInput::make('attributes.size_label')
-                                            ->label('Size Dimension Classification')
-                                            ->placeholder('e.g. Ring Size, Chain Length, Wrist Size')
-                                            ->default('Ring Size')
-                                            ->helperText('Product variant dimension taxonomy shown on storefront.'),
-
                                         Forms\Components\TextInput::make('attributes.gold_weight_grams')
                                             ->label('Net Gold Weight (gm) - Single Piece Only')
                                             ->numeric()

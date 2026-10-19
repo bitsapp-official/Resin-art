@@ -1250,7 +1250,7 @@
                     <div class="space-y-2">
                         <div class="flex items-center justify-between gap-2">
                             <p class="text-[10px] uppercase tracking-[0.2em] font-semibold text-[#1C1917]">
-                                <span x-text="(sizeLabel || 'SIZE').toUpperCase()"></span>
+                                <span>SIZE</span>
                                 <span class="font-normal text-[#8E877D] tracking-normal ml-1" x-text="selectedSize ? '· ' + selectedSize : ''"></span>
                             </p>
                             <template x-if="currentGoldWeight > 0">
@@ -1569,7 +1569,7 @@
                                     </template>
                                     <template x-if="selectedSize">
                                         <div class="flex items-center justify-between px-5 py-3.5">
-                                            <span class="text-[11px] uppercase tracking-[0.16em] text-[#8E877D] font-medium" x-text="(sizeLabel || 'Ring Size').toUpperCase()"></span>
+                                            <span class="text-[11px] uppercase tracking-[0.16em] text-[#8E877D] font-medium">Size</span>
                                             <span class="text-xs sm:text-[13px] font-normal text-[#1C1917] tracking-normal" x-text="selectedSize"></span>
                                         </div>
                                     </template>
