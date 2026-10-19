@@ -253,7 +253,7 @@ class ProductResource extends Resource
                                     ->extraInputAttributes(['class' => '[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none', 'inputmode' => 'decimal'])
                                     ->prefix('₹')
                                     ->required()
-                                    ->placeholder('0 if plain gold')
+                                    ->placeholder('0')
                                     ->helperText('Total certified natural diamond & gemstone component value.')
                                     ->live(onBlur: true)
                                     ->afterStateUpdated(fn ($state, Forms\Set $set, Forms\Get $get) => self::syncAllSizePrices($get, $set)),
