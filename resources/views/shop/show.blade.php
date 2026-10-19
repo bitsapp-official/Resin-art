@@ -1548,13 +1548,13 @@
                                     <template x-if="currentGoldWeight > 0">
                                         <div class="flex items-center justify-between px-5 py-3.5">
                                             <span class="text-[11px] uppercase tracking-[0.16em] text-[#8E877D] font-medium">Approx. Gold Weight</span>
-                                            <span class="text-xs sm:text-[13px] font-semibold text-[#1C1917] tracking-wide" x-text="Number(currentGoldWeight).toFixed(2) + ' g'"></span>
+                                            <span class="text-xs sm:text-[13px] font-normal text-[#1C1917] tracking-normal" x-text="Number(currentGoldWeight).toFixed(2) + ' g'"></span>
                                         </div>
                                     </template>
                                     <template x-if="selectedPurity">
                                         <div class="flex items-center justify-between px-5 py-3.5">
                                             <span class="text-[11px] uppercase tracking-[0.16em] text-[#8E877D] font-medium">Gold Purity</span>
-                                            <span class="text-xs sm:text-[13px] font-semibold text-[#1C1917] tracking-wide" x-text="selectedPurity"></span>
+                                            <span class="text-xs sm:text-[13px] font-normal text-[#1C1917] tracking-normal" x-text="selectedPurity"></span>
                                         </div>
                                     </template>
                                 </div>
@@ -1564,13 +1564,13 @@
                                     <template x-if="selectedColor">
                                         <div class="flex items-center justify-between px-5 py-3.5">
                                             <span class="text-[11px] uppercase tracking-[0.16em] text-[#8E877D] font-medium">Metal Tone</span>
-                                            <span class="text-xs sm:text-[13px] font-semibold text-[#1C1917] tracking-wide" x-text="selectedColor"></span>
+                                            <span class="text-xs sm:text-[13px] font-normal text-[#1C1917] tracking-normal" x-text="selectedColor"></span>
                                         </div>
                                     </template>
                                     <template x-if="selectedSize">
                                         <div class="flex items-center justify-between px-5 py-3.5">
                                             <span class="text-[11px] uppercase tracking-[0.16em] text-[#8E877D] font-medium" x-text="(sizeLabel || 'Ring Size').toUpperCase()"></span>
-                                            <span class="text-xs sm:text-[13px] font-semibold text-[#1C1917] tracking-wide" x-text="selectedSize"></span>
+                                            <span class="text-xs sm:text-[13px] font-normal text-[#1C1917] tracking-normal" x-text="selectedSize"></span>
                                         </div>
                                     </template>
                                 </div>
@@ -1581,7 +1581,7 @@
                                         @if(!empty($product->diamond_carat))
                                             <div class="flex items-center justify-between px-5 py-3.5">
                                                 <span class="text-[11px] uppercase tracking-[0.16em] text-[#8E877D] font-medium">Diamond Weight</span>
-                                                <span class="text-xs sm:text-[13px] font-semibold text-[#1C1917] tracking-wide">{{ $product->diamond_carat }}</span>
+                                                <span class="text-xs sm:text-[13px] font-normal text-[#1C1917] tracking-normal">{{ $product->diamond_carat }}</span>
                                             </div>
                                         @else
                                             <div class="hidden sm:block"></div>
@@ -1590,7 +1590,7 @@
                                         @if(!empty($product->diamond_color_clarity))
                                             <div class="flex items-center justify-between px-5 py-3.5">
                                                 <span class="text-[11px] uppercase tracking-[0.16em] text-[#8E877D] font-medium">Color &amp; Clarity</span>
-                                                <span class="text-xs sm:text-[13px] font-semibold text-[#1C1917] tracking-wide">{{ $product->diamond_color_clarity }}</span>
+                                                <span class="text-xs sm:text-[13px] font-normal text-[#1C1917] tracking-normal">{{ $product->diamond_color_clarity }}</span>
                                             </div>
                                         @else
                                             <div class="hidden sm:block"></div>
@@ -1604,7 +1604,7 @@
                                         @if(!empty($product->diamond_cut))
                                             <div class="flex items-center justify-between px-5 py-3.5">
                                                 <span class="text-[11px] uppercase tracking-[0.16em] text-[#8E877D] font-medium">Cut / Shape</span>
-                                                <span class="text-xs sm:text-[13px] font-semibold text-[#1C1917] tracking-wide">{{ $product->diamond_cut }}</span>
+                                                <span class="text-xs sm:text-[13px] font-normal text-[#1C1917] tracking-normal">{{ $product->diamond_cut }}</span>
                                             </div>
                                         @else
                                             <div class="hidden sm:block"></div>
@@ -1613,7 +1613,7 @@
                                         @if(!empty($product->certification))
                                             <div class="flex items-center justify-between px-5 py-3.5">
                                                 <span class="text-[11px] uppercase tracking-[0.16em] text-[#8E877D] font-medium">Certification</span>
-                                                <span class="text-xs sm:text-[13px] font-semibold text-[#1C1917] tracking-wide">{{ $product->certification }}</span>
+                                                <span class="text-xs sm:text-[13px] font-normal text-[#1C1917] tracking-normal">{{ $product->certification }}</span>
                                             </div>
                                         @else
                                             <div class="hidden sm:block"></div>
@@ -1626,12 +1626,12 @@
                                     @if(!empty($product->sku))
                                         <div class="flex items-center justify-between px-5 py-3.5">
                                             <span class="text-[11px] uppercase tracking-[0.16em] text-[#8E877D] font-medium">Product Code</span>
-                                            <span class="text-xs sm:text-[13px] font-semibold text-[#1C1917] tracking-wide">{{ $product->sku }}</span>
+                                            <span class="text-xs sm:text-[13px] font-normal text-[#1C1917] tracking-normal">{{ $product->sku }}</span>
                                         </div>
                                     @endif
                                     <div class="flex items-center justify-between px-5 py-3.5">
                                         <span class="text-[11px] uppercase tracking-[0.16em] text-[#8E877D] font-medium">Crafting Type</span>
-                                        <span class="text-xs sm:text-[13px] font-semibold text-[#1C1917] tracking-wide">{{ $product->inventory_type === 'MADE_TO_ORDER' ? 'Custom Made to Order' : 'Ready to Ship' }}</span>
+                                        <span class="text-xs sm:text-[13px] font-normal text-[#1C1917] tracking-normal">{{ $product->inventory_type === 'MADE_TO_ORDER' ? 'Custom Made to Order' : 'Ready to Ship' }}</span>
                                     </div>
                                 </div>
                             </div>
