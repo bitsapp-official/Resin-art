@@ -154,7 +154,8 @@ class BullionPricingService
         ?string $purity = '18KT Gold',
         ?string $size = 'Size 12',
         ?float $live24kRate = null,
-        ?float $explicitWeightGrams = null
+        ?float $explicitWeightGrams = null,
+        ?float $profitMarginPercent = 0.0
     ): array {
         $rates = self::getRates();
         $rate24kt = ($live24kRate !== null && $live24kRate > 0) ? $live24kRate : $rates['rate_24kt'];
@@ -176,7 +177,11 @@ class BullionPricingService
 
         $subtotal = round($goldValue + $makingValue + $diamondValue, 2);
         $gstAmount = round($subtotal * 0.03, 2);
-        $finalPrice = (float) round($subtotal * 1.03);
+        $costWithGst = round($subtotal * 1.03, 2);
+
+        $marginPercent = (float) ($profitMarginPercent ?: 0.0);
+        $profitAmount = round($costWithGst * ($marginPercent / 100), 2);
+        $finalPrice = (float) round($costWithGst + $profitAmount);
 
         $rates = self::getRates();
         $markupPercent = (float) ($rates['mrp_markup_percent'] ?? 20.0);
@@ -197,6 +202,9 @@ class BullionPricingService
             'subtotal'               => $subtotal,
             'gst_rate'               => 3.0,
             'gst_amount'             => $gstAmount,
+            'cost_with_gst'          => $costWithGst,
+            'profit_margin_percent'  => $marginPercent,
+            'profit_amount'          => $profitAmount,
             'final_price'            => $finalPrice,
             'mrp_price'              => $mrpPrice,
             'discount_percent'       => $discountPercent,
@@ -273,6 +281,7 @@ class BullionPricingService
         $makingCharge = (float) ($attributes['making_charge'] ?? $rates['making_per_gram']);
         $makingType = (string) ($attributes['making_charge_type'] ?? 'per_gram');
         $diamondValue = (float) ($attributes['diamond_value'] ?? 0.0);
+        $profitMargin = (float) ($attributes['profit_margin_percent'] ?? 0.0);
 
         $selectedPurities = (array) ($attributes['gold_purities'] ?? self::PURITIES);
         $purityPrices = $attributes['purity_prices'] ?? [];
@@ -297,21 +306,20 @@ class BullionPricingService
             foreach ($attributes['size_variants'] as $idx => $v) {
                 $vWeight = (float) ($v['weight_grams'] ?? 0);
                 if ($vWeight > 0) {
-                    $c14 = self::calculateFinalPrice($vWeight, $makingCharge, $diamondValue, '14KT Gold', null, $rates['rate_24kt'], $vWeight);
-                    $c18 = self::calculateFinalPrice($vWeight, $makingCharge, $diamondValue, '18KT Gold', null, $rates['rate_24kt'], $vWeight);
-                    $c22 = self::calculateFinalPrice($vWeight, $makingCharge, $diamondValue, '22KT Gold', null, $rates['rate_24kt'], $vWeight);
+                    $c14 = self::calculateFinalPrice($vWeight, $makingCharge, $diamondValue, '14KT Gold', null, $rates['rate_24kt'], $vWeight, $profitMargin);
+                    $c18 = self::calculateFinalPrice($vWeight, $makingCharge, $diamondValue, '18KT Gold', null, $rates['rate_24kt'], $vWeight, $profitMargin);
+                    $c22 = self::calculateFinalPrice($vWeight, $makingCharge, $diamondValue, '22KT Gold', null, $rates['rate_24kt'], $vWeight, $profitMargin);
 
                     $attributes['size_variants'][$idx]['price_14k'] = $c14['final_price'];
-                    $attributes['size_variants'][$idx]['mrp_14k']   = $c14['mrp_price'];
-
                     $attributes['size_variants'][$idx]['price_18k'] = $c18['final_price'];
-                    $attributes['size_variants'][$idx]['mrp_18k']   = $c18['mrp_price'];
-
                     $attributes['size_variants'][$idx]['price_22k'] = $c22['final_price'];
-                    $attributes['size_variants'][$idx]['mrp_22k']   = $c22['mrp_price'];
-
                     $attributes['size_variants'][$idx]['price']     = $c18['final_price'];
-                    $attributes['size_variants'][$idx]['mrp']       = $c18['mrp_price'];
+
+                    // Retain manual cut/mrp prices if set by user; do not auto-force synthetic markup
+                    $attributes['size_variants'][$idx]['mrp_14k']   = !empty($v['mrp_14k']) ? (float) $v['mrp_14k'] : null;
+                    $attributes['size_variants'][$idx]['mrp_18k']   = !empty($v['mrp_18k']) ? (float) $v['mrp_18k'] : null;
+                    $attributes['size_variants'][$idx]['mrp_22k']   = !empty($v['mrp_22k']) ? (float) $v['mrp_22k'] : null;
+                    $attributes['size_variants'][$idx]['mrp']       = !empty($v['mrp_18k']) ? (float) $v['mrp_18k'] : null;
                 }
             }
         }
@@ -439,6 +447,7 @@ class BullionPricingService
                 }
             }
 
+            $profitMargin = (float) $product->profit_margin_percent;
             $calc = self::calculateFinalPrice(
                 $product->base_gold_weight,
                 $product->making_charge_per_gram,
@@ -446,7 +455,8 @@ class BullionPricingService
                 $purity,
                 $selectedSize ?: 'Size 12',
                 $rates['rate_24kt'],
-                $explicitWeight
+                $explicitWeight,
+                $profitMargin
             );
 
             return (float) $calc['final_price'];

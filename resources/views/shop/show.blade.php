@@ -439,6 +439,7 @@
                 baseGoldWeight: Number(config.baseGoldWeight) || 0,
                 makingChargePerGram: Number(config.makingChargePerGram) || 0,
                 diamondStoneValue: Number(config.diamondStoneValue) || 0,
+                profitMarginPercent: Number(config.profitMarginPercent) || 0,
                 rate24kt: Number(config.rate24kt) || 7600,
                 bullionRates: config.bullionRates || {},
 
@@ -498,13 +499,12 @@
                         const makingVal = Math.round(finalWeight * this.makingChargePerGram * 100) / 100;
                         const stoneVal = Math.round(this.diamondStoneValue * 100) / 100;
                         const subtotal = Math.round((goldVal + makingVal + stoneVal) * 100) / 100;
-                        const gst = Math.round(subtotal * 0.03 * 100) / 100;
-                        const finalPrice = Math.round(subtotal * 1.03);
+                        const costWithGst = Math.round(subtotal * 1.03 * 100) / 100;
+                        const margin = Number(this.profitMarginPercent) || 0;
+                        const finalPrice = Math.round(costWithGst * (1 + (margin / 100)));
 
-                        const markupPercent = (this.bullionRates && this.bullionRates.mrp_markup_percent) ? Number(this.bullionRates.mrp_markup_percent) : 20;
-                        let mrp = Math.round(finalPrice * (1 + (markupPercent / 100)));
-
-                        // If admin entered specific MRP on this size variant for current purity, respect it
+                        // Only show strikethrough cut price if manually set by admin
+                        let mrp = null;
                         if (sizeVariant) {
                             const pLower = (purity || '').toLowerCase();
                             if (pLower.includes('14') && sizeVariant.mrp_14k && Number(sizeVariant.mrp_14k) > 0) {
@@ -727,6 +727,7 @@
             baseGoldWeight: {{ (float) $product->base_gold_weight }},
             makingChargePerGram: {{ (float) $product->making_charge_per_gram }},
             diamondStoneValue: {{ (float) $product->diamond_stone_value }},
+            profitMarginPercent: {{ (float) ($product->jewellery_attributes['profit_margin_percent'] ?? 0) }},
             rate24kt: {{ (float) \App\Services\BullionPricingService::getRates()['rate_24kt'] }},
             bullionRates: @js(\App\Services\BullionPricingService::getRates()),
             sizeLabel: @js($product->size_label),
@@ -1195,64 +1196,6 @@
                         </a>
                     </div>
 
-                    {{-- Dynamic Price Breakdown Inline Card (Visible when dynamic pricing is active) --}}
-                    <template x-if="priceBreakdown.isDynamic">
-                        <div>
-                            <button type="button" @click="openBreakdown = !openBreakdown"
-                                    class="inline-flex items-center gap-1.5 text-[11px] font-medium text-[#A87432] hover:text-[#1C1917] transition-colors cursor-pointer group">
-                                <span class="underline underline-offset-4 decoration-[#E9DAC6] group-hover:decoration-[#1C1917]">View Price Breakup</span>
-                                <svg class="w-3 h-3 transition-transform duration-200" :class="openBreakdown ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                                </svg>
-                            </button>
-
-                            <div x-show="openBreakdown" x-cloak
-                                 x-transition:enter="transition ease-out duration-200"
-                                 x-transition:enter-start="opacity-0 -translate-y-2"
-                                 x-transition:enter-end="opacity-100 translate-y-0"
-                                 x-transition:leave="transition ease-in duration-150"
-                                 x-transition:leave-start="opacity-100 translate-y-0"
-                                 x-transition:leave-end="opacity-0 -translate-y-2"
-                                 class="mt-2.5 w-full bg-[#FAF8F5] rounded-2xl border border-[#DFD9CE]/70 p-4 sm:p-5 text-xs text-[#1C1917] space-y-2.5 shadow-2xs">
-                                <div class="flex items-center justify-between pb-2 border-b border-[#EAE4D9]">
-                                    <div class="flex items-center gap-2">
-                                        <span class="w-1.5 h-1.5 rounded-full bg-[#A87432]"></span>
-                                        <p class="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#8E877D]">
-                                            Transparent Valuation
-                                        </p>
-                                    </div>
-                                    <div class="flex items-center gap-2">
-                                        <span class="text-[9.5px] font-mono font-semibold px-2 py-0.5 rounded bg-white text-[#A87432] border border-[#E9DAC6]" x-text="selectedPurity"></span>
-                                        <button type="button" @click="openBreakdown = false" class="text-[#8E877D] hover:text-[#1C1917] text-xs p-1 cursor-pointer" title="Close">✕</button>
-                                    </div>
-                                </div>
-                                <div class="flex justify-between items-center text-[12px]">
-                                    <span class="text-[#78716C]">Gold (<span x-text="priceBreakdown.finalWeight"></span>g @ ₹<span x-text="formatPrice(getKaratGoldRate(selectedPurity))"></span>/g):</span>
-                                    <span class="font-medium font-sans">₹ <span x-text="formatPrice(priceBreakdown.goldValue)"></span></span>
-                                </div>
-                                <div class="flex justify-between items-center text-[12px]">
-                                    <span class="text-[#78716C]">Making Charges:</span>
-                                    <span class="font-medium font-sans">₹ <span x-text="formatPrice(priceBreakdown.makingValue)"></span></span>
-                                </div>
-                                <div class="flex justify-between items-center text-[12px]">
-                                    <span class="text-[#78716C]">Diamonds &amp; Gemstones:</span>
-                                    <span class="font-medium font-sans">₹ <span x-text="formatPrice(priceBreakdown.diamondValue || 0)"></span></span>
-                                </div>
-                                <div class="flex justify-between items-center text-[12px] pt-1.5 border-t border-dashed border-[#EAE4D9] text-[#78716C]">
-                                    <span>Net Subtotal:</span>
-                                    <span class="font-medium font-sans text-[#1C1917]">₹ <span x-text="formatPrice(priceBreakdown.subtotal)"></span></span>
-                                </div>
-                                <div class="flex justify-between items-center text-[12px]">
-                                    <span class="text-[#78716C]">Applicable GST (3%):</span>
-                                    <span class="font-medium font-sans">₹ <span x-text="formatPrice(priceBreakdown.gstAmount)"></span></span>
-                                </div>
-                                <div class="pt-2.5 border-t border-[#EAE4D9] flex justify-between items-center font-semibold text-xs">
-                                    <span class="text-[#1C1917]">Final Calculated Price:</span>
-                                    <span class="text-[#A87432] font-sans text-sm sm:text-base font-bold">₹ <span x-text="formatPrice(priceBreakdown.finalPrice)"></span></span>
-                                </div>
-                            </div>
-                        </div>
-                    </template>
                 </div>
 
 

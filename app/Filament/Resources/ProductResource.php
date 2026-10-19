@@ -231,8 +231,8 @@ class ProductResource extends Resource
                         Forms\Components\Hidden::make('attributes.pricing_mode')
                             ->default('dynamic'),
 
-                        // 1. Dynamic Formula Parameters (Making Charge & Diamond Value)
-                        Forms\Components\Grid::make(2)
+                        // 1. Dynamic Formula Parameters (Making Charge, Diamond Value & Profit Margin %)
+                        Forms\Components\Grid::make(3)
                             ->schema([
                                 Forms\Components\TextInput::make('attributes.making_charge')
                                     ->label('Making / Wastage Charge (₹ / gm)')
@@ -252,9 +252,20 @@ class ProductResource extends Resource
                                     ->step('any')
                                     ->extraInputAttributes(['class' => '[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none', 'inputmode' => 'decimal'])
                                     ->prefix('₹')
-                                    ->default(0)
+                                    ->required()
                                     ->placeholder('0 if plain gold')
                                     ->helperText('Total certified natural diamond & gemstone component value.')
+                                    ->live(onBlur: true)
+                                    ->afterStateUpdated(fn ($state, Forms\Set $set, Forms\Get $get) => self::syncAllSizePrices($get, $set)),
+
+                                Forms\Components\TextInput::make('attributes.profit_margin_percent')
+                                    ->label('Profit Margin (%)')
+                                    ->numeric()
+                                    ->step('any')
+                                    ->extraInputAttributes(['class' => '[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none', 'inputmode' => 'decimal'])
+                                    ->suffix('%')
+                                    ->placeholder('e.g. 5')
+                                    ->helperText('Profit margin percentage added on total cost (Gold + Making + Diamond + GST).')
                                     ->live(onBlur: true)
                                     ->afterStateUpdated(fn ($state, Forms\Set $set, Forms\Get $get) => self::syncAllSizePrices($get, $set)),
                             ]),
@@ -303,13 +314,12 @@ class ProductResource extends Resource
                                         ->action(function (Forms\Set $set, Forms\Get $get) {
                                             $set('attributes.size_label', 'Ring Size');
                                             $set('attributes.size_variants', [
-                                                ['size' => 'Size 10', 'weight_grams' => 3.60],
-                                                ['size' => 'Size 12', 'weight_grams' => 4.00],
-                                                ['size' => 'Size 14', 'weight_grams' => 4.20],
-                                                ['size' => 'Size 16', 'weight_grams' => 4.50],
-                                                ['size' => 'Size 18', 'weight_grams' => 4.90],
+                                                ['size' => 'Size 10', 'weight_grams' => null],
+                                                ['size' => 'Size 12', 'weight_grams' => null],
+                                                ['size' => 'Size 14', 'weight_grams' => null],
+                                                ['size' => 'Size 16', 'weight_grams' => null],
+                                                ['size' => 'Size 18', 'weight_grams' => null],
                                             ]);
-                                            self::syncAllSizePrices($get, $set);
                                         }),
 
                                     Forms\Components\Actions\Action::make('loadChainSizes')
@@ -319,11 +329,10 @@ class ProductResource extends Resource
                                         ->action(function (Forms\Set $set, Forms\Get $get) {
                                             $set('attributes.size_label', 'Chain Length');
                                             $set('attributes.size_variants', [
-                                                ['size' => '16 Inch', 'weight_grams' => 5.20],
-                                                ['size' => '18 Inch', 'weight_grams' => 5.80],
-                                                ['size' => '20 Inch', 'weight_grams' => 6.50],
+                                                ['size' => '16 Inch', 'weight_grams' => null],
+                                                ['size' => '18 Inch', 'weight_grams' => null],
+                                                ['size' => '20 Inch', 'weight_grams' => null],
                                             ]);
-                                            self::syncAllSizePrices($get, $set);
                                         }),
 
                                     Forms\Components\Actions\Action::make('loadBraceletSizes')
@@ -333,17 +342,16 @@ class ProductResource extends Resource
                                         ->action(function (Forms\Set $set, Forms\Get $get) {
                                             $set('attributes.size_label', 'Wrist Size');
                                             $set('attributes.size_variants', [
-                                                ['size' => '6.5 Inch', 'weight_grams' => 4.80],
-                                                ['size' => '7.0 Inch', 'weight_grams' => 5.20],
-                                                ['size' => '7.5 Inch', 'weight_grams' => 5.60],
+                                                ['size' => '6.5 Inch', 'weight_grams' => null],
+                                                ['size' => '7.0 Inch', 'weight_grams' => null],
+                                                ['size' => '7.5 Inch', 'weight_grams' => null],
                                             ]);
-                                            self::syncAllSizePrices($get, $set);
                                         }),
                                 ]),
 
                                 Forms\Components\Repeater::make('attributes.size_variants')
                                     ->label('Dynamic Multi-Purity Valuation Matrix (14KT, 18KT & 22KT)')
-                                    ->helperText('Real-time bullion price engine automatically calculates live Selling Prices and Strikethrough Showcase MRPs (25% markup) across 14KT, 18KT, and 22KT purities per size. Values can be fine-tuned manually per variant.')
+                                    ->helperText('Add sizes and enter Exact Gold Weight (gm) to calculate prices, or enter Selling & Cut prices directly per size.')
                                     ->schema([
                                         Forms\Components\Grid::make([
                                             'default' => 2,
@@ -363,8 +371,8 @@ class ProductResource extends Resource
                                                 ->step('any')
                                                 ->extraInputAttributes(['class' => '[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none', 'inputmode' => 'decimal'])
                                                 ->suffix('gm')
-                                                ->placeholder('e.g. 4.00')
-                                                ->required()
+                                                ->placeholder('Enter weight (e.g. 3.50)')
+                                                ->nullable()
                                                 ->live(onBlur: true)
                                                 ->afterStateUpdated(function ($state, Forms\Set $set, Forms\Get $get) {
                                                     self::calculateAllPuritiesForVariant($state, $set, $get);
@@ -394,7 +402,8 @@ class ProductResource extends Resource
                                                     if ($w <= 0) return null;
                                                     $m = self::resolveMakingCharge($get);
                                                     $d = self::resolveDiamondValue($get);
-                                                    $c = \App\Services\BullionPricingService::calculateFinalPrice($w, $m, $d, '14KT Gold', null, null, $w);
+                                                    $p = self::resolveProfitMargin($get);
+                                                    $c = \App\Services\BullionPricingService::calculateFinalPrice($w, $m, $d, '14KT Gold', null, null, $w, $p);
                                                     return $c['final_price'];
                                                 })
                                                 ->placeholder('Auto 14K Sell')
@@ -416,16 +425,7 @@ class ProductResource extends Resource
                                                     }
                                                     return in_array('14KT Gold', (array) $purities, true);
                                                 })
-                                                ->formatStateUsing(function ($state, Forms\Get $get) {
-                                                    if (!empty($state)) return $state;
-                                                    $w = (float) ($get('weight_grams') ?? 0);
-                                                    if ($w <= 0) return null;
-                                                    $m = self::resolveMakingCharge($get);
-                                                    $d = self::resolveDiamondValue($get);
-                                                    $c = \App\Services\BullionPricingService::calculateFinalPrice($w, $m, $d, '14KT Gold', null, null, $w);
-                                                    return $c['mrp_price'];
-                                                })
-                                                ->placeholder('Auto 14K Cut')
+                                                ->placeholder('Manual 14K Cut')
                                                 ->columnSpan(['default' => 1, 'md' => 1, 'lg' => 1]),
 
                                             Forms\Components\TextInput::make('price_18k')
@@ -450,7 +450,8 @@ class ProductResource extends Resource
                                                     if ($w <= 0) return null;
                                                     $m = self::resolveMakingCharge($get);
                                                     $d = self::resolveDiamondValue($get);
-                                                    $c = \App\Services\BullionPricingService::calculateFinalPrice($w, $m, $d, '18KT Gold', null, null, $w);
+                                                    $p = self::resolveProfitMargin($get);
+                                                    $c = \App\Services\BullionPricingService::calculateFinalPrice($w, $m, $d, '18KT Gold', null, null, $w, $p);
                                                     return $c['final_price'];
                                                 })
                                                 ->placeholder('Auto 18K Sell')
@@ -472,16 +473,7 @@ class ProductResource extends Resource
                                                     }
                                                     return in_array('18KT Gold', (array) $purities, true);
                                                 })
-                                                ->formatStateUsing(function ($state, Forms\Get $get) {
-                                                    if (!empty($state)) return $state;
-                                                    $w = (float) ($get('weight_grams') ?? 0);
-                                                    if ($w <= 0) return null;
-                                                    $m = self::resolveMakingCharge($get);
-                                                    $d = self::resolveDiamondValue($get);
-                                                    $c = \App\Services\BullionPricingService::calculateFinalPrice($w, $m, $d, '18KT Gold', null, null, $w);
-                                                    return $c['mrp_price'];
-                                                })
-                                                ->placeholder('Auto 18K Cut')
+                                                ->placeholder('Manual 18K Cut')
                                                 ->columnSpan(['default' => 1, 'md' => 1, 'lg' => 1]),
 
                                             Forms\Components\TextInput::make('price_22k')
@@ -506,7 +498,8 @@ class ProductResource extends Resource
                                                     if ($w <= 0) return null;
                                                     $m = self::resolveMakingCharge($get);
                                                     $d = self::resolveDiamondValue($get);
-                                                    $c = \App\Services\BullionPricingService::calculateFinalPrice($w, $m, $d, '22KT Gold', null, null, $w);
+                                                    $p = self::resolveProfitMargin($get);
+                                                    $c = \App\Services\BullionPricingService::calculateFinalPrice($w, $m, $d, '22KT Gold', null, null, $w, $p);
                                                     return $c['final_price'];
                                                 })
                                                 ->placeholder('Auto 22K Sell')
@@ -528,16 +521,7 @@ class ProductResource extends Resource
                                                     }
                                                     return in_array('22KT Gold', (array) $purities, true);
                                                 })
-                                                ->formatStateUsing(function ($state, Forms\Get $get) {
-                                                    if (!empty($state)) return $state;
-                                                    $w = (float) ($get('weight_grams') ?? 0);
-                                                    if ($w <= 0) return null;
-                                                    $m = self::resolveMakingCharge($get);
-                                                    $d = self::resolveDiamondValue($get);
-                                                    $c = \App\Services\BullionPricingService::calculateFinalPrice($w, $m, $d, '22KT Gold', null, null, $w);
-                                                    return $c['mrp_price'];
-                                                })
-                                                ->placeholder('Auto 22K Cut')
+                                                ->placeholder('Manual 22K Cut')
                                                 ->columnSpan(['default' => 1, 'md' => 1, 'lg' => 1]),
                                         ]),
 
@@ -874,6 +858,18 @@ class ProductResource extends Resource
         return (float) ($val ?: 0);
     }
 
+    public static function resolveProfitMargin(Forms\Get $get): float
+    {
+        $val = $get('attributes.profit_margin_percent')
+            ?? $get('../../profit_margin_percent')
+            ?? $get('../../../attributes.profit_margin_percent')
+            ?? $get('../../attributes.profit_margin_percent')
+            ?? $get('data.attributes.profit_margin_percent', isAbsolute: true)
+            ?? $get('attributes.profit_margin_percent', isAbsolute: true);
+
+        return (float) ($val ?: 0);
+    }
+
     public static function resolveSizeVariants(Forms\Get $get): array
     {
         return (array) (
@@ -901,22 +897,31 @@ class ProductResource extends Resource
 
         $making = self::resolveMakingCharge($get);
         $diamond = self::resolveDiamondValue($get);
+        $profit = self::resolveProfitMargin($get);
 
-        $c14 = \App\Services\BullionPricingService::calculateFinalPrice($weight, $making, $diamond, '14KT Gold', null, null, $weight);
-        $c18 = \App\Services\BullionPricingService::calculateFinalPrice($weight, $making, $diamond, '18KT Gold', null, null, $weight);
-        $c22 = \App\Services\BullionPricingService::calculateFinalPrice($weight, $making, $diamond, '22KT Gold', null, null, $weight);
+        $c14 = \App\Services\BullionPricingService::calculateFinalPrice($weight, $making, $diamond, '14KT Gold', null, null, $weight, $profit);
+        $c18 = \App\Services\BullionPricingService::calculateFinalPrice($weight, $making, $diamond, '18KT Gold', null, null, $weight, $profit);
+        $c22 = \App\Services\BullionPricingService::calculateFinalPrice($weight, $making, $diamond, '22KT Gold', null, null, $weight, $profit);
 
         $set('price_14k', $c14['final_price']);
-        $set('mrp_14k',   $c14['mrp_price']);
+        if ($get('mrp_14k') === null || $get('mrp_14k') === '') {
+            $set('mrp_14k', null);
+        }
 
         $set('price_18k', $c18['final_price']);
-        $set('mrp_18k',   $c18['mrp_price']);
+        if ($get('mrp_18k') === null || $get('mrp_18k') === '') {
+            $set('mrp_18k', null);
+        }
 
         $set('price_22k', $c22['final_price']);
-        $set('mrp_22k',   $c22['mrp_price']);
+        if ($get('mrp_22k') === null || $get('mrp_22k') === '') {
+            $set('mrp_22k', null);
+        }
 
         $set('price',     $c18['final_price']);
-        $set('mrp',       $c18['mrp_price']);
+        if ($get('mrp') === null || $get('mrp') === '') {
+            $set('mrp', null);
+        }
     }
 
     public static function syncAllSizePrices(Forms\Get $get, Forms\Set $set): void
@@ -928,26 +933,20 @@ class ProductResource extends Resource
 
         $making = self::resolveMakingCharge($get);
         $diamond = self::resolveDiamondValue($get);
+        $profit = self::resolveProfitMargin($get);
 
         $updated = false;
         foreach ($variants as $index => $variant) {
             $weight = (float) ($variant['weight_grams'] ?? 0);
             if ($weight > 0) {
-                $c14 = \App\Services\BullionPricingService::calculateFinalPrice($weight, $making, $diamond, '14KT Gold', null, null, $weight);
-                $c18 = \App\Services\BullionPricingService::calculateFinalPrice($weight, $making, $diamond, '18KT Gold', null, null, $weight);
-                $c22 = \App\Services\BullionPricingService::calculateFinalPrice($weight, $making, $diamond, '22KT Gold', null, null, $weight);
+                $c14 = \App\Services\BullionPricingService::calculateFinalPrice($weight, $making, $diamond, '14KT Gold', null, null, $weight, $profit);
+                $c18 = \App\Services\BullionPricingService::calculateFinalPrice($weight, $making, $diamond, '18KT Gold', null, null, $weight, $profit);
+                $c22 = \App\Services\BullionPricingService::calculateFinalPrice($weight, $making, $diamond, '22KT Gold', null, null, $weight, $profit);
 
                 $variants[$index]['price_14k'] = $c14['final_price'];
-                $variants[$index]['mrp_14k']   = $c14['mrp_price'];
-
                 $variants[$index]['price_18k'] = $c18['final_price'];
-                $variants[$index]['mrp_18k']   = $c18['mrp_price'];
-
                 $variants[$index]['price_22k'] = $c22['final_price'];
-                $variants[$index]['mrp_22k']   = $c22['mrp_price'];
-
                 $variants[$index]['price']     = $c18['final_price'];
-                $variants[$index]['mrp']       = $c18['mrp_price'];
                 $updated = true;
             }
         }

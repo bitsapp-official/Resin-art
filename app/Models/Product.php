@@ -221,6 +221,15 @@ class Product extends Model
         return 0.0;
     }
 
+    public function getProfitMarginPercentAttribute(): float
+    {
+        $attrs = $this->jewellery_attributes;
+        if (isset($attrs['profit_margin_percent']) && is_numeric($attrs['profit_margin_percent'])) {
+            return (float) $attrs['profit_margin_percent'];
+        }
+        return 0.0;
+    }
+
     /**
      * Metallurgical density multiplier:
      * 14K / 14KT = 1.000 (Base density anchor)
@@ -280,7 +289,10 @@ class Product extends Model
                 $this->making_charge_per_gram,
                 $this->diamond_stone_value,
                 $firstPurity,
-                'Size 12'
+                'Size 12',
+                null,
+                null,
+                $this->profit_margin_percent
             );
             return (float) $calc['final_price'];
         }
@@ -312,7 +324,10 @@ class Product extends Model
                 $this->making_charge_per_gram,
                 $this->diamond_stone_value,
                 $firstPurity,
-                'Size 12'
+                'Size 12',
+                null,
+                null,
+                $this->profit_margin_percent
             );
             return (float) $calc['mrp_price'];
         }

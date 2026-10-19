@@ -36,7 +36,6 @@ class GoldRatesSettings extends Page implements HasForms
     public ?string $gold_rate_18kt = null;
     public ?string $gold_rate_14kt = null;
     public ?string $gold_gst_rate = null;
-    public ?string $gold_mrp_markup_percent = null;
     public ?string $gold_rates_updated_at = null;
 
     public function mount(): void
@@ -48,7 +47,6 @@ class GoldRatesSettings extends Page implements HasForms
             'gold_rate_18kt'           => (string) $rates['rate_18kt'],
             'gold_rate_14kt'           => (string) $rates['rate_14kt'],
             'gold_gst_rate'            => (string) $rates['gst_rate'],
-            'gold_mrp_markup_percent'  => (string) ($rates['mrp_markup_percent'] ?? 20),
             'gold_rates_updated_at'    => $rates['updated_at'],
         ]);
     }
@@ -84,21 +82,6 @@ class GoldRatesSettings extends Page implements HasForms
                                 ->required()
                                 ->placeholder('e.g. 4433')
                                 ->helperText('Standard 14K (585) modern luxury gold rate per gram.'),
-                        ]),
-                    ]),
-
-                Section::make('Storefront Showcase MRP & Discount Logic')
-                    ->description('Control the automatic strikethrough (underline / cut) MRP displayed across product pages, catalog cards, and size variants.')
-                    ->schema([
-                        Grid::make(2)->schema([
-                            TextInput::make('gold_mrp_markup_percent')
-                                ->label('Global MRP Markup Percentage (%)')
-                                ->numeric()
-                                ->suffix('%')
-                                ->default('20')
-                                ->required()
-                                ->placeholder('20')
-                                ->helperText('Standard e-commerce markup (20% markup gives a Solitairekart-style ~17% discount display). Both Selling Price & Underline Price automatically scale with size & purity.'),
                         ]),
                     ]),
 
@@ -151,7 +134,6 @@ class GoldRatesSettings extends Page implements HasForms
         SiteSetting::set('gold_rate_18kt', $data['gold_rate_18kt'] ?? '5700');
         SiteSetting::set('gold_rate_14kt', $data['gold_rate_14kt'] ?? '4433');
         SiteSetting::set('gold_gst_rate', $data['gold_gst_rate'] ?? '3');
-        SiteSetting::set('gold_mrp_markup_percent', $data['gold_mrp_markup_percent'] ?? '20');
         SiteSetting::set('gold_rates_updated_at', now()->toDateTimeString());
 
         $this->gold_rates_updated_at = now()->toDateTimeString();

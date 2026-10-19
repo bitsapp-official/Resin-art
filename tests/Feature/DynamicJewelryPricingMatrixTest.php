@@ -566,6 +566,34 @@ class DynamicJewelryPricingMatrixTest extends TestCase
 
         $this->assertEquals(4200000, $capturedParams['line_items'][0]['price_data']['unit_amount']);
     }
+
+    public function test_dynamic_pricing_with_profit_margin_percentage(): void
+    {
+        // Cost: Gold (22800) + Making (3200) + Diamond (20000) = 46000
+        // Cost with GST: 46000 * 1.03 = 47380
+        // Profit Margin (5%): 47380 * 0.05 = 2369
+        // Final Selling Price: 47380 + 2369 = 49749
+        $calc = BullionPricingService::calculateFinalPrice(
+            baseGoldWeight: 4.0,
+            makingChargePerGram: 800.0,
+            diamondStoneValue: 20000.0,
+            purity: '18KT Gold',
+            size: 'Size 14',
+            live24kRate: 7600.0,
+            explicitWeightGrams: 4.0,
+            profitMarginPercent: 5.0
+        );
+
+        $this->assertEquals(4.0, $calc['final_gold_weight']);
+        $this->assertEquals(22800.0, $calc['gold_value']);
+        $this->assertEquals(3200.0, $calc['making_value']);
+        $this->assertEquals(20000.0, $calc['diamond_stone_value']);
+        $this->assertEquals(46000.0, $calc['subtotal']);
+        $this->assertEquals(47380.0, $calc['cost_with_gst']);
+        $this->assertEquals(5.0, $calc['profit_margin_percent']);
+        $this->assertEquals(2369.0, $calc['profit_amount']);
+        $this->assertEquals(49749.0, $calc['final_price']);
+    }
 }
 
 

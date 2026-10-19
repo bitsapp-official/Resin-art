@@ -47,6 +47,7 @@ class EditProduct extends EditRecord
                 $making = (float) ($rates['making_per_gram'] ?: 750);
             }
             $diamond = (float) ($data['attributes']['diamond_value'] ?? 0);
+            $profit = (float) ($data['attributes']['profit_margin_percent'] ?? 0);
 
             // 1. Calculate each size variant price and auto-derive benchmark weight
             if (!empty($data['attributes']['size_variants'])) {
@@ -54,22 +55,26 @@ class EditProduct extends EditRecord
 
                 foreach ($data['attributes']['size_variants'] as $idx => $v) {
                     $vWeight = (float) ($v['weight_grams'] ?? 0);
+                    $userMrp14k = !empty($v['mrp_14k']) ? (float) $v['mrp_14k'] : null;
+                    $userMrp18k = !empty($v['mrp_18k']) ? (float) $v['mrp_18k'] : null;
+                    $userMrp22k = !empty($v['mrp_22k']) ? (float) $v['mrp_22k'] : null;
+
                     if ($vWeight > 0) {
-                        $c14 = \App\Services\BullionPricingService::calculateFinalPrice($vWeight, $making, $diamond, '14KT Gold', null, null, $vWeight);
-                        $c18 = \App\Services\BullionPricingService::calculateFinalPrice($vWeight, $making, $diamond, '18KT Gold', null, null, $vWeight);
-                        $c22 = \App\Services\BullionPricingService::calculateFinalPrice($vWeight, $making, $diamond, '22KT Gold', null, null, $vWeight);
+                        $c14 = \App\Services\BullionPricingService::calculateFinalPrice($vWeight, $making, $diamond, '14KT Gold', null, null, $vWeight, $profit);
+                        $c18 = \App\Services\BullionPricingService::calculateFinalPrice($vWeight, $making, $diamond, '18KT Gold', null, null, $vWeight, $profit);
+                        $c22 = \App\Services\BullionPricingService::calculateFinalPrice($vWeight, $making, $diamond, '22KT Gold', null, null, $vWeight, $profit);
 
                         $data['attributes']['size_variants'][$idx]['price_14k'] = $c14['final_price'];
-                        $data['attributes']['size_variants'][$idx]['mrp_14k']   = $c14['mrp_price'];
+                        $data['attributes']['size_variants'][$idx]['mrp_14k']   = $userMrp14k;
 
                         $data['attributes']['size_variants'][$idx]['price_18k'] = $c18['final_price'];
-                        $data['attributes']['size_variants'][$idx]['mrp_18k']   = $c18['mrp_price'];
+                        $data['attributes']['size_variants'][$idx]['mrp_18k']   = $userMrp18k;
 
                         $data['attributes']['size_variants'][$idx]['price_22k'] = $c22['final_price'];
-                        $data['attributes']['size_variants'][$idx]['mrp_22k']   = $c22['mrp_price'];
+                        $data['attributes']['size_variants'][$idx]['mrp_22k']   = $userMrp22k;
 
                         $data['attributes']['size_variants'][$idx]['price']     = $c18['final_price'];
-                        $data['attributes']['size_variants'][$idx]['mrp']       = $c18['mrp_price'];
+                        $data['attributes']['size_variants'][$idx]['mrp']       = $userMrp18k;
 
                         if (($v['size'] ?? '') === 'Size 12' || $derivedWeight <= 0) {
                             $derivedWeight = $vWeight;
