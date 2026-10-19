@@ -1533,107 +1533,95 @@
                             {!! $product->description ?? 'Master handcrafted fine jewellery featuring certified natural diamonds set in hallmarked gold. Created with enduring luxury and bespoke attention to detail.' !!}
                         </div>
 
-                        {{-- Fine Jewellery Specifications (Structured Luxury Atelier Card) --}}
-                        <div class="mt-6">
-                            <div class="flex items-center justify-between mb-5">
-                                <h4 class="font-editorial text-2xl sm:text-3xl text-[#1C1917] font-normal tracking-tight">
-                                    Jewellery <em class="italic font-light">Specifications</em>
-                                </h4>
-                                <span class="text-[9px] uppercase tracking-[0.2em] text-[#8E877D] font-medium hidden sm:inline-block">Authentic Fine Jewels</span>
-                            </div>
+                        {{-- Fine Jewellery Specifications (Clean Structured Table) --}}
+                        <div class="mt-8">
+                            <h4 class="font-editorial text-2xl sm:text-3xl text-[#1C1917] font-normal tracking-tight mb-4 flex items-center justify-between">
+                                <span>Jewellery <em class="italic font-light">Specifications</em></span>
+                                <span class="text-[9px] uppercase tracking-[0.2em] text-[#8E877D] font-sans font-medium hidden sm:inline-block">Authentic Fine Jewels</span>
+                            </h4>
 
-                            <div class="bg-[#FAF8F5]/80 border border-[#E6E1D7] rounded-2xl overflow-hidden divide-y divide-[#E6E1D7]">
-                                {{-- Row 1: Gold Weight & Purity --}}
-                                <div class="grid grid-cols-1 sm:grid-cols-2 divide-y sm:divide-y-0 sm:divide-x divide-[#E6E1D7]">
-                                    <template x-if="currentGoldWeight > 0">
-                                        <div class="flex items-center justify-between px-5 py-3.5">
-                                            <span class="text-[11px] uppercase tracking-[0.16em] text-[#8E877D] font-medium">Approx. Gold Weight</span>
-                                            <span class="text-xs sm:text-[13px] font-normal text-[#1C1917] tracking-normal" x-text="Number(currentGoldWeight).toFixed(2) + ' g'"></span>
-                                        </div>
-                                    </template>
-                                    <template x-if="selectedPurity">
-                                        <div class="flex items-center justify-between px-5 py-3.5">
-                                            <span class="text-[11px] uppercase tracking-[0.16em] text-[#8E877D] font-medium">Gold Purity</span>
-                                            <span class="text-xs sm:text-[13px] font-normal text-[#1C1917] tracking-normal" x-text="selectedPurity"></span>
-                                        </div>
-                                    </template>
-                                </div>
+                            <div class="overflow-hidden border border-[#E6E1D7] rounded-2xl bg-[#FAF8F5]/60 shadow-2xs">
+                                <table class="w-full text-left text-xs border-collapse">
+                                    <tbody class="divide-y divide-[#E6E1D7]">
+                                        {{-- Row 1: Gold Weight --}}
+                                        <template x-if="currentGoldWeight > 0">
+                                            <tr class="hover:bg-white/60 transition-colors">
+                                                <th class="py-3 px-5 text-[11px] uppercase tracking-[0.16em] text-[#8E877D] font-medium w-1/3 sm:w-1/4">Approx. Gold Weight</th>
+                                                <td class="py-3 px-5 text-xs sm:text-[13px] font-normal text-[#1C1917]" x-text="Number(currentGoldWeight).toFixed(2) + ' g'"></td>
+                                            </tr>
+                                        </template>
 
-                                {{-- Row 2: Metal Tone & Size --}}
-                                <div class="grid grid-cols-1 sm:grid-cols-2 divide-y sm:divide-y-0 sm:divide-x divide-[#E6E1D7]">
-                                    <template x-if="selectedColor">
-                                        <div class="flex items-center justify-between px-5 py-3.5">
-                                            <span class="text-[11px] uppercase tracking-[0.16em] text-[#8E877D] font-medium">Metal Tone</span>
-                                            <span class="text-xs sm:text-[13px] font-normal text-[#1C1917] tracking-normal" x-text="selectedColor"></span>
-                                        </div>
-                                    </template>
-                                    <template x-if="selectedSize">
-                                        <div class="flex items-center justify-between px-5 py-3.5">
-                                            <span class="text-[11px] uppercase tracking-[0.16em] text-[#8E877D] font-medium">Size</span>
-                                            <span class="text-xs sm:text-[13px] font-normal text-[#1C1917] tracking-normal" x-text="selectedSize"></span>
-                                        </div>
-                                    </template>
-                                </div>
+                                        {{-- Row 2: Gold Purity --}}
+                                        <template x-if="selectedPurity">
+                                            <tr class="hover:bg-white/60 transition-colors">
+                                                <th class="py-3 px-5 text-[11px] uppercase tracking-[0.16em] text-[#8E877D] font-medium w-1/3 sm:w-1/4">Gold Purity</th>
+                                                <td class="py-3 px-5 text-xs sm:text-[13px] font-normal text-[#1C1917]" x-text="selectedPurity"></td>
+                                            </tr>
+                                        </template>
 
-                                {{-- Row 3: Diamonds (Carat & Clarity if present) --}}
-                                @if(!empty($product->diamond_carat) || !empty($product->diamond_color_clarity))
-                                    <div class="grid grid-cols-1 sm:grid-cols-2 divide-y sm:divide-y-0 sm:divide-x divide-[#E6E1D7]">
+                                        {{-- Row 3: Metal Tone --}}
+                                        <template x-if="selectedColor">
+                                            <tr class="hover:bg-white/60 transition-colors">
+                                                <th class="py-3 px-5 text-[11px] uppercase tracking-[0.16em] text-[#8E877D] font-medium w-1/3 sm:w-1/4">Metal Tone</th>
+                                                <td class="py-3 px-5 text-xs sm:text-[13px] font-normal text-[#1C1917]" x-text="selectedColor"></td>
+                                            </tr>
+                                        </template>
+
+                                        {{-- Row 4: Size --}}
+                                        <template x-if="selectedSize">
+                                            <tr class="hover:bg-white/60 transition-colors">
+                                                <th class="py-3 px-5 text-[11px] uppercase tracking-[0.16em] text-[#8E877D] font-medium w-1/3 sm:w-1/4">Size</th>
+                                                <td class="py-3 px-5 text-xs sm:text-[13px] font-normal text-[#1C1917]" x-text="selectedSize"></td>
+                                            </tr>
+                                        </template>
+
+                                        {{-- Row 5: Diamond Weight --}}
                                         @if(!empty($product->diamond_carat))
-                                            <div class="flex items-center justify-between px-5 py-3.5">
-                                                <span class="text-[11px] uppercase tracking-[0.16em] text-[#8E877D] font-medium">Diamond Weight</span>
-                                                <span class="text-xs sm:text-[13px] font-normal text-[#1C1917] tracking-normal">{{ $product->diamond_carat }}</span>
-                                            </div>
-                                        @else
-                                            <div class="hidden sm:block"></div>
+                                            <tr class="hover:bg-white/60 transition-colors">
+                                                <th class="py-3 px-5 text-[11px] uppercase tracking-[0.16em] text-[#8E877D] font-medium w-1/3 sm:w-1/4">Diamond Weight</th>
+                                                <td class="py-3 px-5 text-xs sm:text-[13px] font-normal text-[#1C1917]">{{ $product->diamond_carat }}</td>
+                                            </tr>
                                         @endif
 
+                                        {{-- Row 6: Diamond Clarity --}}
                                         @if(!empty($product->diamond_color_clarity))
-                                            <div class="flex items-center justify-between px-5 py-3.5">
-                                                <span class="text-[11px] uppercase tracking-[0.16em] text-[#8E877D] font-medium">Color &amp; Clarity</span>
-                                                <span class="text-xs sm:text-[13px] font-normal text-[#1C1917] tracking-normal">{{ $product->diamond_color_clarity }}</span>
-                                            </div>
-                                        @else
-                                            <div class="hidden sm:block"></div>
+                                            <tr class="hover:bg-white/60 transition-colors">
+                                                <th class="py-3 px-5 text-[11px] uppercase tracking-[0.16em] text-[#8E877D] font-medium w-1/3 sm:w-1/4">Color &amp; Clarity</th>
+                                                <td class="py-3 px-5 text-xs sm:text-[13px] font-normal text-[#1C1917]">{{ $product->diamond_color_clarity }}</td>
+                                            </tr>
                                         @endif
-                                    </div>
-                                @endif
 
-                                {{-- Row 4: Diamond Cut & Certification --}}
-                                @if(!empty($product->diamond_cut) || !empty($product->certification))
-                                    <div class="grid grid-cols-1 sm:grid-cols-2 divide-y sm:divide-y-0 sm:divide-x divide-[#E6E1D7]">
+                                        {{-- Row 7: Diamond Cut --}}
                                         @if(!empty($product->diamond_cut))
-                                            <div class="flex items-center justify-between px-5 py-3.5">
-                                                <span class="text-[11px] uppercase tracking-[0.16em] text-[#8E877D] font-medium">Cut / Shape</span>
-                                                <span class="text-xs sm:text-[13px] font-normal text-[#1C1917] tracking-normal">{{ $product->diamond_cut }}</span>
-                                            </div>
-                                        @else
-                                            <div class="hidden sm:block"></div>
+                                            <tr class="hover:bg-white/60 transition-colors">
+                                                <th class="py-3 px-5 text-[11px] uppercase tracking-[0.16em] text-[#8E877D] font-medium w-1/3 sm:w-1/4">Cut / Shape</th>
+                                                <td class="py-3 px-5 text-xs sm:text-[13px] font-normal text-[#1C1917]">{{ $product->diamond_cut }}</td>
+                                            </tr>
                                         @endif
 
+                                        {{-- Row 8: Certification --}}
                                         @if(!empty($product->certification))
-                                            <div class="flex items-center justify-between px-5 py-3.5">
-                                                <span class="text-[11px] uppercase tracking-[0.16em] text-[#8E877D] font-medium">Certification</span>
-                                                <span class="text-xs sm:text-[13px] font-normal text-[#1C1917] tracking-normal">{{ $product->certification }}</span>
-                                            </div>
-                                        @else
-                                            <div class="hidden sm:block"></div>
+                                            <tr class="hover:bg-white/60 transition-colors">
+                                                <th class="py-3 px-5 text-[11px] uppercase tracking-[0.16em] text-[#8E877D] font-medium w-1/3 sm:w-1/4">Certification</th>
+                                                <td class="py-3 px-5 text-xs sm:text-[13px] font-normal text-[#1C1917]">{{ $product->certification }}</td>
+                                            </tr>
                                         @endif
-                                    </div>
-                                @endif
 
-                                {{-- Row 5: SKU & Inventory Type --}}
-                                <div class="grid grid-cols-1 sm:grid-cols-2 divide-y sm:divide-y-0 sm:divide-x divide-[#E6E1D7]">
-                                    @if(!empty($product->sku))
-                                        <div class="flex items-center justify-between px-5 py-3.5">
-                                            <span class="text-[11px] uppercase tracking-[0.16em] text-[#8E877D] font-medium">Product Code</span>
-                                            <span class="text-xs sm:text-[13px] font-normal text-[#1C1917] tracking-normal">{{ $product->sku }}</span>
-                                        </div>
-                                    @endif
-                                    <div class="flex items-center justify-between px-5 py-3.5">
-                                        <span class="text-[11px] uppercase tracking-[0.16em] text-[#8E877D] font-medium">Crafting Type</span>
-                                        <span class="text-xs sm:text-[13px] font-normal text-[#1C1917] tracking-normal">{{ $product->inventory_type === 'MADE_TO_ORDER' ? 'Custom Made to Order' : 'Ready to Ship' }}</span>
-                                    </div>
-                                </div>
+                                        {{-- Row 9: Product Code --}}
+                                        @if(!empty($product->sku))
+                                            <tr class="hover:bg-white/60 transition-colors">
+                                                <th class="py-3 px-5 text-[11px] uppercase tracking-[0.16em] text-[#8E877D] font-medium w-1/3 sm:w-1/4">Product Code</th>
+                                                <td class="py-3 px-5 text-xs sm:text-[13px] font-normal text-[#1C1917]">{{ $product->sku }}</td>
+                                            </tr>
+                                        @endif
+
+                                        {{-- Row 10: Crafting Type --}}
+                                        <tr class="hover:bg-white/60 transition-colors">
+                                            <th class="py-3 px-5 text-[11px] uppercase tracking-[0.16em] text-[#8E877D] font-medium w-1/3 sm:w-1/4">Crafting Type</th>
+                                            <td class="py-3 px-5 text-xs sm:text-[13px] font-normal text-[#1C1917]">{{ $product->inventory_type === 'MADE_TO_ORDER' ? 'Custom Made to Order' : 'Ready to Ship' }}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
                             </div>
                         </div>
                     </div>
