@@ -1955,14 +1955,16 @@
                                     </form>
                                 </div>
                             </div>
-                            <div class="flex items-start justify-between gap-1.5 px-0.5 sm:px-1">
+                            <div class="flex items-start justify-between gap-3 px-1 mt-3">
                                 <div class="min-w-0 flex-1">
-                                    <h3 class="font-editorial text-xs sm:text-[1.1rem] text-[#1C1917] font-normal leading-snug truncate">
+                                    <h3 class="font-editorial text-sm sm:text-base text-[#1C1917] font-normal leading-snug truncate">
                                         <a href="{{ route('shop.show', $rel->slug) }}" class="hover:text-[#8E877D] transition-colors">{{ $rel->name }}</a>
                                     </h3>
-                                    <p class="text-[8.5px] sm:text-[10px] uppercase tracking-[0.1em] sm:tracking-[0.12em] text-[#8E877D] font-medium mt-0.5 truncate">{{ $rel->category?->name ?? 'Fine Jewellery' }}</p>
+                                    <p class="text-[10px] sm:text-[11px] text-[#8E877D] font-light mt-0.5 truncate">{{ $rel->category?->name ?? 'Fine Jewellery' }}</p>
                                 </div>
-                                <span class="text-[11px] sm:text-[12.5px] font-semibold text-[#1C1917] whitespace-nowrap shrink-0 pt-0.5">₹ {{ number_format($rel->effective_price) }}</span>
+                                <div class="text-right shrink-0 pt-0.5">
+                                    <span class="text-xs sm:text-[13.5px] font-semibold text-[#1C1917] whitespace-nowrap">₹{{ number_format($rel->effective_price) }}</span>
+                                </div>
                             </div>
                         </div>
                     @endforeach
@@ -1984,8 +1986,6 @@
                                              class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out">
                                     @endif
                                 </a>
-
-
 
                                 {{-- Action Buttons --}}
                                 <div class="absolute top-2 sm:top-3 right-2 sm:right-3 flex flex-col space-y-1 sm:space-y-1.5 z-20 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 sm:translate-x-2 sm:group-hover:translate-x-0 transition-all duration-300 ease-out">
@@ -2010,14 +2010,16 @@
                                     </form>
                                 </div>
                             </div>
-                            <div class="flex items-start justify-between gap-1.5 px-0.5 sm:px-1">
+                            <div class="flex items-start justify-between gap-3 px-1 mt-3">
                                 <div class="min-w-0 flex-1">
-                                    <h3 class="font-editorial text-xs sm:text-[1.1rem] text-[#1C1917] font-normal leading-snug truncate">
+                                    <h3 class="font-editorial text-sm sm:text-base text-[#1C1917] font-normal leading-snug truncate">
                                         <a href="{{ route('shop.show', $recent->slug) }}" class="hover:text-[#8E877D] transition-colors">{{ $recent->name }}</a>
                                     </h3>
-                                    <p class="text-[8.5px] sm:text-[10px] uppercase tracking-[0.1em] sm:tracking-[0.12em] text-[#8E877D] font-medium mt-0.5 truncate">{{ $recent->category?->name ?? 'Fine Jewellery' }}</p>
+                                    <p class="text-[10px] sm:text-[11px] text-[#8E877D] font-light mt-0.5 truncate">{{ $recent->category?->name ?? 'Fine Jewellery' }}</p>
                                 </div>
-                                <span class="text-[11px] sm:text-[12.5px] font-semibold text-[#1C1917] whitespace-nowrap shrink-0 pt-0.5">₹ {{ number_format($recent->effective_price) }}</span>
+                                <div class="text-right shrink-0 pt-0.5">
+                                    <span class="text-xs sm:text-[13.5px] font-semibold text-[#1C1917] whitespace-nowrap">₹{{ number_format($recent->effective_price) }}</span>
+                                </div>
                             </div>
                         </div>
                     @endforeach
@@ -2025,4 +2027,6 @@
             </div>
         @endif
 
+    </div>
+</div>
 </x-app-layout>
