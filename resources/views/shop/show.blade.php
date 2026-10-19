@@ -1534,7 +1534,7 @@
                         </div>
 
                         {{-- Fine Jewellery Specifications (Structured Luxury Atelier Card) --}}
-                        <div class="mt-8 pt-8 border-t border-[#DFD9CE]">
+                        <div class="mt-6">
                             <div class="flex items-center justify-between mb-5">
                                 <h4 class="font-editorial text-2xl sm:text-3xl text-[#1C1917] font-normal tracking-tight">
                                     Jewellery <em class="italic font-light">Specifications</em>
