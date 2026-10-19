@@ -265,7 +265,13 @@ class ProductResource extends Resource
                                     ->extraInputAttributes(['class' => '[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none', 'inputmode' => 'decimal'])
                                     ->suffix('%')
                                     ->placeholder('e.g. 5')
-                                    ->helperText('Profit margin percentage added on total cost (Gold + Making + Diamond + GST).')
+                                    ->helperText(function (Forms\Get $get) {
+                                        $p = self::resolveProfitMargin($get);
+                                        if ($p > 0) {
+                                            return "✓ {$p}% profit margin is added to manufacturing cost (Gold + Making + Diamond + GST).";
+                                        }
+                                        return 'Profit margin percentage added on total cost (Gold + Making + Diamond + GST).';
+                                    })
                                     ->live(onBlur: true)
                                     ->afterStateUpdated(fn ($state, Forms\Set $set, Forms\Get $get) => self::syncAllSizePrices($get, $set)),
                             ]),
@@ -407,6 +413,16 @@ class ProductResource extends Resource
                                                     return $c['final_price'];
                                                 })
                                                 ->placeholder('Auto 14K Sell')
+                                                ->helperText(function (Forms\Get $get) {
+                                                    $w = (float) ($get('weight_grams') ?? 0);
+                                                    if ($w <= 0) return null;
+                                                    $p = self::resolveProfitMargin($get);
+                                                    if ($p <= 0) return null;
+                                                    $m = self::resolveMakingCharge($get);
+                                                    $d = self::resolveDiamondValue($get);
+                                                    $c = \App\Services\BullionPricingService::calculateFinalPrice($w, $m, $d, '14KT Gold', null, null, $w, $p);
+                                                    return 'Cost: ₹' . number_format($c['cost_with_gst']) . ' + Profit: ₹' . number_format($c['profit_amount']) . " ({$p}%)";
+                                                })
                                                 ->columnSpan(['default' => 1, 'md' => 1, 'lg' => 1]),
 
                                             Forms\Components\TextInput::make('mrp_14k')
@@ -455,6 +471,16 @@ class ProductResource extends Resource
                                                     return $c['final_price'];
                                                 })
                                                 ->placeholder('Auto 18K Sell')
+                                                ->helperText(function (Forms\Get $get) {
+                                                    $w = (float) ($get('weight_grams') ?? 0);
+                                                    if ($w <= 0) return null;
+                                                    $p = self::resolveProfitMargin($get);
+                                                    if ($p <= 0) return null;
+                                                    $m = self::resolveMakingCharge($get);
+                                                    $d = self::resolveDiamondValue($get);
+                                                    $c = \App\Services\BullionPricingService::calculateFinalPrice($w, $m, $d, '18KT Gold', null, null, $w, $p);
+                                                    return 'Cost: ₹' . number_format($c['cost_with_gst']) . ' + Profit: ₹' . number_format($c['profit_amount']) . " ({$p}%)";
+                                                })
                                                 ->columnSpan(['default' => 1, 'md' => 1, 'lg' => 1]),
 
                                             Forms\Components\TextInput::make('mrp_18k')
@@ -503,6 +529,16 @@ class ProductResource extends Resource
                                                     return $c['final_price'];
                                                 })
                                                 ->placeholder('Auto 22K Sell')
+                                                ->helperText(function (Forms\Get $get) {
+                                                    $w = (float) ($get('weight_grams') ?? 0);
+                                                    if ($w <= 0) return null;
+                                                    $p = self::resolveProfitMargin($get);
+                                                    if ($p <= 0) return null;
+                                                    $m = self::resolveMakingCharge($get);
+                                                    $d = self::resolveDiamondValue($get);
+                                                    $c = \App\Services\BullionPricingService::calculateFinalPrice($w, $m, $d, '22KT Gold', null, null, $w, $p);
+                                                    return 'Cost: ₹' . number_format($c['cost_with_gst']) . ' + Profit: ₹' . number_format($c['profit_amount']) . " ({$p}%)";
+                                                })
                                                 ->columnSpan(['default' => 1, 'md' => 1, 'lg' => 1]),
 
                                             Forms\Components\TextInput::make('mrp_22k')
@@ -528,11 +564,22 @@ class ProductResource extends Resource
                                         Forms\Components\Hidden::make('price'),
                                         Forms\Components\Hidden::make('mrp'),
                                     ])
-                                    ->itemLabel(fn (array $state): ?string =>
-                                        !empty($state['size'])
-                                            ? $state['size'] . (!empty($state['weight_grams']) ? ' (' . $state['weight_grams'] . ' gm)' : '')
-                                            : null
-                                    )
+                                    ->itemLabel(function (array $state, Forms\Get $get): ?string {
+                                        if (empty($state['size'])) return null;
+                                        $label = $state['size'];
+                                        $w = (float) ($state['weight_grams'] ?? 0);
+                                        if ($w > 0) {
+                                            $label .= ' (' . $w . ' gm)';
+                                            $p = self::resolveProfitMargin($get);
+                                            if ($p > 0) {
+                                                $m = self::resolveMakingCharge($get);
+                                                $d = self::resolveDiamondValue($get);
+                                                $c = \App\Services\BullionPricingService::calculateFinalPrice($w, $m, $d, '18KT Gold', null, null, $w, $p);
+                                                $label .= ' · Profit: +₹' . number_format($c['profit_amount']) . " ({$p}%)";
+                                            }
+                                        }
+                                        return $label;
+                                    })
                                     ->cloneable()
                                     ->reorderable(true)
                                     ->addActionLabel('+ Add Size')
