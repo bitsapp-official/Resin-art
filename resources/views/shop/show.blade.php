@@ -1161,33 +1161,14 @@
                         <p class="text-[10px] uppercase tracking-[0.28em] font-medium text-[#8E877D]">
                             {{ $product->category?->name ?? 'FINE JEWELLERY' }}
                         </p>
-                        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[9px] uppercase tracking-[0.18em] font-medium {{ $product->inventory_type === 'MADE_TO_ORDER' ? 'bg-[#F5F2EB] text-[#78716C] border border-[#DFD9CE]' : 'bg-[#EBF5ED] text-[#2E7D32] border border-[#C8E6C9]' }}">
-                            <span class="w-1.5 h-1.5 rounded-full {{ $product->inventory_type === 'MADE_TO_ORDER' ? 'bg-[#A8A29E]' : 'bg-[#2E7D32]' }}"></span>
+                        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[9px] uppercase tracking-[0.18em] font-medium bg-[#F5F2EB] text-[#78716C] border border-[#DFD9CE]">
+                            <span class="w-1.5 h-1.5 rounded-full bg-[#A8A29E]"></span>
                             {{ $product->inventory_type === 'MADE_TO_ORDER' ? 'MADE TO ORDER' : 'READY TO SHIP' }}
                         </span>
                     </div>
                     <h1 class="font-editorial text-3xl sm:text-4xl lg:text-5xl text-[#1C1917] font-light leading-[1.12] sm:leading-[1.08] tracking-tight">
                         {{ $product->name }}
                     </h1>
-                    @php
-                        $cert = trim($product->certification ?? '');
-                        if ($cert !== '') {
-                            $certUpper = strtoupper($cert);
-                            $certLabel = str_ends_with($certUpper, 'CERTIFIED') ? $certUpper : $certUpper . ' CERTIFIED';
-                        } else {
-                            $certLabel = null;
-                        }
-                        $specItems = collect([
-                            $product->diamond_carat ? strtoupper($product->diamond_carat) : null,
-                            $product->diamond_color_clarity ? strtoupper($product->diamond_color_clarity) : null,
-                            $product->diamond_cut ? strtoupper($product->diamond_cut) : null,
-                            $certLabel,
-                            $product->inventory_type === 'MADE_TO_ORDER' ? 'MADE TO ORDER' : 'READY TO SHIP',
-                        ])->filter();
-                    @endphp
-                    <p class="text-[10.5px] uppercase tracking-[0.18em] text-[#8E877D] font-light mt-3.5 flex items-center flex-wrap gap-x-2 gap-y-1">
-                        {{ $specItems->join(' · ') }}
-                    </p>
                 </div>
 
                 {{-- Price & Review Rating (Interlinked to Customer Reviews) --}}
@@ -1533,95 +1514,125 @@
                             {!! $product->description ?? 'Master handcrafted fine jewellery featuring certified natural diamonds set in hallmarked gold. Created with enduring luxury and bespoke attention to detail.' !!}
                         </div>
 
-                        {{-- Fine Jewellery Specifications (Clean Structured Table) --}}
+                        {{-- Fine Jewellery Specifications (Clean Structured 2-Column Grid) --}}
                         <div class="mt-8">
                             <h4 class="font-editorial text-2xl sm:text-3xl text-[#1C1917] font-normal tracking-tight mb-4 flex items-center justify-between">
                                 <span>Jewellery <em class="italic font-light">Specifications</em></span>
                                 <span class="text-[9px] uppercase tracking-[0.2em] text-[#8E877D] font-sans font-medium hidden sm:inline-block">Authentic Fine Jewels</span>
                             </h4>
 
-                            <div class="overflow-hidden border border-[#E6E1D7] rounded-2xl bg-[#FAF8F5]/60 shadow-2xs">
-                                <table class="w-full text-left text-xs border-collapse">
-                                    <tbody class="divide-y divide-[#E6E1D7]">
-                                        {{-- Row 1: Gold Weight --}}
-                                        <template x-if="currentGoldWeight > 0">
-                                            <tr class="hover:bg-white/60 transition-colors">
-                                                <th class="py-3 px-5 text-[11px] uppercase tracking-[0.16em] text-[#8E877D] font-medium w-1/3 sm:w-1/4">Approx. Gold Weight</th>
-                                                <td class="py-3 px-5 text-xs sm:text-[13px] font-normal text-[#1C1917]" x-text="Number(currentGoldWeight).toFixed(2) + ' g'"></td>
-                                            </tr>
-                                        </template>
+                            <div class="bg-[#FAF8F5]/80 border border-[#E6E1D7] rounded-2xl overflow-hidden shadow-2xs">
+                                {{-- Row 1: Gold Weight & Purity (Only shown when data exists) --}}
+                                <div class="grid grid-cols-1 sm:grid-cols-2 border-b border-[#E6E1D7]" x-show="currentGoldWeight > 0 || selectedPurity">
+                                    <div class="flex items-center justify-between px-5 py-3.5 hover:bg-white/60 transition-colors"
+                                         :class="selectedPurity ? 'sm:border-r border-[#E6E1D7]' : 'sm:col-span-2'"
+                                         x-show="currentGoldWeight > 0">
+                                        <span class="text-[11px] uppercase tracking-[0.16em] text-[#8E877D] font-medium">Approx. Gold Weight</span>
+                                        <span class="text-xs sm:text-[13px] font-normal text-[#1C1917] tracking-normal" x-text="Number(currentGoldWeight).toFixed(2) + ' g'"></span>
+                                    </div>
+                                    <div class="flex items-center justify-between px-5 py-3.5 hover:bg-white/60 transition-colors border-t sm:border-t-0 border-[#E6E1D7]"
+                                         :class="currentGoldWeight > 0 ? '' : 'sm:col-span-2'"
+                                         x-show="selectedPurity">
+                                        <span class="text-[11px] uppercase tracking-[0.16em] text-[#8E877D] font-medium">Gold Purity</span>
+                                        <span class="text-xs sm:text-[13px] font-normal text-[#1C1917] tracking-normal" x-text="selectedPurity"></span>
+                                    </div>
+                                </div>
 
-                                        {{-- Row 2: Gold Purity --}}
-                                        <template x-if="selectedPurity">
-                                            <tr class="hover:bg-white/60 transition-colors">
-                                                <th class="py-3 px-5 text-[11px] uppercase tracking-[0.16em] text-[#8E877D] font-medium w-1/3 sm:w-1/4">Gold Purity</th>
-                                                <td class="py-3 px-5 text-xs sm:text-[13px] font-normal text-[#1C1917]" x-text="selectedPurity"></td>
-                                            </tr>
-                                        </template>
+                                {{-- Prepare Static Specs & Determine Sizing --}}
+                                @php
+                                    $rawVariants = $product->attributes['size_variants'] ?? ($product->size_variants ?? null);
+                                    if (is_string($rawVariants)) {
+                                        $decoded = json_decode($rawVariants, true);
+                                        $rawVariants = is_array($decoded) ? $decoded : [];
+                                    }
+                                    $rawSizes = $product->attributes['sizes'] ?? ($product->sizes ?? null);
+                                    if (is_string($rawSizes)) {
+                                        $decoded = json_decode($rawSizes, true);
+                                        $rawSizes = is_array($decoded) ? $decoded : [];
+                                    }
+                                    $rawRingSizes = $product->ring_sizes ?? null;
+                                    if (is_string($rawRingSizes)) {
+                                        $decoded = json_decode($rawRingSizes, true);
+                                        $rawRingSizes = is_array($decoded) ? $decoded : [];
+                                    }
+                                    $hasSizes = (!empty($rawVariants) && count($rawVariants) > 0)
+                                             || (!empty($rawSizes) && count($rawSizes) > 0)
+                                             || (!empty($rawRingSizes) && count($rawRingSizes) > 0);
 
-                                        {{-- Row 3: Metal Tone --}}
-                                        <template x-if="selectedColor">
-                                            <tr class="hover:bg-white/60 transition-colors">
-                                                <th class="py-3 px-5 text-[11px] uppercase tracking-[0.16em] text-[#8E877D] font-medium w-1/3 sm:w-1/4">Metal Tone</th>
-                                                <td class="py-3 px-5 text-xs sm:text-[13px] font-normal text-[#1C1917]" x-text="selectedColor"></td>
-                                            </tr>
-                                        </template>
+                                    $staticSpecs = [];
+                                    if (!empty($product->diamond_carat)) {
+                                        $staticSpecs[] = ['label' => 'Diamond Weight', 'value' => $product->diamond_carat];
+                                    }
+                                    if (!empty($product->diamond_color_clarity)) {
+                                        $staticSpecs[] = ['label' => 'Color & Clarity', 'value' => $product->diamond_color_clarity];
+                                    }
+                                    if (!empty($product->diamond_cut)) {
+                                        $staticSpecs[] = ['label' => 'Cut / Shape', 'value' => $product->diamond_cut];
+                                    }
+                                    if (!empty($product->certification)) {
+                                        $staticSpecs[] = ['label' => 'Certification', 'value' => $product->certification];
+                                    }
+                                    if (!empty($product->sku)) {
+                                        $staticSpecs[] = ['label' => 'Product Code', 'value' => $product->sku];
+                                    }
+                                    $staticSpecs[] = [
+                                        'label' => 'Crafting Type',
+                                        'value' => $product->inventory_type === 'MADE_TO_ORDER' ? 'Custom Made to Order' : 'Ready to Ship'
+                                    ];
 
-                                        {{-- Row 4: Size --}}
-                                        <template x-if="selectedSize">
-                                            <tr class="hover:bg-white/60 transition-colors">
-                                                <th class="py-3 px-5 text-[11px] uppercase tracking-[0.16em] text-[#8E877D] font-medium w-1/3 sm:w-1/4">Size</th>
-                                                <td class="py-3 px-5 text-xs sm:text-[13px] font-normal text-[#1C1917]" x-text="selectedSize"></td>
-                                            </tr>
-                                        </template>
+                                    // If this product does NOT have sizes, pair Metal Tone with the first available static spec!
+                                    $pairedWithMetal = null;
+                                    if (!$hasSizes && count($staticSpecs) > 0) {
+                                        $pairedWithMetal = array_shift($staticSpecs);
+                                    }
 
-                                        {{-- Row 5: Diamond Weight --}}
-                                        @if(!empty($product->diamond_carat))
-                                            <tr class="hover:bg-white/60 transition-colors">
-                                                <th class="py-3 px-5 text-[11px] uppercase tracking-[0.16em] text-[#8E877D] font-medium w-1/3 sm:w-1/4">Diamond Weight</th>
-                                                <td class="py-3 px-5 text-xs sm:text-[13px] font-normal text-[#1C1917]">{{ $product->diamond_carat }}</td>
-                                            </tr>
+                                    $specRows = collect($staticSpecs)->chunk(2);
+                                @endphp
+
+                                {{-- Row 2: Metal Tone + (Size IF product has sizes, ELSE next available spec) --}}
+                                <div class="grid grid-cols-1 sm:grid-cols-2 {{ $specRows->count() > 0 ? 'border-b border-[#E6E1D7]' : '' }}">
+                                    <div class="flex items-center justify-between px-5 py-3.5 sm:border-r border-[#E6E1D7] hover:bg-white/60 transition-colors">
+                                        <span class="text-[11px] uppercase tracking-[0.16em] text-[#8E877D] font-medium">Metal Tone</span>
+                                        <span class="text-xs sm:text-[13px] font-normal text-[#1C1917] tracking-normal" x-text="selectedColor || 'Yellow Gold'"></span>
+                                    </div>
+                                    @if($hasSizes)
+                                        <div class="flex items-center justify-between px-5 py-3.5 hover:bg-white/60 transition-colors border-t sm:border-t-0 border-[#E6E1D7]">
+                                            <span class="text-[11px] uppercase tracking-[0.16em] text-[#8E877D] font-medium">Size</span>
+                                            <span class="text-xs sm:text-[13px] font-normal text-[#1C1917] tracking-normal" x-text="selectedSize || 'Standard'"></span>
+                                        </div>
+                                    @elseif($pairedWithMetal)
+                                        <div class="flex items-center justify-between px-5 py-3.5 hover:bg-white/60 transition-colors border-t sm:border-t-0 border-[#E6E1D7]">
+                                            <span class="text-[11px] uppercase tracking-[0.16em] text-[#8E877D] font-medium">{{ $pairedWithMetal['label'] }}</span>
+                                            <span class="text-xs sm:text-[13px] font-normal text-[#1C1917] tracking-normal">{{ $pairedWithMetal['value'] }}</span>
+                                        </div>
+                                    @else
+                                        <div class="hidden sm:block"></div>
+                                    @endif
+                                </div>
+
+                                {{-- Remaining Specs Paired Cleanly in 2 Columns --}}
+                                @foreach($specRows as $rIdx => $row)
+                                    <div class="grid grid-cols-1 sm:grid-cols-2 {{ !$loop->last ? 'border-b border-[#E6E1D7]' : '' }}">
+                                        @if($row->count() === 2)
+                                            @php $first = $row->first(); $second = $row->last(); @endphp
+                                            <div class="flex items-center justify-between px-5 py-3.5 sm:border-r border-[#E6E1D7] hover:bg-white/60 transition-colors">
+                                                <span class="text-[11px] uppercase tracking-[0.16em] text-[#8E877D] font-medium">{{ $first['label'] }}</span>
+                                                <span class="text-xs sm:text-[13px] font-normal text-[#1C1917] tracking-normal">{{ $first['value'] }}</span>
+                                            </div>
+                                            <div class="flex items-center justify-between px-5 py-3.5 hover:bg-white/60 transition-colors border-t sm:border-t-0 border-[#E6E1D7]">
+                                                <span class="text-[11px] uppercase tracking-[0.16em] text-[#8E877D] font-medium">{{ $second['label'] }}</span>
+                                                <span class="text-xs sm:text-[13px] font-normal text-[#1C1917] tracking-normal">{{ $second['value'] }}</span>
+                                            </div>
+                                        @else
+                                            @php $item = $row->first(); @endphp
+                                            <div class="flex items-center justify-between px-5 py-3.5 sm:border-r border-[#E6E1D7] hover:bg-white/60 transition-colors">
+                                                <span class="text-[11px] uppercase tracking-[0.16em] text-[#8E877D] font-medium">{{ $item['label'] }}</span>
+                                                <span class="text-xs sm:text-[13px] font-normal text-[#1C1917] tracking-normal">{{ $item['value'] }}</span>
+                                            </div>
+                                            <div class="hidden sm:block"></div>
                                         @endif
-
-                                        {{-- Row 6: Diamond Clarity --}}
-                                        @if(!empty($product->diamond_color_clarity))
-                                            <tr class="hover:bg-white/60 transition-colors">
-                                                <th class="py-3 px-5 text-[11px] uppercase tracking-[0.16em] text-[#8E877D] font-medium w-1/3 sm:w-1/4">Color &amp; Clarity</th>
-                                                <td class="py-3 px-5 text-xs sm:text-[13px] font-normal text-[#1C1917]">{{ $product->diamond_color_clarity }}</td>
-                                            </tr>
-                                        @endif
-
-                                        {{-- Row 7: Diamond Cut --}}
-                                        @if(!empty($product->diamond_cut))
-                                            <tr class="hover:bg-white/60 transition-colors">
-                                                <th class="py-3 px-5 text-[11px] uppercase tracking-[0.16em] text-[#8E877D] font-medium w-1/3 sm:w-1/4">Cut / Shape</th>
-                                                <td class="py-3 px-5 text-xs sm:text-[13px] font-normal text-[#1C1917]">{{ $product->diamond_cut }}</td>
-                                            </tr>
-                                        @endif
-
-                                        {{-- Row 8: Certification --}}
-                                        @if(!empty($product->certification))
-                                            <tr class="hover:bg-white/60 transition-colors">
-                                                <th class="py-3 px-5 text-[11px] uppercase tracking-[0.16em] text-[#8E877D] font-medium w-1/3 sm:w-1/4">Certification</th>
-                                                <td class="py-3 px-5 text-xs sm:text-[13px] font-normal text-[#1C1917]">{{ $product->certification }}</td>
-                                            </tr>
-                                        @endif
-
-                                        {{-- Row 9: Product Code --}}
-                                        @if(!empty($product->sku))
-                                            <tr class="hover:bg-white/60 transition-colors">
-                                                <th class="py-3 px-5 text-[11px] uppercase tracking-[0.16em] text-[#8E877D] font-medium w-1/3 sm:w-1/4">Product Code</th>
-                                                <td class="py-3 px-5 text-xs sm:text-[13px] font-normal text-[#1C1917]">{{ $product->sku }}</td>
-                                            </tr>
-                                        @endif
-
-                                        {{-- Row 10: Crafting Type --}}
-                                        <tr class="hover:bg-white/60 transition-colors">
-                                            <th class="py-3 px-5 text-[11px] uppercase tracking-[0.16em] text-[#8E877D] font-medium w-1/3 sm:w-1/4">Crafting Type</th>
-                                            <td class="py-3 px-5 text-xs sm:text-[13px] font-normal text-[#1C1917]">{{ $product->inventory_type === 'MADE_TO_ORDER' ? 'Custom Made to Order' : 'Ready to Ship' }}</td>
-                                        </tr>
-                                    </tbody>
-                                </table>
+                                    </div>
+                                @endforeach
                             </div>
                         </div>
                     </div>
@@ -1749,7 +1760,6 @@
                     </div>
                 </div>
             </div>
-        </div>
 
         {{-- ── CUSTOMER REVIEWS (INTERLINKED & DYNAMIC) ── --}}
         <div id="customer-reviews" class="pt-10 sm:pt-14 mb-16 sm:mb-20" x-data="{ showReviewForm: false, newRating: 5, visibleReviews: 6 }">
@@ -1961,11 +1971,11 @@
         @endif
 
         {{-- ── RECENTLY VIEWED ──────────────────────────────────── --}}
-        @if(isset($relatedProducts) && $relatedProducts->count() > 2)
-            <div class="pt-10 sm:pt-14 mb-12 sm:mb-16">
+        @if(isset($relatedProducts) && $relatedProducts->count() > 0)
+            <div class="pt-10 sm:pt-14 mb-16 sm:mb-20">
                 <h2 class="font-editorial text-2xl sm:text-3xl lg:text-4xl text-[#1C1917] font-light mb-6 sm:mb-8">Recently viewed.</h2>
-                <div class="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6">
-                    @foreach($relatedProducts->take(3) as $recent)
+                <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
+                    @foreach($relatedProducts->take(4) as $recent)
                         <div class="group">
                             <div class="relative overflow-hidden aspect-[4/5] rounded-[1.25rem] sm:rounded-[2rem] bg-[#F5F2EB] border border-[#DFD9CE]/60 shadow-2xs mb-2.5 sm:mb-3 group/card">
                                 <a href="{{ route('shop.show', $recent->slug) }}" class="block w-full h-full">
@@ -1976,12 +1986,24 @@
                                 </a>
 
                                 {{-- Action Buttons --}}
+                                @php
+                                    $recentWishlisted = false;
+                                    if (Auth::check()) {
+                                        $recentWishlisted = \App\Models\Wishlist::where('user_id', Auth::id())->where('product_id', $recent->id)->exists();
+                                    } else {
+                                        $recentWishlisted = in_array($recent->id, session('guest_wishlist', []));
+                                    }
+                                @endphp
                                 <div class="absolute top-2 sm:top-3 right-2 sm:right-3 flex flex-col space-y-1 sm:space-y-1.5 z-20 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 sm:translate-x-2 sm:group-hover:translate-x-0 transition-all duration-300 ease-out">
-                                    <form method="POST" action="{{ route('wishlist.toggle') }}">
+                                    <form method="POST" action="{{ route('wishlist.toggle') }}" class="wishlist-toggle-form" data-product-id="{{ $recent->id }}">
                                         @csrf
                                         <input type="hidden" name="product_id" value="{{ $recent->id }}">
-                                        <button type="submit" title="Add to Wishlist" class="glass-pill w-7 h-7 sm:w-8 sm:h-8 rounded-full text-[#1C1917] hover:bg-[#1C1917] hover:text-white flex items-center justify-center transition-all duration-200 cursor-pointer shadow-xs">
-                                            <svg class="w-3 sm:w-3.5 h-3 sm:h-3.5 stroke-[1.75]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <button type="submit" title="{{ $recentWishlisted ? 'Remove from Wishlist' : 'Add to Wishlist' }}"
+                                                class="wishlist-btn w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center transition-all duration-200 cursor-pointer shadow-xs {{ $recentWishlisted ? 'bg-[#1C1917] text-white' : 'glass-pill border border-white/70 text-[#1C1917] hover:bg-[#1C1917] hover:text-white' }}"
+                                                data-product-id="{{ $recent->id }}"
+                                                data-wishlisted="{{ $recentWishlisted ? 'true' : 'false' }}"
+                                                data-style-type="related-item">
+                                            <svg class="wishlist-icon w-3 sm:w-3.5 h-3 sm:h-3.5 stroke-[1.75] transition-all duration-200 {{ $recentWishlisted ? 'fill-current' : 'fill-none' }}" viewBox="0 0 24 24" stroke="currentColor">
                                                 <path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
                                             </svg>
                                         </button>
@@ -1990,7 +2012,7 @@
                                         @csrf
                                         <input type="hidden" name="product_id" value="{{ $recent->id }}">
                                         <input type="hidden" name="quantity" value="1">
-                                        <button type="submit" title="Add to Bag" class="glass-pill w-7 h-7 sm:w-8 sm:h-8 rounded-full text-[#1C1917] hover:bg-[#1C1917] hover:text-white flex items-center justify-center transition-all duration-200 cursor-pointer shadow-xs">
+                                        <button type="submit" title="Add to Bag" class="glass-pill border border-white/70 w-7 h-7 sm:w-8 sm:h-8 rounded-full text-[#1C1917] hover:bg-[#1C1917] hover:text-white flex items-center justify-center transition-all duration-200 cursor-pointer">
                                             <svg class="w-3 sm:w-3.5 h-3 sm:h-3.5 stroke-[1.75]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                 <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 10.5V6a3.75 3.75 0 10-7.5 0v4.5m11.356-1.993l1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 01-1.12-1.243l1.264-12A1.125 1.125 0 015.513 7.5h12.974c.576 0 1.059.435 1.119 1.007zM8.625 10.5a.375.375 0 11-.75 0 .375.375 0 01.75 0zm7.5 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
                                             </svg>
