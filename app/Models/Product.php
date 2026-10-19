@@ -281,20 +281,56 @@ class Product extends Model
         $attrs = $this->jewellery_attributes;
         $purities = $this->gold_purities;
 
-        // If dynamic pricing parameters exist, calculate benchmark price for first purity at Size 12
+        // If dynamic pricing parameters exist, calculate benchmark price for first purity and first size variant
         if ($this->base_gold_weight > 0 && ($attrs['pricing_mode'] ?? '') === 'dynamic' && !empty($purities)) {
             $firstPurity = $purities[0];
+            $firstSize = null;
+            $firstWeight = null;
+
+            if (!empty($attrs['size_variants']) && is_array($attrs['size_variants'])) {
+                foreach ($attrs['size_variants'] as $sv) {
+                    if (isset($sv['size']) && $sv['size'] !== '') {
+                        $firstSize = $sv['size'];
+                        if (isset($sv['weight_grams']) && (float) $sv['weight_grams'] > 0) {
+                            $firstWeight = (float) $sv['weight_grams'];
+                        }
+                        break;
+                    }
+                }
+            }
+
             $calc = \App\Services\BullionPricingService::calculateFinalPrice(
                 $this->base_gold_weight,
                 $this->making_charge_per_gram,
                 $this->diamond_stone_value,
                 $firstPurity,
-                'Size 12',
+                $firstSize ?: 'Size 12',
                 null,
-                null,
+                $firstWeight,
                 $this->profit_margin_percent
             );
             return (float) $calc['final_price'];
+        }
+
+        // Check manual size variants if available
+        if (!empty($attrs['size_variants']) && is_array($attrs['size_variants'])) {
+            $firstPurity = !empty($purities) ? $purities[0] : '';
+            $pLower = strtolower($firstPurity);
+            $firstVariant = reset($attrs['size_variants']);
+            if ($firstVariant) {
+                if (str_contains($pLower, '14') && !empty($firstVariant['price_14k']) && (float) $firstVariant['price_14k'] > 0) {
+                    return (float) $firstVariant['price_14k'];
+                }
+                if (str_contains($pLower, '22') && !empty($firstVariant['price_22k']) && (float) $firstVariant['price_22k'] > 0) {
+                    return (float) $firstVariant['price_22k'];
+                }
+                if (str_contains($pLower, '18') && !empty($firstVariant['price_18k']) && (float) $firstVariant['price_18k'] > 0) {
+                    return (float) $firstVariant['price_18k'];
+                }
+                if (!empty($firstVariant['price']) && (float) $firstVariant['price'] > 0) {
+                    return (float) $firstVariant['price'];
+                }
+            }
         }
 
         if (!empty($purities) && !empty($attrs['purity_prices'])) {
@@ -316,20 +352,56 @@ class Product extends Model
         $attrs = $this->jewellery_attributes;
         $purities = $this->gold_purities;
 
-        // Dynamic gold pricing: calculate benchmark MRP for primary purity at Size 12
+        // Dynamic gold pricing: calculate benchmark MRP for primary purity and first size variant
         if ($this->base_gold_weight > 0 && ($attrs['pricing_mode'] ?? '') === 'dynamic' && !empty($purities)) {
             $firstPurity = $purities[0];
+            $firstSize = null;
+            $firstWeight = null;
+
+            if (!empty($attrs['size_variants']) && is_array($attrs['size_variants'])) {
+                foreach ($attrs['size_variants'] as $sv) {
+                    if (isset($sv['size']) && $sv['size'] !== '') {
+                        $firstSize = $sv['size'];
+                        if (isset($sv['weight_grams']) && (float) $sv['weight_grams'] > 0) {
+                            $firstWeight = (float) $sv['weight_grams'];
+                        }
+                        break;
+                    }
+                }
+            }
+
             $calc = \App\Services\BullionPricingService::calculateFinalPrice(
                 $this->base_gold_weight,
                 $this->making_charge_per_gram,
                 $this->diamond_stone_value,
                 $firstPurity,
-                'Size 12',
+                $firstSize ?: 'Size 12',
                 null,
-                null,
+                $firstWeight,
                 $this->profit_margin_percent
             );
             return (float) $calc['mrp_price'];
+        }
+
+        // Check manual size variants MRP
+        if (!empty($attrs['size_variants']) && is_array($attrs['size_variants'])) {
+            $firstPurity = !empty($purities) ? $purities[0] : '';
+            $pLower = strtolower($firstPurity);
+            $firstVariant = reset($attrs['size_variants']);
+            if ($firstVariant) {
+                if (str_contains($pLower, '14') && !empty($firstVariant['mrp_14k']) && (float) $firstVariant['mrp_14k'] > 0) {
+                    return (float) $firstVariant['mrp_14k'];
+                }
+                if (str_contains($pLower, '22') && !empty($firstVariant['mrp_22k']) && (float) $firstVariant['mrp_22k'] > 0) {
+                    return (float) $firstVariant['mrp_22k'];
+                }
+                if (str_contains($pLower, '18') && !empty($firstVariant['mrp_18k']) && (float) $firstVariant['mrp_18k'] > 0) {
+                    return (float) $firstVariant['mrp_18k'];
+                }
+                if (!empty($firstVariant['mrp']) && (float) $firstVariant['mrp'] > 0) {
+                    return (float) $firstVariant['mrp'];
+                }
+            }
         }
 
         if (!empty($purities) && !empty($attrs['purity_mrp'])) {

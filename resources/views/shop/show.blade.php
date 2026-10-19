@@ -503,9 +503,11 @@
                         const makingVal = Math.round(finalWeight * this.makingChargePerGram * 100) / 100;
                         const stoneVal = Math.round(this.diamondStoneValue * 100) / 100;
                         const subtotal = Math.round((goldVal + makingVal + stoneVal) * 100) / 100;
-                        const costWithGst = Math.round(subtotal * 1.03 * 100) / 100;
+                        const gst = Math.round(subtotal * 0.03 * 100) / 100;
+                        const costWithGst = Math.round((subtotal + gst) * 100) / 100;
                         const margin = Number(this.profitMarginPercent) || 0;
-                        const finalPrice = Math.round(costWithGst * (1 + (margin / 100)));
+                        const profitVal = Math.round(costWithGst * (margin / 100) * 100) / 100;
+                        const finalPrice = Math.round(costWithGst + profitVal);
 
                         // Only show strikethrough cut price if manually set by admin
                         let mrp = null;
@@ -530,6 +532,7 @@
                             diamondValue: stoneVal,
                             subtotal: subtotal,
                             gstAmount: gst,
+                            profitAmount: profitVal,
                             finalPrice: finalPrice,
                             mrp: mrp
                         };
@@ -607,6 +610,9 @@
                     return 0;
                 },
                 formatPrice(price) {
+                    if (price === null || price === undefined || isNaN(price)) {
+                        return this.basePrice ? new Intl.NumberFormat('en-IN').format(this.basePrice) : '0';
+                    }
                     return new Intl.NumberFormat('en-IN').format(price);
                 },
                 get whatsappOrderUrl() {
