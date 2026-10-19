@@ -464,11 +464,15 @@
                 },
 
                 getKaratGoldRate(purity) {
-                    const r24 = this.rate24kt || 7600;
+                    const rates = this.bullionRates || {};
                     const p = (purity || '').toLowerCase().trim();
-                    if (p.includes('14k')) return Math.round(r24 * (14 / 24) * 100) / 100;
-                    if (p.includes('22k')) return Math.round(r24 * (22 / 24) * 100) / 100;
-                    return Math.round(r24 * (18 / 24) * 100) / 100;
+                    if (p.includes('14k')) {
+                        return rates.rate_14kt ? Number(rates.rate_14kt) : Math.round((this.rate24kt || 7600) * (14 / 24) * 100) / 100;
+                    }
+                    if (p.includes('22k')) {
+                        return rates.rate_22kt ? Number(rates.rate_22kt) : Math.round((this.rate24kt || 7600) * (22 / 24) * 100) / 100;
+                    }
+                    return rates.rate_18kt ? Number(rates.rate_18kt) : Math.round((this.rate24kt || 7600) * (18 / 24) * 100) / 100;
                 },
 
                 get priceBreakdown() {

@@ -22,9 +22,9 @@ class DynamicJewelryPricingMatrixTest extends TestCase
         parent::setUp();
 
         SiteSetting::set('gold_rate_24kt', '7600');
-        SiteSetting::set('gold_rate_22kt', '6966');
+        SiteSetting::set('gold_rate_22kt', '6966.67');
         SiteSetting::set('gold_rate_18kt', '5700');
-        SiteSetting::set('gold_rate_14kt', '4433');
+        SiteSetting::set('gold_rate_14kt', '4433.33');
         SiteSetting::set('gold_gst_rate', '3');
     }
 

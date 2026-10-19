@@ -113,20 +113,29 @@ class BullionPricingService
      */
     public static function getKaratRate(string $purity, ?float $rate24kt = null): float
     {
-        if ($rate24kt === null || $rate24kt <= 0) {
-            $rates = self::getRates();
-            $rate24kt = $rates['rate_24kt'];
+        $rates = self::getRates();
+        $base24kt = (float) ($rates['rate_24kt'] ?: 7600.0);
+        $p = strtolower(trim($purity));
+
+        // If an explicit custom 24k rate is passed that differs from base settings, scale mathematically
+        if ($rate24kt !== null && $rate24kt > 0 && abs($rate24kt - $base24kt) > 0.01) {
+            if (str_contains($p, '14k')) {
+                return round($rate24kt * (14.0 / 24.0), 2);
+            }
+            if (str_contains($p, '22k')) {
+                return round($rate24kt * (22.0 / 24.0), 2);
+            }
+            return round($rate24kt * (18.0 / 24.0), 2);
         }
 
-        $p = strtolower(trim($purity));
+        // Use the exact Karat gold rate configured by admin in Daily Gold & Bullion Rates
         if (str_contains($p, '14k')) {
-            return round($rate24kt * (14.0 / 24.0), 2);
+            return (float) ($rates['rate_14kt'] ?: round($base24kt * (14.0 / 24.0), 2));
         }
         if (str_contains($p, '22k')) {
-            return round($rate24kt * (22.0 / 24.0), 2);
+            return (float) ($rates['rate_22kt'] ?: round($base24kt * (22.0 / 24.0), 2));
         }
-        // Default to 18K
-        return round($rate24kt * (18.0 / 24.0), 2);
+        return (float) ($rates['rate_18kt'] ?: round($base24kt * (18.0 / 24.0), 2));
     }
 
     /**
