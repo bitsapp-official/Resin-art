@@ -1234,11 +1234,6 @@
                                 <span>SIZE</span>
                                 <span class="font-normal text-[#8E877D] tracking-normal ml-1" x-text="selectedSize ? '· ' + selectedSize : ''"></span>
                             </p>
-                            <template x-if="currentGoldWeight > 0">
-                                <span class="text-[10px] uppercase tracking-[0.15em] font-medium text-[#8E877D] flex items-center gap-1 bg-[#FAF8F5] px-2.5 py-0.5 rounded-full border border-[#DFD9CE]">
-                                    <span class="text-[#B8860B]">✦</span> Approx. <strong class="text-[#1C1917] font-semibold" x-text="Number(currentGoldWeight).toFixed(2) + ' g'"></strong>
-                                </span>
-                            </template>
                         </div>
                         <div class="flex items-center gap-2 flex-wrap">
                             <template x-for="v in sizeVariants" :key="v.size">
