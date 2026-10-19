@@ -1533,80 +1533,107 @@
                             {!! $product->description ?? 'Master handcrafted fine jewellery featuring certified natural diamonds set in hallmarked gold. Created with enduring luxury and bespoke attention to detail.' !!}
                         </div>
 
-                        {{-- Fine Jewellery Specifications Grid (Shown Below Description) --}}
-                        <div class="pt-6 border-t border-[#DFD9CE]">
-                            <h4 class="font-editorial text-xl sm:text-2xl text-[#1C1917] font-normal mb-5 flex items-center gap-2">
-                                Jewellery <em class="italic">Specifications</em>
-                            </h4>
-                            <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-x-6 gap-y-4 text-left">
-                                {{-- Live Gold Weight --}}
-                                <template x-if="currentGoldWeight > 0">
-                                    <div class="space-y-0.5 border-b border-[#EBE6DD] pb-2.5">
-                                        <p class="text-[9px] uppercase tracking-[0.18em] text-[#8E877D] font-medium">Approx. Gold Weight</p>
-                                        <p class="text-xs sm:text-sm font-semibold text-[#1C1917] tracking-tight">
-                                            <span x-text="Number(currentGoldWeight).toFixed(2) + ' g'"></span>
-                                        </p>
-                                    </div>
-                                </template>
+                        {{-- Fine Jewellery Specifications (Structured Luxury Atelier Card) --}}
+                        <div class="mt-8 pt-8 border-t border-[#DFD9CE]">
+                            <div class="flex items-center justify-between mb-5">
+                                <h4 class="font-editorial text-2xl sm:text-3xl text-[#1C1917] font-normal tracking-tight">
+                                    Jewellery <em class="italic font-light">Specifications</em>
+                                </h4>
+                                <span class="text-[9px] uppercase tracking-[0.2em] text-[#8E877D] font-medium hidden sm:inline-block">Authentic Fine Jewels</span>
+                            </div>
 
-                                {{-- Live Selected Purity --}}
-                                <template x-if="selectedPurity">
-                                    <div class="space-y-0.5 border-b border-[#EBE6DD] pb-2.5">
-                                        <p class="text-[9px] uppercase tracking-[0.18em] text-[#8E877D] font-medium">Gold Purity</p>
-                                        <p class="text-xs sm:text-sm font-semibold text-[#1C1917] tracking-tight" x-text="selectedPurity"></p>
-                                    </div>
-                                </template>
+                            <div class="bg-[#FAF8F5]/80 border border-[#E6E1D7] rounded-2xl overflow-hidden divide-y divide-[#E6E1D7]">
+                                {{-- Row 1: Gold Weight & Purity --}}
+                                <div class="grid grid-cols-1 sm:grid-cols-2 divide-y sm:divide-y-0 sm:divide-x divide-[#E6E1D7]">
+                                    <template x-if="currentGoldWeight > 0">
+                                        <div class="flex items-center justify-between px-5 py-3.5">
+                                            <span class="text-[11px] uppercase tracking-[0.16em] text-[#8E877D] font-medium">Approx. Gold Weight</span>
+                                            <span class="text-xs sm:text-[13px] font-semibold text-[#1C1917] tracking-wide" x-text="Number(currentGoldWeight).toFixed(2) + ' g'"></span>
+                                        </div>
+                                    </template>
+                                    <template x-if="selectedPurity">
+                                        <div class="flex items-center justify-between px-5 py-3.5">
+                                            <span class="text-[11px] uppercase tracking-[0.16em] text-[#8E877D] font-medium">Gold Purity</span>
+                                            <span class="text-xs sm:text-[13px] font-semibold text-[#1C1917] tracking-wide" x-text="selectedPurity"></span>
+                                        </div>
+                                    </template>
+                                </div>
 
-                                {{-- Live Selected Metal Color --}}
-                                <template x-if="selectedColor">
-                                    <div class="space-y-0.5 border-b border-[#EBE6DD] pb-2.5">
-                                        <p class="text-[9px] uppercase tracking-[0.18em] text-[#8E877D] font-medium">Metal Tone</p>
-                                        <p class="text-xs sm:text-sm font-semibold text-[#1C1917] tracking-tight" x-text="selectedColor"></p>
-                                    </div>
-                                </template>
+                                {{-- Row 2: Metal Tone & Size --}}
+                                <div class="grid grid-cols-1 sm:grid-cols-2 divide-y sm:divide-y-0 sm:divide-x divide-[#E6E1D7]">
+                                    <template x-if="selectedColor">
+                                        <div class="flex items-center justify-between px-5 py-3.5">
+                                            <span class="text-[11px] uppercase tracking-[0.16em] text-[#8E877D] font-medium">Metal Tone</span>
+                                            <span class="text-xs sm:text-[13px] font-semibold text-[#1C1917] tracking-wide" x-text="selectedColor"></span>
+                                        </div>
+                                    </template>
+                                    <template x-if="selectedSize">
+                                        <div class="flex items-center justify-between px-5 py-3.5">
+                                            <span class="text-[11px] uppercase tracking-[0.16em] text-[#8E877D] font-medium" x-text="(sizeLabel || 'Ring Size').toUpperCase()"></span>
+                                            <span class="text-xs sm:text-[13px] font-semibold text-[#1C1917] tracking-wide" x-text="selectedSize"></span>
+                                        </div>
+                                    </template>
+                                </div>
 
-                                {{-- Live Selected Size (if applicable) --}}
-                                <template x-if="selectedSize">
-                                    <div class="space-y-0.5 border-b border-[#EBE6DD] pb-2.5">
-                                        <p class="text-[9px] uppercase tracking-[0.18em] text-[#8E877D] font-medium" x-text="sizeLabel || 'Size'"></p>
-                                        <p class="text-xs sm:text-sm font-semibold text-[#1C1917] tracking-tight" x-text="selectedSize"></p>
-                                    </div>
-                                </template>
+                                {{-- Row 3: Diamonds (Carat & Clarity if present) --}}
+                                @if(!empty($product->diamond_carat) || !empty($product->diamond_color_clarity))
+                                    <div class="grid grid-cols-1 sm:grid-cols-2 divide-y sm:divide-y-0 sm:divide-x divide-[#E6E1D7]">
+                                        @if(!empty($product->diamond_carat))
+                                            <div class="flex items-center justify-between px-5 py-3.5">
+                                                <span class="text-[11px] uppercase tracking-[0.16em] text-[#8E877D] font-medium">Diamond Weight</span>
+                                                <span class="text-xs sm:text-[13px] font-semibold text-[#1C1917] tracking-wide">{{ $product->diamond_carat }}</span>
+                                            </div>
+                                        @else
+                                            <div class="hidden sm:block"></div>
+                                        @endif
 
-                                @if(!empty($product->diamond_carat))
-                                    <div class="space-y-0.5 border-b border-[#EBE6DD] pb-2.5">
-                                        <p class="text-[9px] uppercase tracking-[0.18em] text-[#8E877D] font-medium">Diamond Carat</p>
-                                        <p class="text-xs sm:text-sm font-semibold text-[#1C1917] tracking-tight">{{ $product->diamond_carat }}</p>
+                                        @if(!empty($product->diamond_color_clarity))
+                                            <div class="flex items-center justify-between px-5 py-3.5">
+                                                <span class="text-[11px] uppercase tracking-[0.16em] text-[#8E877D] font-medium">Color &amp; Clarity</span>
+                                                <span class="text-xs sm:text-[13px] font-semibold text-[#1C1917] tracking-wide">{{ $product->diamond_color_clarity }}</span>
+                                            </div>
+                                        @else
+                                            <div class="hidden sm:block"></div>
+                                        @endif
                                     </div>
                                 @endif
 
-                                @if(!empty($product->diamond_color_clarity))
-                                    <div class="space-y-0.5 border-b border-[#EBE6DD] pb-2.5">
-                                        <p class="text-[9px] uppercase tracking-[0.18em] text-[#8E877D] font-medium">Diamond Clarity</p>
-                                        <p class="text-xs sm:text-sm font-semibold text-[#1C1917] tracking-tight">{{ $product->diamond_color_clarity }}</p>
+                                {{-- Row 4: Diamond Cut & Certification --}}
+                                @if(!empty($product->diamond_cut) || !empty($product->certification))
+                                    <div class="grid grid-cols-1 sm:grid-cols-2 divide-y sm:divide-y-0 sm:divide-x divide-[#E6E1D7]">
+                                        @if(!empty($product->diamond_cut))
+                                            <div class="flex items-center justify-between px-5 py-3.5">
+                                                <span class="text-[11px] uppercase tracking-[0.16em] text-[#8E877D] font-medium">Cut / Shape</span>
+                                                <span class="text-xs sm:text-[13px] font-semibold text-[#1C1917] tracking-wide">{{ $product->diamond_cut }}</span>
+                                            </div>
+                                        @else
+                                            <div class="hidden sm:block"></div>
+                                        @endif
+
+                                        @if(!empty($product->certification))
+                                            <div class="flex items-center justify-between px-5 py-3.5">
+                                                <span class="text-[11px] uppercase tracking-[0.16em] text-[#8E877D] font-medium">Certification</span>
+                                                <span class="text-xs sm:text-[13px] font-semibold text-[#1C1917] tracking-wide">{{ $product->certification }}</span>
+                                            </div>
+                                        @else
+                                            <div class="hidden sm:block"></div>
+                                        @endif
                                     </div>
                                 @endif
 
-                                @if(!empty($product->diamond_cut))
-                                    <div class="space-y-0.5 border-b border-[#EBE6DD] pb-2.5">
-                                        <p class="text-[9px] uppercase tracking-[0.18em] text-[#8E877D] font-medium">Diamond Cut</p>
-                                        <p class="text-xs sm:text-sm font-semibold text-[#1C1917] tracking-tight">{{ $product->diamond_cut }}</p>
+                                {{-- Row 5: SKU & Inventory Type --}}
+                                <div class="grid grid-cols-1 sm:grid-cols-2 divide-y sm:divide-y-0 sm:divide-x divide-[#E6E1D7]">
+                                    @if(!empty($product->sku))
+                                        <div class="flex items-center justify-between px-5 py-3.5">
+                                            <span class="text-[11px] uppercase tracking-[0.16em] text-[#8E877D] font-medium">Product Code</span>
+                                            <span class="text-xs sm:text-[13px] font-semibold text-[#1C1917] tracking-wide">{{ $product->sku }}</span>
+                                        </div>
+                                    @endif
+                                    <div class="flex items-center justify-between px-5 py-3.5">
+                                        <span class="text-[11px] uppercase tracking-[0.16em] text-[#8E877D] font-medium">Crafting Type</span>
+                                        <span class="text-xs sm:text-[13px] font-semibold text-[#1C1917] tracking-wide">{{ $product->inventory_type === 'MADE_TO_ORDER' ? 'Custom Made to Order' : 'Ready to Ship' }}</span>
                                     </div>
-                                @endif
-
-                                @if(!empty($product->certification))
-                                    <div class="space-y-0.5 border-b border-[#EBE6DD] pb-2.5">
-                                        <p class="text-[9px] uppercase tracking-[0.18em] text-[#8E877D] font-medium">Certification</p>
-                                        <p class="text-xs sm:text-sm font-semibold text-[#1C1917] tracking-tight">{{ $product->certification }}</p>
-                                    </div>
-                                @endif
-
-                                @if(!empty($product->sku))
-                                    <div class="space-y-0.5 border-b border-[#EBE6DD] pb-2.5">
-                                        <p class="text-[9px] uppercase tracking-[0.18em] text-[#8E877D] font-medium">SKU</p>
-                                        <p class="text-xs sm:text-sm font-semibold text-[#1C1917] tracking-tight">{{ $product->sku }}</p>
-                                    </div>
-                                @endif
+                                </div>
                             </div>
                         </div>
                     </div>
