@@ -926,7 +926,10 @@
                                 </template>
                                 {{-- Product Image: Render image --}}
                                 <template x-if="item.type === 'image'">
-                                    <img :src="item.thumb || item.src" class="w-full h-full object-cover rounded-lg">
+                                    <img :src="item.thumb || item.src" 
+                                         draggable="false" 
+                                         oncontextmenu="return false;"
+                                         class="w-full h-full object-cover rounded-lg pointer-events-none select-none">
                                 </template>
                                 <template x-if="item.type === 'video'">
                                     <div class="absolute inset-0 bg-black/40 rounded-lg flex items-center justify-center">
@@ -969,7 +972,9 @@
                             <div class="w-full h-full cursor-zoom-in relative" @click="openLightbox()">
                                 <img :src="currentMedia.src"
                                      alt="{{ $product->name }}"
-                                     class="w-full h-full object-cover transition-opacity duration-300 pointer-events-none">
+                                     draggable="false"
+                                     oncontextmenu="return false;"
+                                     class="w-full h-full object-cover transition-opacity duration-300 pointer-events-none select-none">
                                 {{-- Click to zoom hint on desktop --}}
                                 <div class="absolute bottom-3.5 right-3.5 hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/95 backdrop-blur-md border border-[#DFD9CE] text-[11px] text-[#1C1917] font-semibold opacity-90 group-hover:opacity-100 group-hover:scale-105 transition-all duration-200 pointer-events-none shadow-sm">
                                     <svg class="w-3.5 h-3.5 stroke-[2.2] text-[#A87432]" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7"/></svg>
@@ -1113,9 +1118,13 @@
                                         <img :src="item.thumb" :alt="'Video ' + (idx + 1)" class="w-full h-full object-cover rounded-lg sm:rounded-xl pointer-events-none">
                                     </template>
 
-                                    {{-- 3. If standard product image, display photo --}}
+                                    {{-- 3. If standard product image, display photo (Drag & Steal Protected) --}}
                                     <template x-if="item.type === 'image'">
-                                        <img :src="item.thumb || item.src" :alt="'Media ' + (idx + 1)" class="w-full h-full object-cover rounded-lg sm:rounded-xl">
+                                        <img :src="item.thumb || item.src" 
+                                             :alt="'Media ' + (idx + 1)" 
+                                             draggable="false"
+                                             oncontextmenu="return false;"
+                                             class="w-full h-full object-cover rounded-lg sm:rounded-xl pointer-events-none select-none">
                                     </template>
 
                                     {{-- Video Badge & Overlay (if video item) --}}
@@ -2075,4 +2084,43 @@
 
     </div>
 </div>
+
+{{-- Global Luxury Jewelry Image Protection & Anti-Theft Script --}}
+<style>
+    /* Prevent dragging or highlighting luxury jewelry photos */
+    img, video {
+        -webkit-user-drag: none !important;
+        -khtml-user-drag: none !important;
+        -moz-user-drag: none !important;
+        -o-user-drag: none !important;
+        user-drag: none !important;
+        -webkit-user-select: none !important;
+        -moz-user-select: none !important;
+        -ms-user-select: none !important;
+        user-select: none !important;
+    }
+</style>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Prevent drag on all images on product page
+        document.querySelectorAll('img').forEach(function (img) {
+            img.setAttribute('draggable', 'false');
+            img.addEventListener('dragstart', function (e) {
+                e.preventDefault();
+                return false;
+            });
+        });
+
+        // Prevent right-click context menu save image on gallery
+        const gallery = document.querySelector('[x-data*="productDetail"]');
+        if (gallery) {
+            gallery.addEventListener('contextmenu', function (e) {
+                if (e.target.tagName === 'IMG' || e.target.closest('img')) {
+                    e.preventDefault();
+                    return false;
+                }
+            });
+        }
+    });
+</script>
 </x-app-layout>
