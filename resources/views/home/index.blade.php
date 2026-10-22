@@ -84,7 +84,7 @@
                         
                         {{-- Tag Badge --}}
                         <div class="inline-flex items-center space-x-2.5 bg-white/15 backdrop-blur-md border border-white/20 px-3.5 sm:px-4 py-1.5 rounded-full shadow-sm animate-fade-up">
-                            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                            <span class="w-2 h-2 rounded-full bg-[#E5D0AC] animate-pulse"></span>
                             <span class="text-[9px] sm:text-[10px] uppercase tracking-[0.25em] font-semibold text-white truncate" x-text="slides[currentSlide].tag"></span>
                         </div>
 
