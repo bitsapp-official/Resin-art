@@ -2,418 +2,511 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Quote {{ $quote->quote_reference }}</title>
+    <title>Official Quotation — {{ $quote->quote_reference }}</title>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        @page {
+            size: a4 portrait;
+            margin: 0;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
         html, body {
-            font-family: 'DejaVu Sans', sans-serif;
+            font-family: 'DejaVu Sans', 'Helvetica Neue', Arial, sans-serif;
             background: #FFFFFF;
-            color: #1C1917;
-            font-size: 11px;
-            line-height: 1.5;
+            color: #1A1615;
+            font-size: 8.5pt;
+            line-height: 1.45;
+            width: 100%;
+            height: 100%;
+            -webkit-print-color-adjust: exact;
+        }
+
+        .page-container {
+            padding: 24pt 32pt 20pt 32pt;
             width: 100%;
         }
 
-        .page {
-            padding: 36px 40px 24px 40px;
+        /* ─── LUXURY ACCENT BORDER (TOP GOLD BAND) ─── */
+        .top-luxury-bar {
+            width: 100%;
+            height: 4pt;
+            background: #9A7B4F;
+            margin-bottom: 18pt;
         }
 
-        /* ─── HEADER ─── */
+        /* ─── TYPOGRAPHY TOKENS ─── */
+        .text-muted { color: #78716C; }
+        .text-dark  { color: #1A1615; }
+        .text-gold  { color: #9A7B4F; }
+        .font-bold  { font-weight: bold; }
+        .uppercase  { text-transform: uppercase; }
+        .tracking-wide { letter-spacing: 1.5pt; }
+        .tracking-wider { letter-spacing: 2pt; }
+        .text-right { text-align: right; }
+        .text-center { text-align: center; }
+
+        /* ─── HEADER SECTION ─── */
         .header-table {
             width: 100%;
-            border-bottom: 1px dashed #D9D2C5;
-            padding-bottom: 16px;
-            margin-bottom: 20px;
+            border-collapse: collapse;
+            margin-bottom: 14pt;
         }
-        .header-table td { vertical-align: top; }
-        .brand-name {
-            font-size: 18px;
+        .header-table td {
+            vertical-align: top;
+            padding: 0;
+        }
+
+        .brand-title {
+            font-size: 16pt;
             font-weight: bold;
-            color: #1C1917;
-            letter-spacing: 2px;
+            color: #1A1615;
+            letter-spacing: 2.5pt;
             text-transform: uppercase;
+            line-height: 1.15;
         }
         .brand-tagline {
-            font-size: 8.5px;
-            color: #8E877D;
-            letter-spacing: 1px;
+            font-size: 6.8pt;
+            font-weight: bold;
+            color: #9A7B4F;
+            letter-spacing: 1.4pt;
             text-transform: uppercase;
-            margin-top: 2px;
+            margin-top: 2pt;
+            margin-bottom: 6pt;
         }
-        .brand-contact {
-            font-size: 9.5px;
+        .brand-meta {
+            font-size: 7.5pt;
             color: #57534E;
-            margin-top: 8px;
-            line-height: 1.7;
-        }
-        .doc-title {
-            font-size: 22px;
-            font-weight: bold;
-            color: #1C1917;
-            letter-spacing: 1px;
-            text-align: right;
-        }
-        .doc-meta {
-            font-size: 9.5px;
-            color: #78716C;
-            margin-top: 5px;
-            line-height: 1.9;
-            text-align: right;
-        }
-        .doc-meta strong { color: #1C1917; }
-        .status-badge {
-            display: inline-block;
-            background: #1C1917;
-            color: #FAF8F5;
-            font-size: 7.5px;
-            font-weight: bold;
-            letter-spacing: 1.5px;
-            text-transform: uppercase;
-            padding: 3px 9px;
-            border-radius: 4px;
-            margin-top: 6px;
-        }
-
-        /* ─── CUSTOMER + PROJECT INFO ─── */
-        .info-table {
-            width: 100%;
-            border: 1px solid #E5DFD3;
-            border-radius: 6px;
-            background: #FDFAF6;
-            margin-bottom: 20px;
-        }
-        .info-table td {
-            padding: 12px 16px;
-            vertical-align: top;
-            width: 50%;
-        }
-        .info-table td + td { border-left: 1px solid #E5DFD3; }
-        .info-label {
-            font-size: 7.5px;
-            text-transform: uppercase;
-            letter-spacing: 1.2px;
-            color: #8E877D;
-            font-weight: bold;
-            margin-bottom: 4px;
-        }
-        .info-value {
-            font-size: 11px;
-            color: #1C1917;
-            font-weight: 600;
             line-height: 1.5;
         }
-        .info-sub {
-            font-size: 9.5px;
-            color: #78716C;
-            margin-top: 2px;
+        .brand-meta strong {
+            color: #1A1615;
         }
 
-        /* ─── SECTION LABEL ─── */
-        .section-label {
-            font-size: 8.5px;
-            text-transform: uppercase;
-            letter-spacing: 1.5px;
-            color: #8E877D;
+        .invoice-title {
+            font-size: 18pt;
             font-weight: bold;
-            margin-bottom: 8px;
+            color: #1A1615;
+            letter-spacing: 2pt;
+            text-transform: uppercase;
+            text-align: right;
+            line-height: 1.1;
+        }
+        .invoice-subtitle {
+            font-size: 6.8pt;
+            color: #78716C;
+            letter-spacing: 1.2pt;
+            text-transform: uppercase;
+            text-align: right;
+            margin-top: 2pt;
+            margin-bottom: 6pt;
         }
 
-        /* ─── LINE ITEMS ─── */
+        .invoice-meta-box {
+            text-align: right;
+            font-size: 7.8pt;
+            line-height: 1.6;
+            color: #57534E;
+        }
+        .invoice-meta-box strong {
+            color: #1A1615;
+        }
+
+        .badge-status {
+            display: inline-block;
+            background: #1A1615;
+            color: #FAF8F5;
+            font-size: 6.8pt;
+            font-weight: bold;
+            letter-spacing: 1.4pt;
+            text-transform: uppercase;
+            padding: 3pt 8pt 2pt 8pt;
+            border-radius: 3pt;
+            margin-top: 5pt;
+        }
+
+        /* ─── ELEGANT DIVIDER ─── */
+        .gold-hairline {
+            width: 100%;
+            height: 1pt;
+            background: #E5DFD3;
+            margin-bottom: 14pt;
+        }
+
+        /* ─── CLIENT & DISPATCH INFORMATION ─── */
+        .info-container {
+            width: 100%;
+            border: 1pt solid #E7E2D7;
+            background: #FAF8F5;
+            border-radius: 4pt;
+            margin-bottom: 14pt;
+            border-collapse: collapse;
+        }
+        .info-container td {
+            width: 50%;
+            padding: 10pt 14pt;
+            vertical-align: top;
+        }
+        .info-container td:first-child {
+            border-right: 1pt solid #E7E2D7;
+        }
+
+        .section-label {
+            font-size: 6.5pt;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1.5pt;
+            color: #9A7B4F;
+            margin-bottom: 4pt;
+        }
+        .person-name {
+            font-size: 9.5pt;
+            font-weight: bold;
+            color: #1A1615;
+            margin-bottom: 2pt;
+        }
+        .address-text {
+            font-size: 7.8pt;
+            color: #44403C;
+            line-height: 1.5;
+        }
+
+        /* ─── LINE ITEMS TABLE ─── */
         .items-table {
             width: 100%;
             border-collapse: collapse;
-            margin-bottom: 18px;
+            margin-bottom: 14pt;
         }
         .items-table thead th {
-            background: #F5F2EC;
-            color: #1C1917;
-            border-bottom: 1.5px solid #1C1917;
-            font-size: 8px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
+            background: #1A1615;
+            color: #FFFFFF;
+            font-size: 6.8pt;
             font-weight: bold;
-            padding: 8px 10px;
-            text-align: left;
+            text-transform: uppercase;
+            letter-spacing: 1.3pt;
+            padding: 6.5pt 8pt;
+            border: none;
         }
-        .items-table thead th.right { text-align: right; }
-        .items-table thead th.center { text-align: center; }
-        .items-table tbody tr { border-bottom: 1px solid #F0EBE3; }
-        .items-table tbody tr:nth-child(even) { background: #FAF8F5; }
         .items-table tbody td {
-            padding: 9px 10px;
-            font-size: 10.5px;
-            color: #1C1917;
-            vertical-align: middle;
+            padding: 7.5pt 8pt;
+            border-bottom: 1pt solid #EFECE6;
+            font-size: 8pt;
+            color: #1A1615;
+            vertical-align: top;
         }
-        .items-table tbody td.center { text-align: center; color: #57534E; }
-        .items-table tbody td.right { text-align: right; font-weight: 600; }
-        .items-table tbody td.unit { text-align: right; color: #57534E; }
+        .items-table tbody tr:nth-child(even) td {
+            background: #FAF8F5;
+        }
 
-        /* ─── TOTALS SECTION ─── */
-        .totals-table {
+        .item-name {
+            font-size: 8.5pt;
+            font-weight: bold;
+            color: #1A1615;
+            margin-bottom: 2pt;
+        }
+        .item-spec-pill {
+            display: inline-block;
+            font-size: 6.8pt;
+            color: #6B655D;
+            background: #EDE8DE;
+            padding: 1.5pt 5pt;
+            border-radius: 2pt;
+            margin-right: 3pt;
+            margin-top: 2pt;
+        }
+
+        /* ─── BOTTOM SPLIT: ADVANCE CARD & TOTALS ─── */
+        .bottom-table {
             width: 100%;
-            margin-bottom: 18px;
+            border-collapse: collapse;
+            margin-bottom: 12pt;
         }
-        .totals-table td.spacer { width: 50%; }
-        .totals-table td.content { width: 50%; vertical-align: top; }
+        .bottom-table td {
+            vertical-align: top;
+            padding: 0;
+        }
 
-        .subtotal-table {
+        .deposit-card {
+            border: 1pt solid #E7E2D7;
+            background: #FAF8F5;
+            border-radius: 4pt;
+            padding: 9pt 11pt;
+            width: 92%;
+        }
+        .deposit-header {
+            font-size: 6.8pt;
+            font-weight: bold;
+            color: #9A7B4F;
+            letter-spacing: 1.3pt;
+            text-transform: uppercase;
+            margin-bottom: 4pt;
+        }
+        .deposit-amount {
+            font-size: 12pt;
+            font-weight: bold;
+            color: #1A1615;
+            margin-bottom: 3pt;
+        }
+        .deposit-body {
+            font-size: 7.2pt;
+            color: #57534E;
+            line-height: 1.5;
+        }
+
+        /* Right: Financial Totals Table */
+        .totals-table {
             width: 100%;
             border-collapse: collapse;
         }
-        .subtotal-table td {
-            padding: 4px 0;
-            font-size: 10px;
-            color: #78716C;
+        .totals-table td {
+            padding: 3.5pt 0;
+            font-size: 8pt;
         }
-        .subtotal-table td.val {
+        .totals-table td.lbl {
             text-align: right;
-            color: #1C1917;
-            font-weight: 500;
+            color: #6B655D;
+            padding-right: 12pt;
         }
-        .subtotal-table td.discount { color: #16a34a; }
-
-        .grand-total-table {
-            width: 100%;
-            margin-top: 8px;
-            border-top: 2px solid #1C1917;
-            border-bottom: 2px solid #1C1917;
-            padding: 8px 0;
-        }
-        .grand-total-table td {
-            font-size: 11.5px;
-            font-weight: bold;
-            color: #1C1917;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-        .grand-total-table td.amount {
+        .totals-table td.val {
             text-align: right;
-            font-size: 14px;
-            color: #1C1917;
-        }
-
-        .deposit-table {
-            width: 100%;
-            margin-top: 10px;
-            border: 1px solid #D9D2C5;
-            border-radius: 6px;
-            background: #FDFAF6;
-            padding: 10px 12px;
-        }
-
-        /* ─── NOTES ─── */
-        .notes-box {
-            background: #FDFAF6;
-            border: 1px solid #E5DFD3;
-            border-radius: 6px;
-            padding: 12px 16px;
-            margin-top: 14px;
-        }
-        .notes-text { font-size: 10px; color: #57534E; line-height: 1.6; white-space: pre-line; }
-
-        /* ─── FOOTER ─── */
-        .footer-table {
-            width: 100%;
-            border-top: 1px solid #E5DFD3;
-            padding-top: 12px;
-            margin-top: 20px;
-        }
-        .footer-table td {
-            font-size: 8.5px;
-            color: #A8A29E;
-            vertical-align: middle;
-        }
-        .valid-badge {
-            display: inline-block;
-            background: #FEF3C7;
-            color: #92400E;
-            font-size: 7.5px;
             font-weight: bold;
-            letter-spacing: 1px;
+            color: #1A1615;
+            width: 85pt;
+        }
+        .totals-table tr.grand-total td {
+            border-top: 1.5pt solid #1A1615;
+            border-bottom: 2pt double #1A1615;
+            padding: 6pt 0;
+            font-size: 10pt;
+            font-weight: bold;
+            color: #1A1615;
+        }
+        .totals-table tr.grand-total td.lbl {
+            color: #1A1615;
+            letter-spacing: 1pt;
             text-transform: uppercase;
-            padding: 2px 7px;
-            border-radius: 4px;
+        }
+
+        /* ─── TERMS & NOTES ─── */
+        .notes-card {
+            background: #FAF8F5;
+            border: 1pt solid #E7E2D7;
+            border-radius: 4pt;
+            padding: 8pt 10pt;
+            margin-top: 10pt;
+            font-size: 7.2pt;
+            color: #57534E;
+            line-height: 1.5;
+        }
+
+        /* ─── FOOTER & DECLARATIONS ─── */
+        .footer-declaration {
+            border-top: 1pt solid #E7E2D7;
+            padding-top: 8pt;
+            margin-top: 10pt;
+            font-size: 6.8pt;
+            color: #8E877D;
+            text-align: center;
+            line-height: 1.5;
+        }
+        .footer-declaration strong {
+            color: #57534E;
         }
     </style>
 </head>
 <body>
-<div class="page">
+<div class="page-container">
 
-    <!-- ═══ HEADER ═══ -->
-    <table class="header-table">
+    @php
+        $brandName    = \App\Models\SiteSetting::get('invoice_brand_name', 'Solitaire Fine Jewels');
+        $brandTagline = \App\Models\SiteSetting::get('invoice_brand_tagline', 'Certified Diamonds & Bespoke Fine Jewellery Atelier');
+        $address      = \App\Models\SiteSetting::get('invoice_address', 'Atelier Plaza, Fine Arts Quarter, Mumbai, India');
+        $email        = \App\Models\SiteSetting::get('invoice_email', 'concierge@solitairefinejewels.com');
+        $phone        = \App\Models\SiteSetting::get('invoice_phone', '+91 98201 45678');
+        $website      = \App\Models\SiteSetting::get('invoice_website', 'www.solitairefinejewels.com');
+        $gstin        = trim(\App\Models\SiteSetting::get('invoice_gstin', ''));
+        $footerNote   = \App\Models\SiteSetting::get('invoice_footer_note', 'Thank you for choosing Solitaire Fine Jewels Atelier. Quotation valid as specified.');
+        
+        $subtotal     = $quote->subtotal ?? $quote->items->sum('total');
+        $depositAmt   = ($quote->deposit_type?->value === 'percentage')
+            ? ($quote->total_amount * $quote->deposit_amount / 100)
+            : $quote->deposit_amount;
+    @endphp
+
+    {{-- Top Decorative Gold Band --}}
+    <div class="top-luxury-bar"></div>
+
+    {{-- ── HEADER: BRAND IDENTITY & QUOTE METADATA ── --}}
+    <table class="header-table" cellpadding="0" cellspacing="0">
         <tr>
-            <td style="width:55%;">
-                <div class="brand-name">Solitaire Fine Jewels Atelier</div>
-                <div class="brand-tagline">Certified Diamonds & Bespoke Fine Jewellery</div>
-                <div class="brand-contact">
-                    Email: {{ config('mail.from.address', 'concierge@solitairefinejewels.com') }}<br>
-                    @if(config('app.business_whatsapp')) WhatsApp: {{ config('app.business_whatsapp') }}<br> @endif
-                    @if(config('app.business_gst')) GST: {{ config('app.business_gst') }} @endif
+            <td style="width: 55%;">
+                <div class="brand-title">{{ $brandName }}</div>
+                <div class="brand-tagline">{{ $brandTagline }}</div>
+                <div class="brand-meta">
+                    {!! nl2br(e($address)) !!}<br>
+                    @if(!empty($gstin))
+                        <strong>GSTIN:</strong> {{ $gstin }} &bull; 
+                    @endif
+                    <strong>Tel:</strong> {{ $phone }}<br>
+                    <strong>Email:</strong> {{ $email }} &bull; <strong>Web:</strong> {{ $website }}
                 </div>
             </td>
-            <td style="width:45%; text-align:right;">
-                <div class="doc-title">QUOTATION</div>
-                <div class="doc-meta">
+
+            <td style="width: 45%;">
+                <div class="invoice-title">Quotation</div>
+                <div class="invoice-subtitle">Official Atelier Proposal</div>
+                <div class="invoice-meta-box">
                     <strong>Quote Ref:</strong> {{ $quote->quote_reference }}<br>
                     <strong>Request Ref:</strong> {{ $quote->request->public_reference }}<br>
-                    <strong>Date:</strong> {{ $quote->created_at->format('d M Y') }}<br>
-                    @if($quote->valid_until)<strong>Valid Until:</strong> {{ \Carbon\Carbon::parse($quote->valid_until)->format('d M Y') }}<br>@endif
+                    <strong>Issue Date:</strong> {{ $quote->created_at->format('d M Y') }}<br>
+                    @if($quote->valid_until)
+                        <strong>Valid Until:</strong> {{ \Carbon\Carbon::parse($quote->valid_until)->format('d M Y') }}<br>
+                    @endif
+                    <span class="badge-status">{{ $quote->status->getLabel() }}</span>
                 </div>
-                <div><span class="status-badge">{{ $quote->status->getLabel() }}</span></div>
             </td>
         </tr>
     </table>
 
-    <!-- ═══ CUSTOMER + PROJECT ═══ -->
-    <table class="info-table">
+    <div class="gold-hairline"></div>
+
+    {{-- ── CLIENT & PROJECT REQUIREMENTS ── --}}
+    <table class="info-container" cellpadding="0" cellspacing="0">
         <tr>
             <td>
-                <div class="info-label">Prepared For</div>
-                <div class="info-value">{{ $quote->request->name }}</div>
-                <div class="info-sub">
-                    {{ $quote->request->email }}<br>
-                    @if($quote->request->phone){{ $quote->request->phone }}@endif
-                    @if($quote->request->whatsapp) &nbsp;| WA: {{ $quote->request->whatsapp }}@endif
+                <div class="section-label">Prepared For (Collector / Client)</div>
+                <div class="person-name">{{ $quote->request->name }}</div>
+                <div class="address-text">
+                    <strong>Email:</strong> {{ $quote->request->email }}<br>
+                    @if($quote->request->phone)
+                        <strong>Phone:</strong> {{ $quote->request->phone }}<br>
+                    @endif
+                    @if($quote->request->whatsapp)
+                        <strong>WhatsApp:</strong> {{ $quote->request->whatsapp }}<br>
+                    @endif
+                    <strong>Client Reference:</strong> {{ $quote->request->public_reference }}
                 </div>
             </td>
             <td>
-                <div class="info-label">Artwork Project</div>
-                <div class="info-value">{{ ucfirst(str_replace('_', ' ', $quote->request->project_type)) }}</div>
-                <div class="info-sub">
+                <div class="section-label">Artisan Scope &amp; Specifications</div>
+                <div class="person-name">{{ ucfirst(str_replace('_', ' ', $quote->request->project_type)) }}</div>
+                <div class="address-text">
                     @if($quote->request->width && $quote->request->height)
-                        Size: {{ $quote->request->width }} × {{ $quote->request->height }}
+                        <strong>Dimensions:</strong> {{ $quote->request->width }} × {{ $quote->request->height }}
                         @if($quote->request->depth) × {{ $quote->request->depth }}@endif
                         {{ strtoupper($quote->request->unit ?? 'cm') }}<br>
                     @endif
-                    @if($quote->request->preferred_style)Style: {{ $quote->request->preferred_style }}<br>@endif
-                    @if($quote->request->preferred_colors)Colors: {{ $quote->request->preferred_colors }}@endif
+                    @if($quote->request->preferred_style)
+                        <strong>Design Style:</strong> {{ $quote->request->preferred_style }}<br>
+                    @endif
+                    @if($quote->request->preferred_colors)
+                        <strong>Metal / Tone Palette:</strong> {{ $quote->request->preferred_colors }}<br>
+                    @endif
+                    @if($quote->estimated_completion)
+                        <strong>Estimated Delivery:</strong> {{ $quote->estimated_completion }}
+                    @endif
                 </div>
             </td>
         </tr>
     </table>
 
-    <!-- ═══ LINE ITEMS ═══ -->
-    <div class="section-label">Scope of Work</div>
-    <table class="items-table">
+    {{-- ── LINE ITEMS TABLE ── --}}
+    <table class="items-table" cellpadding="0" cellspacing="0">
         <thead>
             <tr>
-                <th style="width:5%">#</th>
-                <th style="width:55%">Description</th>
-                <th class="center" style="width:10%">Qty</th>
-                <th class="right" style="width:15%">Unit Price</th>
-                <th class="right" style="width:15%">Amount</th>
+                <th style="width: 24pt;" class="text-center">#</th>
+                <th>Artisan Item / Crafting Scope</th>
+                <th style="width: 36pt;" class="text-center">Qty</th>
+                <th style="width: 80pt;" class="text-right">Unit Price</th>
+                <th style="width: 85pt;" class="text-right">Amount</th>
             </tr>
         </thead>
         <tbody>
             @foreach($quote->items as $i => $item)
             <tr>
-                <td style="color:#A8A29E;">{{ $i + 1 }}</td>
-                <td>{{ $item->description }}</td>
-                <td class="center">{{ $item->quantity }}</td>
-                <td class="unit">&#8377;{{ number_format($item->unit_price, 2) }}</td>
-                <td class="right">&#8377;{{ number_format($item->total, 2) }}</td>
+                <td class="text-center text-muted">{{ $i + 1 }}</td>
+                <td>
+                    <div class="item-name">{{ $item->description }}</div>
+                    <span class="item-spec-pill">Handcrafted Atelier</span>
+                </td>
+                <td class="text-center font-bold">{{ $item->quantity }}</td>
+                <td class="text-right text-muted">&#8377; {{ number_format($item->unit_price, 2) }}</td>
+                <td class="text-right font-bold">&#8377; {{ number_format($item->total, 2) }}</td>
             </tr>
             @endforeach
         </tbody>
     </table>
 
-    <!-- ═══ TOTALS TABLE ═══ -->
-    <table class="totals-table">
+    {{-- ── BOTTOM SPLIT: DEPOSIT CARD & TOTALS ── --}}
+    <table class="bottom-table" cellpadding="0" cellspacing="0">
         <tr>
-            <td class="spacer"></td>
-            <td class="content">
-                @php
-                    $subtotal = $quote->subtotal ?? $quote->items->sum('total');
-                @endphp
-                <table class="subtotal-table">
+            <td style="width: 52%;">
+                <div class="deposit-card">
+                    <div class="deposit-header">Advance Deposit Required To Initiate</div>
+                    <div class="deposit-amount">&#8377; {{ number_format($depositAmt, 2) }}</div>
+                    <div class="deposit-body">
+                        @if($quote->deposit_type?->value === 'percentage')
+                            {{ $quote->deposit_amount }}% required to procure certified gems and commence casting.
+                        @else
+                            Fixed advance deposit required to schedule atelier bench time.
+                        @endif
+                        <br><strong>Authenticity:</strong> All creations are BIS Hallmarked with certificate of authenticity.
+                    </div>
+                </div>
+            </td>
+
+            <td style="width: 48%;">
+                <table class="totals-table" cellpadding="0" cellspacing="0">
                     @if($quote->shipping_amount > 0 || $quote->tax_amount > 0 || $quote->discount_amount > 0)
                     <tr>
-                        <td>Subtotal</td>
-                        <td class="val">&#8377;{{ number_format($subtotal, 2) }}</td>
+                        <td class="lbl">Subtotal</td>
+                        <td class="val">&#8377; {{ number_format($subtotal, 2) }}</td>
                     </tr>
                     @endif
                     @if($quote->shipping_amount > 0)
                     <tr>
-                        <td>Shipping &amp; Handling</td>
-                        <td class="val">&#8377;{{ number_format($quote->shipping_amount, 2) }}</td>
+                        <td class="lbl">Insured Shipping</td>
+                        <td class="val">&#8377; {{ number_format($quote->shipping_amount, 2) }}</td>
                     </tr>
                     @endif
                     @if($quote->tax_amount > 0)
                     <tr>
-                        <td>Tax (GST)</td>
-                        <td class="val">&#8377;{{ number_format($quote->tax_amount, 2) }}</td>
+                        <td class="lbl">Taxes (GST 3%)</td>
+                        <td class="val">&#8377; {{ number_format($quote->tax_amount, 2) }}</td>
                     </tr>
                     @endif
                     @if($quote->discount_amount > 0)
                     <tr>
-                        <td>Discount</td>
-                        <td class="val discount">– &#8377;{{ number_format($quote->discount_amount, 2) }}</td>
+                        <td class="lbl" style="color: #059669;">Privilege Courtesy</td>
+                        <td class="val" style="color: #059669;">- &#8377; {{ number_format($quote->discount_amount, 2) }}</td>
                     </tr>
                     @endif
-                </table>
-
-                <!-- Grand Total -->
-                <table class="grand-total-table">
-                    <tr>
-                        <td>Grand Total</td>
-                        <td class="amount">&#8377;{{ number_format($quote->total_amount, 2) }}</td>
-                    </tr>
-                </table>
-
-                <!-- Deposit Box -->
-                @php
-                    $depositAmt = ($quote->deposit_type?->value === 'percentage')
-                        ? ($quote->total_amount * $quote->deposit_amount / 100)
-                        : $quote->deposit_amount;
-                @endphp
-                <table class="deposit-table">
-                    <tr>
-                        <td>
-                            <div style="font-size: 7.5px; text-transform: uppercase; letter-spacing: 1.2px; color: #8E877D; font-weight: bold; margin-bottom: 3px;">ADVANCE DEPOSIT REQUIRED</div>
-                            <div style="font-size: 14px; font-weight: bold; color: #1C1917;">&#8377;{{ number_format($depositAmt, 2) }}</div>
-                            <div style="font-size: 9px; color: #78716C; margin-top: 3px;">
-                                @if($quote->deposit_type?->value === 'percentage')
-                                    {{ $quote->deposit_amount }}% of total to begin production
-                                @else
-                                    Fixed advance to begin production
-                                @endif
-                            </div>
-                        </td>
+                    <tr class="grand-total">
+                        <td class="lbl">Grand Total (INR)</td>
+                        <td class="val">&#8377; {{ number_format($quote->total_amount, 2) }}</td>
                     </tr>
                 </table>
             </td>
         </tr>
     </table>
 
-    @if($quote->estimated_completion)
-    <div class="section-label" style="margin-top: 8px;">Estimated Delivery</div>
-    <div style="font-size: 10.5px; color: #1C1917; margin-bottom: 12px;">{{ $quote->estimated_completion }}</div>
-    @endif
-
     @if($quote->notes)
-    <div class="notes-box">
-        <div class="section-label" style="margin-bottom: 4px;">Terms &amp; Notes</div>
-        <div class="notes-text">{{ $quote->notes }}</div>
+    <div class="notes-card">
+        <strong style="color: #1A1615; text-transform: uppercase; font-size: 6.8pt; letter-spacing: 1.2pt;">Terms &amp; Artisan Notes:</strong><br>
+        {{ $quote->notes }}
     </div>
     @endif
 
-    <!-- ═══ FOOTER ═══ -->
-    <table class="footer-table">
-        <tr>
-            <td style="width: 60%;">
-                This is a system-generated quotation.<br>
-                For queries, contact us on WhatsApp or Email.
-            </td>
-            <td style="width: 40%; text-align: right;">
-                @if($quote->valid_until)
-                    <span class="valid-badge">Valid until {{ \Carbon\Carbon::parse($quote->valid_until)->format('d M Y') }}</span><br>
-                @endif
-                Generated: {{ now()->format('d M Y, h:i A') }}
-            </td>
-        </tr>
-    </table>
+    {{-- ── FOOTER DECLARATION ── --}}
+    <div class="footer-declaration">
+        <strong>{{ $footerNote }}</strong><br>
+        Quotation valid until {{ $quote->valid_until ? \Carbon\Carbon::parse($quote->valid_until)->format('d M Y') : 'valid date' }}. Certified diamonds and BIS hallmarked precious metals.<br>
+        {{ $brandName }} Atelier &middot; Handcrafted Fine Jewellery &middot; Computer-Generated Legal Quote
+    </div>
 
 </div>
 </body>
