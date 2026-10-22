@@ -53,11 +53,13 @@ class EditProduct extends EditRecord
             if (!empty($data['attributes']['size_variants'])) {
                 $derivedWeight = 0;
 
+                $commonCut = (float) ($data['attributes']['common_cut_price'] ?? 0);
+
                 foreach ($data['attributes']['size_variants'] as $idx => $v) {
                     $vWeight = (float) ($v['weight_grams'] ?? 0);
-                    $userMrp14k = !empty($v['mrp_14k']) ? (float) $v['mrp_14k'] : null;
-                    $userMrp18k = !empty($v['mrp_18k']) ? (float) $v['mrp_18k'] : null;
-                    $userMrp22k = !empty($v['mrp_22k']) ? (float) $v['mrp_22k'] : null;
+                    $userMrp14k = ($commonCut > 0) ? $commonCut : (!empty($v['mrp_14k']) ? (float) $v['mrp_14k'] : null);
+                    $userMrp18k = ($commonCut > 0) ? $commonCut : (!empty($v['mrp_18k']) ? (float) $v['mrp_18k'] : null);
+                    $userMrp22k = ($commonCut > 0) ? $commonCut : (!empty($v['mrp_22k']) ? (float) $v['mrp_22k'] : null);
 
                     if ($vWeight > 0) {
                         $c14 = \App\Services\BullionPricingService::calculateFinalPrice($vWeight, $making, $diamond, '14KT Gold', null, null, $vWeight, $profit);
@@ -99,7 +101,7 @@ class EditProduct extends EditRecord
                         $rates
                     );
                     $data['attributes']['purity_prices'][$p] = $calc['selling_price'];
-                    $data['attributes']['purity_mrp'][$p] = $calc['mrp_price'];
+                    $data['attributes']['purity_mrp'][$p] = ($commonCut > 0) ? $commonCut : $calc['mrp_price'];
                 }
 
                 $data['attributes']['gold_weight'] = "{$weight} gms approx";
@@ -113,9 +115,9 @@ class EditProduct extends EditRecord
             $sellingPrice = isset($purityPrices[$firstPurity]) && is_numeric($purityPrices[$firstPurity])
                 ? (float) $purityPrices[$firstPurity]
                 : null;
-            $mrp = isset($purityMrp[$firstPurity]) && is_numeric($purityMrp[$firstPurity])
-                ? (float) $purityMrp[$firstPurity]
-                : null;
+            $mrp = ($commonCut > 0)
+                ? $commonCut
+                : (isset($purityMrp[$firstPurity]) && is_numeric($purityMrp[$firstPurity]) ? (float) $purityMrp[$firstPurity] : null);
 
             if ($sellingPrice !== null) {
                 if ($mrp !== null && $mrp > $sellingPrice) {

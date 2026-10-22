@@ -350,6 +350,10 @@ class Product extends Model
     public function getEffectiveMrpAttribute(): ?float
     {
         $attrs = $this->jewellery_attributes;
+        if (!empty($attrs['common_cut_price']) && (float) $attrs['common_cut_price'] > 0) {
+            return (float) $attrs['common_cut_price'];
+        }
+
         $purities = $this->gold_purities;
 
         // Dynamic gold pricing: calculate benchmark MRP for primary purity and first size variant

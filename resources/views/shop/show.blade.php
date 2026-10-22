@@ -442,6 +442,8 @@
                 profitMarginPercent: Number(config.profitMarginPercent) || 0,
                 rate24kt: Number(config.rate24kt) || 7600,
                 bullionRates: config.bullionRates || {},
+                commonCutPrice: Number(config.commonCutPrice) || 0,
+                regularPrice: Number(config.regularPrice) || 0,
 
                 getDensityMultiplier(purity) {
                     if (!purity) return 1.185;
@@ -509,9 +511,11 @@
                         const profitVal = Math.round(costWithGst * (margin / 100) * 100) / 100;
                         const finalPrice = Math.round(costWithGst + profitVal);
 
-                        // Only show strikethrough cut price if manually set by admin
+                        // If common Cut Price is set by admin, it remains the SAME across all sizes and purities
                         let mrp = null;
-                        if (sizeVariant) {
+                        if (this.commonCutPrice && Number(this.commonCutPrice) > 0) {
+                            mrp = Number(this.commonCutPrice);
+                        } else if (sizeVariant) {
                             const pLower = (purity || '').toLowerCase();
                             if (pLower.includes('14') && sizeVariant.mrp_14k && Number(sizeVariant.mrp_14k) > 0) {
                                 mrp = Number(sizeVariant.mrp_14k);
@@ -522,6 +526,10 @@
                             } else if (sizeVariant.mrp && Number(sizeVariant.mrp) > finalPrice) {
                                 mrp = Number(sizeVariant.mrp);
                             }
+                        }
+
+                        if (!mrp && this.regularPrice && Number(this.regularPrice) > finalPrice) {
+                            mrp = Number(this.regularPrice);
                         }
 
                         return {
@@ -567,7 +575,9 @@
                     }
 
                     let mrp = null;
-                    if (sizeVariant) {
+                    if (this.commonCutPrice && Number(this.commonCutPrice) > 0) {
+                        mrp = Number(this.commonCutPrice);
+                    } else if (sizeVariant) {
                         const pLower = (this.selectedPurity || '').toLowerCase();
                         if (pLower.includes('14') && sizeVariant.mrp_14k && Number(sizeVariant.mrp_14k) > 0) {
                             mrp = Number(sizeVariant.mrp_14k);
@@ -746,6 +756,7 @@
             sizeVariants: @js($product->attributes['size_variants'] ?? []),
             basePrice: {{ (float) $product->effective_price }},
             regularPrice: {{ (float) $product->price }},
+            commonCutPrice: {{ (float) ($product->jewellery_attributes['common_cut_price'] ?? 0) }},
             pricingMode: @js($product->attributes['pricing_mode'] ?? 'manual'),
             baseGoldWeight: {{ (float) $product->base_gold_weight }},
             makingChargePerGram: {{ (float) $product->making_charge_per_gram }},
@@ -955,13 +966,13 @@
                     @if(!empty($mediaList))
                         {{-- Image Viewers --}}
                         <template x-if="currentMedia && currentMedia.type === 'image'">
-                            <div class="w-full h-full cursor-pointer relative" @click="openLightbox()">
+                            <div class="w-full h-full cursor-zoom-in relative" @click="openLightbox()">
                                 <img :src="currentMedia.src"
                                      alt="{{ $product->name }}"
-                                     class="w-full h-full object-cover transition-opacity duration-300">
+                                     class="w-full h-full object-cover transition-opacity duration-300 pointer-events-none">
                                 {{-- Click to zoom hint on desktop --}}
-                                <div class="absolute bottom-3 right-3 hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/85 backdrop-blur-md border border-[#DFD9CE]/80 text-[11px] text-[#5A554E] font-medium opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none shadow-xs">
-                                    <svg class="w-3.5 h-3.5 stroke-[2]" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7"/></svg>
+                                <div class="absolute bottom-3.5 right-3.5 hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/95 backdrop-blur-md border border-[#DFD9CE] text-[11px] text-[#1C1917] font-semibold opacity-90 group-hover:opacity-100 group-hover:scale-105 transition-all duration-200 pointer-events-none shadow-sm">
+                                    <svg class="w-3.5 h-3.5 stroke-[2.2] text-[#A87432]" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7"/></svg>
                                     <span>Click to zoom</span>
                                 </div>
                             </div>

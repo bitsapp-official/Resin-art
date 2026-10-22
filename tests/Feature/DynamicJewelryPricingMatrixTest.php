@@ -594,6 +594,60 @@ class DynamicJewelryPricingMatrixTest extends TestCase
         $this->assertEquals(2369.0, $calc['profit_amount']);
         $this->assertEquals(49749.0, $calc['final_price']);
     }
+
+    public function test_common_cut_price_applies_uniformly_across_all_sizes_and_product_mrp(): void
+    {
+        $product = Product::create([
+            'name' => 'Uniform Cut Price Solitaire Band',
+            'slug' => 'uniform-cut-price-solitaire-band-' . uniqid(),
+            'sku' => 'UNI-CUT-' . uniqid(),
+            'price' => 85000,
+            'status' => 'published',
+            'inventory_type' => 'READY_TO_SHIP',
+            'stock' => 10,
+            'attributes' => [
+                'pricing_mode' => 'dynamic',
+                'making_charge' => 750,
+                'diamond_value' => 20000,
+                'common_cut_price' => 85000,
+                'gold_weight_grams' => 4.0,
+                'gold_purities' => ['14KT Gold', '18KT Gold', '22KT Gold'],
+                'size_variants' => [
+                    [
+                        'size' => 'Size 6',
+                        'weight_grams' => 3.2,
+                        'price_14k' => 42000,
+                        'mrp_14k' => 85000,
+                        'price_18k' => 46000,
+                        'mrp_18k' => 85000,
+                        'price_22k' => 51000,
+                        'mrp_22k' => 85000,
+                        'price' => 46000,
+                        'mrp' => 85000,
+                    ],
+                    [
+                        'size' => 'Size 12',
+                        'weight_grams' => 4.0,
+                        'price_14k' => 47105,
+                        'mrp_14k' => 85000,
+                        'price_18k' => 52324,
+                        'mrp_18k' => 85000,
+                        'price_22k' => 57543,
+                        'mrp_22k' => 85000,
+                        'price' => 52324,
+                        'mrp' => 85000,
+                    ],
+                ],
+            ],
+        ]);
+
+        $this->assertEquals(85000.0, $product->effective_mrp);
+
+        $response = $this->get(route('shop.show', $product->slug));
+        $response->assertStatus(200);
+        $response->assertSee('85000');
+    }
 }
+
 
 
