@@ -49,11 +49,16 @@ class EditProduct extends EditRecord
             $diamond = (float) ($data['attributes']['diamond_value'] ?? 0);
             $profit = (float) ($data['attributes']['profit_margin_percent'] ?? 0);
 
+            // Clean size variants if merchant selected Single Piece
+            if (($data['attributes']['has_sizes'] ?? 'yes') === 'no') {
+                $data['attributes']['size_variants'] = [];
+            }
+
+            $commonCut = (float) ($data['attributes']['common_cut_price'] ?? 0);
+
             // 1. Calculate each size variant price and auto-derive benchmark weight
             if (!empty($data['attributes']['size_variants'])) {
                 $derivedWeight = 0;
-
-                $commonCut = (float) ($data['attributes']['common_cut_price'] ?? 0);
 
                 foreach ($data['attributes']['size_variants'] as $idx => $v) {
                     $vWeight = (float) ($v['weight_grams'] ?? 0);
