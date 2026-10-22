@@ -74,32 +74,32 @@
                     </div>
                 </template>
 
-                {{-- Cinematic Dark Gradient Overlay (Lightened on the right so product showcase shines brightly) --}}
-                <div class="absolute inset-0 bg-gradient-to-r from-black/85 via-black/40 to-transparent pointer-events-none"></div>
-                <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/25 pointer-events-none"></div>
+                {{-- Cinematic Dark Gradient Vignette Overlay --}}
+                <div class="absolute inset-0 bg-gradient-to-r from-black/85 via-black/55 to-black/20 lg:via-black/45 lg:to-transparent pointer-events-none"></div>
+                <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-black/30 pointer-events-none"></div>
 
-                {{-- Hero Content Overlay (Refined typography and balanced proportions) --}}
+                {{-- Hero Content Overlay (Carefully tuned optical vertical positioning) --}}
                 <div class="relative z-10 max-w-[1400px] w-full mx-auto px-4 sm:px-6 lg:px-12 xl:px-16 pt-16 sm:pt-20 pb-10 sm:pb-12 min-w-0">
-                    <div class="max-w-xl lg:max-w-2xl space-y-4 sm:space-y-5 text-white min-w-0">
+                    <div class="max-w-2xl lg:max-w-3xl space-y-5 sm:space-y-6 text-white min-w-0">
                         
                         {{-- Tag Badge --}}
-                        <div class="inline-flex items-center space-x-2.5 bg-white/15 backdrop-blur-md border border-white/20 px-3.5 sm:px-4 py-1.5 rounded-full shadow-sm">
-                            <span class="w-2 h-2 rounded-full bg-[#E5D0AC] animate-pulse"></span>
+                        <div class="inline-flex items-center space-x-2.5 bg-white/15 backdrop-blur-md border border-white/20 px-3.5 sm:px-4 py-1.5 rounded-full shadow-sm animate-fade-up">
+                            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
                             <span class="text-[9px] sm:text-[10px] uppercase tracking-[0.25em] font-semibold text-white truncate" x-text="slides[currentSlide].tag"></span>
                         </div>
 
-                        {{-- Refined Editorial Headline (Balanced proportion so product showcase is primary) --}}
-                        <h1 class="font-editorial text-2xl sm:text-4xl lg:text-5xl font-light leading-[1.16] tracking-tight text-white drop-shadow-sm max-w-xl" x-text="slides[currentSlide].title">
+                        {{-- Big Editorial Headline --}}
+                        <h1 class="font-editorial text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-light leading-[1.12] sm:leading-[1.08] tracking-tight text-white drop-shadow-sm min-h-[2.2em] sm:min-h-[2em] flex items-center" x-text="slides[currentSlide].title">
                         </h1>
 
                         {{-- Subtitle Paragraph --}}
-                        <p class="text-xs sm:text-base text-white/85 font-light leading-relaxed max-w-lg drop-shadow-xs" x-text="slides[currentSlide].desc">
+                        <p class="text-xs sm:text-base lg:text-lg text-white/85 font-light leading-relaxed max-w-xl drop-shadow-xs" x-text="slides[currentSlide].desc">
                         </p>
 
                         {{-- Action Buttons --}}
-                        <div class="pt-2 sm:pt-3 flex flex-wrap items-center gap-3 sm:gap-4">
+                        <div class="pt-3 sm:pt-4 flex flex-wrap items-center gap-3 sm:gap-5">
                             <a :href="slides[currentSlide].link" 
-                               class="inline-flex items-center justify-center rounded-full bg-white text-[#1C1917] hover:bg-[#AD9575] hover:text-white px-6 sm:px-8 py-3 sm:py-3.5 text-[10px] sm:text-[10.5px] uppercase tracking-[0.22em] font-semibold transition-all duration-300 shadow-xl group/btn whitespace-nowrap">
+                               class="inline-flex items-center justify-center rounded-full bg-white text-[#1C1917] hover:bg-[#AD9575] hover:text-white px-6 sm:px-10 py-3.5 sm:py-4 text-[10px] sm:text-[10.5px] uppercase tracking-[0.22em] sm:tracking-[0.25em] font-semibold transition-all duration-300 shadow-xl group/btn whitespace-nowrap">
                                 <span>Explore Collection</span>
                                 <svg class="w-3.5 h-3.5 ml-2 group-hover/btn:translate-x-1 transition-transform stroke-[2]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"/>
@@ -107,21 +107,21 @@
                             </a>
 
                             <a href="{{ route('custom.index') }}" 
-                               class="inline-flex items-center justify-center rounded-full bg-white/10 hover:bg-white/20 text-white border border-white/30 backdrop-blur-md px-5 sm:px-7 py-3 sm:py-3.5 text-[10px] sm:text-[10.5px] uppercase tracking-[0.22em] font-semibold transition-all duration-300 shadow-lg whitespace-nowrap">
+                               class="inline-flex items-center justify-center rounded-full bg-white/10 hover:bg-white/20 text-white border border-white/30 backdrop-blur-md px-6 sm:px-9 py-3.5 sm:py-4 text-[10px] sm:text-[10.5px] uppercase tracking-[0.22em] sm:tracking-[0.25em] font-semibold transition-all duration-300 shadow-lg whitespace-nowrap">
                                 <span>Bespoke Inquiry</span>
                             </a>
                         </div>
 
-                        {{-- Slide Progress Indicator Dots --}}
+                        {{-- Slide Progress Indicator Dots (Directly below action buttons with refined breathing space) --}}
                         @if(count($slidesData) > 1)
-                            <div class="pt-4 sm:pt-5 flex items-center">
-                                <div class="inline-flex items-center space-x-2 bg-black/45 backdrop-blur-md border border-white/20 px-3 py-1.5 rounded-full shadow-lg">
+                            <div class="pt-5 sm:pt-7 flex items-center">
+                                <div class="inline-flex items-center space-x-2.5 bg-black/45 backdrop-blur-md border border-white/20 px-3.5 py-2 rounded-full shadow-lg">
                                     @foreach($slidesData as $sIndex => $sItem)
                                         <button type="button" 
                                                 @click.stop.prevent="goTo({{ $sIndex }})" 
-                                                :class="currentSlide === {{ $sIndex }} ? 'w-7 bg-[#E5D0AC]' : 'w-2 bg-white/40 hover:bg-white/80'"
+                                                :class="currentSlide === {{ $sIndex }} ? 'w-8 bg-[#DFD4C0]' : 'w-2.5 bg-white/40 hover:bg-white/80'"
                                                 aria-label="Go to slide {{ $sIndex + 1 }}"
-                                                class="h-1.5 rounded-full transition-all duration-300 focus:outline-none cursor-pointer">
+                                                class="h-2 rounded-full transition-all duration-300 focus:outline-none cursor-pointer">
                                         </button>
                                     @endforeach
                                 </div>
