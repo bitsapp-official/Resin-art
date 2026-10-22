@@ -186,24 +186,24 @@ class BlogTest extends TestCase
         $response->assertSee('Related Post Title');
     }
 
-    public function test_reading_time_is_calculated_automatically_on_model_save(): void
+    public function test_post_renders_luxury_card_without_reading_time(): void
     {
         $category = BlogCategory::create(['name' => 'Care', 'slug' => 'care', 'is_active' => true]);
-
-        // Generate 400 words content (~2 MIN read)
-        $words = implode(' ', array_fill(0, 400, 'resin'));
 
         $post = BlogPost::create([
             'category_id' => $category->id,
             'title' => 'Long Care Guide',
             'slug' => 'long-care-guide',
-            'excerpt' => 'Excerpt',
-            'content' => "<p>{$words}</p>",
+            'excerpt' => 'Excerpt of fine jewellery piece',
+            'content' => "<p>Care guide content</p>",
             'status' => BlogPostStatus::PUBLISHED,
             'published_at' => now()->subDay(),
         ]);
 
-        $this->assertEquals('2 MIN', $post->reading_time);
+        $response = $this->get('/blog');
+        $response->assertStatus(200);
+        $response->assertSee('Long Care Guide');
+        $response->assertDontSee('MIN');
     }
 
     public function test_unauthorized_user_cannot_access_blog_cms(): void

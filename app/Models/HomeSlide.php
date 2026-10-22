@@ -29,10 +29,19 @@ class HomeSlide extends Model
     public function getImageUrlAttribute(): string
     {
         if (empty($this->image)) {
-            return '';
+            return asset('images/hero/jewellery_solitaire_banner.jpg');
         }
-        if (str_starts_with($this->image, 'http://') || str_starts_with($this->image, 'https://') || str_starts_with($this->image, '/')) {
+        if (str_starts_with($this->image, 'http://') || str_starts_with($this->image, 'https://') || str_starts_with($this->image, '//') || str_starts_with($this->image, '/')) {
             return $this->image;
+        }
+        if (str_starts_with($this->image, 'images/')) {
+            return asset($this->image);
+        }
+        if (file_exists(public_path('storage/' . $this->image))) {
+            return asset('storage/' . $this->image);
+        }
+        if (file_exists(public_path('images/' . $this->image))) {
+            return asset('images/' . $this->image);
         }
         return asset('storage/' . $this->image);
     }

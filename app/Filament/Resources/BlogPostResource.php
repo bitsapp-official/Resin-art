@@ -114,9 +114,23 @@ class BlogPostResource extends Resource
                                     ->label('Publish Date')
                                     ->default(now()),
 
-                                Forms\Components\TextInput::make('reading_time')
-                                    ->label('Reading Time (Auto-calculated if blank)')
-                                    ->placeholder('5 MIN'),
+                                Forms\Components\Toggle::make('is_featured_on_home')
+                                    ->label('Showcase on Homepage (Max 3)')
+                                    ->helperText('Display this article in the 3-card Editorial Journal on the Homepage (Max 3 allowed)')
+                                    ->default(false)
+                                    ->rule(function ($record) {
+                                        return function (string $attribute, $value, \Closure $fail) use ($record) {
+                                            if ($value) {
+                                                $count = \App\Models\BlogPost::where('is_featured_on_home', true)
+                                                    ->when($record, fn ($q) => $q->where('id', '!=', $record->id))
+                                                    ->count();
+
+                                                if ($count >= 3) {
+                                                    $fail('Homepage has slots for exactly 3 showcase articles. Please turn OFF an existing showcase article before activating this one.');
+                                                }
+                                            }
+                                        };
+                                    }),
                             ]),
 
                         Forms\Components\Section::make('SEO Metadata')
@@ -163,9 +177,34 @@ class BlogPostResource extends Resource
                         default => 'gray',
                     }),
 
-                Tables\Columns\TextColumn::make('reading_time')
-                    ->fontFamily('mono')
-                    ->label('Reading Time'),
+                Tables\Columns\ToggleColumn::make('is_featured_on_home')
+                    ->label('Home Showcase (Max 3)')
+                    ->updateStateUsing(function ($record, $state) {
+                        if ($state) {
+                            $featuredCount = \App\Models\BlogPost::where('is_featured_on_home', true)
+                                ->where('id', '!=', $record->id)
+                                ->count();
+
+                            if ($featuredCount >= 3) {
+                                \Filament\Notifications\Notification::make()
+                                    ->title('Limit Reached: Max 3 Allowed')
+                                    ->body('Homepage has slots for exactly 3 showcase articles. Please turn OFF another article before activating this one.')
+                                    ->warning()
+                                    ->send();
+
+                                return $record->is_featured_on_home;
+                            }
+                        }
+
+                        $record->update(['is_featured_on_home' => (bool) $state]);
+
+                        \Filament\Notifications\Notification::make()
+                            ->title($state ? 'Article Added to Homepage Showcase' : 'Article Removed from Homepage Showcase')
+                            ->success()
+                            ->send();
+
+                        return $state;
+                    }),
 
                 Tables\Columns\TextColumn::make('published_at')
                     ->dateTime('M d, Y H:i')

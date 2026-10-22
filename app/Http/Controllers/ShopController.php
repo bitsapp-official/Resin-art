@@ -25,12 +25,35 @@ class ShopController extends Controller
             });
         }
 
-        // Category Filter
+        // Category Filter (supports parent groups: rings, earrings, necklaces, bracelets, or exact slug)
         if ($request->filled('category')) {
             $categorySlug = $request->input('category');
-            $query->whereHas('category', function ($q) use ($categorySlug) {
-                $q->where('slug', $categorySlug);
-            });
+            if ($categorySlug === 'rings') {
+                $query->whereHas('category', function ($q) {
+                    $q->whereIn('slug', ['solitaire-rings', 'engagement-rings', 'eternity-bands', 'mens-jewels']);
+                });
+            } elseif ($categorySlug === 'earrings') {
+                $query->whereHas('category', function ($q) {
+                    $q->whereIn('slug', ['diamond-earrings']);
+                });
+            } elseif ($categorySlug === 'necklaces') {
+                $query->whereHas('category', function ($q) {
+                    $q->whereIn('slug', ['diamond-necklaces']);
+                });
+            } elseif ($categorySlug === 'bracelets') {
+                $query->whereHas('category', function ($q) {
+                    $q->whereIn('slug', ['diamond-bracelets', 'bracelets-bangles']);
+                });
+            } elseif (str_contains($categorySlug, ',')) {
+                $slugs = array_filter(explode(',', $categorySlug));
+                $query->whereHas('category', function ($q) use ($slugs) {
+                    $q->whereIn('slug', $slugs);
+                });
+            } else {
+                $query->whereHas('category', function ($q) use ($categorySlug) {
+                    $q->where('slug', $categorySlug);
+                });
+            }
         }
 
         // Collection Filter

@@ -39,7 +39,7 @@
 
                 <!-- 3-Column Articles Grid -->
                 @if($gridPosts->count() > 0)
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 lg:gap-10 pt-4 animate-fade-up delay-200">
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 pt-4 animate-fade-up delay-200">
                         @foreach($gridPosts as $post)
                             @include('blog.components.post-card', ['post' => $post, 'featured' => false])
                         @endforeach

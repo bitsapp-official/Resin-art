@@ -1517,23 +1517,6 @@
                             </h4>
 
                             <div class="bg-[#FAF8F5]/80 border border-[#E6E1D7] rounded-2xl overflow-hidden shadow-2xs">
-                                {{-- Row 1: Gold Weight & Purity (Only shown when data exists) --}}
-                                <div class="grid grid-cols-1 sm:grid-cols-2 border-b border-[#E6E1D7]" x-show="currentGoldWeight > 0 || selectedPurity">
-                                    <div class="flex items-center justify-between px-5 py-3.5 hover:bg-white/60 transition-colors"
-                                         :class="selectedPurity ? 'sm:border-r border-[#E6E1D7]' : 'sm:col-span-2'"
-                                         x-show="currentGoldWeight > 0">
-                                        <span class="text-[11px] uppercase tracking-[0.16em] text-[#8E877D] font-medium">Approx. Gold Weight</span>
-                                        <span class="text-xs sm:text-[13px] font-normal text-[#1C1917] tracking-normal" x-text="Number(currentGoldWeight).toFixed(2) + ' g'"></span>
-                                    </div>
-                                    <div class="flex items-center justify-between px-5 py-3.5 hover:bg-white/60 transition-colors border-t sm:border-t-0 border-[#E6E1D7]"
-                                         :class="currentGoldWeight > 0 ? '' : 'sm:col-span-2'"
-                                         x-show="selectedPurity">
-                                        <span class="text-[11px] uppercase tracking-[0.16em] text-[#8E877D] font-medium">Gold Purity</span>
-                                        <span class="text-xs sm:text-[13px] font-normal text-[#1C1917] tracking-normal" x-text="selectedPurity"></span>
-                                    </div>
-                                </div>
-
-                                {{-- Prepare Static Specs & Determine Sizing --}}
                                 @php
                                     $rawVariants = $product->attributes['size_variants'] ?? ($product->size_variants ?? null);
                                     if (is_string($rawVariants)) {
@@ -1554,76 +1537,123 @@
                                              || (!empty($rawSizes) && count($rawSizes) > 0)
                                              || (!empty($rawRingSizes) && count($rawRingSizes) > 0);
 
-                                    $staticSpecs = [];
-                                    if (!empty($product->diamond_carat)) {
-                                        $staticSpecs[] = ['label' => 'Diamond Weight', 'value' => $product->diamond_carat];
+                                    $hasGoldWeight = ($product->base_gold_weight > 0) 
+                                        || !empty($product->attributes['gold_weight']) 
+                                        || !empty($product->attributes['gold_weight_grams'])
+                                        || (!empty($rawVariants) && collect($rawVariants)->contains(fn($v) => !empty($v['weight_grams'])));
+
+                                    $hasPurity = !empty($product->gold_purities) && count($product->gold_purities) > 0;
+
+                                    $allSpecs = [];
+
+                                    if ($hasGoldWeight) {
+                                        $allSpecs[] = [
+                                            'label' => 'Approx. Gold Weight',
+                                            'is_alpine' => true,
+                                            'alpine_text' => "Number(currentGoldWeight).toFixed(2) + ' g'",
+                                            'static_value' => number_format((float) ($product->base_gold_weight ?: ($product->attributes['gold_weight_grams'] ?? 0)), 2) . ' g',
+                                        ];
                                     }
-                                    if (!empty($product->diamond_color_clarity)) {
-                                        $staticSpecs[] = ['label' => 'Color & Clarity', 'value' => $product->diamond_color_clarity];
+
+                                    if ($hasPurity) {
+                                        $allSpecs[] = [
+                                            'label' => 'Gold Purity',
+                                            'is_alpine' => true,
+                                            'alpine_text' => "selectedPurity",
+                                            'static_value' => $product->gold_purities[0] ?? '',
+                                        ];
                                     }
-                                    if (!empty($product->diamond_cut)) {
-                                        $staticSpecs[] = ['label' => 'Cut / Shape', 'value' => $product->diamond_cut];
-                                    }
-                                    if (!empty($product->certification)) {
-                                        $staticSpecs[] = ['label' => 'Certification', 'value' => $product->certification];
-                                    }
-                                    if (!empty($product->sku)) {
-                                        $staticSpecs[] = ['label' => 'Product Code', 'value' => $product->sku];
-                                    }
-                                    $staticSpecs[] = [
-                                        'label' => 'Crafting Type',
-                                        'value' => $product->inventory_type === 'MADE_TO_ORDER' ? 'Custom Made to Order' : 'Ready to Ship'
+
+                                    // Metal Tone is always present
+                                    $allSpecs[] = [
+                                        'label' => 'Metal Tone',
+                                        'is_alpine' => true,
+                                        'alpine_text' => "selectedColor || 'Yellow Gold'",
+                                        'static_value' => $firstColor ?? 'Yellow Gold',
                                     ];
 
-                                    // If this product does NOT have sizes, pair Metal Tone with the first available static spec!
-                                    $pairedWithMetal = null;
-                                    if (!$hasSizes && count($staticSpecs) > 0) {
-                                        $pairedWithMetal = array_shift($staticSpecs);
+                                    if ($hasSizes) {
+                                        $allSpecs[] = [
+                                            'label' => 'Size',
+                                            'is_alpine' => true,
+                                            'alpine_text' => "selectedSize || 'Standard'",
+                                            'static_value' => 'Standard',
+                                        ];
                                     }
 
-                                    $specRows = collect($staticSpecs)->chunk(2);
+                                    if (!empty($product->diamond_carat)) {
+                                        $allSpecs[] = [
+                                            'label' => 'Diamond Weight',
+                                            'is_alpine' => false,
+                                            'static_value' => $product->diamond_carat,
+                                        ];
+                                    }
+
+                                    if (!empty($product->diamond_color_clarity)) {
+                                        $allSpecs[] = [
+                                            'label' => 'Color & Clarity',
+                                            'is_alpine' => false,
+                                            'static_value' => $product->diamond_color_clarity,
+                                        ];
+                                    }
+
+                                    if (!empty($product->diamond_cut)) {
+                                        $allSpecs[] = [
+                                            'label' => 'Cut / Shape',
+                                            'is_alpine' => false,
+                                            'static_value' => $product->diamond_cut,
+                                        ];
+                                    }
+
+                                    if (!empty($product->certification)) {
+                                        $allSpecs[] = [
+                                            'label' => 'Certification',
+                                            'is_alpine' => false,
+                                            'static_value' => $product->certification,
+                                        ];
+                                    }
+
+                                    if (!empty($product->sku)) {
+                                        $allSpecs[] = [
+                                            'label' => 'Product Code',
+                                            'is_alpine' => false,
+                                            'static_value' => $product->sku,
+                                        ];
+                                    }
+
+                                    $allSpecs[] = [
+                                        'label' => 'Crafting Type',
+                                        'is_alpine' => false,
+                                        'static_value' => $product->inventory_type === 'MADE_TO_ORDER' ? 'Custom Made to Order' : 'Ready to Ship',
+                                    ];
+
+                                    $specRows = array_chunk($allSpecs, 2);
                                 @endphp
 
-                                {{-- Row 2: Metal Tone + (Size IF product has sizes, ELSE next available spec) --}}
-                                <div class="grid grid-cols-1 sm:grid-cols-2 {{ $specRows->count() > 0 ? 'border-b border-[#E6E1D7]' : '' }}">
-                                    <div class="flex items-center justify-between px-5 py-3.5 sm:border-r border-[#E6E1D7] hover:bg-white/60 transition-colors">
-                                        <span class="text-[11px] uppercase tracking-[0.16em] text-[#8E877D] font-medium">Metal Tone</span>
-                                        <span class="text-xs sm:text-[13px] font-normal text-[#1C1917] tracking-normal" x-text="selectedColor || 'Yellow Gold'"></span>
-                                    </div>
-                                    @if($hasSizes)
-                                        <div class="flex items-center justify-between px-5 py-3.5 hover:bg-white/60 transition-colors border-t sm:border-t-0 border-[#E6E1D7]">
-                                            <span class="text-[11px] uppercase tracking-[0.16em] text-[#8E877D] font-medium">Size</span>
-                                            <span class="text-xs sm:text-[13px] font-normal text-[#1C1917] tracking-normal" x-text="selectedSize || 'Standard'"></span>
-                                        </div>
-                                    @elseif($pairedWithMetal)
-                                        <div class="flex items-center justify-between px-5 py-3.5 hover:bg-white/60 transition-colors border-t sm:border-t-0 border-[#E6E1D7]">
-                                            <span class="text-[11px] uppercase tracking-[0.16em] text-[#8E877D] font-medium">{{ $pairedWithMetal['label'] }}</span>
-                                            <span class="text-xs sm:text-[13px] font-normal text-[#1C1917] tracking-normal">{{ $pairedWithMetal['value'] }}</span>
-                                        </div>
-                                    @else
-                                        <div class="hidden sm:block"></div>
-                                    @endif
-                                </div>
-
-                                {{-- Remaining Specs Paired Cleanly in 2 Columns --}}
                                 @foreach($specRows as $rIdx => $row)
                                     <div class="grid grid-cols-1 sm:grid-cols-2 {{ !$loop->last ? 'border-b border-[#E6E1D7]' : '' }}">
-                                        @if($row->count() === 2)
-                                            @php $first = $row->first(); $second = $row->last(); @endphp
-                                            <div class="flex items-center justify-between px-5 py-3.5 sm:border-r border-[#E6E1D7] hover:bg-white/60 transition-colors">
-                                                <span class="text-[11px] uppercase tracking-[0.16em] text-[#8E877D] font-medium">{{ $first['label'] }}</span>
-                                                <span class="text-xs sm:text-[13px] font-normal text-[#1C1917] tracking-normal">{{ $first['value'] }}</span>
-                                            </div>
+                                        {{-- Left Cell (Always 50% width on desktop, NEVER full width) --}}
+                                        <div class="flex items-center justify-between px-5 py-3.5 sm:border-r border-[#E6E1D7] hover:bg-white/60 transition-colors">
+                                            <span class="text-[11px] uppercase tracking-[0.16em] text-[#8E877D] font-medium">{{ $row[0]['label'] }}</span>
+                                            @if(!empty($row[0]['is_alpine']))
+                                                <span class="text-xs sm:text-[13px] font-normal text-[#1C1917] tracking-normal" x-text="{{ $row[0]['alpine_text'] }}">{{ $row[0]['static_value'] }}</span>
+                                            @else
+                                                <span class="text-xs sm:text-[13px] font-normal text-[#1C1917] tracking-normal">{{ $row[0]['static_value'] }}</span>
+                                            @endif
+                                        </div>
+
+                                        @if(isset($row[1]))
+                                            {{-- Right Cell (Always 50% width on desktop) --}}
                                             <div class="flex items-center justify-between px-5 py-3.5 hover:bg-white/60 transition-colors border-t sm:border-t-0 border-[#E6E1D7]">
-                                                <span class="text-[11px] uppercase tracking-[0.16em] text-[#8E877D] font-medium">{{ $second['label'] }}</span>
-                                                <span class="text-xs sm:text-[13px] font-normal text-[#1C1917] tracking-normal">{{ $second['value'] }}</span>
+                                                <span class="text-[11px] uppercase tracking-[0.16em] text-[#8E877D] font-medium">{{ $row[1]['label'] }}</span>
+                                                @if(!empty($row[1]['is_alpine']))
+                                                    <span class="text-xs sm:text-[13px] font-normal text-[#1C1917] tracking-normal" x-text="{{ $row[1]['alpine_text'] }}">{{ $row[1]['static_value'] }}</span>
+                                                @else
+                                                    <span class="text-xs sm:text-[13px] font-normal text-[#1C1917] tracking-normal">{{ $row[1]['static_value'] }}</span>
+                                                @endif
                                             </div>
                                         @else
-                                            @php $item = $row->first(); @endphp
-                                            <div class="flex items-center justify-between px-5 py-3.5 sm:border-r border-[#E6E1D7] hover:bg-white/60 transition-colors">
-                                                <span class="text-[11px] uppercase tracking-[0.16em] text-[#8E877D] font-medium">{{ $item['label'] }}</span>
-                                                <span class="text-xs sm:text-[13px] font-normal text-[#1C1917] tracking-normal">{{ $item['value'] }}</span>
-                                            </div>
+                                            {{-- Clean Empty Cell: Preserves 50% width on left and maintains vertical center divider --}}
                                             <div class="hidden sm:block"></div>
                                         @endif
                                     </div>

@@ -44,8 +44,6 @@
                     <a href="{{ route('blog.index', ['category' => $post->category?->slug]) }}" class="hover:text-[#1C1917] transition-colors">
                         {{ $post->category?->name ?? 'Journal' }}
                     </a>
-                    <span>·</span>
-                    <span>{{ $post->reading_time ?? '5 MIN' }}</span>
                 </div>
 
                 <h1 class="font-editorial text-2xl sm:text-4xl lg:text-[60px] text-[#1C1917] font-light leading-[1.12] sm:leading-[1.08] tracking-tight">
@@ -60,15 +58,13 @@
             </div>
 
             <!-- Featured Image -->
-            @if(!empty($post->featured_image))
-                <div class="max-w-5xl mx-auto rounded-[1.5rem] sm:rounded-[2rem] overflow-hidden border border-[#E5DFD3] shadow-[0_15px_45px_rgba(0,0,0,0.04)] bg-[oklch(98.5%_0.008_85)] animate-fade-up delay-150">
-                    <img src="{{ asset('storage/' . $post->featured_image) }}" 
-                         alt="{{ $post->title }}" 
-                         class="w-full h-[240px] sm:h-[420px] lg:h-[620px] object-cover"
-                         loading="eager"
-                         decoding="async">
-                </div>
-            @endif
+            <div class="max-w-5xl mx-auto rounded-3xl overflow-hidden border border-[#E8E2D8] shadow-[0_16px_40px_rgba(173,149,117,0.12)] bg-[#F3ECE2] animate-fade-up delay-150">
+                <img src="{{ $post->image_url }}" 
+                     alt="{{ $post->title }}" 
+                     class="w-full h-[240px] sm:h-[420px] lg:h-[620px] object-cover"
+                     loading="eager"
+                     decoding="async">
+            </div>
 
             <!-- Article Body Typography Container (Optimal Reading Width ~720px) -->
             <div class="max-w-[720px] mx-auto space-y-6 sm:space-y-8 animate-fade-up delay-200">

@@ -100,30 +100,48 @@ class HomeController extends Controller
             ->take(10)
             ->get();
 
-        // 8. Dynamic Quote, Story & Custom Artwork Settings
-        $homeQuoteText       = SiteSetting::get('home_quote_text', 'Resin remembers everything — the hand, the hour, the light in the room.');
-        $homeQuoteAuthor     = SiteSetting::get('home_quote_author', 'Founder & Resin Artist');
-        $homeStoryImage      = SiteSetting::get('home_story_image', 'about/artist_workshop.png');
-        $homeStoryTag        = SiteSetting::get('home_story_tag', 'OUR APPROACH');
-        $homeStoryTitle      = SiteSetting::get('home_story_title', 'Handcrafted, made to order.');
-        $homeStoryParagraph1 = SiteSetting::get('home_story_paragraph1', 'Every piece begins as a slow conversation between wood, resin, and time. We pour by hand, creating unique items that are specifically made to order for your space.');
-        $homeStoryParagraph2 = SiteSetting::get('home_story_paragraph2', 'No two rivers are alike. No two skies. That is the point.');
-        $homeStoryBadge      = SiteSetting::get('home_story_badge', 'HANDCRAFTED · MADE TO ORDER');
-        $homeStoryLinkText   = SiteSetting::get('home_story_link_text', 'Read our story');
+        // 8. Dynamic Quote, Story & Bespoke Jewellery Settings
+        $homeQuoteText       = SiteSetting::get('home_quote_text', 'A diamond does not merely capture light — it immortalises the moments that define your life.');
+        $homeQuoteAuthor     = SiteSetting::get('home_quote_author', 'Master Jeweller · Solitaire Atelier');
+        $homeStoryImage      = SiteSetting::get('home_story_image', 'images/hero/jewellery_necklace_banner.jpg');
+        $homeStoryTag        = SiteSetting::get('home_story_tag', 'THE ATELIER HERITAGE');
+        $homeStoryTitle      = SiteSetting::get('home_story_title', 'Heirlooms born of gold, fire, and light.');
+        $homeStoryParagraph1 = SiteSetting::get('home_story_paragraph1', 'Every piece in our atelier is an intimate dialogue between master craftsmanship and certified natural diamonds. Forged in solid 18KT gold, calibrated to microscopic tolerances, and designed to be worn and passed down for a lifetime.');
+        $homeStoryParagraph2 = SiteSetting::get('home_story_paragraph2', 'Certified by premier international gemmological laboratories and hallmarked for purity.');
+        $homeStoryBadge      = SiteSetting::get('home_story_badge', '100% BIS HALLMARKED · IGI CERTIFIED');
+        $homeStoryLinkText   = SiteSetting::get('home_story_link_text', 'Discover our craftsmanship');
         $homeStoryLinkUrl    = SiteSetting::get('home_story_link_url', '/about');
 
-        // Custom Made-to-Order Artwork Settings
-        $homeCustomTag        = SiteSetting::get('home_custom_tag', 'CUSTOM RESIN ARTWORK');
-        $homeCustomTitle      = SiteSetting::get('home_custom_title', 'Have a design in mind? Crafted for your space.');
-        $homeCustomDesc       = SiteSetting::get('home_custom_desc', 'Every custom piece begins with your vision. Simply describe your requirement in your own words, share inspiration or room photos, and our lead artisan connects directly with you on WhatsApp to discuss wood slabs, colors, and pricing.');
-        $homeCustomBtnText    = SiteSetting::get('home_custom_btn_text', 'Submit Custom Requirement →');
+        // Bespoke Fine Jewellery Consultation Settings
+        $homeCustomTag        = SiteSetting::get('home_custom_tag', 'BESPOKE JEWELLERY ATELIER');
+        $homeCustomTitle      = SiteSetting::get('home_custom_title', 'Have a dream design? Handcrafted exclusively for you.');
+        $homeCustomDesc       = SiteSetting::get('home_custom_desc', 'From custom solitaire engagement rings to bridal heirlooms, bring your vision to life. Share your reference sketch or photo, choose your preferred gold karat and certified diamonds, and collaborate one-on-one with our master gemologists.');
+        $homeCustomBtnText    = SiteSetting::get('home_custom_btn_text', 'Commission Custom Jewellery →');
         $homeCustomBtnUrl     = SiteSetting::get('home_custom_btn_url', '/custom');
-        $homeCustomStep1Title = SiteSetting::get('home_custom_step1_title', 'Describe Your Requirement & Photos');
-        $homeCustomStep1Desc  = SiteSetting::get('home_custom_step1_desc', 'Tell us what you have in mind in your own words — whether a dining river table, wall art, clock, or decor — and upload inspiration photos. No complex measurements needed.');
-        $homeCustomStep2Title = SiteSetting::get('home_custom_step2_title', 'Artisan WhatsApp Consultation');
-        $homeCustomStep2Desc  = SiteSetting::get('home_custom_step2_desc', 'Our lead artisan connects directly with you on WhatsApp or Email to discuss wood slab selections, custom color palettes, sizing, and share a transparent all-inclusive quote.');
-        $homeCustomStep3Title = SiteSetting::get('home_custom_step3_title', 'Hand-Poured Craft & Crated Delivery');
-        $homeCustomStep3Desc  = SiteSetting::get('home_custom_step3_desc', 'Once approved, we pour your artwork layer-by-layer with live WhatsApp photo updates, seal with diamond gloss, and deliver safely in insured wooden crates to your doorstep.');
+        $homeCustomStep1Title = SiteSetting::get('home_custom_step1_title', 'Design Consultation & Sketch');
+        $homeCustomStep1Desc  = SiteSetting::get('home_custom_step1_desc', 'Share your design inspiration, ring size, or metal tone preference (Yellow, White, or Rose Gold). No prior jewellery expertise needed — our specialists guide you through every cut and setting.');
+        $homeCustomStep2Title = SiteSetting::get('home_custom_step2_title', '3D CAD & Diamond Selection');
+        $homeCustomStep2Desc  = SiteSetting::get('home_custom_step2_desc', 'Our master designers render a photorealistic 3D CAD preview. You inspect stone proportions, diamond clarity, and receive an all-inclusive transparent quote before casting.');
+        $homeCustomStep3Title = SiteSetting::get('home_custom_step3_title', 'Hand Setting & Insured Delivery');
+        $homeCustomStep3Desc  = SiteSetting::get('home_custom_step3_desc', 'Cast in solid gold and hand-set under 10x magnification by master setters. Shipped in tamper-evident insured packaging with independent laboratory certification to your door.');
+
+        // 9. Editorial Journal / Blog Showcase for Homepage
+        $homeBlogSetting = SiteSetting::get('home_blog_enabled', '1');
+        $homeBlogEnabled = ($homeBlogSetting === '1' || $homeBlogSetting === true || $homeBlogSetting === 1);
+        $homeBlogTag      = SiteSetting::get('home_blog_tag', 'THE ATELIER JOURNAL');
+        $homeBlogTitle    = SiteSetting::get('home_blog_title', 'Stories of Brilliance & Craft');
+        $homeBlogSubtitle = SiteSetting::get('home_blog_subtitle', 'Master guides on solitaires, 4Cs of diamonds, hallmarked gold, and fine jewellery styling.');
+
+        $homeBlogPosts = collect();
+        if ($homeBlogEnabled) {
+            // Strictly fetch ONLY articles explicitly toggled ON for Home Showcase (is_featured_on_home = true)
+            // Maximum 3 showcase articles only. No random or untoggled fallback.
+            $homeBlogPosts = \App\Models\BlogPost::published()
+                ->where('is_featured_on_home', true)
+                ->latest('published_at')
+                ->take(3)
+                ->get();
+        }
 
         return view('home.index', compact(
             'homeSlides',
@@ -155,7 +173,12 @@ class HomeController extends Controller
             'homeCustomStep2Title',
             'homeCustomStep2Desc',
             'homeCustomStep3Title',
-            'homeCustomStep3Desc'
+            'homeCustomStep3Desc',
+            'homeBlogEnabled',
+            'homeBlogTag',
+            'homeBlogTitle',
+            'homeBlogSubtitle',
+            'homeBlogPosts'
         ));
     }
 }

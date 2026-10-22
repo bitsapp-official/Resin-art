@@ -18,25 +18,25 @@ class AboutPageSeeder extends Seeder
         $aboutPage = AboutPage::updateOrCreate(
             ['id' => 1],
             [
-                'eyebrow' => 'THE MAISON · EST. 2012',
-                'hero_title' => 'The quiet brilliance of pure solitaires.',
-                'hero_description' => 'Solitaire Fine Jewels was founded with a singular conviction: fine jewellery should transcend transient fashion. Crafted in hallmarked gold and certified diamonds, every jewel is shaped to illuminate life\'s greatest milestones.',
-                'hero_image' => 'about/hero_atelier.png',
-                'hero_image_alt' => 'Master goldsmith setting a solitaire diamond ring in atelier',
+                'eyebrow' => 'THE MAISON · OVER TWO DECADES OF ATELIER MASTERY',
+                'hero_title' => 'Twenty years shaping the brilliance of certified solitaires.',
+                'hero_description' => 'For over two decades, Solitaire Fine Jewels has dedicated its craft to the art of bespoke fine jewellery. Every creation is individually cast in BIS hallmarked gold and handset with certified natural diamonds by master bench goldsmiths.',
+                'hero_image' => 'about/hero_atelier.jpg',
+                'hero_image_alt' => 'Senior master goldsmith with 20 years experience crafting diamond solitaire at atelier bench',
 
-                'founder_quote' => '"We curate each stone by hand. Perfection is not hurried — it is sculpted with timeless discipline."',
-                'founder_name' => '— AARAV MEHTA, MASTER JEWELLER & FOUNDER',
+                'founder_quote' => '"Over twenty years at the bench have taught us that true luxury cannot be mass-produced. Every diamond possesses an individual soul, and every setting must be sculpted by human hands with timeless discipline."',
+                'founder_name' => '— AARAV MEHTA, MASTER JEWELLER & FOUNDER (20+ YEARS ATELIER EXPERIENCE)',
 
-                'story_eyebrow' => 'OUR HERITAGE',
-                'story_title' => 'Fourteen years of bespoke mastery.',
-                'story_content' => "We are an intimate atelier of master gemologists, precision CAD artists, and seasoned bench goldsmiths. Every solitaire ring, necklace, and bracelet is crafted individually to order — cast in certified 14KT, 18KT, and 22KT hallmarked gold.\n\nWe ethically source only conflict-free, 100% certified natural diamonds with peerless clarity and cut grades. From private bridal commissions to signature solitaire bands, each piece carries an indelible mark of artisanal integrity.",
+                'story_eyebrow' => 'OUR 20-YEAR HERITAGE',
+                'story_title' => 'Two decades of uncompromising bench craftsmanship.',
+                'story_content' => "Founded over twenty years ago in 2004 by master gemologists and bench goldsmiths, Solitaire Fine Jewels emerged as an intimate private atelier dedicated to crafting custom engagement rings and heirloom jewels for connoisseurs.\n\nFor over two decades, we have held fast to one inviolable principle: zero mass manufacturing. Every solitary ring, necklace, and bracelet is crafted individually to order — cast in certified 14KT, 18KT, and 22KT hallmarked gold and handset under high magnification.\n\nWe ethically source only conflict-free, 100% certified natural diamonds with peerless clarity and cut grades. From private bridal commissions to signature solitaire bands, each piece carries an indelible mark of generational artisanal integrity.",
                 'materials_content' => 'Certified authenticity: 100% natural certified diamonds (IGI / GIA certified), BIS Hallmarked 14K–22K gold, and ethically vetted conflict-free gemstones.',
 
                 'visit_cta_text' => 'VISIT OUR SHOWROOM',
                 'visit_cta_url' => '/contact',
 
-                'seo_title' => 'About Us — Solitaire Fine Jewels Atelier',
-                'seo_description' => 'Discover the story, diamond craftsmanship, and bespoke fine jewellery heritage of Solitaire Fine Jewels.',
+                'seo_title' => 'About Us — 20 Years of Fine Jewellery Mastery — Solitaire Fine Jewels',
+                'seo_description' => 'Discover the 20-year fine jewellery heritage, master goldsmiths, and certified diamond atelier of Solitaire Fine Jewels.',
                 'is_published' => true,
             ]
         );
@@ -45,22 +45,22 @@ class AboutPageSeeder extends Seeder
         $values = [
             [
                 'number' => '01',
-                'title' => 'Authenticity',
-                'description' => '100% certified natural diamonds and BIS hallmarked gold. Zero compromise.',
+                'title' => '20-Year Bench Mastery',
+                'description' => 'Handcrafted by senior bench goldsmiths with over two decades of microscopic diamond setting expertise.',
                 'sort_order' => 1,
                 'is_active' => true,
             ],
             [
                 'number' => '02',
-                'title' => 'Mastery',
-                'description' => 'Hand-set by master craftsmen with decades of bench goldsmithing experience.',
+                'title' => '100% Certified Authenticity',
+                'description' => '100% natural certified diamonds with independent IGI/GIA certificates and government BIS hallmarked gold. Zero compromise.',
                 'sort_order' => 2,
                 'is_active' => true,
             ],
             [
                 'number' => '03',
-                'title' => 'Timelessness',
-                'description' => 'Heirloom creations designed to be treasured across generations.',
+                'title' => 'Bespoke Made-to-Order',
+                'description' => 'Strictly made to order for each patron. No warehouse mass production, no pre-owned re-stocking.',
                 'sort_order' => 3,
                 'is_active' => true,
             ],
@@ -73,40 +73,40 @@ class AboutPageSeeder extends Seeder
             );
         }
 
-        // Seed 5 Chronicle Timeline Steps
+        // Seed 5 Chronicle Timeline Steps (2004 - 2026, 20+ Years)
         $timelineSteps = [
             [
-                'year' => '2012',
-                'title' => 'The First Solitaire',
-                'description' => 'A modest private bench crafting one-of-a-kind bespoke diamond rings for discerning collectors.',
+                'year' => '2004',
+                'title' => 'The Inception Bench',
+                'description' => 'Founded over 20 years ago as an artisanal bench workshop in Mumbai\'s historic jewellery quarter, crafting bespoke diamond solitaires for discerning collectors.',
                 'sort_order' => 1,
                 'is_active' => true,
             ],
             [
-                'year' => '2016',
-                'title' => 'The Atelier Bench',
-                'description' => 'Established our dedicated master crafting studio with state-of-the-art micro-setting and optical grading benches.',
+                'year' => '2009',
+                'title' => 'Gemological Purity Network',
+                'description' => 'Established direct sourcing partnerships with Antwerp and Surat diamond bourses for 100% conflict-free certified natural diamonds.',
                 'sort_order' => 2,
                 'is_active' => true,
             ],
             [
-                'year' => '2020',
-                'title' => 'Certified Excellence',
-                'description' => 'Standardized 100% IGI and GIA laboratory certifications for all diamond solitaires.',
+                'year' => '2015',
+                'title' => '3D CAD & Micro-Setting Innovation',
+                'description' => 'Pioneered computerized 3D parametric CAD modeling and 40x magnification microscopic prong setting for zero-tolerance security.',
                 'sort_order' => 3,
                 'is_active' => true,
             ],
             [
-                'year' => '2023',
-                'title' => 'Bespoke Bridal Suite',
-                'description' => 'Launched our private client concierge for custom bridal jewellery and customized engagement creations.',
+                'year' => '2020',
+                'title' => 'Mandatory BIS Hallmarking & IGI Standardization',
+                'description' => 'Institutionalized 100% Bureau of Indian Standards (BIS) Hallmarking with laser-inscribed HUID and independent IGI/GIA diamond certification.',
                 'sort_order' => 4,
                 'is_active' => true,
             ],
             [
                 'year' => '2026',
-                'title' => 'Solitaire Fine Jewels',
-                'description' => 'Serving global collectors and families celebrating life’s most profound milestones.',
+                'title' => 'Solitaire Fine Jewels Global Maison',
+                'description' => 'Serving patrons and collectors across more than 30 countries with complimentary insured worldwide shipping and bespoke made-to-order craft.',
                 'sort_order' => 5,
                 'is_active' => true,
             ],
@@ -123,22 +123,22 @@ class AboutPageSeeder extends Seeder
         $artisans = [
             [
                 'name' => 'Aarav Mehta',
-                'role' => 'FOUNDER & MASTER GEMOLOGIST',
-                'image_path' => 'about/maker_camille.png',
+                'role' => 'FOUNDER & MASTER GEMOLOGIST (20+ YRS ATELIER EXP)',
+                'image_path' => 'about/artisan_aarav.jpg',
                 'sort_order' => 1,
                 'is_active' => true,
             ],
             [
                 'name' => 'Devika Sharma',
-                'role' => 'HEAD CAD & DESIGN ATELIER',
-                'image_path' => 'about/maker_yanis.png',
+                'role' => 'HEAD OF 3D CAD & ATELIER DESIGN',
+                'image_path' => 'about/artisan_devika.jpg',
                 'sort_order' => 2,
                 'is_active' => true,
             ],
             [
                 'name' => 'Rajesh Verma',
-                'role' => 'MASTER GOLDSMITH & STONE SETTER',
-                'image_path' => 'about/maker_ines.png',
+                'role' => 'MASTER GOLDSMITH & CHIEF STONE SETTER (20+ YRS EXP)',
+                'image_path' => 'about/artisan_rajesh.jpg',
                 'sort_order' => 3,
                 'is_active' => true,
             ],

@@ -12,6 +12,8 @@
                     'title' => $slide->title,
                     'desc' => $slide->description ?: 'Every piece is a quiet declaration. Crafted in 18KT gold, set with certified natural diamonds — jewellery made to be worn for a lifetime.',
                     'image' => $slide->image_url,
+                    'badge_title' => $slide->badge_title ?: 'Natural Diamond Solitaire',
+                    'badge_sub' => $slide->badge_sub ?: '18KT Gold · Certified Natural Diamond',
                     'link' => $slide->link ?: route('collections.index'),
                 ];
             })->values()->toArray() : [
@@ -19,7 +21,9 @@
                     'tag' => 'CERTIFIED NATURAL DIAMONDS & FINE GOLD',
                     'title' => 'Where diamonds meet craftsmanship.',
                     'desc' => 'Every piece is a quiet declaration. Crafted in 18KT gold, set with certified natural diamonds — jewellery made to be worn for a lifetime.',
-                    'image' => asset('images/hero-jewellery.webp'),
+                    'image' => asset('images/hero/jewellery_solitaire_banner.jpg'),
+                    'badge_title' => 'Forever Yours · 2.83ct Solitaire',
+                    'badge_sub' => '18KT Gold · Certified Natural Diamond',
                     'link' => route('collections.index'),
                 ]
             ];
@@ -52,7 +56,7 @@
             }
         }">
             {{-- Widescreen 100vh Hero Banner Height Container --}}
-            <div class="relative w-full h-screen min-h-[650px] flex items-center">
+            <div class="relative w-full h-screen min-h-[640px] flex items-center">
                 
                 {{-- Slide Background Images --}}
                 <template x-for="(slide, index) in slides" :key="index">
@@ -70,32 +74,32 @@
                     </div>
                 </template>
 
-                {{-- Cinematic Dark Gradient Vignette Overlay --}}
-                <div class="absolute inset-0 bg-gradient-to-r from-black/85 via-black/55 to-black/20 lg:via-black/45 lg:to-transparent pointer-events-none"></div>
-                <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-black/30 pointer-events-none"></div>
+                {{-- Cinematic Dark Gradient Overlay (Lightened on the right so product showcase shines brightly) --}}
+                <div class="absolute inset-0 bg-gradient-to-r from-black/85 via-black/40 to-transparent pointer-events-none"></div>
+                <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/25 pointer-events-none"></div>
 
-                {{-- Hero Content Overlay (Carefully tuned optical vertical positioning) --}}
+                {{-- Hero Content Overlay (Refined typography and balanced proportions) --}}
                 <div class="relative z-10 max-w-[1400px] w-full mx-auto px-4 sm:px-6 lg:px-12 xl:px-16 pt-16 sm:pt-20 pb-10 sm:pb-12 min-w-0">
-                    <div class="max-w-2xl lg:max-w-3xl space-y-5 sm:space-y-6 text-white min-w-0">
+                    <div class="max-w-xl lg:max-w-2xl space-y-4 sm:space-y-5 text-white min-w-0">
                         
                         {{-- Tag Badge --}}
-                        <div class="inline-flex items-center space-x-2.5 bg-white/15 backdrop-blur-md border border-white/20 px-3.5 sm:px-4 py-1.5 rounded-full shadow-sm animate-fade-up">
-                            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                        <div class="inline-flex items-center space-x-2.5 bg-white/15 backdrop-blur-md border border-white/20 px-3.5 sm:px-4 py-1.5 rounded-full shadow-sm">
+                            <span class="w-2 h-2 rounded-full bg-[#E5D0AC] animate-pulse"></span>
                             <span class="text-[9px] sm:text-[10px] uppercase tracking-[0.25em] font-semibold text-white truncate" x-text="slides[currentSlide].tag"></span>
                         </div>
 
-                        {{-- Big Editorial Headline --}}
-                        <h1 class="font-editorial text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-light leading-[1.12] sm:leading-[1.08] tracking-tight text-white drop-shadow-sm min-h-[2.2em] sm:min-h-[2em] flex items-center" x-text="slides[currentSlide].title">
+                        {{-- Refined Editorial Headline (Balanced proportion so product showcase is primary) --}}
+                        <h1 class="font-editorial text-2xl sm:text-4xl lg:text-5xl font-light leading-[1.16] tracking-tight text-white drop-shadow-sm max-w-xl" x-text="slides[currentSlide].title">
                         </h1>
 
                         {{-- Subtitle Paragraph --}}
-                        <p class="text-xs sm:text-base lg:text-lg text-white/85 font-light leading-relaxed max-w-xl drop-shadow-xs" x-text="slides[currentSlide].desc">
+                        <p class="text-xs sm:text-base text-white/85 font-light leading-relaxed max-w-lg drop-shadow-xs" x-text="slides[currentSlide].desc">
                         </p>
 
                         {{-- Action Buttons --}}
-                        <div class="pt-3 sm:pt-4 flex flex-wrap items-center gap-3 sm:gap-5">
+                        <div class="pt-2 sm:pt-3 flex flex-wrap items-center gap-3 sm:gap-4">
                             <a :href="slides[currentSlide].link" 
-                               class="inline-flex items-center justify-center rounded-full bg-white text-[#1C1917] hover:bg-[#AD9575] hover:text-white px-6 sm:px-10 py-3.5 sm:py-4 text-[10px] sm:text-[10.5px] uppercase tracking-[0.22em] sm:tracking-[0.25em] font-semibold transition-all duration-300 shadow-xl group/btn whitespace-nowrap">
+                               class="inline-flex items-center justify-center rounded-full bg-white text-[#1C1917] hover:bg-[#AD9575] hover:text-white px-6 sm:px-8 py-3 sm:py-3.5 text-[10px] sm:text-[10.5px] uppercase tracking-[0.22em] font-semibold transition-all duration-300 shadow-xl group/btn whitespace-nowrap">
                                 <span>Explore Collection</span>
                                 <svg class="w-3.5 h-3.5 ml-2 group-hover/btn:translate-x-1 transition-transform stroke-[2]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"/>
@@ -103,21 +107,21 @@
                             </a>
 
                             <a href="{{ route('custom.index') }}" 
-                               class="inline-flex items-center justify-center rounded-full bg-white/10 hover:bg-white/20 text-white border border-white/30 backdrop-blur-md px-6 sm:px-9 py-3.5 sm:py-4 text-[10px] sm:text-[10.5px] uppercase tracking-[0.22em] sm:tracking-[0.25em] font-semibold transition-all duration-300 shadow-lg whitespace-nowrap">
+                               class="inline-flex items-center justify-center rounded-full bg-white/10 hover:bg-white/20 text-white border border-white/30 backdrop-blur-md px-5 sm:px-7 py-3 sm:py-3.5 text-[10px] sm:text-[10.5px] uppercase tracking-[0.22em] font-semibold transition-all duration-300 shadow-lg whitespace-nowrap">
                                 <span>Bespoke Inquiry</span>
                             </a>
                         </div>
 
-                        {{-- Slide Progress Indicator Dots (Directly below action buttons with refined breathing space) --}}
+                        {{-- Slide Progress Indicator Dots --}}
                         @if(count($slidesData) > 1)
-                            <div class="pt-5 sm:pt-7 flex items-center">
-                                <div class="inline-flex items-center space-x-2.5 bg-black/45 backdrop-blur-md border border-white/20 px-3.5 py-2 rounded-full shadow-lg">
+                            <div class="pt-4 sm:pt-5 flex items-center">
+                                <div class="inline-flex items-center space-x-2 bg-black/45 backdrop-blur-md border border-white/20 px-3 py-1.5 rounded-full shadow-lg">
                                     @foreach($slidesData as $sIndex => $sItem)
                                         <button type="button" 
                                                 @click.stop.prevent="goTo({{ $sIndex }})" 
-                                                :class="currentSlide === {{ $sIndex }} ? 'w-8 bg-[#DFD4C0]' : 'w-2.5 bg-white/40 hover:bg-white/80'"
+                                                :class="currentSlide === {{ $sIndex }} ? 'w-7 bg-[#E5D0AC]' : 'w-2 bg-white/40 hover:bg-white/80'"
                                                 aria-label="Go to slide {{ $sIndex + 1 }}"
-                                                class="h-2 rounded-full transition-all duration-300 focus:outline-none cursor-pointer">
+                                                class="h-1.5 rounded-full transition-all duration-300 focus:outline-none cursor-pointer">
                                         </button>
                                     @endforeach
                                 </div>
@@ -126,6 +130,7 @@
 
                     </div>
                 </div>
+
 
                 {{-- Navigation Controls (Prev/Next Arrows on Screen Edges) --}}
                 @if(count($slidesData) > 1)
@@ -375,7 +380,7 @@
 
 
         {{-- ══════════════════════════════════════════════════════════════════
-             2. FEATURED COLLECTIONS (Dynamic from Admin Panel with Collection Links)
+             2. FEATURED HIGH JEWELLERY SUITES (Curated Collections)
              ══════════════════════════════════════════════════════════════════ --}}
         @if($featuredCollections->isNotEmpty())
         <section class="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-12 xl:px-16 space-y-8 sm:space-y-12 w-full min-w-0">
@@ -384,14 +389,14 @@
             <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 sm:gap-6 border-b border-[#E5DFD3]/80 pb-4 sm:pb-6">
                 <div class="space-y-1.5 sm:space-y-2">
                     <span class="text-[10px] uppercase tracking-[0.28em] font-bold text-[#6E675E]">
-                        CURATED COLLECTIONS
+                        CURATED HIGH JEWELLERY
                     </span>
                     <h2 class="font-editorial text-2xl sm:text-4xl lg:text-5xl text-[#1C1917] font-light">
-                        From centrepiece tables to <em class="italic text-[#846B49]">quiet objects.</em>
+                        The Solitaire & <em class="italic text-[#846B49]">Signature Suites.</em>
                     </h2>
                 </div>
                 <a href="{{ route('collections.index') }}" class="inline-flex items-center space-x-2 text-[10.5px] uppercase tracking-[0.22em] font-semibold text-[#1C1917] hover:text-[#AD9575] transition-colors group">
-                    <span>View all collections</span>
+                    <span>View all suites</span>
                     <span class="group-hover:translate-x-1 transition-transform">&rarr;</span>
                 </a>
             </div>
@@ -403,7 +408,7 @@
                 @if(isset($featuredCollections[0]))
                     @php 
                         $col1 = $featuredCollections[0]; 
-                        $col1Img = $col1->effective_cover_image ? (str_starts_with($col1->effective_cover_image, 'http') || str_starts_with($col1->effective_cover_image, '/') ? $col1->effective_cover_image : asset('storage/' . $col1->effective_cover_image)) : asset('images/segre_river_table.webp');
+                        $col1Img = $col1->cover_image_url;
                     @endphp
                     <a href="{{ route('collections.show', $col1->slug) }}" 
                        class="lg:col-span-7 group relative rounded-[1.75rem] sm:rounded-[2.5rem] overflow-hidden min-h-[380px] sm:min-h-[480px] lg:min-h-[580px] bg-[#EBE5DB] border border-[#DFD9CE]/60 flex flex-col justify-between p-5 sm:p-10 shadow-sm transition-all duration-500 hover:shadow-xl">
@@ -417,7 +422,7 @@
                         {{-- Top Tag --}}
                         <div class="relative z-10 flex justify-between items-start">
                             <span class="glass-pill bg-white/20 backdrop-blur-md border border-white/30 text-white text-[9px] sm:text-[9.5px] uppercase tracking-[0.22em] font-semibold px-3.5 sm:px-4 py-1.5 rounded-full">
-                                N°01 · COLLECTION
+                                N°01 · SIGNATURE SUITE
                             </span>
                             <div class="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-white/20 backdrop-blur-md border border-white/40 text-white flex items-center justify-center group-hover:bg-white group-hover:text-[#1C1917] transition-all duration-300">
                                 <svg class="w-4 h-4 stroke-[2]" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
@@ -430,7 +435,7 @@
                                 {{ $col1->name }}
                             </h3>
                             <p class="text-xs sm:text-sm text-white/80 font-light tracking-wide">
-                                {{ $col1->subtitle ?: $col1->effective_short_description ?: 'Handcrafted Atelier Collection' }}
+                                {{ $col1->subtitle ?: $col1->effective_short_description ?: 'Handcrafted Atelier Jewellery' }}
                             </p>
                         </div>
                     </a>
@@ -443,7 +448,7 @@
                     @if(isset($featuredCollections[1]))
                         @php 
                             $col2 = $featuredCollections[1]; 
-                            $col2Img = $col2->effective_cover_image ? (str_starts_with($col2->effective_cover_image, 'http') || str_starts_with($col2->effective_cover_image, '/') ? $col2->effective_cover_image : asset('storage/' . $col2->effective_cover_image)) : asset('storage/gallery/mira_wall.webp');
+                            $col2Img = $col2->cover_image_url;
                         @endphp
                         <a href="{{ route('collections.show', $col2->slug) }}" 
                            class="group relative rounded-[1.5rem] sm:rounded-[2.25rem] overflow-hidden min-h-[240px] sm:min-h-[275px] bg-[#EBE5DB] border border-[#DFD9CE]/60 flex flex-col justify-between p-5 sm:p-8 shadow-sm transition-all duration-500 hover:shadow-lg">
@@ -456,7 +461,7 @@
 
                             <div class="relative z-10 flex justify-between items-start">
                                 <span class="glass-pill bg-white/20 backdrop-blur-md border border-white/30 text-white text-[8.5px] sm:text-[9px] uppercase tracking-[0.22em] font-semibold px-3.5 py-1.5 rounded-full">
-                                    N°02 · COLLECTION
+                                    N°02 · BRIDAL SUITE
                                 </span>
                                 <div class="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-white/20 backdrop-blur-md border border-white/40 text-white flex items-center justify-center group-hover:bg-white group-hover:text-[#1C1917] transition-all duration-300">
                                     <svg class="w-3.5 h-3.5 stroke-[2]" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
@@ -478,7 +483,7 @@
                     @if(isset($featuredCollections[2]))
                         @php 
                             $col3 = $featuredCollections[2]; 
-                            $col3Img = $col3->effective_cover_image ? (str_starts_with($col3->effective_cover_image, 'http') || str_starts_with($col3->effective_cover_image, '/') ? $col3->effective_cover_image : asset('storage/' . $col3->effective_cover_image)) : asset('storage/gallery/tray.webp');
+                            $col3Img = $col3->cover_image_url;
                         @endphp
                         <a href="{{ route('collections.show', $col3->slug) }}" 
                            class="group relative rounded-[1.5rem] sm:rounded-[2.25rem] overflow-hidden min-h-[240px] sm:min-h-[275px] bg-[#EBE5DB] border border-[#DFD9CE]/60 flex flex-col justify-between p-5 sm:p-8 shadow-sm transition-all duration-500 hover:shadow-lg">
@@ -491,7 +496,7 @@
 
                             <div class="relative z-10 flex justify-between items-start">
                                 <span class="glass-pill bg-white/20 backdrop-blur-md border border-white/30 text-white text-[8.5px] sm:text-[9px] uppercase tracking-[0.22em] font-semibold px-3.5 py-1.5 rounded-full">
-                                    N°03 · COLLECTION
+                                    N°03 · HIGH JEWELS
                                 </span>
                                 <div class="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-white/20 backdrop-blur-md border border-white/40 text-white flex items-center justify-center group-hover:bg-white group-hover:text-[#1C1917] transition-all duration-300">
                                     <svg class="w-3.5 h-3.5 stroke-[2]" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
@@ -515,6 +520,70 @@
         </section>
         @endif
 
+
+        {{-- ══════════════════════════════════════════════════════════════════
+             2.5 FINE JEWELLERY TRUST PILLARS BAR (Forevermark & Tanishq Standard)
+             ══════════════════════════════════════════════════════════════════ --}}
+        <section class="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-12 xl:px-16 w-full min-w-0">
+            <div class="rounded-3xl bg-[#FAF7F2] border border-[#E7E0D3] p-6 sm:p-10 shadow-xs">
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
+                    
+                    {{-- Pillar 1: Certified Diamonds --}}
+                    <div class="flex items-start space-x-4">
+                        <div class="w-12 h-12 rounded-2xl bg-white border border-[#DFD7CB] flex items-center justify-center text-[#846B49] shadow-xs shrink-0">
+                            <svg class="w-6 h-6 stroke-[1.5]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12c0 1.268-.63 2.39-1.593 3.068a3.745 3.745 0 01-1.043 3.296 3.745 3.745 0 01-3.296 1.043A3.745 3.745 0 0112 21c-1.268 0-2.39-.63-3.068-1.593a3.746 3.746 0 01-3.296-1.043 3.745 3.745 0 01-1.043-3.296A3.745 3.745 0 013 12c0-1.268.63-2.39 1.593-3.068a3.745 3.745 0 011.043-3.296 3.746 3.746 0 013.296-1.043A3.746 3.746 0 0112 3c1.268 0 2.39.63 3.068 1.593a3.746 3.746 0 013.296 1.043 3.746 3.746 0 011.043 3.296A3.745 3.745 0 0121 12z" />
+                            </svg>
+                        </div>
+                        <div class="space-y-1">
+                            <h4 class="text-sm font-semibold text-[#1C1917] tracking-tight">100% Certified Diamonds</h4>
+                            <p class="text-xs text-[#6E675E] font-light leading-relaxed">Every natural diamond is backed by authentic laboratory grading with laser inscription.</p>
+                        </div>
+                    </div>
+
+                    {{-- Pillar 2: BIS Hallmarked Gold --}}
+                    <div class="flex items-start space-x-4">
+                        <div class="w-12 h-12 rounded-2xl bg-white border border-[#DFD7CB] flex items-center justify-center text-[#846B49] shadow-xs shrink-0">
+                            <svg class="w-6 h-6 stroke-[1.5]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
+                            </svg>
+                        </div>
+                        <div class="space-y-1">
+                            <h4 class="text-sm font-semibold text-[#1C1917] tracking-tight">BIS Hallmarked Gold</h4>
+                            <p class="text-xs text-[#6E675E] font-light leading-relaxed">Certified 14KT, 18KT & 22KT gold hallmarking guaranteeing pure assayed metal standards.</p>
+                        </div>
+                    </div>
+
+                    {{-- Pillar 3: Lifetime Exchange --}}
+                    <div class="flex items-start space-x-4">
+                        <div class="w-12 h-12 rounded-2xl bg-white border border-[#DFD7CB] flex items-center justify-center text-[#846B49] shadow-xs shrink-0">
+                            <svg class="w-6 h-6 stroke-[1.5]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 12c0-1.232-.046-2.453-.138-3.662a4.006 4.006 0 00-3.7-3.7 48.678 48.678 0 00-7.324 0 4.006 4.006 0 00-3.7 3.7c-.017.22-.032.441-.046.662M19.5 12l3-3m-3 3l-3-3m-12 3c0 1.232.046 2.453.138 3.662a4.006 4.006 0 003.7 3.7 48.656 48.656 0 007.324 0 4.006 4.006 0 003.7-3.7c.017-.22.032-.441.046-.662M4.5 12l3 3m-3-3l-3 3" />
+                            </svg>
+                        </div>
+                        <div class="space-y-1">
+                            <h4 class="text-sm font-semibold text-[#1C1917] tracking-tight">Lifetime Exchange & Buyback</h4>
+                            <p class="text-xs text-[#6E675E] font-light leading-relaxed">Transparent valuation guarantee on diamonds and prevailing live daily gold rates.</p>
+                        </div>
+                    </div>
+
+                    {{-- Pillar 4: Insured Transit --}}
+                    <div class="flex items-start space-x-4">
+                        <div class="w-12 h-12 rounded-2xl bg-white border border-[#DFD7CB] flex items-center justify-center text-[#846B49] shadow-xs shrink-0">
+                            <svg class="w-6 h-6 stroke-[1.5]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 18.75a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h6m-9 0H3.375a1.125 1.125 0 01-1.125-1.125V14.25m17.25 4.5a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h1.125c.621 0 1.129-.504 1.09-1.124a17.902 17.902 0 00-3.213-9.193 2.056 2.056 0 00-1.58-.86H14.25M16.5 18.75h-2.25m0-11.25V3.75m0 3.75l-4.5-4.5m4.5 4.5l4.5-4.5" />
+                            </svg>
+                        </div>
+                        <div class="space-y-1">
+                            <h4 class="text-sm font-semibold text-[#1C1917] tracking-tight">Insured Security Transit</h4>
+                            <p class="text-xs text-[#6E675E] font-light leading-relaxed">Tamper-evident, fully insured delivery straight from our atelier vault to your doorstep.</p>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
         {{-- ══════════════════════════════════════════════════════════════════
              3. BRAND QUOTE BANNER (Dynamic from Admin Settings)
              ══════════════════════════════════════════════════════════════════ --}}
@@ -532,7 +601,7 @@
 
 
         {{-- ══════════════════════════════════════════════════════════════════
-             4. THE HOUSE: MADE TO ORDER (Dynamic from Admin Settings)
+             4. THE 4Cs OF NATURAL DIAMONDS & ATELIER HERITAGE
              ══════════════════════════════════════════════════════════════════ --}}
         <section class="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-12 xl:px-16 w-full min-w-0">
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 sm:gap-12 lg:gap-16 items-center">
@@ -541,7 +610,7 @@
                 <div class="lg:col-span-6 relative">
                     <div class="relative aspect-[4/3.2] max-h-[440px] rounded-[1.75rem] sm:rounded-[2.25rem] lg:rounded-[2.5rem] overflow-hidden bg-[#F0EBE1] border border-[#DFD9CE]/70 shadow-lg">
                         @php
-                            $storyImgSrc = $homeStoryImage ? (str_starts_with($homeStoryImage, 'http') || str_starts_with($homeStoryImage, '/') ? $homeStoryImage : asset('storage/' . $homeStoryImage)) : asset('storage/homepage/story_artwork.webp');
+                            $storyImgSrc = $homeStoryImage ? (str_starts_with($homeStoryImage, 'http') || str_starts_with($homeStoryImage, '/') ? $homeStoryImage : (file_exists(public_path($homeStoryImage)) ? asset($homeStoryImage) : asset('storage/' . $homeStoryImage))) : asset('images/hero/jewellery_necklace_banner.jpg');
                         @endphp
                         <img src="{{ $storyImgSrc }}" 
                              alt="{{ $homeStoryTitle }}" 
@@ -556,8 +625,8 @@
                     </div>
                 </div>
 
-                {{-- Right Narrative --}}
-                <div class="lg:col-span-6 space-y-5 sm:space-y-7">
+                {{-- Right Narrative & 4Cs Diamond Mastery --}}
+                <div class="lg:col-span-6 space-y-5 sm:space-y-6">
                     <div class="flex items-center space-x-3 text-[10px] uppercase tracking-[0.28em] font-bold text-[#6E675E]">
                         <span class="w-6 h-[1px] bg-[#D9D2C5] inline-block"></span>
                         <span>{{ $homeStoryTag }}</span>
@@ -577,7 +646,27 @@
                     </p>
                     @endif
 
-                    <div class="pt-2 sm:pt-3">
+                    {{-- 4Cs Interactive Education Badges (Forevermark & Diamorivo Standard) --}}
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 pt-2">
+                        <div class="p-3 rounded-2xl bg-[#F6F2EB] border border-[#E8E1D5] text-center">
+                            <span class="text-[9px] uppercase tracking-[0.2em] font-bold text-[#846B49] block">CUT</span>
+                            <span class="text-xs font-semibold text-[#1C1917] mt-0.5 block">Ideal Light</span>
+                        </div>
+                        <div class="p-3 rounded-2xl bg-[#F6F2EB] border border-[#E8E1D5] text-center">
+                            <span class="text-[9px] uppercase tracking-[0.2em] font-bold text-[#846B49] block">COLOR</span>
+                            <span class="text-xs font-semibold text-[#1C1917] mt-0.5 block">D - H Grades</span>
+                        </div>
+                        <div class="p-3 rounded-2xl bg-[#F6F2EB] border border-[#E8E1D5] text-center">
+                            <span class="text-[9px] uppercase tracking-[0.2em] font-bold text-[#846B49] block">CLARITY</span>
+                            <span class="text-xs font-semibold text-[#1C1917] mt-0.5 block">VVS - VS Eye</span>
+                        </div>
+                        <div class="p-3 rounded-2xl bg-[#F6F2EB] border border-[#E8E1D5] text-center">
+                            <span class="text-[9px] uppercase tracking-[0.2em] font-bold text-[#846B49] block">CARAT</span>
+                            <span class="text-xs font-semibold text-[#1C1917] mt-0.5 block">0.30 - 5.0+ ct</span>
+                        </div>
+                    </div>
+
+                    <div class="pt-2">
                         <a href="{{ $homeStoryLinkUrl }}" 
                            class="inline-flex items-center space-x-2 text-[10px] sm:text-[10.5px] uppercase tracking-[0.24em] font-semibold text-[#1C1917] hover:text-[#AD9575] transition-colors border-b border-[#1C1917] pb-1 hover:border-[#AD9575] group">
                             <span>{{ $homeStoryLinkText }}</span>
@@ -591,7 +680,7 @@
 
 
         {{-- ══════════════════════════════════════════════════════════════════
-             7. BESPOKE JEWELLERY INQUIRY (Custom Order Process Showcase)
+             5. BESPOKE FINE JEWELLERY CONCIERGE (Custom 3D CAD Orders)
              ══════════════════════════════════════════════════════════════════ --}}
         <section class="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-12 xl:px-16 w-full min-w-0">
             <div class="rounded-[1.75rem] sm:rounded-[2.5rem] bg-[#1C1917] text-white p-5 sm:p-10 lg:p-16 relative overflow-hidden shadow-2xl">
@@ -612,7 +701,7 @@
                                 <span>{{ $homeCustomTag }}</span>
                             </div>
                             <h2 class="font-editorial text-3xl sm:text-5xl lg:text-6xl font-light leading-tight">
-                                {!! str_replace('your space.', '<em class="italic text-[#AD9575]">your space.</em>', e($homeCustomTitle)) !!}
+                                {!! str_replace(['exclusively for you.', 'your space.'], ['<em class="italic text-[#AD9575]">exclusively for you.</em>', '<em class="italic text-[#AD9575]">your space.</em>'], e($homeCustomTitle)) !!}
                             </h2>
                             <p class="text-[13.5px] sm:text-[14.5px] text-white/70 font-light leading-relaxed">
                                 {{ $homeCustomDesc }}
@@ -825,146 +914,45 @@
 
 
         {{-- ══════════════════════════════════════════════════════════════════
-             9. INTERIOR INSPIRATION (Dynamic Random Gallery from Database)
+             9. THE ATELIER JOURNAL / EDITORIAL BLOG SHOWCASE (Admin Toggle Controlled)
              ══════════════════════════════════════════════════════════════════ --}}
-        @if($galleryItems->isNotEmpty())
-        <section class="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-12 xl:px-16 space-y-8 sm:space-y-10 w-full min-w-0">
+        @if(!empty($homeBlogEnabled) && isset($homeBlogPosts) && $homeBlogPosts->isNotEmpty())
+        <section class="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-12 xl:px-16 py-8 sm:py-12 space-y-8 sm:space-y-10 w-full min-w-0">
             
+            {{-- Header Row --}}
             <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 sm:gap-6 border-b border-[#E5DFD3]/80 pb-4 sm:pb-6">
-                <div class="space-y-1.5 sm:space-y-2">
-                    <span class="text-[10px] uppercase tracking-[0.28em] font-bold text-[#6E675E]">
-                        Interior Inspiration
-                    </span>
+                <div class="space-y-1.5 sm:space-y-2 max-w-2xl">
+                    <div class="flex items-center space-x-3 text-[10px] uppercase tracking-[0.28em] font-bold text-[#AD9575]">
+                        <span class="w-6 h-[1px] bg-[#AD9575] inline-block"></span>
+                        <span>{{ $homeBlogTag ?? 'THE ATELIER JOURNAL' }}</span>
+                    </div>
                     <h2 class="font-editorial text-2xl sm:text-4xl lg:text-5xl text-[#1C1917] font-light">
-                        Homes that hold <em class="italic">our work.</em>
+                        {{ $homeBlogTitle ?? 'Stories of Brilliance & Craft' }}
                     </h2>
+                    <p class="text-xs sm:text-sm text-[#78716C] font-light leading-relaxed">
+                        {{ $homeBlogSubtitle ?? 'Master guides on solitaires, 4Cs of diamonds, hallmarked gold, and fine jewellery styling.' }}
+                    </p>
                 </div>
-                <a href="{{ route('gallery.index') }}" class="inline-flex items-center space-x-2 text-[10.5px] uppercase tracking-[0.22em] font-semibold text-[#1C1917] hover:text-[#AD9575] transition-colors">
-                    <span>Enter the gallery</span>
-                    <span>&rarr;</span>
-                </a>
+
+                <div class="shrink-0">
+                    <a href="{{ route('blog.index') }}" 
+                       class="inline-flex items-center space-x-2 text-[10.5px] uppercase tracking-[0.24em] font-semibold text-[#1C1917] hover:text-[#AD9575] transition-colors group">
+                        <span>All Journal Articles</span>
+                        <span class="group-hover:translate-x-1 transition-transform">&rarr;</span>
+                    </a>
+                </div>
             </div>
 
-            {{-- Asymmetric Random Luxury Gallery Grid --}}
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-5 sm:gap-8">
-                
-                {{-- 1. Hero Feature Item (Span 7) --}}
-                @if(isset($galleryItems[0]))
-                    @php $first = $galleryItems[0]; @endphp
-                    <div class="lg:col-span-7 group relative rounded-[1.5rem] sm:rounded-[2.25rem] overflow-hidden min-h-[340px] sm:min-h-[420px] lg:min-h-[500px] bg-[#EBE5DB] border border-[#DFD9CE]/60 shadow-sm">
-                        <img src="{{ $first->thumbnail_url }}" 
-                             alt="{{ $first->title }}" 
-                             class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out">
-                        <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
-                        
-                        <div class="absolute top-4 left-4 sm:top-6 sm:left-6 z-10 flex items-center gap-2">
-                            <span class="glass-pill bg-white/80 backdrop-blur-md border border-white/60 text-[#1C1917] text-[8.5px] sm:text-[9px] uppercase tracking-[0.22em] font-semibold px-3 sm:px-3.5 py-1 sm:py-1.5 rounded-full shadow-sm">
-                                {{ $first->galleryCategory->name ?? 'Interior Feature' }}
-                            </span>
-                            @if($first->is_video)
-                                <span class="bg-[#1C1917]/90 text-white text-[8px] sm:text-[8.5px] uppercase tracking-wider font-bold px-2.5 py-1 rounded-full shadow-md border border-white/20 flex items-center gap-1">
-                                    <svg class="w-2.5 h-2.5 fill-current text-[#FBBF24]" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-                                    Video
-                                </span>
-                            @endif
-                        </div>
-
-                        @if($first->is_video)
-                            <div class="absolute inset-0 flex items-center justify-center pointer-events-none z-10">
-                                <div class="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-white/95 text-[#1C1917] flex items-center justify-center shadow-2xl transition-transform duration-300 group-hover:scale-110">
-                                    <svg class="w-6 h-6 fill-current ml-0.5" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-                                </div>
-                            </div>
-                        @endif
-
-                        <div class="absolute bottom-4 left-4 right-4 sm:bottom-6 sm:left-6 sm:right-6 text-white space-y-1 z-10">
-                            <p class="text-[9px] sm:text-[9.5px] uppercase tracking-widest text-[#AD9575] font-semibold">
-                                {{ $first->location ?? 'Private Residence' }}
-                            </p>
-                            <h3 class="font-editorial text-xl sm:text-3xl font-normal text-white">
-                                {{ $first->title }}
-                            </h3>
-                        </div>
-                    </div>
-                @endif
-
-                {{-- 2. Side Item (Span 5) --}}
-                @if(isset($galleryItems[1]))
-                    @php $second = $galleryItems[1]; @endphp
-                    <div class="lg:col-span-5 group relative rounded-[1.5rem] sm:rounded-[2.25rem] overflow-hidden min-h-[340px] sm:min-h-[420px] lg:min-h-[500px] bg-[#EBE5DB] border border-[#DFD9CE]/60 shadow-sm">
-                        <img src="{{ $second->thumbnail_url }}" 
-                             alt="{{ $second->title }}" 
-                             class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out">
-                        <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
-                        
-                        <div class="absolute top-4 left-4 sm:top-6 sm:left-6 z-10 flex items-center gap-2">
-                            <span class="glass-pill bg-white/80 backdrop-blur-md border border-white/60 text-[#1C1917] text-[8.5px] sm:text-[9px] uppercase tracking-[0.22em] font-semibold px-3 sm:px-3.5 py-1 sm:py-1.5 rounded-full shadow-sm">
-                                {{ $second->galleryCategory->name ?? 'Atelier Piece' }}
-                            </span>
-                            @if($second->is_video)
-                                <span class="bg-[#1C1917]/90 text-white text-[8px] sm:text-[8.5px] uppercase tracking-wider font-bold px-2.5 py-1 rounded-full shadow-md border border-white/20 flex items-center gap-1">
-                                    <svg class="w-2.5 h-2.5 fill-current text-[#FBBF24]" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-                                    Video
-                                </span>
-                            @endif
-                        </div>
-
-                        @if($second->is_video)
-                            <div class="absolute inset-0 flex items-center justify-center pointer-events-none z-10">
-                                <div class="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-white/95 text-[#1C1917] flex items-center justify-center shadow-2xl transition-transform duration-300 group-hover:scale-110">
-                                    <svg class="w-6 h-6 fill-current ml-0.5" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-                                </div>
-                            </div>
-                        @endif
-
-                        <div class="absolute bottom-4 left-4 right-4 sm:bottom-6 sm:left-6 sm:right-6 text-white space-y-1 z-10">
-                            <p class="text-[9px] sm:text-[9.5px] uppercase tracking-widest text-[#AD9575] font-semibold">
-                                {{ $second->location ?? 'Architectural Suite' }}
-                            </p>
-                            <h3 class="font-editorial text-xl sm:text-3xl font-normal text-white">
-                                {{ $second->title }}
-                            </h3>
-                        </div>
-                    </div>
-                @endif
-
-                {{-- 3 & 4. Bottom 3-Card Row (4 Cols Each) --}}
-                @foreach($galleryItems->slice(2, 3) as $item)
-                    <div class="lg:col-span-4 group relative rounded-[1.5rem] sm:rounded-[2rem] overflow-hidden aspect-[4/5] bg-[#EBE5DB] border border-[#DFD9CE]/60 shadow-sm">
-                        <img src="{{ $item->thumbnail_url }}" 
-                             alt="{{ $item->title }}" 
-                             class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out">
-                        <div class="absolute inset-0 bg-gradient-to-t from-black/75 via-transparent to-transparent"></div>
-                        
-                        @if($item->is_video)
-                            <div class="absolute top-3.5 left-3.5 z-10">
-                                <span class="bg-[#1C1917]/90 text-white text-[8px] uppercase tracking-wider font-bold px-2 py-0.5 rounded-full shadow-md border border-white/20 flex items-center gap-1">
-                                    <svg class="w-2.5 h-2.5 fill-current text-[#FBBF24]" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-                                    Video
-                                </span>
-                            </div>
-                            <div class="absolute inset-0 flex items-center justify-center pointer-events-none z-10">
-                                <div class="w-11 h-11 rounded-full bg-white/95 text-[#1C1917] flex items-center justify-center shadow-xl transition-transform duration-300 group-hover:scale-110">
-                                    <svg class="w-4 h-4 fill-current ml-0.5" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-                                </div>
-                            </div>
-                        @endif
-
-                        <div class="absolute bottom-4 left-4 right-4 sm:bottom-6 sm:left-6 sm:right-6 text-white space-y-0.5 z-10">
-                            <p class="text-[8.5px] sm:text-[9px] uppercase tracking-widest text-[#AD9575] font-semibold">
-                                {{ $item->location ?? 'Private Collection' }}
-                            </p>
-                            <h3 class="font-editorial text-lg sm:text-xl font-normal text-white truncate">
-                                {{ $item->title }}
-                            </h3>
-                        </div>
-                    </div>
+            {{-- 3-Card Luxury Editorial Showcase Grid (Strictly max 3 toggled articles) --}}
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+                @foreach($homeBlogPosts as $post)
+                    @include('blog.components.post-card', ['post' => $post, 'featured' => false])
                 @endforeach
-
             </div>
 
         </section>
         @endif
+
 
     </div>
 

@@ -33,15 +33,15 @@ class Category extends Model
     public function getImageUrlAttribute(): string
     {
         if (empty($this->image)) {
-            return asset('storage/gallery/segre_river_table.png');
+            return asset('images/catalog/diamond_solitaire_ring.jpg');
         }
 
-        if (str_starts_with($this->image, 'http://') || str_starts_with($this->image, 'https://') || str_starts_with($this->image, '//')) {
+        if (str_starts_with($this->image, 'http://') || str_starts_with($this->image, 'https://') || str_starts_with($this->image, '//') || str_starts_with($this->image, '/')) {
             return $this->image;
         }
 
-        if (str_starts_with($this->image, '/')) {
-            return $this->image;
+        if (str_starts_with($this->image, 'images/')) {
+            return asset($this->image);
         }
 
         return asset('storage/' . $this->image);

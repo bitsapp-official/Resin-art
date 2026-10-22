@@ -77,6 +77,27 @@ class Collection extends Model
     }
 
     /**
+     * Get fully resolved URL for the collection cover image.
+     */
+    public function getCoverImageUrlAttribute(): string
+    {
+        $img = $this->effective_cover_image;
+        if (empty($img)) {
+            return asset('images/catalog/diamond_solitaire_ring.jpg');
+        }
+
+        if (str_starts_with($img, 'http://') || str_starts_with($img, 'https://') || str_starts_with($img, '//') || str_starts_with($img, '/')) {
+            return $img;
+        }
+
+        if (str_starts_with($img, 'images/')) {
+            return asset($img);
+        }
+
+        return asset('storage/' . $img);
+    }
+
+    /**
      * Helper accessor for effective short description.
      */
     public function getEffectiveShortDescriptionAttribute(): ?string

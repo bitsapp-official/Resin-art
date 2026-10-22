@@ -9,6 +9,8 @@ use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Forms\Form;
@@ -60,35 +62,49 @@ class HomePageSettings extends Page implements HasForms
     public ?string $home_custom_step3_title = null;
     public ?string $home_custom_step3_desc = null;
 
+    // Blog / Editorial Journal Section
+    public bool $home_blog_enabled = true;
+    public ?string $home_blog_tag = null;
+    public ?string $home_blog_title = null;
+    public ?string $home_blog_subtitle = null;
+    public ?int $home_blog_count = 3;
+
     public function mount(): void
     {
         $this->form->fill([
             // Quote Banner
-            'home_quote_text'       => SiteSetting::get('home_quote_text', 'Resin remembers everything — the hand, the hour, the light in the room.'),
-            'home_quote_author'     => SiteSetting::get('home_quote_author', 'Founder & Resin Artist'),
+            'home_quote_text'       => SiteSetting::get('home_quote_text', 'A diamond does not merely capture light — it immortalises the moments that define your life.'),
+            'home_quote_author'     => SiteSetting::get('home_quote_author', 'Master Jeweller · Solitaire Atelier'),
 
-            // The House / Story Section
-            'home_story_image'      => SiteSetting::get('home_story_image', 'about/artist_workshop.png'),
-            'home_story_tag'        => SiteSetting::get('home_story_tag', 'OUR APPROACH'),
-            'home_story_title'      => SiteSetting::get('home_story_title', 'Handcrafted, made to order.'),
-            'home_story_paragraph1' => SiteSetting::get('home_story_paragraph1', 'Every piece begins as a slow conversation between wood, resin, and time. We pour by hand, creating unique items that are specifically made to order for your space.'),
-            'home_story_paragraph2' => SiteSetting::get('home_story_paragraph2', 'No two rivers are alike. No two skies. That is the point.'),
-            'home_story_badge'      => SiteSetting::get('home_story_badge', 'HANDCRAFTED · MADE TO ORDER'),
-            'home_story_link_text'  => SiteSetting::get('home_story_link_text', 'Read our story'),
+            // The Atelier / Story Section
+            'home_story_image'      => SiteSetting::get('home_story_image', 'images/hero/jewellery_necklace_banner.jpg'),
+            'home_story_tag'        => SiteSetting::get('home_story_tag', 'THE ATELIER HERITAGE'),
+            'home_story_title'      => SiteSetting::get('home_story_title', 'Heirlooms born of gold, fire, and light.'),
+            'home_story_paragraph1' => SiteSetting::get('home_story_paragraph1', 'Every piece in our atelier is an intimate dialogue between master craftsmanship and certified natural diamonds. Forged in solid 18KT gold, calibrated to microscopic tolerances, and designed to be worn and passed down for a lifetime.'),
+            'home_story_paragraph2' => SiteSetting::get('home_story_paragraph2', 'Certified by premier international gemmological laboratories and hallmarked for purity.'),
+            'home_story_badge'      => SiteSetting::get('home_story_badge', '100% BIS HALLMARKED · IGI CERTIFIED'),
+            'home_story_link_text'  => SiteSetting::get('home_story_link_text', 'Discover our craftsmanship'),
             'home_story_link_url'   => SiteSetting::get('home_story_link_url', '/about'),
 
-            // Custom Made-to-Order Artworks Section
-            'home_custom_tag'         => SiteSetting::get('home_custom_tag', 'CUSTOM RESIN ARTWORK'),
-            'home_custom_title'       => SiteSetting::get('home_custom_title', 'Have a design in mind? Crafted for your space.'),
-            'home_custom_desc'        => SiteSetting::get('home_custom_desc', 'Every custom piece begins with your vision. Simply describe your requirement in your own words, share inspiration or room photos, and our lead artisan connects directly with you on WhatsApp to discuss wood slabs, colors, and pricing.'),
-            'home_custom_btn_text'    => SiteSetting::get('home_custom_btn_text', 'Submit Custom Requirement →'),
+            // Bespoke Fine Jewellery Consultation Section
+            'home_custom_tag'         => SiteSetting::get('home_custom_tag', 'BESPOKE JEWELLERY ATELIER'),
+            'home_custom_title'       => SiteSetting::get('home_custom_title', 'Have a dream design? Handcrafted exclusively for you.'),
+            'home_custom_desc'        => SiteSetting::get('home_custom_desc', 'From custom solitaire engagement rings to bridal heirlooms, bring your vision to life. Share your reference sketch or photo, choose your preferred gold karat and certified diamonds, and collaborate one-on-one with our master gemologists.'),
+            'home_custom_btn_text'    => SiteSetting::get('home_custom_btn_text', 'Commission Custom Jewellery →'),
             'home_custom_btn_url'     => SiteSetting::get('home_custom_btn_url', '/custom'),
-            'home_custom_step1_title' => SiteSetting::get('home_custom_step1_title', 'Describe Your Requirement & Photos'),
-            'home_custom_step1_desc'  => SiteSetting::get('home_custom_step1_desc', 'Tell us what you have in mind in your own words — whether a dining river table, wall art, clock, or decor — and upload inspiration photos. No complex measurements needed.'),
-            'home_custom_step2_title' => SiteSetting::get('home_custom_step2_title', 'Artisan WhatsApp Consultation'),
-            'home_custom_step2_desc'  => SiteSetting::get('home_custom_step2_desc', 'Our lead artisan connects directly with you on WhatsApp or Email to discuss wood slab selections, custom color palettes, sizing, and share a transparent all-inclusive quote.'),
-            'home_custom_step3_title' => SiteSetting::get('home_custom_step3_title', 'Hand-Poured Craft & Crated Delivery'),
-            'home_custom_step3_desc'  => SiteSetting::get('home_custom_step3_desc', 'Once approved, we pour your artwork layer-by-layer with live WhatsApp photo updates, seal with diamond gloss, and deliver safely in insured wooden crates to your doorstep.'),
+            'home_custom_step1_title' => SiteSetting::get('home_custom_step1_title', 'Design Consultation & Sketch'),
+            'home_custom_step1_desc'  => SiteSetting::get('home_custom_step1_desc', 'Share your design inspiration, ring size, or metal tone preference (Yellow, White, or Rose Gold). No prior jewellery expertise needed — our specialists guide you through every cut and setting.'),
+            'home_custom_step2_title' => SiteSetting::get('home_custom_step2_title', '3D CAD & Diamond Selection'),
+            'home_custom_step2_desc'  => SiteSetting::get('home_custom_step2_desc', 'Our master designers render a photorealistic 3D CAD preview. You inspect stone proportions, diamond clarity, and receive an all-inclusive transparent quote before casting.'),
+            'home_custom_step3_title' => SiteSetting::get('home_custom_step3_title', 'Hand Setting & Insured Delivery'),
+            'home_custom_step3_desc'  => SiteSetting::get('home_custom_step3_desc', 'Cast in solid gold and hand-set under 10x magnification by master setters. Shipped in tamper-evident insured packaging with independent laboratory certification to your door.'),
+
+            // Blog / Editorial Journal Section
+            'home_blog_enabled'       => (bool) SiteSetting::get('home_blog_enabled', true),
+            'home_blog_tag'           => SiteSetting::get('home_blog_tag', 'THE ATELIER JOURNAL'),
+            'home_blog_title'         => SiteSetting::get('home_blog_title', 'Stories of Brilliance & Craft'),
+            'home_blog_subtitle'      => SiteSetting::get('home_blog_subtitle', 'Master guides on solitaires, 4Cs of diamonds, hallmarked gold, and fine jewellery styling.'),
+            'home_blog_count'         => (int) SiteSetting::get('home_blog_count', 3),
         ]);
     }
 
@@ -97,27 +113,27 @@ class HomePageSettings extends Page implements HasForms
         return $form
             ->schema([
                 // ── SECTION 1: FOUNDER QUOTE BANNER ──
-                Section::make('Founder Brand Quote Banner')
-                    ->description('Controls the full-width editorial quote displayed across the middle of the homepage.')
+                Section::make('Atelier Philosophy Quote Banner')
+                    ->description('Controls the full-width editorial quote displayed across the homepage.')
                     ->schema([
                         Textarea::make('home_quote_text')
                             ->label('Quote Text')
                             ->rows(3)
                             ->required()
-                            ->placeholder('e.g. Resin remembers everything — the hand, the hour, the light in the room.'),
+                            ->placeholder('e.g. A diamond does not merely capture light — it immortalises the moments that define your life.'),
 
                         TextInput::make('home_quote_author')
                             ->label('Quote Author / Attribution')
                             ->required()
-                            ->placeholder('e.g. Founder & Resin Artist'),
+                            ->placeholder('e.g. Master Jeweller · Solitaire Atelier'),
                     ])->collapsible(),
 
                 // ── SECTION 2: THE HOUSE / ATELIER STORY ──
-                Section::make('The House: Made to Order (Our Approach & Story Section)')
+                Section::make('The Atelier Heritage (Our Craftsmanship & Story Section)')
                     ->description('Customize the editorial narrative section and upload the story photo.')
                     ->schema([
                         FileUpload::make('home_story_image')
-                            ->label('Story / Workshop Photo')
+                            ->label('Story / Atelier Photo')
                             ->image()
                             ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp', 'image/jpg'])
                             ->maxSize(5120)
@@ -125,7 +141,7 @@ class HomePageSettings extends Page implements HasForms
                             ->directory('homepage')
                             ->imageResizeMode('cover')
                             ->imageCropAspectRatio('4:5')
-                            ->helperText('Upload artwork or workshop photo. Max 5 MB. Recommended aspect ratio 4:5.')
+                            ->helperText('Upload jewelry craftsmanship photo. Max 5 MB. Recommended aspect ratio 4:5.')
                             ->columnSpanFull(),
 
                         Grid::make(2)
@@ -133,37 +149,37 @@ class HomePageSettings extends Page implements HasForms
                                 TextInput::make('home_story_tag')
                                     ->label('Small Top Tag')
                                     ->required()
-                                    ->placeholder('e.g. OUR APPROACH'),
+                                    ->placeholder('e.g. THE ATELIER HERITAGE'),
 
                                 TextInput::make('home_story_badge')
                                     ->label('Image Glass Badge Text')
                                     ->required()
-                                    ->placeholder('e.g. HANDCRAFTED · MADE TO ORDER'),
+                                    ->placeholder('e.g. 100% BIS HALLMARKED · IGI CERTIFIED'),
                             ]),
 
                         TextInput::make('home_story_title')
                             ->label('Headline Title')
                             ->required()
-                            ->placeholder('e.g. Handcrafted, made to order.')
+                            ->placeholder('e.g. Heirlooms born of gold, fire, and light.')
                             ->columnSpanFull(),
 
                         Textarea::make('home_story_paragraph1')
                             ->label('Primary Description Paragraph')
                             ->rows(3)
                             ->required()
-                            ->placeholder('e.g. Every piece begins as a slow conversation between wood, resin, and time...'),
+                            ->placeholder('e.g. Every piece in our atelier is an intimate dialogue between master craftsmanship and certified natural diamonds...'),
 
                         Textarea::make('home_story_paragraph2')
                             ->label('Secondary Italic Note (Optional)')
                             ->rows(2)
-                            ->placeholder('e.g. No two rivers are alike. No two skies. That is the point.'),
+                            ->placeholder('e.g. Certified by premier international gemmological laboratories and hallmarked for purity.'),
 
                         Grid::make(2)
                             ->schema([
                                 TextInput::make('home_story_link_text')
                                     ->label('CTA Button Text')
                                     ->required()
-                                    ->placeholder('e.g. Read our story'),
+                                    ->placeholder('e.g. Discover our craftsmanship'),
 
                                 TextInput::make('home_story_link_url')
                                     ->label('CTA Target URL')
@@ -172,34 +188,34 @@ class HomePageSettings extends Page implements HasForms
                             ]),
                     ])->collapsible(),
 
-                // ── SECTION 3: CUSTOM MADE-TO-ORDER ARTWORKS ──
-                Section::make('Custom Made-to-Order Section (Process Card)')
-                    ->description('Edit the dark showcase card that explains the 3-step handcrafted custom order process.')
+                // ── SECTION 3: BESPOKE FINE JEWELLERY CONCIERGE ──
+                Section::make('Bespoke Jewellery Concierge (Process Card)')
+                    ->description('Edit the dark showcase card that explains the 3-step handcrafted bespoke jewelry order process.')
                     ->schema([
                         Grid::make(2)
                             ->schema([
                                 TextInput::make('home_custom_tag')
                                     ->label('Top Tag')
                                     ->required()
-                                    ->placeholder('e.g. CUSTOM RESIN ARTWORK'),
+                                    ->placeholder('e.g. BESPOKE JEWELLERY ATELIER'),
 
                                 TextInput::make('home_custom_btn_text')
                                     ->label('CTA Button Text')
                                     ->required()
-                                    ->placeholder('e.g. Submit Custom Requirement →'),
+                                    ->placeholder('e.g. Commission Custom Jewellery →'),
                             ]),
 
                         TextInput::make('home_custom_title')
                             ->label('Headline Title')
                             ->required()
-                            ->placeholder('e.g. Have a design in mind? Crafted for your space.')
+                            ->placeholder('e.g. Have a dream design? Handcrafted exclusively for you.')
                             ->columnSpanFull(),
 
                         Textarea::make('home_custom_desc')
                             ->label('Introduction Description Paragraph')
                             ->rows(3)
                             ->required()
-                            ->placeholder('e.g. From signature ocean river dining tables to custom fluid wall art panels...'),
+                            ->placeholder('e.g. From custom solitaire engagement rings to bridal heirlooms...'),
 
                         TextInput::make('home_custom_btn_url')
                             ->label('CTA Target URL')
@@ -216,12 +232,12 @@ class HomePageSettings extends Page implements HasForms
                                                 TextInput::make('home_custom_step1_title')
                                                     ->label('Step 1 Title')
                                                     ->required()
-                                                    ->placeholder('Describe Your Requirement & Photos'),
+                                                    ->placeholder('Design Consultation & Sketch'),
                                                 Textarea::make('home_custom_step1_desc')
                                                     ->label('Step 1 Description')
                                                     ->rows(4)
                                                     ->required()
-                                                    ->placeholder('Tell us what you have in mind in your own words, and upload inspiration photos...'),
+                                                    ->placeholder('Share your design inspiration, ring size, or metal tone preference...'),
                                             ]),
 
                                         Section::make('Step 02')
@@ -229,12 +245,12 @@ class HomePageSettings extends Page implements HasForms
                                                 TextInput::make('home_custom_step2_title')
                                                     ->label('Step 2 Title')
                                                     ->required()
-                                                    ->placeholder('Artisan WhatsApp Consultation'),
+                                                    ->placeholder('3D CAD & Diamond Selection'),
                                                 Textarea::make('home_custom_step2_desc')
                                                     ->label('Step 2 Description')
                                                     ->rows(4)
                                                     ->required()
-                                                    ->placeholder('Our lead artisan connects directly with you on WhatsApp or Email with wood options and quote...'),
+                                                    ->placeholder('Our master designers render a photorealistic 3D CAD preview...'),
                                             ]),
 
                                         Section::make('Step 03')
@@ -242,15 +258,55 @@ class HomePageSettings extends Page implements HasForms
                                                 TextInput::make('home_custom_step3_title')
                                                     ->label('Step 3 Title')
                                                     ->required()
-                                                    ->placeholder('Hand-Poured Craft & Crated Delivery'),
+                                                    ->placeholder('Hand Setting & Insured Delivery'),
                                                 Textarea::make('home_custom_step3_desc')
                                                     ->label('Step 3 Description')
                                                     ->rows(4)
                                                     ->required()
-                                                    ->placeholder('Once approved, we pour layer-by-layer with live updates and deliver safely in crates...'),
+                                                    ->placeholder('Cast in solid gold and hand-set under 10x magnification by master setters...'),
                                             ]),
                                     ]),
                             ]),
+                    ])->collapsible(),
+
+                // ── SECTION 4: EDITORIAL JOURNAL & BLOG SHOWCASE ──
+                Section::make('Editorial Journal & Blog Showcase')
+                    ->description('Control the articles & journal card showcase section displayed on the homepage.')
+                    ->schema([
+                        Toggle::make('home_blog_enabled')
+                            ->label('Show Blog / Journal Section on Homepage')
+                            ->helperText('Turn this toggle ON to display the luxury editorial articles cards on the homepage')
+                            ->default(true),
+
+                        Grid::make(2)
+                            ->schema([
+                                TextInput::make('home_blog_tag')
+                                    ->label('Small Top Tag')
+                                    ->required()
+                                    ->placeholder('e.g. THE ATELIER JOURNAL'),
+
+                                Select::make('home_blog_count')
+                                    ->label('Showcase Articles Count')
+                                    ->helperText('Number of articles to showcase on homepage (Max 3)')
+                                    ->options([
+                                        1 => '1 Article Showcase',
+                                        2 => '2 Articles Showcase',
+                                        3 => '3 Articles Showcase (Recommended)',
+                                    ])
+                                    ->default(3)
+                                    ->required(),
+                            ]),
+
+                        TextInput::make('home_blog_title')
+                            ->label('Headline Title')
+                            ->required()
+                            ->placeholder('e.g. Stories of Brilliance & Craft'),
+
+                        Textarea::make('home_blog_subtitle')
+                            ->label('Subtitle / Description')
+                            ->rows(2)
+                            ->required()
+                            ->placeholder('e.g. Master guides on solitaires, 4Cs of diamonds, hallmarked gold, and fine jewellery styling.'),
                     ])->collapsible(),
             ]);
     }
@@ -291,6 +347,13 @@ class HomePageSettings extends Page implements HasForms
         SiteSetting::set('home_custom_step2_desc', $data['home_custom_step2_desc'], 'homepage', 'Home Custom Step 2 Description');
         SiteSetting::set('home_custom_step3_title', $data['home_custom_step3_title'], 'homepage', 'Home Custom Step 3 Title');
         SiteSetting::set('home_custom_step3_desc', $data['home_custom_step3_desc'], 'homepage', 'Home Custom Step 3 Description');
+
+        // Blog / Editorial Journal Section
+        SiteSetting::set('home_blog_enabled', !empty($data['home_blog_enabled']) ? '1' : '0', 'homepage', 'Home Blog Showcase Enabled');
+        SiteSetting::set('home_blog_tag', $data['home_blog_tag'], 'homepage', 'Home Blog Tag');
+        SiteSetting::set('home_blog_title', $data['home_blog_title'], 'homepage', 'Home Blog Title');
+        SiteSetting::set('home_blog_subtitle', $data['home_blog_subtitle'], 'homepage', 'Home Blog Subtitle');
+        SiteSetting::set('home_blog_count', (string) ($data['home_blog_count'] ?? 3), 'homepage', 'Home Blog Count');
 
         $this->form->fill($data);
 
