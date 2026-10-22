@@ -322,6 +322,7 @@ class ProductResource extends Resource
                                             ->suffix('gm')
                                             ->placeholder('Only if piece has no sizes (e.g. pendant)')
                                             ->helperText('Net pure gold weight in grams for fixed/non-sizeable pieces.')
+                                            ->required(fn (Forms\Get $get) => empty(array_filter((array) ($get('attributes.size_variants') ?? []))) && !empty(array_filter((array) ($get('attributes.gold_purities') ?? []))))
                                             ->visible(fn (Forms\Get $get) => empty(array_filter((array) ($get('attributes.size_variants') ?? [])))),
                                     ]),
 
@@ -412,7 +413,7 @@ class ProductResource extends Resource
                                                 ->extraInputAttributes(['class' => '[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none', 'inputmode' => 'decimal'])
                                                 ->suffix('gm')
                                                 ->placeholder('Enter weight (e.g. 3.50)')
-                                                ->nullable()
+                                                ->required()
                                                 ->live(onBlur: true)
                                                 ->afterStateUpdated(function ($state, Forms\Set $set, Forms\Get $get) {
                                                     self::calculateAllPuritiesForVariant($state, $set, $get);
