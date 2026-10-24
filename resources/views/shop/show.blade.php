@@ -585,7 +585,7 @@
                         val = this.basePrice || 0;
                     }
                     if (!curr.is_inr && curr.rate > 0) {
-                        val = Math.ceil(val / curr.rate);
+                        val = Math.round(val / curr.rate);
                     } else {
                         val = Math.round(val);
                     }
