@@ -1209,40 +1209,27 @@
                             <span class="font-normal text-[#8E877D] tracking-normal ml-1" x-text="selectedSize ? '· ' + selectedSize : ''"></span>
                         </p>
 
-                        {{-- Case 1: If 5 or fewer sizes, show clean direct pills on single line --}}
-                        <template x-if="sizeVariants.length <= 5">
-                            <div class="flex items-center gap-1.5 sm:gap-2 flex-wrap">
-                                <template x-for="v in sizeVariants" :key="v.size">
-                                    <button type="button" 
-                                            @click="selectedSize = v.size; if (typeof syncUrlWithState === 'function') syncUrlWithState();"
-                                            :class="selectedSize === v.size ? 'bg-[#1C1917] text-white border-[#1C1917] shadow-xs' : 'bg-transparent text-[#1C1917] border-[#EBE6DD] hover:border-[#1C1917]'"
-                                            class="px-3.5 sm:px-4 py-1.5 sm:py-2 rounded-full border text-[9.5px] uppercase tracking-[0.16em] sm:tracking-[0.18em] font-medium transition-all duration-150 cursor-pointer"
-                                            x-text="v.size">
-                                    </button>
-                                </template>
-                            </div>
-                        </template>
+                        {{-- Direct Sleek Size Pills --}}
+                        <div class="flex items-center gap-1.5 sm:gap-2 flex-wrap">
+                            <template x-for="v in displaySizes" :key="v.size">
+                                <button type="button" 
+                                        @click="selectedSize = v.size; if (typeof syncUrlWithState === 'function') syncUrlWithState();"
+                                        :class="selectedSize === v.size ? 'bg-[#1C1917] text-white border-[#1C1917] shadow-xs' : 'bg-transparent text-[#1C1917] border-[#EBE6DD] hover:border-[#1C1917]'"
+                                        class="px-3.5 sm:px-4 py-1.5 sm:py-2 rounded-full border text-[9.5px] uppercase tracking-[0.16em] sm:tracking-[0.18em] font-medium transition-all duration-150 cursor-pointer"
+                                        x-text="v.size">
+                                </button>
+                            </template>
 
-                        {{-- Case 2: If more than 5 sizes (Rings 6 to 20): Clean Single Luxury Selector Card (No outside '+ 10 More' clutter) --}}
-                        <template x-if="sizeVariants.length > 5">
-                            <div>
+                            {{-- + More Trigger Pill (Only shown if total sizes > 5) --}}
+                            <template x-if="sizeVariants.length > 5">
                                 <button type="button" 
                                         @click="sizeModalOpen = true"
-                                        class="w-full sm:w-auto min-w-[210px] inline-flex items-center justify-between gap-4 px-4 py-2.5 rounded-full border border-[#E8E2D7] bg-[#FAF8F5] hover:bg-white hover:border-[#1C1917] transition-all cursor-pointer group shadow-2xs">
-                                    <div class="flex items-center gap-2.5">
-                                        <svg class="w-4 h-4 text-[#8E877D] group-hover:text-[#1C1917] transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <circle cx="12" cy="12" r="8" stroke-width="1.5" stroke-dasharray="2 2" />
-                                            <circle cx="12" cy="12" r="4.5" stroke-width="1.5" />
-                                        </svg>
-                                        <span class="text-xs font-semibold tracking-wide text-[#1C1917]" x-text="selectedSize || 'Select Ring Size'"></span>
-                                    </div>
-                                    <div class="flex items-center gap-1 text-[10px] uppercase tracking-[0.16em] font-medium text-[#8E877D] group-hover:text-[#1C1917]">
-                                        <span>Change</span>
-                                        <svg class="w-3.5 h-3.5 transition-transform group-hover:translate-y-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
-                                    </div>
+                                        class="px-3.5 py-1.5 sm:py-2 rounded-full border border-dashed border-[#1C1917]/40 text-[#1C1917] hover:border-[#1C1917] hover:bg-[#FAF8F5] text-[9.5px] uppercase tracking-[0.16em] font-medium transition-all duration-150 cursor-pointer flex items-center gap-1">
+                                    <span x-text="'+ ' + (sizeVariants.length - 5) + ' More'"></span>
+                                    <svg class="w-2.5 h-2.5 ml-0.5 text-[#8E877D]" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
                                 </button>
-                            </div>
-                        </template>
+                            </template>
+                        </div>
 
                         {{-- Compact, Refined Size Popup Dialog (Compact Handheld Size, NOT Giant) --}}
                         <div x-show="sizeModalOpen" 
