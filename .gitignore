@@ -20,6 +20,10 @@ vite.config.js.timestamp-*
 .DS_Store
 Thumbs.db
 
+# Bootstrap cache
+/bootstrap/cache/*
+!/bootstrap/cache/.gitignore
+
 # Database
 /database/*.sqlite
 /database/*.sqlite-journal
