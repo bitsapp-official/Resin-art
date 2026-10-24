@@ -28,20 +28,9 @@ class EditProduct extends EditRecord
 
     protected function getSavedNotification(): ?\Filament\Notifications\Notification
     {
-        $notification = \Filament\Notifications\Notification::make()
+        return \Filament\Notifications\Notification::make()
             ->success()
             ->title('Product saved successfully');
-
-        if (!empty($this->record->slug)) {
-            $notification->actions([
-                \Filament\Notifications\Actions\Action::make('view_site')
-                    ->label('View on Website')
-                    ->button()
-                    ->url(route('shop.show', $this->record->slug), shouldOpenInNewTab: true),
-            ]);
-        }
-
-        return $notification;
     }
 
     protected function mutateFormDataBeforeSave(array $data): array

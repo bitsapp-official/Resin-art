@@ -16,20 +16,9 @@ class CreateProduct extends CreateRecord
 
     protected function getCreatedNotification(): ?\Filament\Notifications\Notification
     {
-        $notification = \Filament\Notifications\Notification::make()
+        return \Filament\Notifications\Notification::make()
             ->success()
             ->title('Product created successfully');
-
-        if (!empty($this->record->slug)) {
-            $notification->actions([
-                \Filament\Notifications\Actions\Action::make('view_site')
-                    ->label('View on Website')
-                    ->button()
-                    ->url(route('shop.show', $this->record->slug), shouldOpenInNewTab: true),
-            ]);
-        }
-
-        return $notification;
     }
 
     protected function mutateFormDataBeforeCreate(array $data): array
