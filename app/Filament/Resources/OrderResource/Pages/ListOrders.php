@@ -18,12 +18,13 @@ class ListOrders extends ListRecords
     public function getTabs(): array
     {
         return [
-            'all' => Tab::make('All Orders')
-                ->badge(Order::count()),
+            'all' => Tab::make('All Placed Orders')
+                ->modifyQueryUsing(fn (Builder $query) => $query->where('status', '!=', Order::STATUS_PENDING_PAYMENT))
+                ->badge(Order::where('status', '!=', Order::STATUS_PENDING_PAYMENT)->count()),
 
             'today' => Tab::make("Today's Orders")
-                ->modifyQueryUsing(fn (Builder $query) => $query->whereDate('created_at', today()))
-                ->badge(Order::whereDate('created_at', today())->count())
+                ->modifyQueryUsing(fn (Builder $query) => $query->where('status', '!=', Order::STATUS_PENDING_PAYMENT)->whereDate('created_at', today()))
+                ->badge(Order::where('status', '!=', Order::STATUS_PENDING_PAYMENT)->whereDate('created_at', today())->count())
                 ->badgeColor('success'),
 
             'confirmed' => Tab::make('Confirmed')
@@ -46,14 +47,18 @@ class ListOrders extends ListRecords
                 ->badge(Order::where('status', Order::STATUS_DELIVERED)->count())
                 ->badgeColor('success'),
 
-            'unpaid' => Tab::make('Unpaid Checkouts')
-                ->modifyQueryUsing(fn (Builder $query) => $query->where('status', Order::STATUS_PENDING_PAYMENT)->orWhere('payment_status', 'unpaid'))
-                ->badge(Order::where('status', Order::STATUS_PENDING_PAYMENT)->orWhere('payment_status', 'unpaid')->count())
+            'unpaid' => Tab::make('Abandoned Checkouts')
+                ->modifyQueryUsing(fn (Builder $query) => $query->where('status', Order::STATUS_PENDING_PAYMENT)->orWhere(function ($q) {
+                    $q->where('payment_status', 'unpaid')->where('cancel_reason', 'like', '%checkout%');
+                }))
+                ->badge(Order::where('status', Order::STATUS_PENDING_PAYMENT)->orWhere(function ($q) {
+                    $q->where('payment_status', 'unpaid')->where('cancel_reason', 'like', '%checkout%');
+                })->count())
                 ->badgeColor('warning'),
 
-            'cancelled' => Tab::make('Cancelled')
-                ->modifyQueryUsing(fn (Builder $query) => $query->where('status', Order::STATUS_CANCELLED))
-                ->badge(Order::where('status', Order::STATUS_CANCELLED)->count())
+            'cancelled' => Tab::make('Customer Cancelled')
+                ->modifyQueryUsing(fn (Builder $query) => $query->where('status', Order::STATUS_CANCELLED)->where('cancel_reason', 'not like', '%checkout%'))
+                ->badge(Order::where('status', Order::STATUS_CANCELLED)->where('cancel_reason', 'not like', '%checkout%')->count())
                 ->badgeColor('danger'),
         ];
     }

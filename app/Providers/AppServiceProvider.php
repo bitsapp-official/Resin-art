@@ -14,6 +14,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
+        // Global helper functions
+        require_once app_path('helpers.php');
+
         // Custom Filament Logout Controller to prevent wiping frontend customer session
         $this->app->bind(
             \Filament\Http\Controllers\Auth\LogoutController::class,

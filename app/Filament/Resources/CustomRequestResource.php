@@ -22,6 +22,17 @@ class CustomRequestResource extends Resource
     protected static ?string $navigationLabel = 'Customer Inquiries';
     protected static ?string $pluralModelLabel = 'Customer Inquiries';
 
+    public static function getNavigationBadge(): ?string
+    {
+        $count = CustomRequest::where('status', CustomRequestStatus::SUBMITTED)->count();
+        return $count > 0 ? (string) $count : null;
+    }
+
+    public static function getNavigationBadgeColor(): ?string
+    {
+        return 'warning';
+    }
+
     /**
      * Minimal 5-step status options for admin dropdown UI
      */

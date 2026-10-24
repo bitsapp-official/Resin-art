@@ -72,7 +72,7 @@
                             'key'       => 'CONFIRMED',
                             'label'     => 'Confirmed',
                             'subtitle'  => 'Order placed & payment verified',
-                            'detail'    => $order->created_at ? 'Placed on ' . $order->created_at->format('d M Y, h:i A') : null,
+                            'detail'    => $order->created_at ? 'Placed on ' . $order->created_at->timezone('Asia/Kolkata')->format('d M Y, h:i A') : null,
                             'completed' => true,
                         ],
                         [
@@ -229,24 +229,67 @@
 
                         {{-- Order Summary Card --}}
                         <div class="glass rounded-[1.5rem] sm:rounded-[2rem] p-4 sm:p-7 md:p-8 space-y-5 w-full min-w-0">
+                            @php
+                                $orderCurrency = $order->currency ?: 'INR';
+                                $orderSymbol = $order->currency_symbol ?: ($orderCurrency === 'USD' ? '$' : ($orderCurrency === 'EUR' ? '€' : ($orderCurrency === 'GBP' ? '£' : ($orderCurrency === 'AED' ? 'AED ' : '₹'))));
+                                $decimals = ($orderCurrency === 'INR') ? 0 : 2;
+                            @endphp
                             <div class="text-[10px] uppercase tracking-[0.22em] font-bold text-[#8E877D]">
                                 ORDER SUMMARY
                             </div>
 
                             <div class="space-y-4">
                                 @foreach($order->items as $item)
+                                    @php
+                                        $options = is_array($item->options) ? $item->options : (json_decode($item->options, true) ?: []);
+                                        $color = $options['metal_color'] ?? ($options['color'] ?? null);
+                                        $purity = $options['gold_purity'] ?? ($options['purity'] ?? null);
+                                        $size = $options['size'] ?? null;
+
+                                        $productSlug = $item->product?->slug ?? ($item->product_snapshot['slug'] ?? null);
+                                        $queryParams = [];
+                                        if ($color) $queryParams['color'] = $color;
+                                        if ($purity) $queryParams['purity'] = $purity;
+                                        if ($size) $queryParams['size'] = $size;
+
+                                        $productUrl = null;
+                                        if ($productSlug) {
+                                            try {
+                                                $productUrl = route('shop.show', array_merge(['slug' => $productSlug], $queryParams));
+                                            } catch (\Throwable $e) {
+                                                $productUrl = url('/shop/' . urlencode($productSlug) . ($queryParams ? '?' . http_build_query($queryParams) : ''));
+                                            }
+                                        }
+                                    @endphp
                                     <div class="flex items-center justify-between gap-4 pb-3 border-b border-[#E6E1D7]/50 last:border-b-0 last:pb-0">
                                         <div class="flex items-center space-x-3.5 min-w-0">
-                                            <div class="w-12 h-12 min-w-[48px] max-w-[48px] rounded-xl bg-white border border-[#E6E1D7] overflow-hidden shrink-0 flex items-center justify-center">
-                                                @if($item->primary_image_url)
-                                                    <img src="{{ $item->primary_image_url }}" alt="{{ $item->product_name }}" class="w-full h-full object-cover rounded-xl">
-                                                @else
-                                                    <span class="text-[8px] font-mono text-[#8E877D]">JEWEL</span>
-                                                @endif
-                                            </div>
+                                            @if($productUrl)
+                                                <a href="{{ $productUrl }}" class="w-12 h-12 min-w-[48px] max-w-[48px] rounded-xl bg-white border border-[#E6E1D7] hover:border-[#1C1917] overflow-hidden shrink-0 flex items-center justify-center transition-all duration-200 group">
+                                                    @if($item->primary_image_url)
+                                                        <img src="{{ $item->primary_image_url }}" alt="{{ $item->product_name }}" class="w-full h-full object-cover rounded-xl group-hover:scale-105 transition-transform duration-200">
+                                                    @else
+                                                        <span class="text-[8px] font-mono text-[#8E877D]">JEWEL</span>
+                                                    @endif
+                                                </a>
+                                            @else
+                                                <div class="w-12 h-12 min-w-[48px] max-w-[48px] rounded-xl bg-white border border-[#E6E1D7] overflow-hidden shrink-0 flex items-center justify-center">
+                                                    @if($item->primary_image_url)
+                                                        <img src="{{ $item->primary_image_url }}" alt="{{ $item->product_name }}" class="w-full h-full object-cover rounded-xl">
+                                                    @else
+                                                        <span class="text-[8px] font-mono text-[#8E877D]">JEWEL</span>
+                                                    @endif
+                                                </div>
+                                            @endif
+
                                             <div class="min-w-0">
                                                 <h4 class="font-sans text-xs sm:text-[13px] font-medium text-[#1C1917] leading-snug truncate">
-                                                    {{ $item->product_name }}
+                                                    @if($productUrl)
+                                                        <a href="{{ $productUrl }}" class="hover:text-[#9A7B4F] transition-colors underline-offset-2 hover:underline">
+                                                            {{ $item->product_name }}
+                                                        </a>
+                                                    @else
+                                                        {{ $item->product_name }}
+                                                    @endif
                                                 </h4>
                                                 <span class="text-[10px] font-mono text-[#8E877D] block pt-0.5">
                                                     QTY {{ $item->quantity }}
@@ -254,7 +297,7 @@
                                             </div>
                                         </div>
                                         <div class="text-[13.5px] font-medium text-[#1C1917] shrink-0 font-sans">
-                                            &#8377; {{ number_format($item->subtotal) }}
+                                            {{ $orderSymbol }} {{ number_format($item->subtotal, $decimals) }}
                                         </div>
                                     </div>
                                 @endforeach
@@ -263,12 +306,28 @@
                             {{-- Totals --}}
                             <div class="border-t border-[#E6E1D7]/60 pt-4 space-y-2.5 text-[13px]">
                                 <div class="flex justify-between text-[#78716C]">
+                                    <span>Subtotal</span>
+                                    <span class="font-medium text-[#1C1917]">{{ $orderSymbol }} {{ number_format($order->subtotal, $decimals) }}</span>
+                                </div>
+                                <div class="flex justify-between text-[#78716C]">
+                                    <span>Taxes (GST 3%)</span>
+                                    <span class="font-normal text-[11.5px] text-[#78716C]">Included in price</span>
+                                </div>
+                                <div class="flex justify-between text-[#78716C]">
                                     <span>Shipping</span>
-                                    <span class="text-[#1C1917] font-medium">Complimentary</span>
+                                    <span class="text-[#1C1917] font-medium">
+                                        @if($order->shipping_fee > 0)
+                                            {{ $orderSymbol }} {{ number_format($order->shipping_fee, $decimals) }}
+                                        @else
+                                            Complimentary
+                                        @endif
+                                    </span>
                                 </div>
                                 <div class="flex justify-between items-center border-t border-[#E6E1D7]/60 pt-3">
                                     <span class="text-[11px] uppercase tracking-[0.2em] font-bold text-[#1C1917]">TOTAL</span>
-                                    <span class="font-medium text-base sm:text-lg text-[#1C1917] font-sans">&#8377; {{ number_format($order->grand_total) }}</span>
+                                    <div class="text-right">
+                                        <span class="font-medium text-base sm:text-lg text-[#1C1917] font-sans">{{ $orderSymbol }} {{ number_format($order->grand_total, $decimals) }}</span>
+                                    </div>
                                 </div>
                             </div>
                         </div>

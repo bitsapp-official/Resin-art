@@ -57,6 +57,11 @@
                 </div>
 
                 @if($latestOrder)
+                    @php
+                        $latestCurrency = $latestOrder->currency ?: 'INR';
+                        $latestSymbol = $latestOrder->currency_symbol ?: ($latestCurrency === 'USD' ? '$' : ($latestCurrency === 'EUR' ? '€' : ($latestCurrency === 'GBP' ? '£' : ($latestCurrency === 'AED' ? 'AED ' : '₹'))));
+                        $latestDecimals = ($latestCurrency === 'INR') ? 0 : 2;
+                    @endphp
                     <div class="space-y-4">
                         <!-- Order Reference & Date -->
                         <div class="flex items-baseline justify-between border-b border-[#E6E1D7]/60 pb-3">
@@ -115,18 +120,25 @@
                                         </div>
                                     </div>
                                     <span class="text-xs font-normal text-[#1C1917]">
-                                        ₹ {{ number_format($item->subtotal) }}
+                                        {{ $latestSymbol }} {{ number_format($item->subtotal, $latestDecimals) }}
                                     </span>
                                 </div>
                             @endforeach
                         </div>
 
-                        <!-- Track Order Action Button -->
-                        <div class="pt-3">
-                            <a href="{{ route('tracking.index', ['order_reference' => $latestOrder->order_reference, 'email' => $latestOrder->email]) }}" 
-                               class="inline-block border border-[#DFD9CE] hover:border-[#1C1917] hover:bg-[#1C1917] hover:text-white text-[#1C1917] text-[9.5px] uppercase tracking-[0.25em] font-semibold py-3 px-6 rounded-full transition-all duration-300">
-                                TRACK THIS ORDER
-                            </a>
+                        <!-- Track / View Order Action Button -->
+                        <div class="pt-3 flex items-center space-x-3">
+                            @if(strtoupper((string) $latestOrder->status) === 'CANCELLED')
+                                <a href="{{ route('account.orders.show', $latestOrder->order_reference) }}" 
+                                   class="inline-block border border-red-200 hover:border-red-800 hover:bg-red-800 hover:text-white text-red-700 bg-red-50/80 text-[9.5px] uppercase tracking-[0.25em] font-semibold py-3 px-6 rounded-full transition-all duration-300">
+                                    VIEW CANCELLED DETAILS
+                                </a>
+                            @else
+                                <a href="{{ route('tracking.index', ['order_reference' => $latestOrder->order_reference, 'email' => $latestOrder->email]) }}" 
+                                   class="inline-block border border-[#DFD9CE] hover:border-[#1C1917] hover:bg-[#1C1917] hover:text-white text-[#1C1917] text-[9.5px] uppercase tracking-[0.25em] font-semibold py-3 px-6 rounded-full transition-all duration-300">
+                                    TRACK THIS ORDER
+                                </a>
+                            @endif
                         </div>
                     </div>
                 @else
@@ -236,8 +248,11 @@
                         @if($viewed->product)
                             <a href="{{ route('shop.show', $viewed->product->slug) }}" class="group flex items-center space-x-3 p-2 rounded-2xl hover:bg-white/60 transition-all">
                                 <div class="w-12 h-12 bg-white rounded-xl overflow-hidden shrink-0 border border-[#E6E1D7]/40">
-                                    @if(!empty($viewed->product->images) && isset($viewed->product->images[0]))
-                                        <img src="{{ $viewed->product->images[0] }}" alt="" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
+                                    @php
+                                        $viewedImg = $viewed->product->primary_image_url ?: ($viewed->product->images[0] ?? null);
+                                    @endphp
+                                    @if($viewedImg)
+                                        <img src="{{ $viewedImg }}" alt="{{ $viewed->product->name }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
                                     @else
                                         <div class="w-full h-full bg-[#FAF8F5] flex items-center justify-center text-[10px] text-[#8E877D]">Art</div>
                                     @endif

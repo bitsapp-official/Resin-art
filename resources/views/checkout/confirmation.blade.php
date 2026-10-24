@@ -62,6 +62,11 @@
 
         <!-- Order Summary Card -->
         <div class="glass rounded-[1.5rem] sm:rounded-[2rem] p-4 sm:p-7 md:p-9 text-left space-y-5 sm:space-y-6 max-w-xl mx-auto shadow-sm mt-8 sm:mt-12 w-full min-w-0">
+            @php
+                $orderCurrency = $order->currency ?: 'INR';
+                $orderSymbol = $order->currency_symbol ?: ($orderCurrency === 'USD' ? '$' : ($orderCurrency === 'EUR' ? '€' : ($orderCurrency === 'GBP' ? '£' : ($orderCurrency === 'AED' ? 'AED ' : '₹'))));
+                $decimals = ($orderCurrency === 'INR') ? 0 : 2;
+            @endphp
             <div class="flex items-center justify-between border-b border-[#E6E1D7]/60 pb-4">
                 <div>
                     <span class="text-[9.5px] uppercase tracking-[0.2em] font-bold text-[#8E877D]">ORDER SUMMARY</span>
@@ -69,19 +74,46 @@
                 </div>
                 <div class="text-right">
                     <span class="text-[9.5px] uppercase tracking-[0.2em] font-bold text-[#8E877D]">GRAND TOTAL</span>
-                    <span class="font-editorial text-lg text-[#1C1917] block pt-0.5 font-sans">&#8377; {{ number_format($order->grand_total) }}</span>
+                    <span class="font-editorial text-lg text-[#1C1917] block pt-0.5 font-sans">{{ $orderSymbol }} {{ number_format($order->grand_total, $decimals) }}</span>
                 </div>
             </div>
 
             <!-- Items -->
             <div class="space-y-3.5">
                 @foreach($order->items as $item)
+                    @php
+                        $options = is_array($item->options) ? $item->options : (json_decode($item->options, true) ?: []);
+                        $color = $options['metal_color'] ?? ($options['color'] ?? null);
+                        $purity = $options['gold_purity'] ?? ($options['purity'] ?? null);
+                        $size = $options['size'] ?? null;
+
+                        $productSlug = $item->product?->slug ?? ($item->product_snapshot['slug'] ?? null);
+                        $queryParams = [];
+                        if ($color) $queryParams['color'] = $color;
+                        if ($purity) $queryParams['purity'] = $purity;
+                        if ($size) $queryParams['size'] = $size;
+
+                        $productUrl = null;
+                        if ($productSlug) {
+                            try {
+                                $productUrl = route('shop.show', array_merge(['slug' => $productSlug], $queryParams));
+                            } catch (\Throwable $e) {
+                                $productUrl = url('/shop/' . urlencode($productSlug) . ($queryParams ? '?' . http_build_query($queryParams) : ''));
+                            }
+                        }
+                    @endphp
                     <div class="flex items-center justify-between text-xs pb-3 border-b border-[#E6E1D7]/40 last:border-b-0 last:pb-0">
                         <div class="min-w-0 pr-4">
-                            <span class="font-medium text-[#1C1917] block truncate">{{ $item->product_name }}</span>
-                            <span class="text-[10px] text-[#78716C] font-mono">Qty: {{ $item->quantity }} &bull; &#8377; {{ number_format($item->unit_price) }}</span>
+                            @if($productUrl)
+                                <a href="{{ $productUrl }}" class="font-medium text-[#1C1917] hover:text-[#9A7B4F] transition-colors block truncate underline-offset-2 hover:underline">
+                                    {{ $item->product_name }}
+                                </a>
+                            @else
+                                <span class="font-medium text-[#1C1917] block truncate">{{ $item->product_name }}</span>
+                            @endif
+                            <span class="text-[10px] text-[#78716C] font-mono">Qty: {{ $item->quantity }} &bull; {{ $orderSymbol }} {{ number_format($item->unit_price, $decimals) }}</span>
                         </div>
-                        <span class="font-medium text-[#1C1917] shrink-0 font-sans">&#8377; {{ number_format($item->subtotal) }}</span>
+                        <span class="font-medium text-[#1C1917] shrink-0 font-sans">{{ $orderSymbol }} {{ number_format($item->subtotal, $decimals) }}</span>
                     </div>
                 @endforeach
             </div>

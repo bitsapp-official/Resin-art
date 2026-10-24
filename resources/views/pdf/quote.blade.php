@@ -21,13 +21,14 @@
             color: #1A1615;
             font-size: 8.5pt;
             line-height: 1.45;
-            width: 100%;
-            height: 100%;
             -webkit-print-color-adjust: exact;
         }
 
+        body {
+            margin: 28pt 36pt 24pt 36pt;
+        }
+
         .page-container {
-            padding: 24pt 32pt 20pt 32pt;
             width: 100%;
         }
 

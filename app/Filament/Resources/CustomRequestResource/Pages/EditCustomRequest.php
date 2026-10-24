@@ -14,6 +14,15 @@ class EditCustomRequest extends EditRecord
 
     public function mount(int|string $record): void
     {
+        $this->record = $this->resolveRecord($record);
+
+        // If the request was newly submitted, advance it to under_review automatically upon opening
+        $currentVal = $this->record->status instanceof \App\Enums\CustomRequestStatus ? $this->record->status->value : (string) $this->record->status;
+        if ($currentVal === 'submitted') {
+            $this->record->update(['status' => \App\Enums\CustomRequestStatus::UNDER_REVIEW]);
+            $this->record->refresh();
+        }
+
         parent::mount($record);
 
         // Auto-dismiss/mark-as-read the admin bell notification for this custom request when opened

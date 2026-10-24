@@ -29,8 +29,11 @@
                             <div id="wishlist-card-{{ $product->id }}" class="wishlist-page-card bg-white/70 border border-[#E6E1D7] rounded-2xl sm:rounded-3xl overflow-hidden shadow-sm flex flex-col justify-between p-4 sm:p-5 transition-all duration-300 w-full min-w-0">
                                 <div>
                                     <a href="{{ route('shop.show', $product->slug) }}" class="block aspect-square overflow-hidden bg-[#F5F2EB] rounded-2xl mb-4 relative">
-                                        @if(!empty($product->images) && isset($product->images[0]))
-                                            <img src="{{ $product->images[0] }}" alt="{{ $product->name }}" class="w-full h-full object-cover">
+                                        @php
+                                            $wlImg = $product->primary_image_url ?: ($product->images[0] ?? null);
+                                        @endphp
+                                        @if($wlImg)
+                                            <img src="{{ $wlImg }}" alt="{{ $product->name }}" class="w-full h-full object-cover">
                                         @endif
                                     </a>
 
@@ -40,7 +43,7 @@
                                         </a>
                                     </h3>
                                     <p class="text-sm font-semibold text-[#1C1917] mb-4">
-                                        ₹{{ number_format($product->effective_price) }}
+                                        {{ currency_format($product->effective_price) }}
                                     </p>
                                 </div>
 

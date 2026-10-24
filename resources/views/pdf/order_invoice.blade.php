@@ -21,13 +21,14 @@
             color: #1A1615;
             font-size: 8.5pt;
             line-height: 1.45;
-            width: 100%;
-            height: 100%;
             -webkit-print-color-adjust: exact;
         }
 
+        body {
+            margin: 28pt 36pt 24pt 36pt;
+        }
+
         .page-container {
-            padding: 24pt 32pt 20pt 32pt;
             width: 100%;
         }
 
@@ -122,9 +123,13 @@
             color: #FAF8F5;
             font-size: 6.8pt;
             font-weight: bold;
-            letter-spacing: 1.4pt;
+            letter-spacing: 1.2pt;
             text-transform: uppercase;
-            padding: 3pt 8pt 2pt 8pt;
+            text-align: center;
+            vertical-align: middle;
+            line-height: 14pt;
+            height: 14pt;
+            padding: 0 10pt;
             border-radius: 3pt;
             margin-top: 5pt;
         }
@@ -272,17 +277,18 @@
 
         /* Right: Financial Totals Table */
         .totals-table {
-            width: 100%;
+            width: 95%;
+            margin-left: auto;
             border-collapse: collapse;
         }
         .totals-table td {
-            padding: 3.5pt 0;
-            font-size: 8pt;
+            padding: 4pt 0;
+            font-size: 8.5pt;
         }
         .totals-table td.lbl {
             text-align: right;
             color: #6B655D;
-            padding-right: 12pt;
+            padding-right: 14pt;
         }
         .totals-table td.val {
             text-align: right;
@@ -293,14 +299,14 @@
         .totals-table tr.grand-total td {
             border-top: 1.5pt solid #1A1615;
             border-bottom: 2pt double #1A1615;
-            padding: 6pt 0;
+            padding: 8pt 0 6pt 0;
             font-size: 10pt;
             font-weight: bold;
             color: #1A1615;
         }
         .totals-table tr.grand-total td.lbl {
             color: #1A1615;
-            letter-spacing: 1pt;
+            letter-spacing: 0.5pt;
             text-transform: uppercase;
         }
 
@@ -323,6 +329,8 @@
 <div class="page-container">
 
     @php
+        $orderCurrency = $order->currency ?: 'INR';
+        $orderSymbol   = $order->currency_symbol ?: ($orderCurrency === 'USD' ? '$' : ($orderCurrency === 'EUR' ? '€' : ($orderCurrency === 'GBP' ? '£' : ($orderCurrency === 'AED' ? 'AED ' : '₹'))));
         $brandName    = \App\Models\SiteSetting::get('invoice_brand_name', 'Solitaire Fine Jewels');
         $brandTagline = \App\Models\SiteSetting::get('invoice_brand_tagline', 'Certified Diamonds & Bespoke Fine Jewellery Atelier');
         $address      = \App\Models\SiteSetting::get('invoice_address', 'Atelier Plaza, Fine Arts Quarter, Mumbai, India');
@@ -357,7 +365,7 @@
 
             {{-- Invoice Credentials Right --}}
             <td style="width: 45%;">
-                <div class="invoice-title">Tax Invoice</div>
+                <div class="invoice-title">{{ $orderCurrency === 'INR' ? 'Tax Invoice' : 'Invoice' }}</div>
                 <div class="invoice-subtitle">Official Proof of Ownership</div>
                 <div class="invoice-meta-box">
                     <strong>Invoice No:</strong> INV-{{ str_replace('MR-', '', $order->order_reference) }}<br>
@@ -381,9 +389,11 @@
                     {{ $order->billing_address_snapshot['full_name'] ?? ($order->shipping_address_snapshot['full_name'] ?? 'Valued Collector') }}
                 </div>
                 <div class="address-text">
-                    {{ $order->billing_address_snapshot['address_line_1'] ?? ($order->shipping_address_snapshot['address_line_1'] ?? '') }}
-                    @if(!empty($order->billing_address_snapshot['address_line_2'] ?? $order->shipping_address_snapshot['address_line_2']))
-                        , {{ $order->billing_address_snapshot['address_line_2'] ?? $order->shipping_address_snapshot['address_line_2'] }}
+                    @php
+                        $billingLine2 = $order->billing_address_snapshot['address_line_2'] ?? ($order->shipping_address_snapshot['address_line_2'] ?? '');
+                    @endphp
+                    @if(!empty($billingLine2))
+                        , {{ $billingLine2 }}
                     @endif<br>
                     {{ $order->billing_address_snapshot['city'] ?? ($order->shipping_address_snapshot['city'] ?? '') }}, 
                     {{ $order->billing_address_snapshot['state'] ?? ($order->shipping_address_snapshot['state'] ?? '') }} 
@@ -399,8 +409,11 @@
                 </div>
                 <div class="address-text">
                     {{ $order->shipping_address_snapshot['address_line_1'] ?? '' }}
-                    @if(!empty($order->shipping_address_snapshot['address_line_2']))
-                        , {{ $order->shipping_address_snapshot['address_line_2'] }}
+                    @php
+                        $shippingLine2 = $order->shipping_address_snapshot['address_line_2'] ?? '';
+                    @endphp
+                    @if(!empty($shippingLine2))
+                        , {{ $shippingLine2 }}
                     @endif<br>
                     {{ $order->shipping_address_snapshot['city'] ?? '' }}, 
                     {{ $order->shipping_address_snapshot['state'] ?? '' }} 
@@ -417,15 +430,15 @@
         </tr>
     </table>
 
-    {{-- ── JEWELLERY LINE ITEMS TABLE ── --}}
+    {{-- ── ORDER ITEMS TABLE ── --}}
     <table class="items-table" cellpadding="0" cellspacing="0">
         <thead>
             <tr>
                 <th style="width: 24pt;" class="text-center">#</th>
-                <th>Jewellery Item &amp; Metallurgical Specifications</th>
+                <th>Item Description</th>
                 <th style="width: 42pt;" class="text-center">Qty</th>
                 <th style="width: 78pt;" class="text-right">Unit Price</th>
-                <th style="width: 82pt;" class="text-right">Net Amount</th>
+                <th style="width: 82pt;" class="text-right">Total Amount</th>
             </tr>
         </thead>
         <tbody>
@@ -457,9 +470,13 @@
                             <div class="item-sku">Atelier SKU: {{ $item->sku }}</div>
                         @endif
                     </td>
+                    @php
+                        $orderCurrency = $order->currency ?: 'INR';
+                        $orderSymbol = $order->currency_symbol ?: ($orderCurrency === 'USD' ? '$' : ($orderCurrency === 'EUR' ? '€' : ($orderCurrency === 'GBP' ? '£' : ($orderCurrency === 'AED' ? 'AED ' : '₹'))));
+                    @endphp
                     <td class="text-center" style="font-weight: bold;">{{ $item->quantity }}</td>
-                    <td class="text-right">&#8377; {{ number_format($item->unit_price, 2) }}</td>
-                    <td class="text-right font-bold">&#8377; {{ number_format($item->subtotal, 2) }}</td>
+                    <td class="text-right">{{ $orderSymbol }} {{ number_format($item->unit_price, 2) }}</td>
+                    <td class="text-right font-bold">{{ $orderSymbol }} {{ number_format($item->subtotal, 2) }}</td>
                 </tr>
             @endforeach
         </tbody>
@@ -469,52 +486,75 @@
     <table class="bottom-table" cellpadding="0" cellspacing="0">
         <tr>
             {{-- Left Side: Authenticity, BIS & Transaction Reference --}}
-            <td style="width: 52%;">
+            <td style="width: 50%; vertical-align: top;">
                 <div class="cert-card">
                     <div class="cert-header">Authenticity &amp; Quality Guarantee</div>
                     <div class="cert-body">
                         <strong>Transaction ID:</strong> {{ $order->payment_reference ?? 'VERIFIED_TXN' }}<br>
                         <strong>Payment Status:</strong> Confirmed &amp; Captured via {{ strtoupper($order->payment_method ?? 'Secure Gateway') }}<br>
-                        {{ $authNote }}
+                        @if($orderCurrency === 'INR')
+                            {{ $authNote }}
+                        @else
+                            Every fine jewellery creation is accompanied by an official Certificate of Authenticity (IGI / GIA / Certified Hallmarked Gold).
+                        @endif
                     </div>
                     <div class="cert-icons-bar">
-                        &bull; BIS Hallmarked &bull; IGI / GIA Certified &bull; 100% Insured Delivery
+                        @if($orderCurrency === 'INR')
+                            &bull; BIS Hallmarked &bull; IGI / GIA Certified &bull; 100% Insured Delivery
+                        @else
+                            &bull; Certified Hallmarked Gold &bull; IGI / GIA Certified &bull; 100% Insured Worldwide Delivery
+                        @endif
                     </div>
                 </div>
             </td>
 
             {{-- Right Side: Financial Breakdown --}}
-            <td style="width: 48%;">
+            <td style="width: 50%; vertical-align: top; padding-left: 20pt;">
+                @php
+                    $finalPayable = (float)$order->grand_total;
+                    $taxVal = (float)$order->tax;
+                    // Protect against legacy orders where tax was recorded in INR while grand_total is in USD/EUR
+                    if ($taxVal >= $finalPayable || $taxVal <= 0) {
+                        $taxVal = round($finalPayable - ($finalPayable / 1.03), 2);
+                    }
+                    $shippingVal = (float)($order->shipping_fee ?? 0);
+                    $discountVal = (float)($order->discount ?? 0);
+                    $netTaxable = max(0, round($finalPayable - $taxVal - $shippingVal + $discountVal, 2));
+                @endphp
                 <table class="totals-table" cellpadding="0" cellspacing="0">
                     <tr>
-                        <td class="lbl">Item Subtotal</td>
-                        <td class="val">&#8377; {{ number_format($order->subtotal, 2) }}</td>
+                        <td class="lbl">Taxable Net Amount</td>
+                        <td class="val">{{ $orderSymbol }} {{ number_format($netTaxable, 2) }}</td>
                     </tr>
-                    @if($order->discount > 0)
+                    @if($discountVal > 0)
                         <tr>
                             <td class="lbl">Privilege Atelier Savings</td>
-                            <td class="val" style="color: #047857;">- &#8377; {{ number_format($order->discount, 2) }}</td>
+                            <td class="val" style="color: #047857;">- {{ $orderSymbol }} {{ number_format($discountVal, 2) }}</td>
                         </tr>
                     @endif
-                    @if($order->tax > 0)
-                        <tr>
-                            <td class="lbl">{{ $taxLabel }}</td>
-                            <td class="val">&#8377; {{ number_format($order->tax, 2) }}</td>
-                        </tr>
-                    @endif
+                    <tr>
+                        <td class="lbl">
+                            @if($orderCurrency === 'INR')
+                                Taxes (GST 3% Included)
+                            @else
+                                Taxes (Included)
+                            @endif
+                        </td>
+                        <td class="val">{{ $orderSymbol }} {{ number_format($taxVal, 2) }}</td>
+                    </tr>
                     <tr>
                         <td class="lbl">Insured Armored Logistics</td>
                         <td class="val">
-                            @if($order->shipping_fee > 0)
-                                &#8377; {{ number_format($order->shipping_fee, 2) }}
+                            @if($shippingVal > 0)
+                                {{ $orderSymbol }} {{ number_format($shippingVal, 2) }}
                             @else
                                 <span style="color: #047857;">Complimentary</span>
                             @endif
                         </td>
                     </tr>
                     <tr class="grand-total">
-                        <td class="lbl">Total Payable (INR)</td>
-                        <td class="val">&#8377; {{ number_format($order->grand_total, 2) }}</td>
+                        <td class="lbl">Total Payable ({{ $orderCurrency }})</td>
+                        <td class="val">{{ $orderSymbol }} {{ number_format($finalPayable, 2) }}</td>
                     </tr>
                 </table>
             </td>
@@ -523,8 +563,13 @@
 
     {{-- ── FOOTER DECLARATION ── --}}
     <div class="footer-declaration">
-        <strong>{{ $footerNote }}</strong><br>
-        This is an official computer-generated Tax Invoice and serves as a valid proof of genuine ownership under Indian Jewellery Regulations.<br>
+        @if($orderCurrency === 'INR')
+            <strong>{{ $footerNote }}</strong><br>
+            This is an official computer-generated Tax Invoice and serves as a valid proof of genuine ownership under Indian Jewellery Regulations.<br>
+        @else
+            <strong>Thank you for choosing {{ $brandName }}. Every creation is internationally certified.</strong><br>
+            This is an official computer-generated Invoice and certificate of genuine fine jewellery ownership.<br>
+        @endif
         {{ $brandName }} &bull; {{ $website }} &bull; All Rights Reserved.
     </div>
 

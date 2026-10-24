@@ -37,6 +37,16 @@ class CheckoutController extends Controller
         $savedAddresses = collect();
         $defaultAddress = null;
         if (Auth::check()) {
+            // Auto-cancel any previous uncompleted checkout attempts
+            Order::where('user_id', Auth::id())
+                ->where('status', 'PENDING_PAYMENT')
+                ->where('payment_status', 'unpaid')
+                ->update([
+                    'status'        => 'CANCELLED',
+                    'cancel_reason' => 'Abandoned checkout: customer returned to bag without completing payment.',
+                    'canceled_at'   => now(),
+                ]);
+
             $savedAddresses = Auth::user()->addresses()->orderBy('is_default', 'desc')->get();
             $defaultAddress = $savedAddresses->first();
         }
@@ -134,16 +144,25 @@ class CheckoutController extends Controller
         $cart->total = $calculatedSubtotal;
         $cart->save();
 
-        // 2. Authoritative Tax & Grand Total Computation
+        // 2. Authoritative Tax & Grand Total Computation (Inclusive of 3% Indian GST)
+        // Product prices are displayed as "Inclusive of all taxes" across the store.
+        // Therefore, grand total matches the displayed price without double-charging GST.
         $shippingFee = 0.00; // Complimentary atelier crated shipping
-        $taxRate = floatval(SiteSetting::get('invoice_tax_rate', '5'));
-        $showTax = (bool) SiteSetting::get('invoice_show_tax', '1');
-        $tax = $showTax ? round($calculatedSubtotal * ($taxRate / 100), 2) : 0.00;
-        $grandTotal = round($calculatedSubtotal + $shippingFee + $tax, 2);
+        $taxRate = floatval(SiteSetting::get('invoice_tax_rate', '3')); // Default 3% fine jewellery GST
+        // Extract embedded GST: Tax = Total - (Total / (1 + Rate/100))
+        $tax = round($calculatedSubtotal - ($calculatedSubtotal / (1 + ($taxRate / 100))), 2);
+        $grandTotal = round($calculatedSubtotal + $shippingFee, 2);
 
-        // 3. Determine Currency based on Stripe India rules & Authoritative App Config
-        // Domestic India transactions must be settled in INR. Subunits are 100 paise.
-        $currency = strtolower(config('services.stripe.currency', 'inr'));
+        // 3. Determine Currency and Safe Conversion Rate
+        // If customer is shopping in USD/AED/EUR/GBP, use safe hedged rate so client receives 100% INR in bank
+        $activeCurrency = \App\Services\CurrencyService::getUserCurrency();
+        $currencyInfo = \App\Services\CurrencyService::getCurrencyInfo($activeCurrency);
+        $exchangeRate = \App\Services\CurrencyService::getEffectiveRate($activeCurrency);
+        $currency = strtolower($activeCurrency);
+        $convertedGrandTotal = \App\Services\CurrencyService::convert($grandTotal, $activeCurrency);
+        $convertedSubtotal = \App\Services\CurrencyService::convert($calculatedSubtotal, $activeCurrency);
+        $convertedShippingFee = \App\Services\CurrencyService::convert($shippingFee, $activeCurrency);
+        $convertedTax = round($convertedSubtotal - ($convertedSubtotal / (1 + ($taxRate / 100))), 2);
 
         // Prepare shipping address snapshot (Physical Parcel Delivery)
         $shippingSnapshot = [
@@ -202,7 +221,23 @@ class CheckoutController extends Controller
         }
 
         // 4. Create Order and Line Items in Atomic Transaction (Status: PENDING_PAYMENT)
-        $order = DB::transaction(function () use ($request, $calculatedSubtotal, $shippingFee, $tax, $grandTotal, $shippingSnapshot, $billingSnapshot, $authoritativeItems) {
+        $order = DB::transaction(function () use (
+            $request,
+            $calculatedSubtotal,
+            $shippingFee,
+            $tax,
+            $grandTotal,
+            $shippingSnapshot,
+            $billingSnapshot,
+            $authoritativeItems,
+            $activeCurrency,
+            $currencyInfo,
+            $exchangeRate,
+            $convertedGrandTotal,
+            $convertedSubtotal,
+            $convertedTax,
+            $convertedShippingFee
+        ) {
             // Cancel previous abandoned PENDING_PAYMENT orders for this user to prevent clutter
             if (Auth::check()) {
                 Order::where('user_id', Auth::id())
@@ -225,11 +260,15 @@ class CheckoutController extends Controller
                 'payment_status'            => 'unpaid',
                 'payment_method'            => 'stripe',
                 'payment_reference'         => null,
-                'subtotal'                  => $calculatedSubtotal,
+                'currency'                  => $activeCurrency,
+                'currency_symbol'           => $currencyInfo['symbol'],
+                'exchange_rate'             => $exchangeRate,
+                'subtotal'                  => $convertedSubtotal,
                 'discount'                  => 0.00,
-                'tax'                       => $tax,
-                'shipping_fee'              => $shippingFee,
-                'grand_total'               => $grandTotal,
+                'tax'                       => $convertedTax,
+                'shipping_fee'              => $convertedShippingFee,
+                'grand_total'               => $convertedGrandTotal,
+                'inr_grand_total'           => $grandTotal,
                 'shipping_address_snapshot' => $shippingSnapshot,
                 'billing_address_snapshot'  => $billingSnapshot,
                 'notes'                     => $request->notes,
@@ -237,14 +276,19 @@ class CheckoutController extends Controller
 
             foreach ($authoritativeItems as $authItem) {
                 $prod = $authItem['product'];
+                $itemPrice = $activeCurrency === 'INR'
+                    ? $authItem['unit_price']
+                    : \App\Services\CurrencyService::convert($authItem['unit_price'], $activeCurrency);
+                $itemLineTotal = round($itemPrice * $authItem['quantity'], 2);
+
                 OrderItem::create([
                     'order_id'         => $order->id,
                     'product_id'       => $prod->id,
                     'product_name'     => $prod->name,
                     'sku'              => $prod->sku,
-                    'unit_price'       => $authItem['unit_price'],
+                    'unit_price'       => $itemPrice,
                     'quantity'         => $authItem['quantity'],
-                    'subtotal'         => $authItem['line_total'],
+                    'subtotal'         => $itemLineTotal,
                     'options'          => $authItem['options'],
                     'product_snapshot' => [
                         'name'           => $prod->name,
@@ -275,10 +319,14 @@ class CheckoutController extends Controller
                 ? app(StripeClient::class)
                 : new StripeClient($stripeSecret);
 
-            // Build Stripe Line Items
+            // Build Stripe Line Items in active currency (subunits e.g. cents/paise)
             $lineItems = [];
             foreach ($authoritativeItems as $authItem) {
-                $unitAmountPaise = intval(round($authItem['unit_price'] * 100));
+                $unitPriceConverted = $activeCurrency === 'INR'
+                    ? $authItem['unit_price']
+                    : \App\Services\CurrencyService::convert($authItem['unit_price'], $activeCurrency);
+                $unitAmountSubunits = intval(round($unitPriceConverted * 100));
+
                 $lineItems[] = [
                     'price_data' => [
                         'currency'     => $currency,
@@ -286,26 +334,15 @@ class CheckoutController extends Controller
                             'name'        => $authItem['product']->name,
                             'description' => "Solitaire Fine Jewels Creation (SKU: " . ($authItem['product']->sku ?? 'JEWEL') . ")",
                         ],
-                        'unit_amount'  => $unitAmountPaise,
+                        'unit_amount'  => $unitAmountSubunits,
                     ],
                     'quantity'   => $authItem['quantity'],
                 ];
             }
 
-            // Add Tax Line Item if applicable
-            if ($order->tax > 0) {
-                $lineItems[] = [
-                    'price_data' => [
-                        'currency'     => $currency,
-                        'product_data' => [
-                            'name'        => 'Taxes & Documentation',
-                            'description' => 'Mandatory preservation & tax documentation',
-                        ],
-                        'unit_amount'  => intval(round($order->tax * 100)),
-                    ],
-                    'quantity'   => 1,
-                ];
-            }
+            // Note: Since all products are "Inclusive of all taxes" (GST 3% embedded),
+            // we do NOT add an additional tax line item to Stripe session,
+            // ensuring the total charged matches exact product price without extra markup.
 
             $session = $stripe->checkout->sessions->create([
                 'payment_method_types' => ['card'],

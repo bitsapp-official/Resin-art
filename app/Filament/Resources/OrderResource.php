@@ -25,6 +25,17 @@ class OrderResource extends Resource
 
     protected static ?int $navigationSort = 1;
 
+    public static function getNavigationBadge(): ?string
+    {
+        $count = Order::whereIn('status', [Order::STATUS_CONFIRMED, 'pending', 'confirmed'])->count();
+        return $count > 0 ? (string) $count : null;
+    }
+
+    public static function getNavigationBadgeColor(): ?string
+    {
+        return 'info';
+    }
+
     public static function form(Form $form): Form
     {
         return $form
@@ -70,13 +81,27 @@ class OrderResource extends Resource
                             ->label('Payment Transaction Ref')
                             ->disabled(),
                         Forms\Components\TextInput::make('grand_total')
-                            ->label('Grand Total')
-                            ->prefix('₹')
+                            ->label('Customer Grand Total')
+                            ->formatStateUsing(function (?Order $record): string {
+                                if (!$record) return '';
+                                $sym = $record->currency_symbol ?: ($record->currency === 'USD' ? '$' : ($record->currency === 'EUR' ? '€' : ($record->currency === 'GBP' ? '£' : ($record->currency === 'AED' ? 'AED ' : '₹'))));
+                                $dec = ($record->currency === 'INR') ? 0 : 2;
+                                return $sym . ' ' . number_format((float)$record->grand_total, $dec) . ' ' . ($record->currency ?: 'INR');
+                            })
+                            ->disabled(),
+                        Forms\Components\TextInput::make('inr_grand_total')
+                            ->label('Base Valuation Settled')
+                            ->formatStateUsing(function (?Order $record): string {
+                                if (!$record) return '';
+                                $inr = (float)($record->inr_grand_total ?: $record->grand_total);
+                                $rate = ($record->exchange_rate > 0 && $record->currency !== 'INR') ? " (Rate: 1 {$record->currency} = ₹" . number_format($record->exchange_rate, 2) . ")" : '';
+                                return '₹ ' . number_format($inr, 2) . ' INR' . $rate;
+                            })
                             ->disabled(),
                         Forms\Components\DatePicker::make('estimated_delivery_at')
                             ->label('Estimated Delivery Date')
                             ->placeholder('e.g. Expected Delivery Date'),
-                    ])->columns(3),
+                    ])->columns(4),
 
                 Forms\Components\Section::make('Shipping & Dispatch Logistics')
                     ->description('Logistics and dispatch tracking details (Visible when status is Dispatched or Delivered)')
@@ -167,7 +192,16 @@ class OrderResource extends Resource
 
                 Tables\Columns\TextColumn::make('grand_total')
                     ->label('Total')
-                    ->money('INR')
+                    ->formatStateUsing(function (Order $record): string {
+                        $sym = $record->currency_symbol ?: ($record->currency === 'USD' ? '$' : ($record->currency === 'EUR' ? '€' : ($record->currency === 'GBP' ? '£' : ($record->currency === 'AED' ? 'AED ' : '₹'))));
+                        $curr = $record->currency ?: 'INR';
+                        $dec = ($curr === 'INR') ? 0 : 2;
+                        $formatted = $sym . ' ' . number_format((float) $record->grand_total, $dec);
+                        if ($curr !== 'INR' && !empty($record->inr_grand_total)) {
+                            $formatted .= " (₹ " . number_format((float) $record->inr_grand_total) . ")";
+                        }
+                        return $formatted;
+                    })
                     ->sortable(),
 
                 Tables\Columns\TextColumn::make('courier')

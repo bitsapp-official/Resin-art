@@ -231,13 +231,25 @@ class ProductResource extends Resource
                         Forms\Components\Hidden::make('attributes.pricing_mode')
                             ->default('dynamic'),
 
-                        // 1. Dynamic Formula Parameters (Making Charge, Diamond Value & Profit Margin %)
+                        // 1. Dynamic Formula Parameters (Gold Weight FIRST, then Making Charge, Diamond Value, Profit Margin %, Cut Price)
                         Forms\Components\Grid::make([
                             'default' => 1,
                             'sm' => 2,
-                            'lg' => 4,
+                            'lg' => 5,
                         ])
                             ->schema([
+                                Forms\Components\TextInput::make('attributes.gold_weight_grams')
+                                    ->label('Approx. Gold Weight (gm)')
+                                    ->numeric()
+                                    ->step('any')
+                                    ->extraInputAttributes(['class' => '[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none', 'inputmode' => 'decimal'])
+                                    ->suffix('gm')
+                                    ->required()
+                                    ->placeholder('e.g. 2.50')
+                                    ->helperText('Benchmark gold weight in grams. Fixed across all sizes.')
+                                    ->live(onBlur: true)
+                                    ->columnSpan(['default' => 1, 'sm' => 1]),
+
                                 Forms\Components\TextInput::make('attributes.making_charge')
                                     ->label('Making / Wastage Charge (₹ / gm)')
                                     ->numeric()
@@ -248,7 +260,8 @@ class ProductResource extends Resource
                                     ->placeholder('e.g. 750')
                                     ->helperText('Per-gram craftsmanship fee added to gold weight.')
                                     ->live(onBlur: true)
-                                    ->afterStateUpdated(fn ($state, Forms\Set $set, Forms\Get $get) => self::syncAllSizePrices($get, $set)),
+                                    ->afterStateUpdated(fn ($state, Forms\Set $set, Forms\Get $get) => self::syncAllSizePrices($get, $set))
+                                    ->columnSpan(['default' => 1, 'sm' => 1]),
 
                                 Forms\Components\TextInput::make('attributes.diamond_value')
                                     ->label('Total Diamond Value (₹)')
@@ -260,7 +273,8 @@ class ProductResource extends Resource
                                     ->placeholder('0')
                                     ->helperText('Total certified natural diamond & stone value.')
                                     ->live(onBlur: true)
-                                    ->afterStateUpdated(fn ($state, Forms\Set $set, Forms\Get $get) => self::syncAllSizePrices($get, $set)),
+                                    ->afterStateUpdated(fn ($state, Forms\Set $set, Forms\Get $get) => self::syncAllSizePrices($get, $set))
+                                    ->columnSpan(['default' => 1, 'sm' => 1]),
 
                                 Forms\Components\TextInput::make('attributes.profit_margin_percent')
                                     ->label('Profit Margin (%)')
@@ -277,7 +291,8 @@ class ProductResource extends Resource
                                         return 'Profit margin percentage added on total cost.';
                                     })
                                     ->live(onBlur: true)
-                                    ->afterStateUpdated(fn ($state, Forms\Set $set, Forms\Get $get) => self::syncAllSizePrices($get, $set)),
+                                    ->afterStateUpdated(fn ($state, Forms\Set $set, Forms\Get $get) => self::syncAllSizePrices($get, $set))
+                                    ->columnSpan(['default' => 1, 'sm' => 1]),
 
                                 Forms\Components\TextInput::make('attributes.common_cut_price')
                                     ->label('Cut Price (₹ Strike-through MRP)')
@@ -292,7 +307,8 @@ class ProductResource extends Resource
                                         if (!empty($state)) {
                                             self::applyCommonCutPriceToAllVariants((float) $state, $set, $get);
                                         }
-                                    }),
+                                    })
+                                    ->columnSpan(['default' => 1, 'sm' => 1]),
                             ]),
 
                         // 2. Gold Purities Checkboxes
@@ -309,52 +325,14 @@ class ProductResource extends Resource
                             ->default(['14KT Gold', '18KT Gold', '22KT Gold'])
                             ->columnSpanFull(),
 
-                        // 3. Piece Type: Multiple Sizes vs Single Piece
-                        Forms\Components\Radio::make('attributes.has_sizes')
-                            ->label('Sizing Type')
-                            ->options([
-                                'yes' => 'Multiple Sizes (Rings / Chains)',
-                                'no'  => 'Single Piece (Studs / Earrings / Pendant)',
-                            ])
-                            ->default(fn (Forms\Get $get, ?\App\Models\Product $record) => ($record && empty($record->attributes['size_variants'])) ? 'no' : 'yes')
-                            ->inline()
-                            ->inlineLabel(false)
-                            ->live()
-                            ->afterStateUpdated(function ($state, Forms\Set $set, Forms\Get $get) {
-                                if ($state === 'no') {
-                                    $set('attributes.size_variants', []);
-                                } else {
-                                    $current = (array) ($get('attributes.size_variants') ?? []);
-                                    if (empty($current)) {
-                                        $set('attributes.size_variants', [
-                                            ['size' => null, 'weight_grams' => null]
-                                        ]);
-                                    }
-                                }
-                            })
-                            ->columnSpanFull(),
-
-                        // 4A. Single Fixed Piece Gold Weight & Multi-Purity Price Preview (Studs / Earrings / Pendant)
+                        // 3. Live Calculated Sell Price Showcase (Directly Under Available Gold Purities)
                         Forms\Components\Grid::make([
                             'default' => 1,
-                            'md' => 4,
+                            'md' => 3,
                         ])
-                            ->visible(fn (Forms\Get $get) => $get('attributes.has_sizes') === 'no')
                             ->schema([
-                                Forms\Components\TextInput::make('attributes.gold_weight_grams')
-                                    ->label('Gold Weight (gm)')
-                                    ->numeric()
-                                    ->step('any')
-                                    ->extraInputAttributes(['class' => '[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none', 'inputmode' => 'decimal'])
-                                    ->suffix('gm')
-                                    ->required(fn (Forms\Get $get) => $get('attributes.has_sizes') === 'no')
-                                    ->placeholder('e.g. 2.50')
-                                    ->helperText('Net gold weight in grams for this single piece.')
-                                    ->live(onBlur: true)
-                                    ->columnSpan(['default' => 1, 'md' => 1]),
-
                                 Forms\Components\TextInput::make('attributes.preview_14k')
-                                    ->label('14KT Sell (₹)')
+                                    ->label('14KT Sell Price (₹)')
                                     ->prefix('₹')
                                     ->disabled()
                                     ->dehydrated(false)
@@ -383,7 +361,7 @@ class ProductResource extends Resource
                                     ->columnSpan(['default' => 1, 'md' => 1]),
 
                                 Forms\Components\TextInput::make('attributes.preview_18k')
-                                    ->label('18KT Sell (₹)')
+                                    ->label('18KT Sell Price (₹)')
                                     ->prefix('₹')
                                     ->disabled()
                                     ->dehydrated(false)
@@ -412,7 +390,7 @@ class ProductResource extends Resource
                                     ->columnSpan(['default' => 1, 'md' => 1]),
 
                                 Forms\Components\TextInput::make('attributes.preview_22k')
-                                    ->label('22KT Sell (₹)')
+                                    ->label('22KT Sell Price (₹)')
                                     ->prefix('₹')
                                     ->disabled()
                                     ->dehydrated(false)
@@ -441,7 +419,32 @@ class ProductResource extends Resource
                                     ->columnSpan(['default' => 1, 'md' => 1]),
                             ]),
 
-                        // 4B. Dynamic Mode: Sizes & Multi-Purity Breakdown Table (Only when has_sizes is 'yes')
+                        // 4. Piece Type: Multiple Sizes vs Single Piece
+                        Forms\Components\Radio::make('attributes.has_sizes')
+                            ->label('Sizing Type')
+                            ->options([
+                                'yes' => 'Multiple Sizes (Rings / Chains)',
+                                'no'  => 'Single Piece (Studs / Earrings / Pendant)',
+                            ])
+                            ->default(fn (Forms\Get $get, ?\App\Models\Product $record) => ($record && empty($record->attributes['size_variants'])) ? 'no' : 'yes')
+                            ->inline()
+                            ->inlineLabel(false)
+                            ->live()
+                            ->afterStateUpdated(function ($state, Forms\Set $set, Forms\Get $get) {
+                                if ($state === 'no') {
+                                    $set('attributes.size_variants', []);
+                                } else {
+                                    $current = (array) ($get('attributes.size_variants') ?? []);
+                                    if (empty($current)) {
+                                        $set('attributes.size_variants', [
+                                            ['size' => null]
+                                        ]);
+                                    }
+                                }
+                            })
+                            ->columnSpanFull(),
+
+                        // 4B. Sizing Configuration: Simple Size Labels Only (When has_sizes is 'yes')
                         Forms\Components\Group::make()
                             ->visible(fn (Forms\Get $get) => $get('attributes.has_sizes') !== 'no')
                             ->schema([
@@ -450,43 +453,25 @@ class ProductResource extends Resource
                                         ->label('+ Quick Preset: Ring Sizes (6 to 20)')
                                         ->color('gray')
                                         ->icon('heroicon-m-sparkles')
-                                        ->action(function (Forms\Set $set, Forms\Get $get) {
+                                        ->action(function (Forms\Set $set) {
                                             $set('attributes.size_label', 'Ring Size');
-                                            $commonCut = (float) (
-                                                $get('attributes.common_cut_price')
-                                                ?? $get('attributes.common_cut_price', isAbsolute: true)
-                                                ?? 0
-                                            );
                                             $sizes = [];
                                             for ($s = 6; $s <= 20; $s++) {
-                                                $sizes[] = [
-                                                    'size' => 'Size ' . $s,
-                                                    'weight_grams' => null,
-                                                    'mrp_14k' => $commonCut > 0 ? $commonCut : null,
-                                                    'mrp_18k' => $commonCut > 0 ? $commonCut : null,
-                                                    'mrp_22k' => $commonCut > 0 ? $commonCut : null,
-                                                    'mrp'     => $commonCut > 0 ? $commonCut : null,
-                                                ];
+                                                $sizes[] = ['size' => 'Size ' . $s];
                                             }
                                             $set('attributes.size_variants', $sizes);
                                         }),
-
 
                                     Forms\Components\Actions\Action::make('loadChainSizes')
                                         ->label('+ Quick Preset: Chain Lengths (16, 18, 20 Inch)')
                                         ->color('gray')
                                         ->icon('heroicon-m-sparkles')
-                                        ->action(function (Forms\Set $set, Forms\Get $get) {
+                                        ->action(function (Forms\Set $set) {
                                             $set('attributes.size_label', 'Chain Length');
-                                            $commonCut = (float) (
-                                                $get('attributes.common_cut_price')
-                                                ?? $get('attributes.common_cut_price', isAbsolute: true)
-                                                ?? 0
-                                            );
                                             $set('attributes.size_variants', [
-                                                ['size' => '16 Inch', 'weight_grams' => null, 'mrp_14k' => $commonCut > 0 ? $commonCut : null, 'mrp_18k' => $commonCut > 0 ? $commonCut : null, 'mrp_22k' => $commonCut > 0 ? $commonCut : null, 'mrp' => $commonCut > 0 ? $commonCut : null],
-                                                ['size' => '18 Inch', 'weight_grams' => null, 'mrp_14k' => $commonCut > 0 ? $commonCut : null, 'mrp_18k' => $commonCut > 0 ? $commonCut : null, 'mrp_22k' => $commonCut > 0 ? $commonCut : null, 'mrp' => $commonCut > 0 ? $commonCut : null],
-                                                ['size' => '20 Inch', 'weight_grams' => null, 'mrp_14k' => $commonCut > 0 ? $commonCut : null, 'mrp_18k' => $commonCut > 0 ? $commonCut : null, 'mrp_22k' => $commonCut > 0 ? $commonCut : null, 'mrp' => $commonCut > 0 ? $commonCut : null],
+                                                ['size' => '16 Inch'],
+                                                ['size' => '18 Inch'],
+                                                ['size' => '20 Inch'],
                                             ]);
                                         }),
 
@@ -494,196 +479,37 @@ class ProductResource extends Resource
                                         ->label('+ Quick Preset: Wrist Sizes (6.5, 7.0, 7.5 Inch)')
                                         ->color('gray')
                                         ->icon('heroicon-m-sparkles')
-                                        ->action(function (Forms\Set $set, Forms\Get $get) {
+                                        ->action(function (Forms\Set $set) {
                                             $set('attributes.size_label', 'Wrist Size');
-                                            $commonCut = (float) (
-                                                $get('attributes.common_cut_price')
-                                                ?? $get('attributes.common_cut_price', isAbsolute: true)
-                                                ?? 0
-                                            );
                                             $set('attributes.size_variants', [
-                                                ['size' => '6.5 Inch', 'weight_grams' => null, 'mrp_14k' => $commonCut > 0 ? $commonCut : null, 'mrp_18k' => $commonCut > 0 ? $commonCut : null, 'mrp_22k' => $commonCut > 0 ? $commonCut : null, 'mrp' => $commonCut > 0 ? $commonCut : null],
-                                                ['size' => '7.0 Inch', 'weight_grams' => null, 'mrp_14k' => $commonCut > 0 ? $commonCut : null, 'mrp_18k' => $commonCut > 0 ? $commonCut : null, 'mrp_22k' => $commonCut > 0 ? $commonCut : null, 'mrp' => $commonCut > 0 ? $commonCut : null],
-                                                ['size' => '7.5 Inch', 'weight_grams' => null, 'mrp_14k' => $commonCut > 0 ? $commonCut : null, 'mrp_18k' => $commonCut > 0 ? $commonCut : null, 'mrp_22k' => $commonCut > 0 ? $commonCut : null, 'mrp' => $commonCut > 0 ? $commonCut : null],
+                                                ['size' => '6.5 Inch'],
+                                                ['size' => '7.0 Inch'],
+                                                ['size' => '7.5 Inch'],
                                             ]);
                                         }),
                                 ]),
 
                                 Forms\Components\Repeater::make('attributes.size_variants')
-                                    ->label('Dynamic Multi-Purity Valuation Matrix (14KT, 18KT & 22KT)')
-                                    ->helperText('Add sizes and enter Exact Gold Weight (gm) to calculate prices. Cut Price entered above applies across all sizes.')
+                                    ->label('Available Sizes (Customer Options)')
+                                    ->helperText('Benchmark gold weight and price remain fixed across all sizes.')
                                     ->schema([
-                                        Forms\Components\Grid::make([
-                                            'default' => 2,
-                                            'md' => 4,
-                                            'lg' => 6,
-                                        ])->schema([
-                                            // ── ROW 1: Size & Weight (Full width row) ──
-                                            Forms\Components\TextInput::make('size')
-                                                ->label('Size Name')
-                                                ->placeholder('e.g. Size 12')
-                                                ->required()
-                                                ->columnSpan(['default' => 2, 'md' => 2, 'lg' => 3]),
-
-                                            Forms\Components\TextInput::make('weight_grams')
-                                                ->label('Exact Gold Weight (gm)')
-                                                ->numeric()
-                                                ->step('any')
-                                                ->extraInputAttributes(['class' => '[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none', 'inputmode' => 'decimal'])
-                                                ->suffix('gm')
-                                                ->placeholder('Enter weight (e.g. 3.50)')
-                                                ->required()
-                                                ->live(onBlur: true)
-                                                ->afterStateUpdated(function ($state, Forms\Set $set, Forms\Get $get) {
-                                                    self::calculateAllPuritiesForVariant($state, $set, $get);
-                                                })
-                                                ->columnSpan(['default' => 2, 'md' => 2, 'lg' => 3]),
-
-                                            // ── ROW 2: Only Selected Purities (14KT, 18KT, 22KT Selling Prices) ──
-                                            Forms\Components\TextInput::make('price_14k')
-                                                ->label('14KT Sell (₹)')
-                                                ->numeric()
-                                                ->step('any')
-                                                ->extraInputAttributes(['class' => '[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none', 'inputmode' => 'numeric'])
-                                                ->prefix('₹')
-                                                ->dehydrated()
-                                                ->visible(function (Forms\Get $get) {
-                                                    $purities = $get('../../../attributes.gold_purities')
-                                                        ?? $get('../../attributes.gold_purities')
-                                                        ?? $get('attributes.gold_purities', isAbsolute: true);
-                                                    if ($purities === null) {
-                                                        $purities = ['14KT Gold', '18KT Gold', '22KT Gold'];
-                                                    }
-                                                    return in_array('14KT Gold', (array) $purities, true);
-                                                })
-                                                ->formatStateUsing(function ($state, Forms\Get $get) {
-                                                    if (!empty($state)) return $state;
-                                                    $w = (float) ($get('weight_grams') ?? 0);
-                                                    if ($w <= 0) return null;
-                                                    $m = self::resolveMakingCharge($get);
-                                                    $d = self::resolveDiamondValue($get);
-                                                    $p = self::resolveProfitMargin($get);
-                                                    $c = \App\Services\BullionPricingService::calculateFinalPrice($w, $m, $d, '14KT Gold', null, null, $w, $p);
-                                                    return $c['final_price'];
-                                                })
-                                                ->placeholder('Auto 14K Sell')
-                                                ->helperText(function (Forms\Get $get) {
-                                                    $w = (float) ($get('weight_grams') ?? 0);
-                                                    if ($w <= 0) return null;
-                                                    $p = self::resolveProfitMargin($get);
-                                                    if ($p <= 0) return null;
-                                                    $m = self::resolveMakingCharge($get);
-                                                    $d = self::resolveDiamondValue($get);
-                                                    $c = \App\Services\BullionPricingService::calculateFinalPrice($w, $m, $d, '14KT Gold', null, null, $w, $p);
-                                                    return 'Cost: ₹' . number_format($c['cost_with_gst']) . ' + Profit: ₹' . number_format($c['profit_amount']) . " ({$p}%)";
-                                                })
-                                                ->columnSpan(['default' => 2, 'md' => 1, 'lg' => 2]),
-
-                                            Forms\Components\TextInput::make('price_18k')
-                                                ->label('18KT Sell (₹)')
-                                                ->numeric()
-                                                ->step('any')
-                                                ->extraInputAttributes(['class' => '[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none', 'inputmode' => 'numeric'])
-                                                ->prefix('₹')
-                                                ->dehydrated()
-                                                ->visible(function (Forms\Get $get) {
-                                                    $purities = $get('../../../attributes.gold_purities')
-                                                        ?? $get('../../attributes.gold_purities')
-                                                        ?? $get('attributes.gold_purities', isAbsolute: true);
-                                                    if ($purities === null) {
-                                                        $purities = ['14KT Gold', '18KT Gold', '22KT Gold'];
-                                                    }
-                                                    return in_array('18KT Gold', (array) $purities, true);
-                                                })
-                                                ->formatStateUsing(function ($state, Forms\Get $get) {
-                                                    if (!empty($state)) return $state;
-                                                    $w = (float) ($get('weight_grams') ?? 0);
-                                                    if ($w <= 0) return null;
-                                                    $m = self::resolveMakingCharge($get);
-                                                    $d = self::resolveDiamondValue($get);
-                                                    $p = self::resolveProfitMargin($get);
-                                                    $c = \App\Services\BullionPricingService::calculateFinalPrice($w, $m, $d, '18KT Gold', null, null, $w, $p);
-                                                    return $c['final_price'];
-                                                })
-                                                ->placeholder('Auto 18K Sell')
-                                                ->helperText(function (Forms\Get $get) {
-                                                    $w = (float) ($get('weight_grams') ?? 0);
-                                                    if ($w <= 0) return null;
-                                                    $p = self::resolveProfitMargin($get);
-                                                    if ($p <= 0) return null;
-                                                    $m = self::resolveMakingCharge($get);
-                                                    $d = self::resolveDiamondValue($get);
-                                                    $c = \App\Services\BullionPricingService::calculateFinalPrice($w, $m, $d, '18KT Gold', null, null, $w, $p);
-                                                    return 'Cost: ₹' . number_format($c['cost_with_gst']) . ' + Profit: ₹' . number_format($c['profit_amount']) . " ({$p}%)";
-                                                })
-                                                ->columnSpan(['default' => 2, 'md' => 1, 'lg' => 2]),
-
-                                            Forms\Components\TextInput::make('price_22k')
-                                                ->label('22KT Sell (₹)')
-                                                ->numeric()
-                                                ->step('any')
-                                                ->extraInputAttributes(['class' => '[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none', 'inputmode' => 'numeric'])
-                                                ->prefix('₹')
-                                                ->dehydrated()
-                                                ->visible(function (Forms\Get $get) {
-                                                    $purities = $get('../../../attributes.gold_purities')
-                                                        ?? $get('../../attributes.gold_purities')
-                                                        ?? $get('attributes.gold_purities', isAbsolute: true);
-                                                    if ($purities === null) {
-                                                        $purities = ['14KT Gold', '18KT Gold', '22KT Gold'];
-                                                    }
-                                                    return in_array('22KT Gold', (array) $purities, true);
-                                                })
-                                                ->formatStateUsing(function ($state, Forms\Get $get) {
-                                                    if (!empty($state)) return $state;
-                                                    $w = (float) ($get('weight_grams') ?? 0);
-                                                    if ($w <= 0) return null;
-                                                    $m = self::resolveMakingCharge($get);
-                                                    $d = self::resolveDiamondValue($get);
-                                                    $p = self::resolveProfitMargin($get);
-                                                    $c = \App\Services\BullionPricingService::calculateFinalPrice($w, $m, $d, '22KT Gold', null, null, $w, $p);
-                                                    return $c['final_price'];
-                                                })
-                                                ->placeholder('Auto 22K Sell')
-                                                ->helperText(function (Forms\Get $get) {
-                                                    $w = (float) ($get('weight_grams') ?? 0);
-                                                    if ($w <= 0) return null;
-                                                    $p = self::resolveProfitMargin($get);
-                                                    if ($p <= 0) return null;
-                                                    $m = self::resolveMakingCharge($get);
-                                                    $d = self::resolveDiamondValue($get);
-                                                    $c = \App\Services\BullionPricingService::calculateFinalPrice($w, $m, $d, '22KT Gold', null, null, $w, $p);
-                                                    return 'Cost: ₹' . number_format($c['cost_with_gst']) . ' + Profit: ₹' . number_format($c['profit_amount']) . " ({$p}%)";
-                                                })
-                                                ->columnSpan(['default' => 2, 'md' => 1, 'lg' => 2]),
-
-                                            Forms\Components\Hidden::make('mrp_14k'),
-                                            Forms\Components\Hidden::make('mrp_18k'),
-                                            Forms\Components\Hidden::make('mrp_22k'),
-                                        ]),
-
-                                        Forms\Components\Hidden::make('price'),
-                                        Forms\Components\Hidden::make('mrp'),
+                                        Forms\Components\TextInput::make('size')
+                                            ->hiddenLabel()
+                                            ->placeholder('e.g. Size 6')
+                                            ->required(),
                                     ])
-                                    ->itemLabel(function (array $state, Forms\Get $get): ?string {
-                                        if (empty($state['size'])) return null;
-                                        $label = $state['size'];
-                                        $w = (float) ($state['weight_grams'] ?? 0);
-                                        if ($w > 0) {
-                                            $label .= ' (' . $w . ' gm)';
-                                            $p = self::resolveProfitMargin($get);
-                                            if ($p > 0) {
-                                                $m = self::resolveMakingCharge($get);
-                                                $d = self::resolveDiamondValue($get);
-                                                $c = \App\Services\BullionPricingService::calculateFinalPrice($w, $m, $d, '18KT Gold', null, null, $w, $p);
-                                                $label .= ' · Profit: +₹' . number_format($c['profit_amount']) . " ({$p}%)";
-                                            }
-                                        }
-                                        return $label;
-                                    })
-                                    ->cloneable()
+                                    ->itemLabel(fn (array $state): ?string => !empty($state['size']) ? $state['size'] : 'New Size')
+                                    ->grid([
+                                        'default' => 2,
+                                        'sm' => 2,
+                                        'md' => 4,
+                                        'lg' => 4,
+                                        'xl' => 4,
+                                        '2xl' => 4,
+                                    ])
                                     ->reorderable(true)
-                                    ->defaultItems(1)
+                                    ->cloneable(false)
+                                    ->defaultItems(0)
                                     ->addActionLabel('+ Add Size')
                                     ->columnSpanFull(),
                             ])
@@ -946,6 +772,13 @@ class ProductResource extends Resource
             ->actions([
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\DeleteAction::make(),
+                Tables\Actions\Action::make('view_on_site')
+                    ->label('View on Site')
+                    ->icon('heroicon-m-arrow-top-right-on-square')
+                    ->color('gray')
+                    ->url(fn (\App\Models\Product $record): string => route('shop.show', $record->slug))
+                    ->openUrlInNewTab()
+                    ->visible(fn (\App\Models\Product $record): bool => !empty($record->slug)),
                 Tables\Actions\RestoreAction::make(),
                 Tables\Actions\ForceDeleteAction::make(),
             ])

@@ -64,6 +64,11 @@ class OrderTrackingController extends Controller
             }
         }
 
+        if ($order && ($order->payment_status === 'unpaid' || $order->status === Order::STATUS_PENDING_PAYMENT)) {
+            $error = "Payment was not completed for checkout reference '{$order->order_reference}'. This piece was not ordered. You can complete your acquisition from your shopping bag.";
+            $order = null;
+        }
+
         return view('tracking.index', compact('order', 'searched', 'error'));
     }
 

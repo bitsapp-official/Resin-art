@@ -45,7 +45,7 @@
                             </p>
                         </div>
                         <span class="font-editorial text-lg text-[#1C1917] font-light whitespace-nowrap">
-                            ₹ {{ number_format($item->subtotal) }}
+                            {{ currency_format($item->subtotal) }}
                         </span>
                     </div>
 
@@ -93,7 +93,7 @@
     <div class="border-t border-[#DFD9CE]/60 px-7 py-6 space-y-4 bg-[#FAF8F5]">
         <div class="flex justify-between items-baseline">
             <span class="text-[9.5px] uppercase tracking-[0.25em] font-semibold text-[#8E877D]">SUBTOTAL</span>
-            <span class="font-editorial text-2xl text-[#1C1917] font-light">₹ {{ number_format($cart->total ?? 0) }}</span>
+            <span class="font-editorial text-2xl text-[#1C1917] font-light">{{ currency_format($cart->total ?? 0) }}</span>
         </div>
         <p class="text-[8.5px] uppercase tracking-[0.2em] font-medium text-[#8E877D] mt-0.5">SHIPPING CALCULATED AT CHECKOUT</p>
 

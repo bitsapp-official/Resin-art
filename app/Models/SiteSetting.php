@@ -23,7 +23,7 @@ class SiteSetting extends Model
 
     private static array $cache = [];
 
-    public static function get(string $key, ?string $default = null): ?string
+    public static function get(string $key, mixed $default = null): mixed
     {
         if (array_key_exists($key, static::$cache)) {
             return static::$cache[$key] ?? $default;
@@ -39,19 +39,21 @@ class SiteSetting extends Model
         }
     }
 
-    public static function set(string $key, ?string $value, string $group = 'general', ?string $label = null, string $type = 'text'): self
+    public static function set(string $key, mixed $value, string $group = 'general', ?string $label = null, string $type = 'text'): self
     {
+        $storedValue = is_array($value) ? json_encode($value) : (is_null($value) ? null : (string) $value);
+
         $setting = static::updateOrCreate(
             ['key' => $key],
             [
-                'value' => $value,
+                'value' => $storedValue,
                 'group' => $group,
                 'label' => $label ?? \Illuminate\Support\Str::title(str_replace('_', ' ', $key)),
                 'type' => $type,
             ]
         );
 
-        static::$cache[$key] = $value;
+        static::$cache[$key] = $storedValue;
 
         return $setting;
     }

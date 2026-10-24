@@ -9,6 +9,29 @@ class CreateProduct extends CreateRecord
 {
     protected static string $resource = ProductResource::class;
 
+    protected function getRedirectUrl(): string
+    {
+        return $this->getResource()::getUrl('edit', ['record' => $this->record]);
+    }
+
+    protected function getCreatedNotification(): ?\Filament\Notifications\Notification
+    {
+        $notification = \Filament\Notifications\Notification::make()
+            ->success()
+            ->title('Product created successfully');
+
+        if (!empty($this->record->slug)) {
+            $notification->actions([
+                \Filament\Notifications\Actions\Action::make('view_site')
+                    ->label('View on Website')
+                    ->button()
+                    ->url(route('shop.show', $this->record->slug), shouldOpenInNewTab: true),
+            ]);
+        }
+
+        return $notification;
+    }
+
     protected function mutateFormDataBeforeCreate(array $data): array
     {
         $canonicalPurities = ['14KT Gold', '18KT Gold', '22KT Gold'];
@@ -38,64 +61,36 @@ class CreateProduct extends CreateRecord
             }
             $diamond = (float) ($data['attributes']['diamond_value'] ?? 0);
             $profit = (float) ($data['attributes']['profit_margin_percent'] ?? 0);
-
-            // Clean size variants if merchant selected Single Piece
-            if (($data['attributes']['has_sizes'] ?? 'yes') === 'no') {
-                $data['attributes']['size_variants'] = [];
-            }
-
             $commonCut = (float) ($data['attributes']['common_cut_price'] ?? 0);
 
-            // 1. Calculate each size variant price and auto-derive benchmark weight
-            if (!empty($data['attributes']['size_variants'])) {
-                $derivedWeight = 0;
-
-                foreach ($data['attributes']['size_variants'] as $idx => $v) {
-                    $vWeight = (float) ($v['weight_grams'] ?? 0);
-                    $userMrp14k = ($commonCut > 0) ? $commonCut : (!empty($v['mrp_14k']) ? (float) $v['mrp_14k'] : null);
-                    $userMrp18k = ($commonCut > 0) ? $commonCut : (!empty($v['mrp_18k']) ? (float) $v['mrp_18k'] : null);
-                    $userMrp22k = ($commonCut > 0) ? $commonCut : (!empty($v['mrp_22k']) ? (float) $v['mrp_22k'] : null);
-
-                    if ($vWeight > 0) {
-                        $c14 = \App\Services\BullionPricingService::calculateFinalPrice($vWeight, $making, $diamond, '14KT Gold', null, null, $vWeight, $profit);
-                        $c18 = \App\Services\BullionPricingService::calculateFinalPrice($vWeight, $making, $diamond, '18KT Gold', null, null, $vWeight, $profit);
-                        $c22 = \App\Services\BullionPricingService::calculateFinalPrice($vWeight, $making, $diamond, '22KT Gold', null, null, $vWeight, $profit);
-
-                        $data['attributes']['size_variants'][$idx]['price_14k'] = $c14['final_price'];
-                        $data['attributes']['size_variants'][$idx]['mrp_14k']   = $userMrp14k;
-
-                        $data['attributes']['size_variants'][$idx]['price_18k'] = $c18['final_price'];
-                        $data['attributes']['size_variants'][$idx]['mrp_18k']   = $userMrp18k;
-
-                        $data['attributes']['size_variants'][$idx]['price_22k'] = $c22['final_price'];
-                        $data['attributes']['size_variants'][$idx]['mrp_22k']   = $userMrp22k;
-
-                        $data['attributes']['size_variants'][$idx]['price']     = $c18['final_price'];
-                        $data['attributes']['size_variants'][$idx]['mrp']       = $userMrp18k;
-
-                        if (($v['size'] ?? '') === 'Size 12' || $derivedWeight <= 0) {
-                            $derivedWeight = $vWeight;
-                        }
+            // Clean size variants: keep only size labels, price and weight are fixed from benchmark
+            if (($data['attributes']['has_sizes'] ?? 'yes') === 'no') {
+                $data['attributes']['size_variants'] = [];
+            } else {
+                $cleanVariants = [];
+                foreach ((array) ($data['attributes']['size_variants'] ?? []) as $v) {
+                    $sName = trim($v['size'] ?? '');
+                    if (!empty($sName)) {
+                        $cleanVariants[] = ['size' => $sName];
                     }
                 }
-
-                if ($derivedWeight > 0) {
-                    $data['attributes']['gold_weight_grams'] = $derivedWeight;
-                }
+                $data['attributes']['size_variants'] = $cleanVariants;
             }
 
             $weight = (float) ($data['attributes']['gold_weight_grams'] ?? 0);
             if ($weight > 0) {
                 foreach ($purities as $p) {
-                    $calc = \App\Services\BullionPricingService::calculatePurityPrice(
-                        $p,
+                    $calc = \App\Services\BullionPricingService::calculateFinalPrice(
                         $weight,
                         $making,
-                        'per_gram',
                         $diamond,
-                        $rates
+                        $p,
+                        null,
+                        null,
+                        $weight,
+                        $profit
                     );
-                    $data['attributes']['purity_prices'][$p] = $calc['selling_price'];
+                    $data['attributes']['purity_prices'][$p] = $calc['final_price'];
                     $data['attributes']['purity_mrp'][$p] = ($commonCut > 0) ? $commonCut : $calc['mrp_price'];
                 }
 

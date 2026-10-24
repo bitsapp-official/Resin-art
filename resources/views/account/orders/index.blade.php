@@ -8,6 +8,11 @@
         @if($orders->count() > 0)
             <div class="space-y-4 sm:space-y-5 w-full min-w-0">
                 @foreach($orders as $order)
+                    @php
+                        $ordCurrency = $order->currency ?: 'INR';
+                        $ordSymbol = $order->currency_symbol ?: ($ordCurrency === 'USD' ? '$' : ($ordCurrency === 'EUR' ? '€' : ($ordCurrency === 'GBP' ? '£' : ($ordCurrency === 'AED' ? 'AED ' : '₹'))));
+                        $ordDecimals = ($ordCurrency === 'INR') ? 0 : 2;
+                    @endphp
                     <div class="rounded-[1.25rem] sm:rounded-[2rem] p-4 sm:p-6 lg:p-7 space-y-3.5 sm:space-y-4 shadow-[0_10px_30px_rgba(28,25,23,0.04)] border border-[#E6E1D7]/60 w-full min-w-0" style="background: oklch(98.5% .008 85);">
                         
                         <!-- Header Row: Order Ref, Placed Date, Status Badge & Grand Total -->
@@ -27,7 +32,9 @@
                                         {{ $order->status_label }}
                                     </span>
                                 @endif
-                                <span class="font-medium font-sans text-xs sm:text-sm text-[#1C1917] whitespace-nowrap">₹ {{ number_format($order->grand_total) }}</span>
+                                <div class="text-right">
+                                    <span class="font-medium font-sans text-xs sm:text-sm text-[#1C1917] whitespace-nowrap">{{ $ordSymbol }} {{ number_format($order->grand_total, $ordDecimals) }}</span>
+                                </div>
                             </div>
                         </div>
 
@@ -38,7 +45,7 @@
                                     <span class="text-[#1C1917] font-normal truncate min-w-0 flex-1 text-xs" style="font-family: 'Plus Jakarta Sans', system-ui, sans-serif;">
                                         {{ $item->product_name }} <span class="text-[#8E877D] text-[11px]">(×{{ $item->quantity }})</span>
                                     </span>
-                                    <span class="text-[#78716C] shrink-0 font-sans text-xs whitespace-nowrap font-medium">₹ {{ number_format($item->subtotal) }}</span>
+                                    <span class="text-[#78716C] shrink-0 font-sans text-xs whitespace-nowrap font-medium">{{ $ordSymbol }} {{ number_format($item->subtotal, $ordDecimals) }}</span>
                                 </div>
                             @endforeach
                         </div>

@@ -70,7 +70,56 @@
                         } else {
                             $wishlistCount = count(session('guest_wishlist', []));
                         }
+                        $currentCurrency = \App\Services\CurrencyService::getUserCurrency();
+                        $currentCurrencyInfo = \App\Services\CurrencyService::getCurrencyInfo();
+                        $availableCurrencies = \App\Services\CurrencyService::getActiveCurrencies();
                     @endphp
+
+                    <!-- Luxury Currency Selector Dropdown (Desktop) -->
+                    <div x-data="{ currencyDropdownOpen: false }" @click.outside="currencyDropdownOpen = false" class="relative">
+                        <button type="button" 
+                                @click="currencyDropdownOpen = !currencyDropdownOpen"
+                                title="Select Currency"
+                                class="flex items-center space-x-1.5 border border-[#DFD9CE] rounded-full px-2.5 py-1 text-[10px] tracking-[0.14em] font-medium text-[oklch(18%_0.012_50)] bg-white/80 hover:bg-white hover:border-[#1C1917] transition-all duration-200 cursor-pointer">
+                            <span class="text-xs leading-none">{{ $currentCurrencyInfo['flag'] }}</span>
+                            <span>{{ $currentCurrency }}</span>
+                            <span class="text-[9px] text-[#8E877D]">({{ $currentCurrencyInfo['symbol'] }})</span>
+                            <svg class="w-3 h-3 text-[#8E877D] transition-transform duration-200" :class="{ 'rotate-180': currencyDropdownOpen }" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                            </svg>
+                        </button>
+
+                        <div x-show="currencyDropdownOpen" 
+                             x-cloak
+                             x-transition:enter="transition ease-out duration-150 transform"
+                             x-transition:enter-start="opacity-0 scale-95 -translate-y-1"
+                             x-transition:enter-end="opacity-100 scale-100 translate-y-0"
+                             x-transition:leave="transition ease-in duration-100 transform"
+                             x-transition:leave-start="opacity-100 scale-100 translate-y-0"
+                             x-transition:leave-end="opacity-0 scale-95 -translate-y-1"
+                             class="absolute right-0 mt-2 w-44 rounded-2xl bg-white border border-[#EBE6DD] shadow-xl py-1.5 z-50 overflow-hidden">
+                            <div class="px-3 py-1.5 border-b border-[#F5F2EB] text-[9px] uppercase tracking-[0.2em] font-semibold text-[#8E877D]">
+                                Select Currency
+                            </div>
+                            @foreach($availableCurrencies as $code => $info)
+                                <a href="{{ route('currency.switch', $code) }}" 
+                                   @click="sessionStorage.setItem('atelier_currency_scroll', window.scrollY)"
+                                   class="flex items-center justify-between px-3 py-2 text-xs text-[#1C1917] hover:bg-[#FAF8F5] transition-colors {{ $currentCurrency === $code ? 'bg-[#FAF8F5] font-semibold text-[#B87333]' : 'font-normal' }}">
+                                    <span class="flex items-center space-x-2">
+                                        <span class="text-sm leading-none">{{ $info['flag'] }}</span>
+                                        <span>{{ $code }}</span>
+                                        <span class="text-[11px] text-[#8E877D]">({{ $info['symbol'] }})</span>
+                                    </span>
+                                    @if($currentCurrency === $code)
+                                        <svg class="w-3.5 h-3.5 text-[#B87333]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
+                                        </svg>
+                                    @endif
+                                </a>
+                            @endforeach
+                        </div>
+                    </div>
+
                     <a href="{{ route('wishlist.index') }}" aria-label="Wishlist" title="Wishlist" class="relative text-[oklch(18%_0.012_50)] hover:opacity-60 transition-opacity p-1">
                         <svg class="w-4 h-4 stroke-[1.75]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
@@ -302,6 +351,21 @@
                         </a>
                     </div>
                 @endif
+
+                <!-- Mobile Currency Selector Grid -->
+                <div class="pt-2 border-t border-[#EBE6DD]">
+                    <p class="text-[8.5px] uppercase tracking-[0.25em] font-semibold text-[#8E877D] mb-2">Currency / Region</p>
+                    <div class="grid grid-cols-4 gap-1.5">
+                        @foreach($availableCurrencies as $code => $info)
+                            <a href="{{ route('currency.switch', $code) }}" 
+                               @click="sessionStorage.setItem('atelier_currency_scroll', window.scrollY)"
+                               class="flex items-center justify-center space-x-1 py-1.5 px-2 rounded-xl border text-[10px] tracking-wider transition-all {{ $currentCurrency === $code ? 'bg-[#1C1917] text-white border-[#1C1917] font-semibold shadow-xs' : 'bg-white text-[#1C1917] border-[#DFD9CE] hover:border-[#1C1917]' }}">
+                                <span class="text-xs">{{ $info['flag'] }}</span>
+                                <span>{{ $code }}</span>
+                            </a>
+                        @endforeach
+                    </div>
+                </div>
 
                 <p class="text-[8px] uppercase tracking-[0.25em] text-[#8E877D] text-center font-light">
                     {{ \App\Models\SiteSetting::get('invoice_brand_name', 'Solitaire Fine Jewels') }} · 100% Certified Natural Diamonds

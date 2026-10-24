@@ -423,12 +423,12 @@
 
                     {{-- Unit Price --}}
                     <td style="text-align: right;" class="order-price-val">
-                        ₹ {{ number_format($item->unit_price, 2) }}
+                        {{ $order->currency_symbol ?: '₹' }} {{ number_format($item->unit_price, 2) }}
                     </td>
 
                     {{-- Subtotal --}}
                     <td style="text-align: right; padding-right: 20px;" class="order-subtotal-val">
-                        ₹ {{ number_format($item->subtotal, 2) }}
+                        {{ $order->currency_symbol ?: '₹' }} {{ number_format($item->subtotal, 2) }}
                     </td>
                 </tr>
             @endforeach
@@ -439,19 +439,22 @@
                     Items Subtotal ({{ $order->items->sum('quantity') }} {{ Str::plural('item', $order->items->sum('quantity')) }}):
                 </td>
                 <td style="text-align: right; padding-right: 20px;" class="order-foot-val">
-                    ₹ {{ number_format($order->subtotal, 2) }}
+                    {{ $order->currency_symbol ?: '₹' }} {{ number_format($order->subtotal, 2) }}
                 </td>
             </tr>
-            @if($order->tax > 0)
-                @php
-                    $effectiveRate = ($order->subtotal > 0) ? round(($order->tax / $order->subtotal) * 100, 1) : 0;
-                @endphp
+            @php
+                $itemTax = (float)$order->tax;
+                if ($itemTax >= (float)$order->grand_total || $itemTax <= 0) {
+                    $itemTax = round((float)$order->grand_total - ((float)$order->grand_total / 1.03), 2);
+                }
+            @endphp
+            @if($itemTax > 0)
                 <tr>
                     <td colspan="3" style="text-align: right;" class="order-foot-label">
-                        GST ({{ $effectiveRate }}%):
+                        GST (3% Included):
                     </td>
                     <td style="text-align: right; padding-right: 20px;" class="order-foot-val">
-                        ₹ {{ number_format($order->tax, 2) }}
+                        {{ $order->currency_symbol ?: '₹' }} {{ number_format($itemTax, 2) }}
                     </td>
                 </tr>
             @endif
@@ -461,18 +464,25 @@
                         Insured Atelier Shipping:
                     </td>
                     <td style="text-align: right; padding-right: 20px;" class="order-foot-val">
-                        ₹ {{ number_format($order->shipping_fee, 2) }}
+                        {{ $order->currency_symbol ?: '₹' }} {{ number_format($order->shipping_fee, 2) }}
                     </td>
                 </tr>
             @endif
             <tr class="order-grand-total-row">
                 <td colspan="3" style="text-align: right; padding: 14px 20px;" class="order-grand-total-label">
-                    Grand Total:
+                    Grand Total ({{ $order->currency ?: 'INR' }}):
                 </td>
                 <td style="text-align: right; padding-right: 20px; padding-top: 14px; padding-bottom: 14px;" class="order-grand-total-val">
-                    ₹ {{ number_format($order->grand_total, 2) }}
+                    {{ $order->currency_symbol ?: '₹' }} {{ number_format($order->grand_total, 2) }}
                 </td>
             </tr>
+            @if($order->inr_grand_total && $order->currency !== 'INR')
+                <tr>
+                    <td colspan="4" style="text-align: right; padding: 8px 20px; font-size: 11px; color: #78716c; background-color: #fbfaf8;">
+                        Base Valuation Settled: <strong>₹ {{ number_format($order->inr_grand_total, 2) }} INR</strong> (Locked Rate: 1 {{ $order->currency }} = ₹{{ number_format($order->exchange_rate, 2) }})
+                    </td>
+                </tr>
+            @endif
         </tfoot>
     </table>
 </div>

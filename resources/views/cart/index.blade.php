@@ -51,7 +51,7 @@
                                             <span class="text-[#1C1917] font-semibold"> &bull; {{ implode(' · ', $optParts) }}</span>
                                         @endif
                                     </span>
-                                    <span class="font-semibold text-sm text-[#1C1917] block mt-2">₹ {{ number_format($item->price) }} each</span>
+                                    <span class="font-semibold text-sm text-[#1C1917] block mt-2">{{ currency_format($item->price) }} each</span>
                                 </div>
                             </div>
 
@@ -65,7 +65,7 @@
                                     <button type="submit" name="quantity" value="{{ $item->quantity + 1 }}" class="text-[#78716C] font-bold px-1">+</button>
                                 </form>
 
-                                <span class="font-semibold text-base text-[#1C1917]">₹ {{ number_format($item->subtotal) }}</span>
+                                <span class="font-semibold text-base text-[#1C1917]">{{ currency_format($item->subtotal) }}</span>
 
                                 <form method="POST" action="{{ route('cart.remove') }}">
                                     @csrf
@@ -100,7 +100,7 @@
                         <div class="space-y-3.5 text-xs text-[#78716C]">
                             <div class="flex justify-between items-center">
                                 <span class="font-light">Subtotal</span>
-                                <span class="font-medium text-sm text-[#1C1917]">₹ {{ number_format($cart->total) }}</span>
+                                <span class="font-medium text-sm text-[#1C1917]">{{ currency_format($cart->total) }}</span>
                             </div>
 
                             <div class="flex justify-between items-center">
@@ -114,7 +114,7 @@
                                         <span class="text-xs uppercase tracking-[0.2em] font-bold text-[#1C1917] block">Estimated Total</span>
                                         <span class="text-[10px] text-[#8E877D] font-light block">Taxes &amp; crate shipping included</span>
                                     </div>
-                                    <span class="font-editorial text-2xl sm:text-3xl text-[#1C1917] font-normal tracking-tight">₹ {{ number_format($cart->total) }}</span>
+                                    <span class="font-editorial text-2xl sm:text-3xl text-[#1C1917] font-normal tracking-tight">{{ currency_format($cart->total) }}</span>
                                 </div>
                             </div>
                         </div>

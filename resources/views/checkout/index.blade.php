@@ -571,7 +571,7 @@
                                         <svg class="w-4 h-4 text-white shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                                         </svg>
-                                        <span class="truncate">PAY &#8377; {{ number_format($subtotal) }} &rarr;</span>
+                                        <span class="truncate">PAY {{ currency_format($subtotal) }} &rarr;</span>
                                     </div>
                                 </template>
                                 <template x-if="isSubmitting">
@@ -595,22 +595,89 @@
 
                         <div class="space-y-4 sm:space-y-5">
                             @foreach($cartItems->sortByDesc('id') as $item)
+                                @php
+                                    $options = is_array($item->options) ? $item->options : (json_decode($item->options, true) ?: []);
+                                    $color = $options['metal_color'] ?? ($options['color'] ?? null);
+                                    $purity = $options['gold_purity'] ?? ($options['purity'] ?? null);
+                                    $size = $options['size'] ?? null;
+                                    
+                                    $productSlug = $item->product?->slug;
+                                    $queryParams = [];
+                                    if ($color) $queryParams['color'] = $color;
+                                    if ($purity) $queryParams['purity'] = $purity;
+                                    if ($size) $queryParams['size'] = $size;
+                                    
+                                    $productUrl = null;
+                                    if ($productSlug) {
+                                        try {
+                                            $productUrl = route('shop.show', array_merge(['slug' => $productSlug], $queryParams));
+                                        } catch (\Throwable $e) {
+                                            $productUrl = url('/shop/' . urlencode($productSlug) . ($queryParams ? '?' . http_build_query($queryParams) : ''));
+                                        }
+                                    }
+                                    $chkImg = $item->primary_image_url;
+                                @endphp
                                 <div class="flex items-center justify-between py-1 gap-3">
                                     <div class="flex items-center space-x-3.5 min-w-0 flex-1">
-                                        <div class="w-12 h-12 sm:w-14 sm:h-14 bg-white rounded-xl sm:rounded-2xl overflow-hidden shrink-0 border border-[#DFD9CE] flex items-center justify-center">
-                                            @php $chkImg = $item->primary_image_url; @endphp
-                                            @if($chkImg)
-                                                <img src="{{ $chkImg }}" alt="" class="w-full h-full object-cover">
-                                            @else
-                                                <span class="text-[9px] text-[#A8A29E] uppercase tracking-wider font-medium">Piece</span>
-                                            @endif
-                                        </div>
+                                        @if($productUrl)
+                                            <a href="{{ $productUrl }}" target="_blank" title="View product details in new tab" class="w-12 h-12 sm:w-14 sm:h-14 bg-white rounded-xl sm:rounded-2xl overflow-hidden shrink-0 border border-[#DFD9CE] hover:border-[#1C1917] flex items-center justify-center transition-all duration-200 group">
+                                                @if($chkImg)
+                                                    <img src="{{ $chkImg }}" alt="" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200">
+                                                @else
+                                                    <span class="text-[9px] text-[#A8A29E] uppercase tracking-wider font-medium">Piece</span>
+                                                @endif
+                                            </a>
+                                        @else
+                                            <div class="w-12 h-12 sm:w-14 sm:h-14 bg-white rounded-xl sm:rounded-2xl overflow-hidden shrink-0 border border-[#DFD9CE] flex items-center justify-center">
+                                                @if($chkImg)
+                                                    <img src="{{ $chkImg }}" alt="" class="w-full h-full object-cover">
+                                                @else
+                                                    <span class="text-[9px] text-[#A8A29E] uppercase tracking-wider font-medium">Piece</span>
+                                                @endif
+                                            </div>
+                                        @endif
+
                                         <div class="min-w-0 flex-1">
-                                            <h4 class="text-xs sm:text-sm font-normal leading-snug text-[#1C1917] truncate">{{ $item->product_name }}</h4>
-                                            <span class="text-[11px] text-[#78716C]">&times; {{ $item->quantity }}</span>
+                                            <h4 class="text-xs sm:text-sm font-normal leading-snug text-[#1C1917] truncate">
+                                                @if($productUrl)
+                                                    <a href="{{ $productUrl }}" target="_blank" class="hover:text-[#9A7B4F] transition-colors underline-offset-2 hover:underline">
+                                                        {{ $item->product_name }}
+                                                    </a>
+                                                @else
+                                                    {{ $item->product_name }}
+                                                @endif
+                                            </h4>
+
+                                            {{-- Variant Badges: Tone, Purity, Size --}}
+                                            @if($color || $purity || $size)
+                                                <div class="flex items-center gap-1.5 flex-wrap pt-1">
+                                                    @if($color)
+                                                        <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium bg-[#FAF6F0] text-[#A87432] border border-[#EBE3D7]">
+                                                            {{ $color }}
+                                                        </span>
+                                                    @endif
+                                                    @if($purity)
+                                                        <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium bg-[#F0FDF4] text-[#16A34A] border border-[#DCFCE7]">
+                                                            {{ $purity }}
+                                                        </span>
+                                                    @endif
+                                                    @if($size)
+                                                        <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium bg-[#F5F3FF] text-[#7C3AED] border border-[#EDE9FE]">
+                                                            {{ $size }}
+                                                        </span>
+                                                    @endif
+                                                </div>
+                                            @endif
+
+                                            <div class="flex items-center gap-2 pt-0.5">
+                                                <span class="text-[11px] text-[#78716C]">&times; {{ $item->quantity }}</span>
+                                                @if($item->sku)
+                                                    <span class="text-[10px] font-mono text-[#8E877D]">&bull; {{ $item->sku }}</span>
+                                                @endif
+                                            </div>
                                         </div>
                                     </div>
-                                    <span class="text-xs sm:text-sm font-normal shrink-0 pl-2 text-[#1C1917] font-sans">&#8377; {{ number_format($item->subtotal) }}</span>
+                                    <span class="text-xs sm:text-sm font-normal shrink-0 pl-2 text-[#1C1917] font-sans">{{ currency_format($item->subtotal) }}</span>
                                 </div>
                             @endforeach
                         </div>
@@ -618,7 +685,7 @@
                         <div class="border-t border-[#DFD9CE]/60 pt-4 space-y-2 text-xs">
                             <div class="flex justify-between text-[#78716C]">
                                 <span>Subtotal</span>
-                                <span class="font-medium text-[#1C1917]">&#8377; {{ number_format($subtotal) }}</span>
+                                <span class="font-medium text-[#1C1917]">{{ currency_format($subtotal) }}</span>
                             </div>
                             <div class="flex justify-between text-[#78716C]">
                                 <span>White-Glove Crated Shipping</span>
@@ -626,7 +693,7 @@
                             </div>
                             <div class="border-t border-[#1C1917]/10 pt-3 flex justify-between text-sm font-medium text-[#1C1917]">
                                 <span>Estimated Total</span>
-                                <span class="font-editorial text-lg font-bold font-sans">&#8377; {{ number_format($subtotal) }}</span>
+                                <span class="font-editorial text-lg font-bold font-sans">{{ currency_format($subtotal) }}</span>
                             </div>
                         </div>
                     </div>

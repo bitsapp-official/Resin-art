@@ -12,12 +12,36 @@ class AccountDashboardController extends Controller
     {
         $user = Auth::user();
 
-        $ordersCount = $user->orders()->count();
+        // 1. Auto-cancel any lingering incomplete checkout attempts for this user
+        $user->orders()
+            ->where('status', \App\Models\Order::STATUS_PENDING_PAYMENT)
+            ->where('payment_status', 'unpaid')
+            ->update([
+                'status'        => \App\Models\Order::STATUS_CANCELLED,
+                'cancel_reason' => 'Abandoned checkout: payment was not completed.',
+                'canceled_at'   => now(),
+            ]);
+
+        // 2. Count all placed orders (including cancelled)
+        $ordersCount = $user->orders()
+            ->where('status', '!=', \App\Models\Order::STATUS_PENDING_PAYMENT)
+            ->count();
+
         $wishlistCount = $user->wishlists()->count();
         $addressCount = $user->addresses()->count();
         $unreadNotificationsCount = $user->customerNotifications()->where('is_read', false)->count();
 
-        $latestOrder = $user->orders()->latest()->with('items')->first();
+        // 3. Latest order: prioritize in-progress order for tracking, or fallback to latest order (including cancelled)
+        $latestOrder = $user->orders()
+            ->whereIn('status', [\App\Models\Order::STATUS_CONFIRMED, \App\Models\Order::STATUS_PROCESSING, \App\Models\Order::STATUS_SHIPPED, \App\Models\Order::STATUS_DELIVERED, 'CRAFTING', 'QUALITY_CHECK', 'PACKED'])
+            ->latest()
+            ->with('items')
+            ->first()
+            ?: $user->orders()
+                ->where('status', '!=', \App\Models\Order::STATUS_PENDING_PAYMENT)
+                ->latest()
+                ->with('items')
+                ->first();
 
         $customRequestsCount = CustomRequest::where('user_id', $user->id)->orWhere('email', $user->email)->count();
         

@@ -19,8 +19,11 @@
                                     </span>
 
 
-                                @if(!empty($p->images) && isset($p->images[0]))
-                                    <img src="{{ $p->images[0] }}" alt="{{ $p->name }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                                @php
+                                    $cardImg = $p->primary_image_url ?: ($p->images[0] ?? null);
+                                @endphp
+                                @if($cardImg)
+                                    <img src="{{ $cardImg }}" alt="{{ $p->name }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
                                 @endif
                             </a>
 

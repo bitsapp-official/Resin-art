@@ -306,7 +306,7 @@ class Product extends Model
                 $firstPurity,
                 $firstSize ?: 'Size 12',
                 null,
-                $firstWeight,
+                null,
                 $this->profit_margin_percent
             );
             return (float) $calc['final_price'];
@@ -381,7 +381,7 @@ class Product extends Model
                 $firstPurity,
                 $firstSize ?: 'Size 12',
                 null,
-                $firstWeight,
+                null,
                 $this->profit_margin_percent
             );
             return (float) $calc['mrp_price'];

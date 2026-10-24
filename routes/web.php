@@ -21,6 +21,7 @@ use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Auth\ResetPasswordController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\CheckoutController;
+use App\Http\Controllers\CurrencyController;
 use App\Http\Controllers\StripeWebhookController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\LegalController;
@@ -44,6 +45,9 @@ use App\Http\Controllers\HomeController;
 */
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
+
+// Multi-Currency Session Switcher
+Route::get('/currency/switch/{currency}', [CurrencyController::class, 'switchCurrency'])->name('currency.switch');
 
 // E-Commerce Shop Catalog Routes
 Route::get('/shop', [ShopController::class, 'index'])->name('shop.index');

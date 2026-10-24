@@ -12,8 +12,12 @@
                 <label class="block font-medium text-[#1C1917] mb-1">Eligible Delivered Order *</label>
                 <select name="order_id" required class="w-full px-4 py-2.5 bg-white border border-[#E6E1D7] rounded-xl focus:outline-none focus:border-[#1C1917]">
                     @foreach($orders as $ord)
+                        @php
+                            $ordSym = $ord->currency_symbol ?: ($ord->currency === 'USD' ? '$' : ($ord->currency === 'EUR' ? '€' : ($ord->currency === 'GBP' ? '£' : ($ord->currency === 'AED' ? 'AED ' : '₹'))));
+                            $ordDec = ($ord->currency === 'INR') ? 0 : 2;
+                        @endphp
                         <option value="{{ $ord->id }}" {{ isset($selectedOrder) && $selectedOrder->id == $ord->id ? 'selected' : '' }}>
-                            {{ $ord->order_reference }} ({{ $ord->created_at->format('M d, Y') }}) — ₹ {{ number_format($ord->grand_total, 2) }}
+                            {{ $ord->order_reference }} ({{ $ord->created_at->format('M d, Y') }}) — {{ $ordSym }} {{ number_format($ord->grand_total, $ordDec) }}
                         </option>
                     @endforeach
                 </select>

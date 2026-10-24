@@ -38,6 +38,7 @@ class AdminPanelProvider extends PanelProvider
             ->navigationGroups([
                 'Orders & Sales',
                 'Shop & Catalog',
+                'Gold & Currency Rates',
                 'Customers & Support',
                 'Atelier & Content Pages',
                 'Store Settings',

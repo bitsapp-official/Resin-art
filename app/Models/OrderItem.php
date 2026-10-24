@@ -47,7 +47,12 @@ class OrderItem extends Model
             $cImgs = $this->product->color_images;
             if (!empty($cImgs[$color])) {
                 $img = is_array($cImgs[$color]) ? ($cImgs[$color][0] ?? null) : $cImgs[$color];
-                if ($img) return $img;
+                if ($img) {
+                    if (!str_starts_with($img, 'http://') && !str_starts_with($img, 'https://') && !str_starts_with($img, '/')) {
+                        return asset('storage/' . $img);
+                    }
+                    return $img;
+                }
             }
         }
 
@@ -63,7 +68,11 @@ class OrderItem extends Model
         }
 
         if ($this->product?->primary_image_url) {
-            return $this->product->primary_image_url;
+            $pImg = $this->product->primary_image_url;
+            if (!str_starts_with($pImg, 'http://') && !str_starts_with($pImg, 'https://') && !str_starts_with($pImg, '/')) {
+                return asset('storage/' . $pImg);
+            }
+            return $pImg;
         }
 
         if (!empty($this->product_snapshot['images'][0])) {
@@ -75,7 +84,11 @@ class OrderItem extends Model
         }
 
         if (!empty($this->product?->images[0])) {
-            return $this->product->images[0];
+            $rawImg = $this->product->images[0];
+            if (!str_starts_with($rawImg, 'http://') && !str_starts_with($rawImg, 'https://') && !str_starts_with($rawImg, '/')) {
+                return asset('storage/' . $rawImg);
+            }
+            return $rawImg;
         }
 
         return null;

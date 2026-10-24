@@ -21,13 +21,14 @@
             color: #1A1615;
             font-size: 8.5pt;
             line-height: 1.45;
-            width: 100%;
-            height: 100%;
             -webkit-print-color-adjust: exact;
         }
 
+        body {
+            margin: 28pt 36pt 24pt 36pt;
+        }
+
         .page-container {
-            padding: 24pt 32pt 20pt 32pt;
             width: 100%;
         }
 
@@ -122,9 +123,13 @@
             color: #FAF8F5;
             font-size: 6.8pt;
             font-weight: bold;
-            letter-spacing: 1.4pt;
+            letter-spacing: 1.2pt;
             text-transform: uppercase;
-            padding: 3pt 8pt 2pt 8pt;
+            text-align: center;
+            vertical-align: middle;
+            line-height: 14pt;
+            height: 14pt;
+            padding: 0 10pt;
             border-radius: 3pt;
             margin-top: 5pt;
         }
@@ -266,17 +271,18 @@
 
         /* Right: Financial Totals Table */
         .totals-table {
-            width: 100%;
+            width: 95%;
+            margin-left: auto;
             border-collapse: collapse;
         }
         .totals-table td {
-            padding: 3.5pt 0;
-            font-size: 8pt;
+            padding: 4pt 0;
+            font-size: 8.5pt;
         }
         .totals-table td.lbl {
             text-align: right;
             color: #6B655D;
-            padding-right: 12pt;
+            padding-right: 14pt;
         }
         .totals-table td.val {
             text-align: right;
@@ -287,14 +293,14 @@
         .totals-table tr.grand-total td {
             border-top: 1.5pt solid #1A1615;
             border-bottom: 2pt double #1A1615;
-            padding: 6pt 0;
+            padding: 8pt 0 6pt 0;
             font-size: 10pt;
             font-weight: bold;
             color: #1A1615;
         }
         .totals-table tr.grand-total td.lbl {
             color: #1A1615;
-            letter-spacing: 1pt;
+            letter-spacing: 0.5pt;
             text-transform: uppercase;
         }
 
@@ -419,12 +425,12 @@
         </tr>
     </table>
 
-    {{-- ── LINE ITEMS TABLE ── --}}
+    {{-- ── ORDER ITEMS TABLE ── --}}
     <table class="items-table" cellpadding="0" cellspacing="0">
         <thead>
             <tr>
                 <th style="width: 24pt;" class="text-center">#</th>
-                <th>Artisan Creation &amp; Metallurgical Specifications</th>
+                <th>Item Description</th>
                 <th style="width: 36pt;" class="text-center">Qty</th>
                 <th style="width: 80pt;" class="text-right">Unit Price</th>
                 <th style="width: 85pt;" class="text-right">Subtotal</th>
@@ -480,7 +486,7 @@
     <table class="bottom-table" cellpadding="0" cellspacing="0">
         <tr>
             {{-- Left: Authenticity & Hallmarking Card --}}
-            <td style="width: 52%;">
+            <td style="width: 50%; vertical-align: top;">
                 <div class="cert-card">
                     <div class="cert-header">Atelier Authenticity &amp; Hallmarking</div>
                     <div class="cert-body">
@@ -499,7 +505,7 @@
             </td>
 
             {{-- Right: Financial Breakdown --}}
-            <td style="width: 48%;">
+            <td style="width: 50%; vertical-align: top; padding-left: 20pt;">
                 <table class="totals-table" cellpadding="0" cellspacing="0">
                     <tr>
                         <td class="lbl">Taxable Value (Net)</td>

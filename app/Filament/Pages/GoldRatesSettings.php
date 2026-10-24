@@ -19,13 +19,13 @@ class GoldRatesSettings extends Page implements HasForms
 
     protected static ?string $navigationIcon = 'heroicon-o-currency-rupee';
 
-    protected static ?string $navigationGroup = 'Shop & Catalog';
+    protected static ?string $navigationGroup = 'Gold & Currency Rates';
 
     protected static ?string $navigationLabel = 'Daily Gold & Bullion Rates';
 
     protected static ?string $title = 'Daily Gold & Bullion Rates';
 
-    protected static ?int $navigationSort = 5;
+    protected static ?int $navigationSort = 1;
 
     protected static string $view = 'filament.pages.gold-rates-settings';
 

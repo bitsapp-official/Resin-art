@@ -239,27 +239,5 @@
 
         </div>
 
-        <!-- Floating Back to Top / Quick Jump Action -->
-        <div x-data="{ showTop: false }"
-             @scroll.window.passive="showTop = window.pageYOffset > 400"
-             x-show="showTop"
-             x-cloak
-             x-transition:enter="transition ease-out duration-200"
-             x-transition:enter-start="opacity-0 translate-y-3"
-             x-transition:enter-end="opacity-100 translate-y-0"
-             x-transition:leave="transition ease-in duration-150"
-             x-transition:leave-start="opacity-100 translate-y-0"
-             x-transition:leave-end="opacity-0 translate-y-3"
-             class="fixed bottom-24 right-5 sm:right-8 z-40 pointer-events-auto">
-            <button @click="window.scrollTo({ top: 0, behavior: 'smooth' })"
-                    type="button"
-                    aria-label="Scroll back to top"
-                    class="group flex items-center space-x-2 bg-white/95 hover:bg-[#1C1917] text-[#1C1917] hover:text-white border border-[#E6E1D7] shadow-xl backdrop-blur-md px-3.5 py-2.5 rounded-full text-xs font-medium transition-all duration-300 hover:scale-105 active:scale-95 cursor-pointer">
-                <svg class="w-3.5 h-3.5 stroke-[2.2] group-hover:-translate-y-0.5 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 15.75l7.5-7.5 7.5 7.5" />
-                </svg>
-                <span class="text-[10px] sm:text-[10.5px] uppercase tracking-wider font-semibold pr-0.5">Top</span>
-            </button>
-        </div>
     </div>
 </x-app-layout>

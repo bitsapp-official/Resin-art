@@ -60,6 +60,11 @@
                             <th style="text-align: right;">Price</th>
                         </tr>
                     </thead>
+                    @php
+                        $orderCurrency = $order->currency ?: 'INR';
+                        $orderSymbol = $order->currency_symbol ?: ($orderCurrency === 'USD' ? '$' : ($orderCurrency === 'EUR' ? '€' : ($orderCurrency === 'GBP' ? '£' : ($orderCurrency === 'AED' ? 'AED ' : '₹'))));
+                        $decimals = ($orderCurrency === 'INR') ? 0 : 2;
+                    @endphp
                     <tbody>
                         @foreach($order->items as $item)
                             <tr>
@@ -86,12 +91,14 @@
                                     @endif
                                 </td>
                                 <td style="text-align: center;">{{ $item->quantity }}</td>
-                                <td style="text-align: right;">₹ {{ number_format($item->subtotal) }}</td>
+                                <td style="text-align: right;">{{ $orderSymbol }} {{ number_format($item->subtotal, $decimals) }}</td>
                             </tr>
                         @endforeach
                         <tr>
-                            <td colspan="2" class="total">Grand Total</td>
-                            <td class="total" style="text-align: right;">₹ {{ number_format($order->grand_total) }}</td>
+                            <td colspan="2" class="total">Grand Total ({{ $orderCurrency }})</td>
+                            <td class="total" style="text-align: right;">
+                                {{ $orderSymbol }} {{ number_format($order->grand_total, $decimals) }}
+                            </td>
                         </tr>
                     </tbody>
                 </table>

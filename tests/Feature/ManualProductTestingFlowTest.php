@@ -80,10 +80,10 @@ class ManualProductTestingFlowTest extends TestCase
                 ],
                 'size_label' => 'Ring Size',
                 'size_variants' => [
-                    ['size' => 'Size 12 (16.5 mm)', 'price' => 65000],
-                    ['size' => 'Size 14 (17.3 mm)', 'price' => 67500],
-                    ['size' => 'Size 16 (18.1 mm)', 'price' => 70000],
-                    ['size' => 'Size 18 (18.9 mm)', 'price' => 72500],
+                    ['size' => 'Size 12', 'price' => 65000],
+                    ['size' => 'Size 14', 'price' => 67500],
+                    ['size' => 'Size 16', 'price' => 70000],
+                    ['size' => 'Size 18', 'price' => 72500],
                 ],
                 'diamond_carat' => '1.25 Carat',
                 'diamond_color_clarity' => 'VVS1 / E-F Color',
@@ -122,9 +122,9 @@ class ManualProductTestingFlowTest extends TestCase
         $response->assertSee('65,000');
 
         // Gemological Specs
-        $response->assertSee('1.25 CARAT');
-        $response->assertSee('VVS1 / E-F COLOR');
-        $response->assertSee('IGI CERTIFIED NATURAL DIAMOND');
+        $response->assertSee('1.25 Carat');
+        $response->assertSee('VVS1 / E-F Color');
+        $response->assertSee('IGI Certified Natural Diamond');
 
         // Variants
         $response->assertSee('Yellow Gold');
@@ -133,10 +133,10 @@ class ManualProductTestingFlowTest extends TestCase
         $response->assertSee('14KT Gold');
         $response->assertSee('18KT Gold');
         $response->assertSee('22KT Gold');
-        $response->assertSee('Size 12 (16.5 mm)');
-        $response->assertSee('Size 14 (17.3 mm)');
-        $response->assertSee('Size 16 (18.1 mm)');
-        $response->assertSee('Size 18 (18.9 mm)');
+        $response->assertSee('Size 12');
+        $response->assertSee('Size 14');
+        $response->assertSee('Size 16');
+        $response->assertSee('Size 18');
 
         // Action Buttons
         $response->assertSee('ADD TO BAG');
@@ -156,7 +156,7 @@ class ManualProductTestingFlowTest extends TestCase
             'options' => [
                 'gold_purity' => '18KT Gold',
                 'metal_color' => 'White Gold',
-                'size' => 'Size 14 (17.3 mm)',
+                'size' => 'Size 14',
             ],
         ]);
 
@@ -168,7 +168,7 @@ class ManualProductTestingFlowTest extends TestCase
         $cartPage->assertSee('Imperial Oval-Cut Diamond Solitaire Ring');
         $cartPage->assertSee('18KT Gold');
         $cartPage->assertSee('White Gold');
-        $cartPage->assertSee('Size 14 (17.3 mm)');
+        $cartPage->assertSee('Size 14');
     }
 
     /** @test */

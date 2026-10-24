@@ -22,6 +22,23 @@
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500;1,600&family=Plus+Jakarta+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <script>
+        window.AtelierCurrency = @json(\App\Services\CurrencyService::getClientPayload());
+        
+        // Restore scroll position seamlessly if redirected from currency switcher
+        (function() {
+            const savedScroll = sessionStorage.getItem('atelier_currency_scroll');
+            if (savedScroll !== null) {
+                sessionStorage.removeItem('atelier_currency_scroll');
+                if ('scrollRestoration' in history) {
+                    history.scrollRestoration = 'manual';
+                }
+                window.addEventListener('DOMContentLoaded', function() {
+                    window.scrollTo({ top: parseInt(savedScroll, 10), behavior: 'instant' });
+                });
+            }
+        })();
+    </script>
     @stack('head')
 </head>
 <body class="min-h-full flex flex-col bg-[#FAF8F5] text-[#1C1917] antialiased relative overflow-x-clip w-full max-w-full">

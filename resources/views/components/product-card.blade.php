@@ -116,11 +116,11 @@
             </h3>
             <div class="flex items-baseline gap-1.5 shrink-0">
                 <span class="text-[15px] sm:text-[16px] font-medium text-[#1C1917]">
-                    ₹{{ number_format($product->effective_price) }}
+                    {{ currency_format($product->effective_price) }}
                 </span>
                 @if($product->effective_mrp && $product->effective_mrp > $product->effective_price)
                     <s class="text-[11.5px] sm:text-[12px] text-[#8E877D] font-light">
-                        ₹{{ number_format($product->effective_mrp) }}
+                        {{ currency_format($product->effective_mrp) }}
                     </s>
                 @endif
             </div>

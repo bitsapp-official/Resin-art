@@ -481,24 +481,9 @@
                     // Check if product uses Dynamic Gold Pricing Matrix
                     if (this.baseGoldWeight > 0 && this.pricingMode === 'dynamic' && this.goldPurities && this.goldPurities.length > 0) {
                         const purity = this.selectedPurity || this.goldPurities[0] || '18KT Gold';
-                        const size = this.selectedSize || 'Size 12';
-                        
-                        // Check if current selected size has explicit custom weight
-                        let sizeVariant = null;
-                        if (this.sizeVariants && this.sizeVariants.length > 0) {
-                            sizeVariant = this.sizeVariants.find(v => v.size === size);
-                        }
 
-                        // Exact gold weight: use size-specific weight if provided, else product base weight.
-                        // No artificial scale multipliers or density weight distortions.
-                        let finalWeight = 0;
-                        if (sizeVariant && sizeVariant.weight_grams && Number(sizeVariant.weight_grams) > 0) {
-                            finalWeight = Number(sizeVariant.weight_grams);
-                        } else {
-                            finalWeight = this.baseGoldWeight;
-                        }
-                        finalWeight = Math.round(finalWeight * 1000) / 1000;
-
+                        // Benchmark gold weight is universal for the piece. Size selection never changes price or gold weight.
+                        const finalWeight = Math.round(Number(this.baseGoldWeight) * 1000) / 1000;
                         const karatRate = this.getKaratGoldRate(purity);
 
                         const goldVal = Math.round(finalWeight * karatRate * 100) / 100;
@@ -511,24 +496,10 @@
                         const profitVal = Math.round(costWithGst * (margin / 100) * 100) / 100;
                         const finalPrice = Math.round(costWithGst + profitVal);
 
-                        // If common Cut Price is set by admin, it remains the SAME across all sizes and purities
                         let mrp = null;
                         if (this.commonCutPrice && Number(this.commonCutPrice) > 0) {
                             mrp = Number(this.commonCutPrice);
-                        } else if (sizeVariant) {
-                            const pLower = (purity || '').toLowerCase();
-                            if (pLower.includes('14') && sizeVariant.mrp_14k && Number(sizeVariant.mrp_14k) > 0) {
-                                mrp = Number(sizeVariant.mrp_14k);
-                            } else if (pLower.includes('22') && sizeVariant.mrp_22k && Number(sizeVariant.mrp_22k) > 0) {
-                                mrp = Number(sizeVariant.mrp_22k);
-                            } else if (sizeVariant.mrp_18k && Number(sizeVariant.mrp_18k) > 0) {
-                                mrp = Number(sizeVariant.mrp_18k);
-                            } else if (sizeVariant.mrp && Number(sizeVariant.mrp) > finalPrice) {
-                                mrp = Number(sizeVariant.mrp);
-                            }
-                        }
-
-                        if (!mrp && this.regularPrice && Number(this.regularPrice) > finalPrice) {
+                        } else if (this.regularPrice && Number(this.regularPrice) > finalPrice) {
                             mrp = Number(this.regularPrice);
                         }
 
@@ -546,25 +517,8 @@
                         };
                     }
 
-                    // Fallback to Manual Pricing Mode
+                    // Fallback to Manual Pricing Mode - Fixed price across all sizes
                     let base = Number(this.basePrice) || 0;
-                    let sizeVariant = null;
-                    if (this.sizeVariants.length > 0 && this.selectedSize) {
-                        sizeVariant = this.sizeVariants.find(v => v.size === this.selectedSize);
-                        if (sizeVariant) {
-                            const pLower = (this.selectedPurity || '').toLowerCase();
-                            if (pLower.includes('14') && sizeVariant.price_14k && Number(sizeVariant.price_14k) > 0) {
-                                base = Number(sizeVariant.price_14k);
-                            } else if (pLower.includes('22') && sizeVariant.price_22k && Number(sizeVariant.price_22k) > 0) {
-                                base = Number(sizeVariant.price_22k);
-                            } else if (sizeVariant.price_18k && Number(sizeVariant.price_18k) > 0) {
-                                base = Number(sizeVariant.price_18k);
-                            } else if (sizeVariant.price && Number(sizeVariant.price) > 0) {
-                                base = Number(sizeVariant.price);
-                            }
-                        }
-                    }
-
                     if (this.purityPrices && this.selectedPurity && this.purityPrices[this.selectedPurity] !== undefined && this.purityPrices[this.selectedPurity] !== null && this.purityPrices[this.selectedPurity] !== '') {
                         const val = Number(this.purityPrices[this.selectedPurity]);
                         if (val >= base * 0.5 && val > 0) {
@@ -577,19 +531,7 @@
                     let mrp = null;
                     if (this.commonCutPrice && Number(this.commonCutPrice) > 0) {
                         mrp = Number(this.commonCutPrice);
-                    } else if (sizeVariant) {
-                        const pLower = (this.selectedPurity || '').toLowerCase();
-                        if (pLower.includes('14') && sizeVariant.mrp_14k && Number(sizeVariant.mrp_14k) > 0) {
-                            mrp = Number(sizeVariant.mrp_14k);
-                        } else if (pLower.includes('22') && sizeVariant.mrp_22k && Number(sizeVariant.mrp_22k) > 0) {
-                            mrp = Number(sizeVariant.mrp_22k);
-                        } else if (sizeVariant.mrp_18k && Number(sizeVariant.mrp_18k) > 0) {
-                            mrp = Number(sizeVariant.mrp_18k);
-                        } else if (sizeVariant.mrp && Number(sizeVariant.mrp) > base) {
-                            mrp = Number(sizeVariant.mrp);
-                        }
-                    }
-                    if (!mrp && this.purityMrp && this.selectedPurity && this.purityMrp[this.selectedPurity] !== undefined && this.purityMrp[this.selectedPurity] !== null && this.purityMrp[this.selectedPurity] !== '') {
+                    } else if (this.purityMrp && this.selectedPurity && this.purityMrp[this.selectedPurity] !== undefined && this.purityMrp[this.selectedPurity] !== null && this.purityMrp[this.selectedPurity] !== '') {
                         const mVal = Number(this.purityMrp[this.selectedPurity]);
                         if (mVal > 0) mrp = mVal;
                     }
@@ -610,16 +552,20 @@
                 },
 
                 get currentGoldWeight() {
-                    if (this.priceBreakdown && this.priceBreakdown.finalWeight) {
-                        return this.priceBreakdown.finalWeight;
-                    }
-                    if (this.sizeVariants.length > 0 && this.selectedSize) {
-                        const sv = this.sizeVariants.find(v => v.size === this.selectedSize);
-                        if (sv && sv.weight_grams && Number(sv.weight_grams) > 0) {
-                            return Number(sv.weight_grams);
+                    return Number(this.baseGoldWeight) || 0;
+                },
+
+                get displaySizes() {
+                    const all = this.sizeVariants || [];
+                    if (all.length <= 5) return all;
+                    const initial = all.slice(0, 5);
+                    if (this.selectedSize && !initial.some(v => v.size === this.selectedSize)) {
+                        const found = all.find(v => v.size === this.selectedSize);
+                        if (found) {
+                            return [...initial, found];
                         }
                     }
-                    return Number(this.baseGoldWeight) || 0;
+                    return initial;
                 },
 
                 get currentMrp() {
@@ -633,10 +579,18 @@
                     return 0;
                 },
                 formatPrice(price) {
-                    if (price === null || price === undefined || isNaN(price)) {
-                        return this.basePrice ? new Intl.NumberFormat('en-IN').format(this.basePrice) : '0';
+                    const curr = window.AtelierCurrency || { is_inr: true, rate: 1, symbol: '₹', format_pattern: '₹%s' };
+                    let val = price;
+                    if (val === null || val === undefined || isNaN(val)) {
+                        val = this.basePrice || 0;
                     }
-                    return new Intl.NumberFormat('en-IN').format(price);
+                    if (!curr.is_inr && curr.rate > 0) {
+                        val = Math.ceil(val / curr.rate);
+                    } else {
+                        val = Math.round(val);
+                    }
+                    const numFormatted = new Intl.NumberFormat('en-US').format(val);
+                    return (curr.format_pattern || '%s').replace('%s', numFormatted);
                 },
                 get whatsappOrderUrl() {
                     let msg = `Hello, I would like to order / inquire about this piece:\n\n` +
@@ -753,7 +707,7 @@
     <div class="max-w-[1320px] mx-auto px-4 sm:px-6 lg:px-12 xl:px-16 pt-2 sm:pt-4 pb-16 sm:pb-24 w-full min-w-0"
          x-data="productDetail({
             mediaItems: @js($mediaList),
-            sizeVariants: @js($product->attributes['size_variants'] ?? []),
+            sizeVariants: @js(array_values(array_filter(array_map(fn($v) => is_array($v) && !empty($v['size']) ? ['size' => trim($v['size'])] : (is_string($v) && !empty(trim($v)) ? ['size' => trim($v)] : null), (array)($product->attributes['size_variants'] ?? []))))),
             basePrice: {{ (float) $product->effective_price }},
             regularPrice: {{ (float) $product->price }},
             commonCutPrice: {{ (float) ($product->jewellery_attributes['common_cut_price'] ?? 0) }},
@@ -1203,10 +1157,10 @@
                     <div class="flex items-baseline justify-between gap-4 flex-wrap">
                         <div class="flex items-baseline gap-2.5 sm:gap-3 flex-wrap">
                             <span class="font-sans font-medium text-2xl sm:text-3.5xl text-[#1C1917] tracking-tight">
-                                ₹ <span x-text="formatPrice(currentPrice)">{{ number_format($product->effective_price) }}</span>
+                                <span x-text="formatPrice(currentPrice)">{{ currency_format($product->effective_price) }}</span>
                             </span>
                             <template x-if="currentMrp && currentMrp > currentPrice">
-                                <s class="text-sm sm:text-base text-[#8E877D] font-light font-sans tracking-tight">₹ <span x-text="formatPrice(currentMrp)">{{ number_format($product->price) }}</span></s>
+                                <s class="text-sm sm:text-base text-[#8E877D] font-light font-sans tracking-tight"><span x-text="formatPrice(currentMrp)">{{ currency_format($product->price) }}</span></s>
                             </template>
                             <span class="text-[11px] text-[#8E877D] font-light tracking-wide">(Inclusive of all taxes)</span>
                         </div>
@@ -1246,23 +1200,94 @@
                     </p>
                 </template>
 
-                {{-- 2. Dynamic Size Selector (Necklace Length, Ring Size, etc.) --}}
+                {{-- 2. Size Selector (Clean Luxury Minimalist Interface) --}}
                 <template x-if="sizeVariants && sizeVariants.length > 0">
-                    <div class="space-y-2">
-                        <div class="flex items-center justify-between gap-2">
-                            <p class="text-[10px] uppercase tracking-[0.2em] font-semibold text-[#1C1917]">
-                                <span>SIZE</span>
-                                <span class="font-normal text-[#8E877D] tracking-normal ml-1" x-text="selectedSize ? '· ' + selectedSize : ''"></span>
-                            </p>
-                        </div>
-                        <div class="flex items-center gap-2 flex-wrap">
-                            <template x-for="v in sizeVariants" :key="v.size">
-                                <button type="button" @click="selectedSize = v.size; if (typeof syncUrlWithState === 'function') syncUrlWithState();"
-                                        :class="selectedSize === v.size ? 'bg-[#1C1917] text-white border-[#1C1917]' : 'bg-transparent text-[#1C1917] border-[#EBE6DD] hover:border-[#1C1917]'"
-                                        class="px-4 sm:px-5 py-2 rounded-full border text-[9px] sm:text-[9.5px] uppercase tracking-[0.18em] sm:tracking-[0.2em] font-medium transition-all duration-200 cursor-pointer">
-                                    <span x-text="v.size"></span>
+                    <div class="space-y-2" x-data="{ sizeModalOpen: false }">
+                        {{-- Clean Header: Matches Gold Purity & Color --}}
+                        <p class="text-[10px] uppercase tracking-[0.2em] font-semibold text-[#1C1917]">
+                            <span>SIZE</span>
+                            <span class="font-normal text-[#8E877D] tracking-normal ml-1" x-text="selectedSize ? '· ' + selectedSize : ''"></span>
+                        </p>
+
+                        {{-- Direct Sleek Size Pills --}}
+                        <div class="flex items-center gap-1.5 sm:gap-2 flex-wrap">
+                            <template x-for="v in displaySizes" :key="v.size">
+                                <button type="button" 
+                                        @click="selectedSize = v.size; if (typeof syncUrlWithState === 'function') syncUrlWithState();"
+                                        :class="selectedSize === v.size ? 'bg-[#1C1917] text-white border-[#1C1917] shadow-xs' : 'bg-transparent text-[#1C1917] border-[#EBE6DD] hover:border-[#1C1917]'"
+                                        class="px-3.5 sm:px-4 py-1.5 sm:py-2 rounded-full border text-[9.5px] uppercase tracking-[0.16em] sm:tracking-[0.18em] font-medium transition-all duration-150 cursor-pointer"
+                                        x-text="v.size">
                                 </button>
                             </template>
+
+                            {{-- + More Trigger Pill (Only shown if total sizes > 5) --}}
+                            <template x-if="sizeVariants.length > 5">
+                                <button type="button" 
+                                        @click="sizeModalOpen = true"
+                                        class="px-3.5 py-1.5 sm:py-2 rounded-full border border-dashed border-[#1C1917]/40 text-[#1C1917] hover:border-[#1C1917] hover:bg-[#FAF8F5] text-[9.5px] uppercase tracking-[0.16em] font-medium transition-all duration-150 cursor-pointer flex items-center gap-1">
+                                    <span x-text="'+ ' + (sizeVariants.length - 5) + ' More'"></span>
+                                    <svg class="w-2.5 h-2.5 ml-0.5 text-[#8E877D]" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
+                                </button>
+                            </template>
+                        </div>
+
+                        {{-- Compact, Refined Size Popup Dialog (Compact Handheld Size, NOT Giant) --}}
+                        <div x-show="sizeModalOpen" 
+                             x-cloak
+                             class="fixed inset-0 z-50 overflow-y-auto flex items-center justify-center p-4"
+                             role="dialog" 
+                             aria-modal="true"
+                             @keydown.escape.window="sizeModalOpen = false">
+                            {{-- Soft Minimal Backdrop --}}
+                            <div x-show="sizeModalOpen"
+                                 x-transition:enter="ease-out duration-150"
+                                 x-transition:enter-start="opacity-0"
+                                 x-transition:enter-end="opacity-100"
+                                 x-transition:leave="ease-in duration-100"
+                                 x-transition:leave-start="opacity-100"
+                                 x-transition:leave-end="opacity-0"
+                                 @click="sizeModalOpen = false"
+                                 class="fixed inset-0 bg-black/40 backdrop-blur-[2px] transition-opacity"></div>
+
+                            {{-- Compact Popup Box (Max-w 320px, Auto height, NO fake mm) --}}
+                            <div x-show="sizeModalOpen"
+                                 x-transition:enter="ease-out duration-150"
+                                 x-transition:enter-start="opacity-0 scale-95"
+                                 x-transition:enter-end="opacity-100 scale-100"
+                                 x-transition:leave="ease-in duration-100"
+                                 x-transition:leave-start="opacity-100 scale-100"
+                                 x-transition:leave-end="opacity-0 scale-95"
+                                 @click.outside="sizeModalOpen = false"
+                                 class="relative w-full max-w-[320px] bg-white rounded-2xl p-4 text-left shadow-xl border border-[#EBE6DD] z-10">
+                                
+                                {{-- Compact Header --}}
+                                <div class="flex items-center justify-between pb-2.5 border-b border-[#F5F2EB]">
+                                    <span class="text-[10px] uppercase tracking-[0.2em] font-semibold text-[#1C1917]">Select Size</span>
+                                    <button type="button" @click="sizeModalOpen = false" class="w-6 h-6 rounded-full hover:bg-[#F5F2EB] text-[#8E877D] hover:text-[#1C1917] flex items-center justify-center transition-colors cursor-pointer" aria-label="Close">
+                                        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+                                    </button>
+                                </div>
+
+                                {{-- Compact Clean 3-Column Size Grid (Labels Only, Zero MM) --}}
+                                <div class="py-3 max-h-[260px] overflow-y-auto no-scrollbar">
+                                    <div class="grid grid-cols-3 gap-1.5">
+                                        <template x-for="v in sizeVariants" :key="v.size">
+                                            <button type="button" 
+                                                    @click="selectedSize = v.size; if (typeof syncUrlWithState === 'function') syncUrlWithState(); sizeModalOpen = false;"
+                                                    :class="selectedSize === v.size ? 'bg-[#1C1917] text-white border-[#1C1917]' : 'bg-[#FAF8F5] text-[#1C1917] border-[#E8E2D7] hover:border-[#1C1917] hover:bg-white'"
+                                                    class="py-2 px-2 rounded-xl border text-[11px] font-medium tracking-wide text-center transition-all cursor-pointer truncate"
+                                                    x-text="v.size">
+                                            </button>
+                                        </template>
+                                    </div>
+                                </div>
+
+                                {{-- Subtle Compact Note --}}
+                                <div class="pt-2 border-t border-[#F5F2EB] flex items-center justify-between text-[10px] text-[#8E877D]">
+                                    <span>Fixed price on all sizes</span>
+                                    <button type="button" @click="sizeModalOpen = false" class="text-[#1C1917] font-semibold hover:underline cursor-pointer">Done</button>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </template>
@@ -1566,14 +1591,7 @@
 
                                     $allSpecs = [];
 
-                                    if ($hasGoldWeight) {
-                                        $allSpecs[] = [
-                                            'label' => 'Approx. Gold Weight',
-                                            'is_alpine' => true,
-                                            'alpine_text' => "Number(currentGoldWeight).toFixed(2) + ' g'",
-                                            'static_value' => number_format((float) ($product->base_gold_weight ?: ($product->attributes['gold_weight_grams'] ?? 0)), 2) . ' g',
-                                        ];
-                                    }
+                                    // Approx. Gold Weight intentionally omitted from public specifications per brand requirements
 
                                     if ($hasPurity) {
                                         $allSpecs[] = [
@@ -1955,8 +1973,11 @@
                         <div class="group">
                             <div class="relative overflow-hidden aspect-[4/5] rounded-[1.25rem] sm:rounded-[2rem] bg-[#F5F2EB] border border-[#DFD9CE]/60 shadow-2xs mb-2.5 sm:mb-3 group/card">
                                 <a href="{{ route('shop.show', $rel->slug) }}" class="block w-full h-full">
-                                    @if(!empty($rel->images) && isset($rel->images[0]))
-                                        <img src="{{ $rel->images[0] }}" alt="{{ $rel->name }}"
+                                    @php
+                                        $relImg = $rel->primary_image_url ?: ($rel->images[0] ?? null);
+                                    @endphp
+                                    @if($relImg)
+                                        <img src="{{ $relImg }}" alt="{{ $rel->name }}"
                                              class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out">
                                     @endif
                                 </a>
@@ -2024,8 +2045,11 @@
                         <div class="group">
                             <div class="relative overflow-hidden aspect-[4/5] rounded-[1.25rem] sm:rounded-[2rem] bg-[#F5F2EB] border border-[#DFD9CE]/60 shadow-2xs mb-2.5 sm:mb-3 group/card">
                                 <a href="{{ route('shop.show', $recent->slug) }}" class="block w-full h-full">
-                                    @if(!empty($recent->images) && isset($recent->images[0]))
-                                        <img src="{{ $recent->images[0] }}" alt="{{ $recent->name }}"
+                                    @php
+                                        $recentImg = $recent->primary_image_url ?: ($recent->images[0] ?? null);
+                                    @endphp
+                                    @if($recentImg)
+                                        <img src="{{ $recentImg }}" alt="{{ $recent->name }}"
                                              class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out">
                                     @endif
                                 </a>
