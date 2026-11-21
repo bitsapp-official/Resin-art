@@ -211,6 +211,13 @@ class Product extends Model
 
     public function getDiamondStoneValueAttribute(): float
     {
+        if ($this->diamond_carat_weight > 0) {
+            $clarities = $this->diamond_clarities;
+            $firstClarity = !empty($clarities) ? $clarities[0] : 'VVS1';
+            $rate = \App\Services\BullionPricingService::getDiamondRateForClarity($firstClarity);
+            return round($this->diamond_carat_weight * $rate, 2);
+        }
+
         $attrs = $this->jewellery_attributes;
         if (isset($attrs['diamond_stone_value']) && is_numeric($attrs['diamond_stone_value'])) {
             return (float) $attrs['diamond_stone_value'];
@@ -243,11 +250,20 @@ class Product extends Model
         }
 
         $p = strtolower(trim($purity));
+        if (str_contains($p, 'silver') || str_contains($p, '925') || str_contains($p, '92.5') || str_contains($p, '9.5')) {
+            return 1.000;
+        }
+        if (str_contains($p, '10k')) {
+            return 0.885;
+        }
         if (str_contains($p, '14k')) {
             return 1.000;
         }
         if (str_contains($p, '22k')) {
             return 1.365;
+        }
+        if (str_contains($p, '24k')) {
+            return 1.485;
         }
         // Default to 18KT benchmark
         return 1.185;
@@ -299,6 +315,10 @@ class Product extends Model
                 }
             }
 
+            $diamondCarat = $this->diamond_carat_weight;
+            $clarities = $this->diamond_clarities;
+            $firstClarity = !empty($clarities) ? $clarities[0] : 'VVS1';
+
             $calc = \App\Services\BullionPricingService::calculateFinalPrice(
                 $this->base_gold_weight,
                 $this->making_charge_per_gram,
@@ -307,7 +327,9 @@ class Product extends Model
                 $firstSize ?: 'Size 12',
                 null,
                 null,
-                $this->profit_margin_percent
+                $this->profit_margin_percent,
+                $diamondCarat > 0 ? $diamondCarat : null,
+                $firstClarity
             );
             return (float) $calc['final_price'];
         }
@@ -318,14 +340,23 @@ class Product extends Model
             $pLower = strtolower($firstPurity);
             $firstVariant = reset($attrs['size_variants']);
             if ($firstVariant) {
-                if (str_contains($pLower, '14') && !empty($firstVariant['price_14k']) && (float) $firstVariant['price_14k'] > 0) {
-                    return (float) $firstVariant['price_14k'];
+                if ((str_contains($pLower, 'silver') || str_contains($pLower, '925') || str_contains($pLower, '92.5') || str_contains($pLower, '9.5')) && !empty($firstVariant['price_silver']) && (float) $firstVariant['price_silver'] > 0) {
+                    return (float) $firstVariant['price_silver'];
+                }
+                if (str_contains($pLower, '24') && !empty($firstVariant['price_24k']) && (float) $firstVariant['price_24k'] > 0) {
+                    return (float) $firstVariant['price_24k'];
                 }
                 if (str_contains($pLower, '22') && !empty($firstVariant['price_22k']) && (float) $firstVariant['price_22k'] > 0) {
                     return (float) $firstVariant['price_22k'];
                 }
                 if (str_contains($pLower, '18') && !empty($firstVariant['price_18k']) && (float) $firstVariant['price_18k'] > 0) {
                     return (float) $firstVariant['price_18k'];
+                }
+                if (str_contains($pLower, '14') && !empty($firstVariant['price_14k']) && (float) $firstVariant['price_14k'] > 0) {
+                    return (float) $firstVariant['price_14k'];
+                }
+                if (str_contains($pLower, '10') && !empty($firstVariant['price_10k']) && (float) $firstVariant['price_10k'] > 0) {
+                    return (float) $firstVariant['price_10k'];
                 }
                 if (!empty($firstVariant['price']) && (float) $firstVariant['price'] > 0) {
                     return (float) $firstVariant['price'];
@@ -374,6 +405,10 @@ class Product extends Model
                 }
             }
 
+            $diamondCarat = $this->diamond_carat_weight;
+            $clarities = $this->diamond_clarities;
+            $firstClarity = !empty($clarities) ? $clarities[0] : 'VVS1';
+
             $calc = \App\Services\BullionPricingService::calculateFinalPrice(
                 $this->base_gold_weight,
                 $this->making_charge_per_gram,
@@ -382,7 +417,9 @@ class Product extends Model
                 $firstSize ?: 'Size 12',
                 null,
                 null,
-                $this->profit_margin_percent
+                $this->profit_margin_percent,
+                $diamondCarat > 0 ? $diamondCarat : null,
+                $firstClarity
             );
             return (float) $calc['mrp_price'];
         }
@@ -393,14 +430,23 @@ class Product extends Model
             $pLower = strtolower($firstPurity);
             $firstVariant = reset($attrs['size_variants']);
             if ($firstVariant) {
-                if (str_contains($pLower, '14') && !empty($firstVariant['mrp_14k']) && (float) $firstVariant['mrp_14k'] > 0) {
-                    return (float) $firstVariant['mrp_14k'];
+                if ((str_contains($pLower, 'silver') || str_contains($pLower, '925') || str_contains($pLower, '92.5') || str_contains($pLower, '9.5')) && !empty($firstVariant['mrp_silver']) && (float) $firstVariant['mrp_silver'] > 0) {
+                    return (float) $firstVariant['mrp_silver'];
+                }
+                if (str_contains($pLower, '24') && !empty($firstVariant['mrp_24k']) && (float) $firstVariant['mrp_24k'] > 0) {
+                    return (float) $firstVariant['mrp_24k'];
                 }
                 if (str_contains($pLower, '22') && !empty($firstVariant['mrp_22k']) && (float) $firstVariant['mrp_22k'] > 0) {
                     return (float) $firstVariant['mrp_22k'];
                 }
                 if (str_contains($pLower, '18') && !empty($firstVariant['mrp_18k']) && (float) $firstVariant['mrp_18k'] > 0) {
                     return (float) $firstVariant['mrp_18k'];
+                }
+                if (str_contains($pLower, '14') && !empty($firstVariant['mrp_14k']) && (float) $firstVariant['mrp_14k'] > 0) {
+                    return (float) $firstVariant['mrp_14k'];
+                }
+                if (str_contains($pLower, '10') && !empty($firstVariant['mrp_10k']) && (float) $firstVariant['mrp_10k'] > 0) {
+                    return (float) $firstVariant['mrp_10k'];
                 }
                 if (!empty($firstVariant['mrp']) && (float) $firstVariant['mrp'] > 0) {
                     return (float) $firstVariant['mrp'];
@@ -457,7 +503,7 @@ class Product extends Model
         $attrs = $this->jewellery_attributes;
         if (array_key_exists('gold_purities', $attrs)) {
             $purities = is_array($attrs['gold_purities']) ? array_values(array_filter($attrs['gold_purities'])) : [];
-            $canonicalOrder = ['14KT Gold', '18KT Gold', '22KT Gold'];
+            $canonicalOrder = ['10KT Gold', '14KT Gold', '18KT Gold', '22KT Gold', '24KT Gold', '925 Silver', '92.5 Silver', '9.5 Silver'];
             usort($purities, function ($a, $b) use ($canonicalOrder) {
                 $posA = array_search($a, $canonicalOrder);
                 $posB = array_search($b, $canonicalOrder);
@@ -550,9 +596,47 @@ class Product extends Model
         return $this->jewellery_attributes['diamond_carat'] ?? null;
     }
 
+    public function getDiamondCaratWeightAttribute(): float
+    {
+        $attrs = $this->jewellery_attributes;
+        if (isset($attrs['diamond_carat_weight']) && is_numeric($attrs['diamond_carat_weight'])) {
+            return (float) $attrs['diamond_carat_weight'];
+        }
+        if (!empty($attrs['diamond_carat'])) {
+            if (is_numeric($attrs['diamond_carat'])) {
+                return (float) $attrs['diamond_carat'];
+            }
+            if (preg_match('/([\d\.]+)/', (string) $attrs['diamond_carat'], $m)) {
+                return (float) $m[1];
+            }
+        }
+        return 0.0;
+    }
+
+    public function getDiamondClaritiesAttribute(): array
+    {
+        $attrs = $this->jewellery_attributes;
+        if (!empty($attrs['diamond_clarities']) && is_array($attrs['diamond_clarities'])) {
+            return array_values(array_filter($attrs['diamond_clarities']));
+        }
+        if ($this->diamond_carat_weight > 0) {
+            return \App\Services\BullionPricingService::DIAMOND_CLARITIES;
+        }
+        return [];
+    }
+
     public function getDiamondColorClarityAttribute(): ?string
     {
-        return $this->jewellery_attributes['diamond_color_clarity'] ?? null;
+        return $this->jewellery_attributes['diamond_color']
+            ?? $this->jewellery_attributes['diamond_color_clarity']
+            ?? null;
+    }
+
+    public function getDiamondColorAttribute(): ?string
+    {
+        return $this->jewellery_attributes['diamond_color']
+            ?? $this->jewellery_attributes['diamond_color_clarity']
+            ?? null;
     }
 
     public function getDiamondCutAttribute(): ?string

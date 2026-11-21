@@ -31,8 +31,10 @@ class CartController extends Controller
             'options'               => ['nullable', 'array'],
             'options.size'          => ['nullable', 'string', 'max:150'],
             'options.gold_purity'   => ['nullable', 'string', 'max:100'],
-            'options.metal_color'   => ['nullable', 'string', 'max:100'],
-            'options.diamond_carat' => ['nullable', 'string', 'max:100'],
+            'options.metal_color'     => ['nullable', 'string', 'max:100'],
+            'options.diamond_carat'   => ['nullable', 'string', 'max:100'],
+            'options.diamond_clarity' => ['nullable', 'string', 'max:100'],
+            'options.clarity'         => ['nullable', 'string', 'max:100'],
         ]);
 
         $product = Product::published()->findOrFail($request->product_id);
@@ -46,6 +48,26 @@ class CartController extends Controller
 
         $quantity = (int) ($request->quantity ?? 1);
         $options = $request->options ?? [];
+
+        // Auto-complete dynamic diamond and gold attributes if not explicitly passed
+        if ($product->diamond_carat_weight > 0) {
+            if (empty($options['diamond_carat'])) {
+                $options['diamond_carat'] = $product->diamond_carat_weight . ' ct';
+            }
+            if (empty($options['diamond_clarity']) && empty($options['clarity'])) {
+                $clarities = $product->diamond_clarities;
+                $options['diamond_clarity'] = !empty($clarities) ? $clarities[0] : 'VVS1';
+            }
+        }
+        if (!empty($product->diamond_color) && empty($options['diamond_color'])) {
+            $options['diamond_color'] = $product->diamond_color;
+        }
+        if (!empty($product->gold_purities) && empty($options['gold_purity'])) {
+            $options['gold_purity'] = $product->gold_purities[0];
+        }
+        if (!empty($product->metal_colors) && empty($options['metal_color'])) {
+            $options['metal_color'] = $product->metal_colors[0];
+        }
 
         // AUTHORITATIVE PRICING CALCULATION (SECURITY ENFORCED):
         // Derive exact bullion/variant price strictly server-side using BullionPricingService
@@ -122,8 +144,10 @@ class CartController extends Controller
             'options'               => ['nullable', 'array'],
             'options.size'          => ['nullable', 'string', 'max:150'],
             'options.gold_purity'   => ['nullable', 'string', 'max:100'],
-            'options.metal_color'   => ['nullable', 'string', 'max:100'],
-            'options.diamond_carat' => ['nullable', 'string', 'max:100'],
+            'options.metal_color'     => ['nullable', 'string', 'max:100'],
+            'options.diamond_carat'   => ['nullable', 'string', 'max:100'],
+            'options.diamond_clarity' => ['nullable', 'string', 'max:100'],
+            'options.clarity'         => ['nullable', 'string', 'max:100'],
         ]);
 
         $product = Product::published()->findOrFail($request->product_id);
@@ -134,6 +158,26 @@ class CartController extends Controller
 
         $quantity = (int) ($request->quantity ?? 1);
         $options  = $request->options ?? [];
+
+        // Auto-complete dynamic diamond and gold attributes if not explicitly passed
+        if ($product->diamond_carat_weight > 0) {
+            if (empty($options['diamond_carat'])) {
+                $options['diamond_carat'] = $product->diamond_carat_weight . ' ct';
+            }
+            if (empty($options['diamond_clarity']) && empty($options['clarity'])) {
+                $clarities = $product->diamond_clarities;
+                $options['diamond_clarity'] = !empty($clarities) ? $clarities[0] : 'VVS1';
+            }
+        }
+        if (!empty($product->diamond_color) && empty($options['diamond_color'])) {
+            $options['diamond_color'] = $product->diamond_color;
+        }
+        if (!empty($product->gold_purities) && empty($options['gold_purity'])) {
+            $options['gold_purity'] = $product->gold_purities[0];
+        }
+        if (!empty($product->metal_colors) && empty($options['metal_color'])) {
+            $options['metal_color'] = $product->metal_colors[0];
+        }
 
         // SECURITY: Authoritative server-side price resolution
         $price = \App\Services\BullionPricingService::resolveItemPrice($product, $options);

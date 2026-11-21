@@ -44,6 +44,9 @@
                                         if(!empty($item->options['gold_purity'])) $optParts[] = $item->options['gold_purity'];
                                         if(!empty($item->options['metal_color'])) $optParts[] = $item->options['metal_color'];
                                         if(!empty($item->options['size'])) $optParts[] = $item->options['size'];
+                                        if(!empty($item->options['diamond_clarity'])) $optParts[] = $item->options['diamond_clarity'];
+                                        elseif(!empty($item->options['clarity'])) $optParts[] = $item->options['clarity'];
+                                        if(!empty($item->options['diamond_carat'])) $optParts[] = $item->options['diamond_carat'];
                                     @endphp
                                     <span class="text-[11px] text-[#78716C] block mt-0.5">
                                         {{ $item->product?->category?->name ?? 'Fine Jewellery Piece' }}

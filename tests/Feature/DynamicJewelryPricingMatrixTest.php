@@ -647,6 +647,65 @@ class DynamicJewelryPricingMatrixTest extends TestCase
         $response->assertStatus(200);
         $response->assertSee('85000');
     }
+
+    public function test_10kt_gold_and_silver_cart_addition_and_purity_resolution(): void
+    {
+        SiteSetting::set('gold_rate_24kt', '7600');
+        SiteSetting::set('gold_rate_10kt', '3166.67');
+        SiteSetting::set('silver_rate_925', '95');
+
+        $product = Product::create([
+            'name' => 'Artisan Halo Solitaire Band',
+            'slug' => 'artisan-halo-solitaire-band',
+            'sku' => 'HALO-TEST-10K',
+            'description' => 'Fine luxury band',
+            'price' => 50000,
+            'status' => 'published',
+            'inventory_type' => 'READY_TO_SHIP',
+            'stock' => 10,
+            'attributes' => [
+                'pricing_mode' => 'dynamic',
+                'gold_weight_grams' => 4.0,
+                'making_charge' => 800.0,
+                'diamond_value' => 10000.0,
+                'gold_purities' => ['10KT Gold', '14KT Gold', '18KT Gold', '22KT Gold', '24KT Gold', '925 Silver'],
+            ],
+        ]);
+
+        // 1. Add 10KT Gold variant to cart
+        $response10k = $this->post(route('cart.add'), [
+            'product_id' => $product->id,
+            'quantity' => 1,
+            'options' => [
+                'gold_purity' => '10KT Gold',
+                'metal_color' => 'Yellow Gold',
+            ],
+        ]);
+        $response10k->assertRedirect();
+
+        $this->assertDatabaseHas('cart_items', [
+            'product_id' => $product->id,
+            'quantity' => 1,
+            'price' => 26643.00,
+        ]);
+
+        // 2. Add 925 Silver variant to cart
+        $responseSilver = $this->post(route('cart.add'), [
+            'product_id' => $product->id,
+            'quantity' => 1,
+            'options' => [
+                'gold_purity' => '925 Silver',
+                'metal_color' => 'White Gold',
+            ],
+        ]);
+        $responseSilver->assertRedirect();
+
+        $this->assertDatabaseHas('cart_items', [
+            'product_id' => $product->id,
+            'quantity' => 1,
+            'price' => 13987.00,
+        ]);
+    }
 }
 
 

@@ -9,20 +9,32 @@ use Illuminate\Support\Facades\Log;
 class BullionPricingService
 {
     /**
-     * Standard gold purities handled in fine jewellery.
+     * Standard gold & bullion purities handled in fine jewellery.
      */
-    public const PURITIES = ['14KT Gold', '18KT Gold', '22KT Gold'];
+    public const PURITIES = ['10KT Gold', '14KT Gold', '18KT Gold', '22KT Gold', '24KT Gold', '925 Silver'];
 
     /**
-     * Get current live bullion rates per gram from SiteSettings.
+     * Certified Natural Diamond Clarities supported across fine jewellery collections.
+     */
+    public const DIAMOND_CLARITIES = ['VVS1', 'VVS2', 'VS1', 'VS2'];
+
+    /**
+     * Get current live bullion & diamond rates from SiteSettings.
      *
      * @return array{
      *     rate_24kt: float,
      *     rate_22kt: float,
      *     rate_18kt: float,
      *     rate_14kt: float,
+     *     rate_10kt: float,
+     *     rate_silver_925: float,
+     *     diamond_rate_vvs1: float,
+     *     diamond_rate_vvs2: float,
+     *     diamond_rate_vs1: float,
+     *     diamond_rate_vs2: float,
      *     making_per_gram: float,
      *     gst_rate: float,
+     *     mrp_markup_percent: float,
      *     updated_at: string
      * }
      */
@@ -32,6 +44,14 @@ class BullionPricingService
         $rate22kt = (float) SiteSetting::get('gold_rate_22kt', round($rate24kt * (22 / 24), 2));
         $rate18kt = (float) SiteSetting::get('gold_rate_18kt', round($rate24kt * (18 / 24), 2));
         $rate14kt = (float) SiteSetting::get('gold_rate_14kt', round($rate24kt * (14 / 24), 2));
+        $rate10kt = (float) SiteSetting::get('gold_rate_10kt', round($rate24kt * (10 / 24), 2));
+        $rateSilver925 = (float) SiteSetting::get('silver_rate_925', 95.0);
+
+        $rateDiamondVvs1 = (float) SiteSetting::get('diamond_rate_vvs1', 110000.0);
+        $rateDiamondVvs2 = (float) SiteSetting::get('diamond_rate_vvs2', 90000.0);
+        $rateDiamondVs1  = (float) SiteSetting::get('diamond_rate_vs1', 75000.0);
+        $rateDiamondVs2  = (float) SiteSetting::get('diamond_rate_vs2', 60000.0);
+
         $makingPerGram = (float) SiteSetting::get('gold_default_making_per_gram', 650);
         $gstRate = (float) SiteSetting::get('gold_gst_rate', 3.0);
         $mrpMarkupPercent = (float) SiteSetting::get('gold_mrp_markup_percent', 20.0);
@@ -42,6 +62,12 @@ class BullionPricingService
             'rate_22kt'           => $rate22kt,
             'rate_18kt'           => $rate18kt,
             'rate_14kt'           => $rate14kt,
+            'rate_10kt'           => $rate10kt,
+            'rate_silver_925'     => $rateSilver925,
+            'diamond_rate_vvs1'   => $rateDiamondVvs1,
+            'diamond_rate_vvs2'   => $rateDiamondVvs2,
+            'diamond_rate_vs1'    => $rateDiamondVs1,
+            'diamond_rate_vs2'    => $rateDiamondVs2,
             'making_per_gram'     => $makingPerGram,
             'gst_rate'            => $gstRate,
             'mrp_markup_percent'  => $mrpMarkupPercent,
@@ -50,26 +76,67 @@ class BullionPricingService
     }
 
     /**
-     * Return rate per gram for a specific Karat.
+     * Return rate per carat for a specific Diamond Clarity (VVS1, VVS2, VS1, VS2).
+     */
+    public static function getDiamondRateForClarity(string $clarity, ?array $rates = null): float
+    {
+        $rates = $rates ?? self::getRates();
+        $c = strtoupper(trim($clarity));
+
+        if (str_contains($c, 'VVS1')) {
+            return (float) ($rates['diamond_rate_vvs1'] ?? 110000.0);
+        }
+        if (str_contains($c, 'VVS2')) {
+            return (float) ($rates['diamond_rate_vvs2'] ?? 90000.0);
+        }
+        if (str_contains($c, 'VS1')) {
+            return (float) ($rates['diamond_rate_vs1'] ?? 75000.0);
+        }
+        if (str_contains($c, 'VS2')) {
+            return (float) ($rates['diamond_rate_vs2'] ?? 60000.0);
+        }
+
+        return (float) ($rates['diamond_rate_vvs1'] ?? 110000.0);
+    }
+
+    /**
+     * Return rate per gram for a specific Karat or Silver purity.
      */
     public static function getRateForPurity(string $purity, ?array $rates = null): float
     {
         $rates = $rates ?? self::getRates();
+        $p = strtolower(trim($purity));
 
-        return match ($purity) {
-            '22KT Gold', '22KT', '22k', '22K' => $rates['rate_22kt'],
-            '18KT Gold', '18KT', '18k', '18K' => $rates['rate_18kt'],
-            '14KT Gold', '14KT', '14k', '14K' => $rates['rate_14kt'],
-            '24KT Gold', '24KT', '24k', '24K' => $rates['rate_24kt'],
-            default => $rates['rate_18kt'],
-        };
+        if (str_contains($p, 'silver') || str_contains($p, '925') || str_contains($p, '92.5') || str_contains($p, '9.5')) {
+            return (float) ($rates['rate_silver_925'] ?? 95.0);
+        }
+        if (str_contains($p, '24k')) {
+            return (float) ($rates['rate_24kt'] ?? 7600.0);
+        }
+        if (str_contains($p, '22k')) {
+            return (float) ($rates['rate_22kt'] ?? round(($rates['rate_24kt'] ?? 7600.0) * (22 / 24), 2));
+        }
+        if (str_contains($p, '18k')) {
+            return (float) ($rates['rate_18kt'] ?? round(($rates['rate_24kt'] ?? 7600.0) * (18 / 24), 2));
+        }
+        if (str_contains($p, '14k')) {
+            return (float) ($rates['rate_14kt'] ?? round(($rates['rate_24kt'] ?? 7600.0) * (14 / 24), 2));
+        }
+        if (str_contains($p, '10k')) {
+            return (float) ($rates['rate_10kt'] ?? round(($rates['rate_24kt'] ?? 7600.0) * (10 / 24), 2));
+        }
+
+        return (float) ($rates['rate_18kt'] ?? 5700.0);
     }
 
     /**
      * Compute exact metallurgical density multiplier:
+     * 10K / 10KT = 0.885
      * 14K / 14KT = 1.000 (Base density anchor)
      * 18K / 18KT = 1.185 (+18.5% weight due to metal density)
      * 22K / 22KT = 1.365 (+36.5% weight due to metal density)
+     * 24K / 24KT = 1.485 (Pure 999 density)
+     * Silver 925 = 1.000 (Fine silver anchor)
      */
     public static function getDensityMultiplier(?string $purity): float
     {
@@ -78,11 +145,20 @@ class BullionPricingService
         }
 
         $p = strtolower(trim($purity));
+        if (str_contains($p, 'silver') || str_contains($p, '925') || str_contains($p, '92.5') || str_contains($p, '9.5')) {
+            return 1.000;
+        }
+        if (str_contains($p, '10k')) {
+            return 0.885;
+        }
         if (str_contains($p, '14k')) {
             return 1.000;
         }
         if (str_contains($p, '22k')) {
             return 1.365;
+        }
+        if (str_contains($p, '24k')) {
+            return 1.485;
         }
         return 1.185;
     }
@@ -108,8 +184,9 @@ class BullionPricingService
     }
 
     /**
-     * Calculate Karat Gold Rate from 24K Live Rate:
+     * Calculate Karat Gold or Silver Rate from 24K Live Rate / Silver Rate:
      * Karat Gold Rate = 24K Live Rate * (Karat / 24)
+     * Silver Rate = Configured 925 Silver Rate
      */
     public static function getKaratRate(string $purity, ?float $rate24kt = null): float
     {
@@ -117,23 +194,45 @@ class BullionPricingService
         $base24kt = (float) ($rates['rate_24kt'] ?: 7600.0);
         $p = strtolower(trim($purity));
 
+        if (str_contains($p, 'silver') || str_contains($p, '925') || str_contains($p, '92.5') || str_contains($p, '9.5')) {
+            return (float) ($rates['rate_silver_925'] ?? 95.0);
+        }
+
         // If an explicit custom 24k rate is passed that differs from base settings, scale mathematically
         if ($rate24kt !== null && $rate24kt > 0 && abs($rate24kt - $base24kt) > 0.01) {
-            if (str_contains($p, '14k')) {
-                return round($rate24kt * (14.0 / 24.0), 2);
+            if (str_contains($p, '24k')) {
+                return round($rate24kt, 2);
             }
             if (str_contains($p, '22k')) {
                 return round($rate24kt * (22.0 / 24.0), 2);
+            }
+            if (str_contains($p, '18k')) {
+                return round($rate24kt * (18.0 / 24.0), 2);
+            }
+            if (str_contains($p, '14k')) {
+                return round($rate24kt * (14.0 / 24.0), 2);
+            }
+            if (str_contains($p, '10k')) {
+                return round($rate24kt * (10.0 / 24.0), 2);
             }
             return round($rate24kt * (18.0 / 24.0), 2);
         }
 
         // Use the exact Karat gold rate configured by admin in Daily Gold & Bullion Rates
-        if (str_contains($p, '14k')) {
-            return (float) ($rates['rate_14kt'] ?: round($base24kt * (14.0 / 24.0), 2));
+        if (str_contains($p, '24k')) {
+            return (float) ($rates['rate_24kt'] ?: 7600.0);
         }
         if (str_contains($p, '22k')) {
             return (float) ($rates['rate_22kt'] ?: round($base24kt * (22.0 / 24.0), 2));
+        }
+        if (str_contains($p, '18k')) {
+            return (float) ($rates['rate_18kt'] ?: round($base24kt * (18.0 / 24.0), 2));
+        }
+        if (str_contains($p, '14k')) {
+            return (float) ($rates['rate_14kt'] ?: round($base24kt * (14.0 / 24.0), 2));
+        }
+        if (str_contains($p, '10k')) {
+            return (float) ($rates['rate_10kt'] ?: round($base24kt * (10.0 / 24.0), 2));
         }
         return (float) ($rates['rate_18kt'] ?: round($base24kt * (18.0 / 24.0), 2));
     }
@@ -164,7 +263,9 @@ class BullionPricingService
         ?string $size = 'Size 12',
         ?float $live24kRate = null,
         ?float $explicitWeightGrams = null,
-        ?float $profitMarginPercent = 0.0
+        ?float $profitMarginPercent = 0.0,
+        ?float $diamondCaratWeight = null,
+        ?string $diamondClarity = null
     ): array {
         $rates = self::getRates();
         $rate24kt = ($live24kRate !== null && $live24kRate > 0) ? $live24kRate : $rates['rate_24kt'];
@@ -182,7 +283,17 @@ class BullionPricingService
 
         $goldValue = round($finalGoldWeight * $karatGoldRate, 2);
         $makingValue = round($finalGoldWeight * $makingChargePerGram, 2);
-        $diamondValue = round($diamondStoneValue, 2);
+
+        // Dynamic Diamond Calculation:
+        // If diamond carat weight is provided (> 0), compute diamond value as: diamondCaratWeight * clarity_rate
+        $clarityRate = null;
+        if ($diamondCaratWeight !== null && $diamondCaratWeight > 0) {
+            $clarity = $diamondClarity ?: 'VVS1';
+            $clarityRate = self::getDiamondRateForClarity($clarity, $rates);
+            $diamondValue = round($diamondCaratWeight * $clarityRate, 2);
+        } else {
+            $diamondValue = round($diamondStoneValue, 2);
+        }
 
         $subtotal = round($goldValue + $makingValue + $diamondValue, 2);
         $gstAmount = round($subtotal * 0.03, 2);
@@ -208,6 +319,9 @@ class BullionPricingService
             'making_charge_per_gram' => $makingChargePerGram,
             'making_value'           => $makingValue,
             'diamond_stone_value'    => $diamondValue,
+            'diamond_carat_weight'   => $diamondCaratWeight,
+            'diamond_clarity'        => $diamondClarity,
+            'diamond_clarity_rate'   => $clarityRate,
             'subtotal'               => $subtotal,
             'gst_rate'               => 3.0,
             'gst_amount'             => $gstAmount,
@@ -315,20 +429,29 @@ class BullionPricingService
             foreach ($attributes['size_variants'] as $idx => $v) {
                 $vWeight = (float) ($v['weight_grams'] ?? 0);
                 if ($vWeight > 0) {
+                    $c10 = self::calculateFinalPrice($vWeight, $makingCharge, $diamondValue, '10KT Gold', null, $rates['rate_24kt'], $vWeight, $profitMargin);
                     $c14 = self::calculateFinalPrice($vWeight, $makingCharge, $diamondValue, '14KT Gold', null, $rates['rate_24kt'], $vWeight, $profitMargin);
                     $c18 = self::calculateFinalPrice($vWeight, $makingCharge, $diamondValue, '18KT Gold', null, $rates['rate_24kt'], $vWeight, $profitMargin);
                     $c22 = self::calculateFinalPrice($vWeight, $makingCharge, $diamondValue, '22KT Gold', null, $rates['rate_24kt'], $vWeight, $profitMargin);
+                    $c24 = self::calculateFinalPrice($vWeight, $makingCharge, $diamondValue, '24KT Gold', null, $rates['rate_24kt'], $vWeight, $profitMargin);
+                    $cSil = self::calculateFinalPrice($vWeight, $makingCharge, $diamondValue, '925 Silver', null, $rates['rate_24kt'], $vWeight, $profitMargin);
 
-                    $attributes['size_variants'][$idx]['price_14k'] = $c14['final_price'];
-                    $attributes['size_variants'][$idx]['price_18k'] = $c18['final_price'];
-                    $attributes['size_variants'][$idx]['price_22k'] = $c22['final_price'];
-                    $attributes['size_variants'][$idx]['price']     = $c18['final_price'];
+                    $attributes['size_variants'][$idx]['price_10k']    = $c10['final_price'];
+                    $attributes['size_variants'][$idx]['price_14k']    = $c14['final_price'];
+                    $attributes['size_variants'][$idx]['price_18k']    = $c18['final_price'];
+                    $attributes['size_variants'][$idx]['price_22k']    = $c22['final_price'];
+                    $attributes['size_variants'][$idx]['price_24k']    = $c24['final_price'];
+                    $attributes['size_variants'][$idx]['price_silver'] = $cSil['final_price'];
+                    $attributes['size_variants'][$idx]['price']        = $c18['final_price'];
 
                     // Retain manual cut/mrp prices if set by user; do not auto-force synthetic markup
-                    $attributes['size_variants'][$idx]['mrp_14k']   = !empty($v['mrp_14k']) ? (float) $v['mrp_14k'] : null;
-                    $attributes['size_variants'][$idx]['mrp_18k']   = !empty($v['mrp_18k']) ? (float) $v['mrp_18k'] : null;
-                    $attributes['size_variants'][$idx]['mrp_22k']   = !empty($v['mrp_22k']) ? (float) $v['mrp_22k'] : null;
-                    $attributes['size_variants'][$idx]['mrp']       = !empty($v['mrp_18k']) ? (float) $v['mrp_18k'] : null;
+                    $attributes['size_variants'][$idx]['mrp_10k']    = !empty($v['mrp_10k']) ? (float) $v['mrp_10k'] : null;
+                    $attributes['size_variants'][$idx]['mrp_14k']    = !empty($v['mrp_14k']) ? (float) $v['mrp_14k'] : null;
+                    $attributes['size_variants'][$idx]['mrp_18k']    = !empty($v['mrp_18k']) ? (float) $v['mrp_18k'] : null;
+                    $attributes['size_variants'][$idx]['mrp_22k']    = !empty($v['mrp_22k']) ? (float) $v['mrp_22k'] : null;
+                    $attributes['size_variants'][$idx]['mrp_24k']    = !empty($v['mrp_24k']) ? (float) $v['mrp_24k'] : null;
+                    $attributes['size_variants'][$idx]['mrp_silver'] = !empty($v['mrp_silver']) ? (float) $v['mrp_silver'] : null;
+                    $attributes['size_variants'][$idx]['mrp']        = !empty($v['mrp_18k']) ? (float) $v['mrp_18k'] : null;
                 }
             }
         }
@@ -340,7 +463,7 @@ class BullionPricingService
         $attributes['gold_rates_synced_at'] = now()->toDateTimeString();
 
         // Update default base price from first canonical purity
-        $canonical = ['14KT Gold', '18KT Gold', '22KT Gold'];
+        $canonical = ['10KT Gold', '14KT Gold', '18KT Gold', '22KT Gold', '24KT Gold', '925 Silver', '92.5 Silver', '9.5 Silver'];
         $firstPurity = null;
         foreach ($canonical as $c) {
             if (in_array($c, $selectedPurities, true)) {
@@ -412,6 +535,8 @@ class BullionPricingService
     {
         $selectedSize = $options['size'] ?? null;
         $selectedPurity = $options['gold_purity'] ?? null;
+        $selectedClarity = $options['diamond_clarity'] ?? ($options['clarity'] ?? null);
+        $diamondCarat = $product->diamond_carat_weight;
 
         $isDynamic = ($product->base_gold_weight > 0
             && ($product->attributes['pricing_mode'] ?? '') === 'dynamic'
@@ -422,19 +547,28 @@ class BullionPricingService
             $purity = $selectedPurity ?: ($purities[0] ?? '18KT Gold');
             $pLower = strtolower($purity);
 
-            // 1. If size is selected, check precalculated size_variants matrix first
-            if (!empty($selectedSize)) {
+            // 1. If size is selected AND diamond carat is not dynamic, check precalculated size_variants matrix first
+            if (!empty($selectedSize) && $diamondCarat <= 0) {
                 $sizeVariants = (array) ($product->attributes['size_variants'] ?? []);
                 foreach ($sizeVariants as $variant) {
                     if (($variant['size'] ?? '') === $selectedSize) {
-                        if (str_contains($pLower, '14') && !empty($variant['price_14k'])) {
-                            return (float) $variant['price_14k'];
+                        if ((str_contains($pLower, 'silver') || str_contains($pLower, '925') || str_contains($pLower, '92.5') || str_contains($pLower, '9.5')) && !empty($variant['price_silver'])) {
+                            return (float) $variant['price_silver'];
+                        }
+                        if (str_contains($pLower, '24') && !empty($variant['price_24k'])) {
+                            return (float) $variant['price_24k'];
                         }
                         if (str_contains($pLower, '22') && !empty($variant['price_22k'])) {
                             return (float) $variant['price_22k'];
                         }
                         if (str_contains($pLower, '18') && !empty($variant['price_18k'])) {
                             return (float) $variant['price_18k'];
+                        }
+                        if (str_contains($pLower, '14') && !empty($variant['price_14k'])) {
+                            return (float) $variant['price_14k'];
+                        }
+                        if (str_contains($pLower, '10') && !empty($variant['price_10k'])) {
+                            return (float) $variant['price_10k'];
                         }
                         if (isset($variant['price']) && (float) $variant['price'] > 0) {
                             return (float) $variant['price'];
@@ -444,7 +578,7 @@ class BullionPricingService
                 }
             }
 
-            // 2. Otherwise calculate dynamically via Bullion Pricing Engine
+            // 2. Otherwise calculate dynamically via Bullion & Diamond Pricing Engine
             $rates = self::getRates();
             $explicitWeight = null;
             if (!empty($selectedSize)) {
@@ -457,6 +591,8 @@ class BullionPricingService
             }
 
             $profitMargin = (float) $product->profit_margin_percent;
+            $clarityToUse = $selectedClarity ?: (!empty($product->diamond_clarities) ? $product->diamond_clarities[0] : 'VVS1');
+
             $calc = self::calculateFinalPrice(
                 $product->base_gold_weight,
                 $product->making_charge_per_gram,
@@ -465,7 +601,9 @@ class BullionPricingService
                 $selectedSize ?: 'Size 12',
                 $rates['rate_24kt'],
                 $explicitWeight,
-                $profitMargin
+                $profitMargin,
+                $diamondCarat > 0 ? $diamondCarat : null,
+                $clarityToUse
             );
 
             return (float) $calc['final_price'];
@@ -479,12 +617,18 @@ class BullionPricingService
             $pLower = strtolower($selectedPurity ?? '');
             foreach ($sizeVariants as $variant) {
                 if (($variant['size'] ?? '') === $selectedSize) {
-                    if (str_contains($pLower, '14') && !empty($variant['price_14k'])) {
-                        $price = (float) $variant['price_14k'];
+                    if ((str_contains($pLower, 'silver') || str_contains($pLower, '925') || str_contains($pLower, '92.5') || str_contains($pLower, '9.5')) && !empty($variant['price_silver'])) {
+                        $price = (float) $variant['price_silver'];
+                    } elseif (str_contains($pLower, '24') && !empty($variant['price_24k'])) {
+                        $price = (float) $variant['price_24k'];
                     } elseif (str_contains($pLower, '22') && !empty($variant['price_22k'])) {
                         $price = (float) $variant['price_22k'];
-                    } elseif (!empty($variant['price_18k'])) {
+                    } elseif (str_contains($pLower, '18') && !empty($variant['price_18k'])) {
                         $price = (float) $variant['price_18k'];
+                    } elseif (str_contains($pLower, '14') && !empty($variant['price_14k'])) {
+                        $price = (float) $variant['price_14k'];
+                    } elseif (str_contains($pLower, '10') && !empty($variant['price_10k'])) {
+                        $price = (float) $variant['price_10k'];
                     } elseif (isset($variant['price']) && (float) $variant['price'] > 0) {
                         $price = (float) $variant['price'];
                     }
@@ -505,10 +649,18 @@ class BullionPricingService
                 }
             } else {
                 $p = strtolower($selectedPurity);
-                if (str_contains($p, '18k')) {
+                if (str_contains($p, 'silver') || str_contains($p, '925') || str_contains($p, '92.5') || str_contains($p, '9.5')) {
+                    $price = round(($price * 0.15) / 100) * 100;
+                } elseif (str_contains($p, '10k')) {
+                    $price = round(($price * 0.65) / 100) * 100;
+                } elseif (str_contains($p, '14k')) {
+                    $price = round(($price * 0.85) / 100) * 100;
+                } elseif (str_contains($p, '18k')) {
                     $price = round(($price * 1.18) / 100) * 100;
                 } elseif (str_contains($p, '22k')) {
                     $price = round(($price * 1.35) / 100) * 100;
+                } elseif (str_contains($p, '24k')) {
+                    $price = round(($price * 1.48) / 100) * 100;
                 }
             }
         }
@@ -534,14 +686,23 @@ class BullionPricingService
             $pLower = strtolower($selectedPurity ?? '');
             foreach ($sizeVariants as $variant) {
                 if (($variant['size'] ?? '') === $selectedSize) {
-                    if (str_contains($pLower, '14') && !empty($variant['mrp_14k'])) {
-                        return (float) $variant['mrp_14k'];
+                    if ((str_contains($pLower, 'silver') || str_contains($pLower, '925') || str_contains($pLower, '92.5') || str_contains($pLower, '9.5')) && !empty($variant['mrp_silver'])) {
+                        return (float) $variant['mrp_silver'];
+                    }
+                    if (str_contains($pLower, '24') && !empty($variant['mrp_24k'])) {
+                        return (float) $variant['mrp_24k'];
                     }
                     if (str_contains($pLower, '22') && !empty($variant['mrp_22k'])) {
                         return (float) $variant['mrp_22k'];
                     }
                     if (str_contains($pLower, '18') && !empty($variant['mrp_18k'])) {
                         return (float) $variant['mrp_18k'];
+                    }
+                    if (str_contains($pLower, '14') && !empty($variant['mrp_14k'])) {
+                        return (float) $variant['mrp_14k'];
+                    }
+                    if (str_contains($pLower, '10') && !empty($variant['mrp_10k'])) {
+                        return (float) $variant['mrp_10k'];
                     }
                     if (isset($variant['mrp']) && (float) $variant['mrp'] > 0) {
                         return (float) $variant['mrp'];

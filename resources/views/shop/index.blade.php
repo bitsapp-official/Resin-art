@@ -74,9 +74,12 @@
                     <select name="purity" onchange="this.form.submit()"
                             class="appearance-none [appearance:none] [-webkit-appearance:none] [-moz-appearance:none] bg-white/80 border {{ request('purity') ? 'border-[#1C1917] bg-[#F7F4EE] font-semibold' : 'border-[#DFD9CE]' }} rounded-full pl-4 sm:pl-5 pr-9 sm:pr-10 py-2 sm:py-2.5 text-[10px] sm:text-[10.5px] uppercase tracking-[0.16em] sm:tracking-[0.18em] font-medium text-[#1C1917] hover:border-[#1C1917] focus:outline-none cursor-pointer transition-all bg-[url('data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20fill%3D%22none%22%20viewBox%3D%220%200%2024%2024%22%20stroke%3D%22%231C1917%22%20stroke-width%3D%222%22%3E%3Cpath%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%20d%3D%22M19%209l-7%207-7-7%22%2F%3E%3C%2Fsvg%3E')] bg-[length:12px_12px] bg-[right_12px_center] bg-no-repeat">
                         <option value="">Purity: All Purities</option>
+                        <option value="10KT Gold" {{ in_array(request('purity'), ['10KT Gold', '10KT', '10kt', '10k']) ? 'selected' : '' }}>10KT Gold</option>
                         <option value="14KT Gold" {{ in_array(request('purity'), ['14KT Gold', '14KT', '14kt', '14k']) ? 'selected' : '' }}>14KT Gold</option>
                         <option value="18KT Gold" {{ in_array(request('purity'), ['18KT Gold', '18KT', '18kt', '18k']) ? 'selected' : '' }}>18KT Gold</option>
                         <option value="22KT Gold" {{ in_array(request('purity'), ['22KT Gold', '22KT', '22kt', '22k']) ? 'selected' : '' }}>22KT Gold</option>
+                        <option value="24KT Gold" {{ in_array(request('purity'), ['24KT Gold', '24KT', '24kt', '24k']) ? 'selected' : '' }}>24KT Gold</option>
+                        <option value="925 Silver" {{ in_array(request('purity'), ['925 Silver', '92.5 Silver', '9.5 Silver', 'silver', 'Silver']) ? 'selected' : '' }}>925 Silver</option>
                     </select>
                 </div>
 

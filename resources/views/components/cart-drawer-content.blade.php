@@ -35,6 +35,9 @@
                                 if(!empty($item->options['gold_purity'])) $optParts[] = $item->options['gold_purity'];
                                 if(!empty($item->options['metal_color'])) $optParts[] = $item->options['metal_color'];
                                 if(!empty($item->options['size'])) $optParts[] = $item->options['size'];
+                                if(!empty($item->options['diamond_clarity'])) $optParts[] = $item->options['diamond_clarity'];
+                                elseif(!empty($item->options['clarity'])) $optParts[] = $item->options['clarity'];
+                                if(!empty($item->options['diamond_carat'])) $optParts[] = $item->options['diamond_carat'];
                             @endphp
                             <p class="text-[9.5px] uppercase tracking-[0.18em] text-[#8E877D] font-light mt-0.5">
                                 @if(count($optParts) > 0)

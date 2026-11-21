@@ -245,12 +245,14 @@
                                         $color = $options['metal_color'] ?? ($options['color'] ?? null);
                                         $purity = $options['gold_purity'] ?? ($options['purity'] ?? null);
                                         $size = $options['size'] ?? null;
+                                        $clarity = $options['diamond_clarity'] ?? ($options['clarity'] ?? null);
 
                                         $productSlug = $item->product?->slug ?? ($item->product_snapshot['slug'] ?? null);
                                         $queryParams = [];
                                         if ($color) $queryParams['color'] = $color;
                                         if ($purity) $queryParams['purity'] = $purity;
                                         if ($size) $queryParams['size'] = $size;
+                                        if ($clarity) $queryParams['clarity'] = $clarity;
 
                                         $productUrl = null;
                                         if ($productSlug) {
@@ -291,6 +293,23 @@
                                                         {{ $item->product_name }}
                                                     @endif
                                                 </h4>
+                                                <div class="flex items-center gap-1.5 flex-wrap pt-0.5 pb-0.5">
+                                                    @if($purity)
+                                                        <span class="text-[9px] uppercase tracking-wider bg-[#F5F2EB] text-[#1C1917] px-1.5 py-0.5 rounded border border-[#E6E1D7] font-medium">{{ $purity }}</span>
+                                                    @endif
+                                                    @if($color)
+                                                        <span class="text-[9px] uppercase tracking-wider bg-[#F5F2EB] text-[#1C1917] px-1.5 py-0.5 rounded border border-[#E6E1D7] font-medium">{{ $color }}</span>
+                                                    @endif
+                                                    @if($size)
+                                                        <span class="text-[9px] uppercase tracking-wider bg-[#F5F2EB] text-[#1C1917] px-1.5 py-0.5 rounded border border-[#E6E1D7] font-medium">{{ $size }}</span>
+                                                    @endif
+                                                    @if(!empty($options['diamond_carat']))
+                                                        <span class="text-[9px] uppercase tracking-wider bg-[#F5F2EB] text-[#1C1917] px-1.5 py-0.5 rounded border border-[#E6E1D7] font-medium">{{ $options['diamond_carat'] }}</span>
+                                                    @endif
+                                                    @if($clarity)
+                                                        <span class="text-[9px] uppercase tracking-wider bg-[#EFE8DC] text-[#7A6038] px-1.5 py-0.5 rounded border border-[#D5C2A5] font-semibold">💎 {{ $clarity }}</span>
+                                                    @endif
+                                                </div>
                                                 <span class="text-[10px] font-mono text-[#8E877D] block pt-0.5">
                                                     QTY {{ $item->quantity }}
                                                 </span>

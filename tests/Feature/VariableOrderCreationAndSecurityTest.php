@@ -268,4 +268,112 @@ class VariableOrderCreationAndSecurityTest extends TestCase
         $this->assertEquals(101422.00, (float) $order->subtotal);
         $this->assertEquals(2, $order->items()->count());
     }
+
+    /** @test */
+    public function full_diamond_specifications_render_consistently_across_admin_invoice_and_customer_views(): void
+    {
+        $this->actingAs($this->user);
+
+        $order = Order::create([
+            'order_reference'           => 'MR-2026-DIAMOND-FULFILL',
+            'user_id'                   => $this->user->id,
+            'email'                     => $this->user->email,
+            'status'                    => 'CONFIRMED',
+            'payment_status'            => 'paid',
+            'payment_method'            => 'stripe',
+            'subtotal'                  => 159212.00,
+            'grand_total'               => 159212.00,
+            'currency'                  => 'INR',
+            'currency_symbol'           => '₹',
+            'shipping_address_snapshot' => [
+                'full_name'      => 'Devavrat Singhania',
+                'address_line_1' => '44 Altamount Road',
+                'city'           => 'Mumbai',
+                'state'          => 'Maharashtra',
+                'postal_code'    => '400026',
+            ],
+            'billing_address_snapshot'  => [
+                'full_name'      => 'Devavrat Singhania',
+                'address_line_1' => '44 Altamount Road',
+                'city'           => 'Mumbai',
+                'state'          => 'Maharashtra',
+                'postal_code'    => '400026',
+            ],
+        ]);
+
+        $item = OrderItem::create([
+            'order_id'         => $order->id,
+            'product_id'       => $this->product->id,
+            'product_name'     => 'Aura Oval Solitaire Diamond Ring',
+            'sku'              => 'SOL-OVAL-01',
+            'unit_price'       => 159212.00,
+            'quantity'         => 1,
+            'subtotal'         => 159212.00,
+            'options'          => [
+                'size'            => 'Size 14',
+                'gold_purity'     => '18KT Gold',
+                'metal_color'     => 'Rose Gold',
+                'diamond_carat'   => '1.20 ct',
+                'diamond_clarity' => 'VVS1',
+                'diamond_color'   => 'E-F Color',
+            ],
+            'product_snapshot' => [
+                'name'       => 'Aura Oval Solitaire Diamond Ring',
+                'sku'        => 'SOL-OVAL-01',
+                'slug'       => 'aura-oval-solitaire-diamond-ring',
+                'attributes' => [
+                    'diamond_carat'   => '1.20',
+                    'diamond_clarity' => 'VVS1',
+                    'diamond_color'   => 'E-F Color',
+                ],
+            ],
+        ]);
+
+        // 1. Admin Preview (Filament)
+        $adminHtml = view('filament.orders.items-preview', ['order' => $order])->render();
+        $this->assertStringContainsString('18KT Gold', $adminHtml);
+        $this->assertStringContainsString('Rose Gold', $adminHtml);
+        $this->assertStringContainsString('Size 14', $adminHtml);
+        $this->assertStringContainsString('1.20 ct', $adminHtml);
+        $this->assertStringContainsString('VVS1', $adminHtml);
+        $this->assertStringContainsString('E-F Color', $adminHtml);
+
+        // 2. Tax Invoice PDF
+        $invoiceHtml = view('pdf.order_invoice', ['order' => $order])->render();
+        $this->assertStringContainsString('18KT Gold', $invoiceHtml);
+        $this->assertStringContainsString('Rose Gold', $invoiceHtml);
+        $this->assertStringContainsString('Size 14', $invoiceHtml);
+        $this->assertStringContainsString('VVS1', $invoiceHtml);
+        $this->assertStringContainsString('1.20 ct', $invoiceHtml);
+
+        // 3. Customer Account Order Detail
+        $this->get(route('account.orders.show', $order->order_reference))
+            ->assertOk()
+            ->assertSee('18KT Gold')
+            ->assertSee('Rose Gold')
+            ->assertSee('Size 14')
+            ->assertSee('1.20 ct')
+            ->assertSee('VVS1');
+
+        // 4. Order Confirmation Page
+        $this->get(route('checkout.confirmation', $order->order_reference))
+            ->assertOk()
+            ->assertSee('18KT Gold')
+            ->assertSee('Rose Gold')
+            ->assertSee('VVS1');
+
+        // 5. Order Tracking Page
+        $this->get(route('tracking.index', ['order_reference' => $order->order_reference, 'email' => $order->email]))
+            ->assertOk()
+            ->assertSee('18KT Gold')
+            ->assertSee('Rose Gold')
+            ->assertSee('VVS1');
+
+        // 6. Order Confirmation Email
+        $emailHtml = view('emails.orders.confirmation', ['order' => $order])->render();
+        $this->assertStringContainsString('18KT Gold', $emailHtml);
+        $this->assertStringContainsString('Rose Gold', $emailHtml);
+        $this->assertStringContainsString('VVS1', $emailHtml);
+        $this->assertStringContainsString('1.20 ct', $emailHtml);
+    }
 }

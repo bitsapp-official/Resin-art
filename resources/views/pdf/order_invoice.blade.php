@@ -448,16 +448,36 @@
                     <td>
                         <div class="item-name">{{ $item->product_name }}</div>
 
-                        {{-- Options as Clean Jewelry Tags (Gold Purity, Metal Tone, Ring Size) --}}
-                        @if(!empty($item->options) && is_array($item->options))
+                        {{-- Options as Clean Jewelry Tags (Gold Purity, Metal Tone, Ring Size, Diamond Specs) --}}
+                        @php
+                            $opts = is_array($item->options) ? $item->options : (json_decode($item->options, true) ?: []);
+                            // Ensure diamond carat, clarity, and color are displayed for diamond jewellery
+                            if (empty($opts['diamond_clarity']) && empty($opts['clarity'])) {
+                                $c = $item->product_snapshot['diamond_clarity'] ?? ($item->product?->diamond_clarities[0] ?? null);
+                                if ($c) $opts['diamond_clarity'] = $c;
+                            }
+                            if (empty($opts['diamond_carat'])) {
+                                $cWeight = $item->product_snapshot['diamond_carat'] ?? ($item->product?->diamond_carat_weight > 0 ? $item->product->diamond_carat_weight . ' ct' : ($item->product?->diamond_carat ?? null));
+                                if ($cWeight) $opts['diamond_carat'] = $cWeight;
+                            }
+                            if (empty($opts['diamond_color'])) {
+                                $dColor = $item->product_snapshot['diamond_color'] ?? ($item->product?->diamond_color ?? null);
+                                if ($dColor) $opts['diamond_color'] = $dColor;
+                            }
+                        @endphp
+                        @if(!empty($opts))
                             <div>
-                                @foreach($item->options as $k => $v)
+                                @foreach($opts as $k => $v)
                                     @php
                                         $displayKey = match(strtolower($k)) {
-                                            'gold_purity' => 'Purity',
-                                            'metal_color' => 'Tone',
-                                            'size'        => 'Size',
-                                            default       => ucfirst(str_replace('_', ' ', $k))
+                                            'gold_purity'     => 'Purity',
+                                            'metal_color'     => 'Tone',
+                                            'size'            => 'Size',
+                                            'diamond_clarity' => 'Diamond Clarity',
+                                            'clarity'         => 'Diamond Clarity',
+                                            'diamond_carat'   => 'Diamond Carat',
+                                            'diamond_color'   => 'Diamond Color',
+                                            default           => ucfirst(str_replace('_', ' ', $k))
                                         };
                                         $valStr = is_array($v) ? implode(', ', $v) : $v;
                                     @endphp

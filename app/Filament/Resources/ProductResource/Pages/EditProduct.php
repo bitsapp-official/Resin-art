@@ -35,7 +35,7 @@ class EditProduct extends EditRecord
 
     protected function mutateFormDataBeforeSave(array $data): array
     {
-        $canonicalPurities = ['14KT Gold', '18KT Gold', '22KT Gold'];
+        $canonicalPurities = ['10KT Gold', '14KT Gold', '18KT Gold', '22KT Gold', '24KT Gold', '925 Silver', '92.5 Silver', '9.5 Silver'];
         $purities = array_values(array_filter((array) ($data['attributes']['gold_purities'] ?? [])));
 
         if (!empty($purities)) {
@@ -60,9 +60,27 @@ class EditProduct extends EditRecord
             if ($making <= 0) {
                 $making = (float) ($rates['making_per_gram'] ?: 750);
             }
-            $diamond = (float) ($data['attributes']['diamond_value'] ?? 0);
             $profit = (float) ($data['attributes']['profit_margin_percent'] ?? 0);
             $commonCut = (float) ($data['attributes']['common_cut_price'] ?? 0);
+
+            $caratVal = $data['attributes']['diamond_carat'] ?? 0;
+            $caratNum = 0.0;
+            if (is_numeric($caratVal)) {
+                $caratNum = (float) $caratVal;
+            } elseif (!empty($caratVal) && preg_match('/([\d\.]+)/', (string) $caratVal, $m)) {
+                $caratNum = (float) $m[1];
+            }
+
+            $clarities = (array) ($data['attributes']['diamond_clarities'] ?? ['VVS1', 'VVS2', 'VS1', 'VS2']);
+            $firstClarity = !empty($clarities) ? $clarities[0] : 'VVS1';
+
+            if ($caratNum > 0) {
+                $diamond = round($caratNum * \App\Services\BullionPricingService::getDiamondRateForClarity($firstClarity, $rates), 2);
+                $data['attributes']['diamond_value'] = $diamond;
+            } else {
+                $diamond = 0.0;
+                $data['attributes']['diamond_value'] = 0.0;
+            }
 
             // Clean size variants: keep only size labels, price and weight are fixed from benchmark
             if (($data['attributes']['has_sizes'] ?? 'yes') === 'no') {
@@ -89,7 +107,9 @@ class EditProduct extends EditRecord
                         null,
                         null,
                         $weight,
-                        $profit
+                        $profit,
+                        $caratNum > 0 ? $caratNum : null,
+                        $firstClarity
                     );
                     $data['attributes']['purity_prices'][$p] = $calc['final_price'];
                     $data['attributes']['purity_mrp'][$p] = ($commonCut > 0) ? $commonCut : $calc['mrp_price'];

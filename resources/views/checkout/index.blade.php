@@ -600,12 +600,14 @@
                                     $color = $options['metal_color'] ?? ($options['color'] ?? null);
                                     $purity = $options['gold_purity'] ?? ($options['purity'] ?? null);
                                     $size = $options['size'] ?? null;
+                                    $clarity = $options['diamond_clarity'] ?? ($options['clarity'] ?? null);
                                     
                                     $productSlug = $item->product?->slug;
                                     $queryParams = [];
                                     if ($color) $queryParams['color'] = $color;
                                     if ($purity) $queryParams['purity'] = $purity;
                                     if ($size) $queryParams['size'] = $size;
+                                    if ($clarity) $queryParams['clarity'] = $clarity;
                                     
                                     $productUrl = null;
                                     if ($productSlug) {
@@ -648,8 +650,8 @@
                                                 @endif
                                             </h4>
 
-                                            {{-- Variant Badges: Tone, Purity, Size --}}
-                                            @if($color || $purity || $size)
+                                            {{-- Variant Badges: Tone, Purity, Size, Diamond Clarity --}}
+                                            @if($color || $purity || $size || $clarity)
                                                 <div class="flex items-center gap-1.5 flex-wrap pt-1">
                                                     @if($color)
                                                         <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium bg-[#FAF6F0] text-[#A87432] border border-[#EBE3D7]">
@@ -664,6 +666,11 @@
                                                     @if($size)
                                                         <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium bg-[#F5F3FF] text-[#7C3AED] border border-[#EDE9FE]">
                                                             {{ $size }}
+                                                        </span>
+                                                    @endif
+                                                    @if($clarity)
+                                                        <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium bg-[#EFF6FF] text-[#2563EB] border border-[#DBEAFE]">
+                                                            💎 {{ $clarity }}
                                                         </span>
                                                     @endif
                                                 </div>

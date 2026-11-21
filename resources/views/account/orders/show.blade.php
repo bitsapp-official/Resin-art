@@ -275,6 +275,9 @@
                                 $color = $options['metal_color'] ?? ($options['color'] ?? null);
                                 $purity = $options['gold_purity'] ?? ($options['purity'] ?? null);
                                 $size = $options['size'] ?? null;
+                                $carat = $options['diamond_carat'] ?? ($options['carat'] ?? ($item->product_snapshot['attributes']['diamond_carat'] ?? ($item->product?->getCustomAttribute('diamond_carat') ?? null)));
+                                $clarity = $options['diamond_clarity'] ?? ($options['clarity'] ?? ($item->product_snapshot['attributes']['diamond_clarity'] ?? ($item->product?->getCustomAttribute('diamond_clarity') ?? null)));
+                                $diamondColor = $options['diamond_color'] ?? ($item->product_snapshot['attributes']['diamond_color'] ?? ($item->product?->getCustomAttribute('diamond_color') ?? null));
 
                                 $itemImg = $item->primary_image_url;
                                 
@@ -284,6 +287,7 @@
                                 if ($color) $queryParams['color'] = $color;
                                 if ($purity) $queryParams['purity'] = $purity;
                                 if ($size) $queryParams['size'] = $size;
+                                if ($clarity) $queryParams['clarity'] = $clarity;
                                 
                                 $productUrl = null;
                                 if ($productSlug) {
@@ -325,21 +329,36 @@
                                                 {{ $item->product_name }} &times; {{ $item->quantity }}
                                             @endif
                                         </h4>
-                                        @if($color || $purity || $size)
+                                        @if($color || $purity || $size || $carat || $clarity || $diamondColor)
                                             <div class="flex items-center gap-1.5 flex-wrap pt-1">
-                                                @if($color)
-                                                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium bg-[#FAF6F0] text-[#A87432] border border-[#EBE3D7]">
-                                                        {{ $color }}
-                                                    </span>
-                                                @endif
                                                 @if($purity)
                                                     <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium bg-[#F0FDF4] text-[#16A34A] border border-[#DCFCE7]">
                                                         {{ $purity }}
                                                     </span>
                                                 @endif
+                                                @if($color)
+                                                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium bg-[#FAF6F0] text-[#A87432] border border-[#EBE3D7]">
+                                                        {{ $color }}
+                                                    </span>
+                                                @endif
                                                 @if($size)
                                                     <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium bg-[#F5F3FF] text-[#7C3AED] border border-[#EDE9FE]">
-                                                        {{ $size }}
+                                                        Size {{ $size }}
+                                                    </span>
+                                                @endif
+                                                @if($carat)
+                                                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium bg-[#FAF6F0] text-[#78716C] border border-[#EBE3D7]">
+                                                        {{ str_ends_with(strtolower($carat), 'ct') ? $carat : $carat . ' ct' }}
+                                                    </span>
+                                                @endif
+                                                @if($clarity)
+                                                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-[#EFE8DC] text-[#7A6038] border border-[#D5C2A5]">
+                                                        💎 {{ $clarity }}
+                                                    </span>
+                                                @endif
+                                                @if($diamondColor)
+                                                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium bg-[#FAF6F0] text-[#78716C] border border-[#EBE3D7]">
+                                                        {{ $diamondColor }}
                                                     </span>
                                                 @endif
                                             </div>

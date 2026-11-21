@@ -71,21 +71,33 @@
                                 <td>
                                     <strong>{{ $item->product_name }}</strong>
                                     @php
-                                        $options = $item->options ?? [];
-                                        $color = $options['metal_color'] ?? null;
-                                        $purity = $options['gold_purity'] ?? null;
+                                        $options = is_array($item->options) ? $item->options : (json_decode($item->options, true) ?: []);
+                                        $color = $options['metal_color'] ?? ($options['color'] ?? null);
+                                        $purity = $options['gold_purity'] ?? ($options['purity'] ?? null);
                                         $size = $options['size'] ?? null;
+                                        $carat = $options['diamond_carat'] ?? ($options['carat'] ?? ($item->product_snapshot['attributes']['diamond_carat'] ?? ($item->product?->getCustomAttribute('diamond_carat') ?? null)));
+                                        $clarity = $options['diamond_clarity'] ?? ($options['clarity'] ?? ($item->product_snapshot['attributes']['diamond_clarity'] ?? ($item->product?->getCustomAttribute('diamond_clarity') ?? null)));
+                                        $diamondColor = $options['diamond_color'] ?? ($item->product_snapshot['attributes']['diamond_color'] ?? ($item->product?->getCustomAttribute('diamond_color') ?? null));
                                     @endphp
-                                    @if($color || $purity || $size)
-                                        <div style="font-size: 11px; color: #7B746B; margin-top: 4px; line-height: 1.4;">
-                                            @if($color)
-                                                <span style="display: inline-block; margin-right: 8px;"><strong>Tone:</strong> {{ $color }}</span>
-                                            @endif
+                                    @if($color || $purity || $size || $carat || $clarity || $diamondColor)
+                                        <div style="font-size: 11px; color: #7B746B; margin-top: 4px; line-height: 1.5;">
                                             @if($purity)
                                                 <span style="display: inline-block; margin-right: 8px;"><strong>Purity:</strong> {{ $purity }}</span>
                                             @endif
+                                            @if($color)
+                                                <span style="display: inline-block; margin-right: 8px;"><strong>Tone:</strong> {{ $color }}</span>
+                                            @endif
                                             @if($size)
-                                                <span style="display: inline-block;"><strong>Size:</strong> {{ $size }}</span>
+                                                <span style="display: inline-block; margin-right: 8px;"><strong>Size:</strong> {{ $size }}</span>
+                                            @endif
+                                            @if($carat)
+                                                <span style="display: inline-block; margin-right: 8px;"><strong>Carat:</strong> {{ str_ends_with(strtolower($carat), 'ct') ? $carat : $carat . ' ct' }}</span>
+                                            @endif
+                                            @if($clarity)
+                                                <span style="display: inline-block; margin-right: 8px; color: #7A6038; font-weight: 600;"><strong>Clarity:</strong> {{ $clarity }}</span>
+                                            @endif
+                                            @if($diamondColor)
+                                                <span style="display: inline-block;"><strong>Color:</strong> {{ $diamondColor }}</span>
                                             @endif
                                         </div>
                                     @endif
