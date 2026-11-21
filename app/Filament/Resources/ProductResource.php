@@ -225,7 +225,7 @@ class ProductResource extends Resource
 
                 // ── ROW 2 (FULL WIDTH): Gold Valuation Engine & Dynamic Size Matrix ──
                 Forms\Components\Section::make('Gold Valuation Engine & Dynamic Size Matrix')
-                    ->description('Synchronized with Live 24KT Bullion Benchmark. Every size variant features metallurgical purity breakdown across 14KT, 18KT, and 22KT with automated Strike-through MRP generation.')
+                    ->description('Synchronized with Live Daily Gold Rates. Every size variant features metallurgical purity breakdown across 14KT, 18KT, and 22KT with automated Strike-through MRP generation.')
                     ->columnSpanFull()
                     ->schema([
                         Forms\Components\Hidden::make('attributes.pricing_mode')

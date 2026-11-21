@@ -32,7 +32,6 @@ class GoldRatesSettings extends Page implements HasForms
     protected static ?string $slug = 'gold-rates-settings';
 
     // Pure Gold & Bullion Rates, Diamond Rates & Tax
-    public ?string $gold_rate_24kt = null;
     public ?string $gold_rate_22kt = null;
     public ?string $gold_rate_18kt = null;
     public ?string $gold_rate_14kt = null;
@@ -50,7 +49,6 @@ class GoldRatesSettings extends Page implements HasForms
         $rates = BullionPricingService::getRates();
 
         $this->form->fill([
-            'gold_rate_24kt'           => (string) ($rates['rate_24kt'] ?? '7600'),
             'gold_rate_22kt'           => (string) ($rates['rate_22kt'] ?? '6966'),
             'gold_rate_18kt'           => (string) ($rates['rate_18kt'] ?? '5700'),
             'gold_rate_14kt'           => (string) ($rates['rate_14kt'] ?? '4433'),
@@ -69,18 +67,10 @@ class GoldRatesSettings extends Page implements HasForms
     {
         return $form
             ->schema([
-                Section::make('Live Gold Bullion Benchmark Rates per Gram (24KT, 22KT, 18KT, 14KT & 10KT)')
+                Section::make('Live Gold Bullion Rates per Gram (22KT, 18KT, 14KT & 10KT)')
                     ->description('Set today\'s pure gold rate per gram for each jewellery Karat purity. Making charges are configured per-product on each piece.')
                     ->schema([
-                        Grid::make(3)->schema([
-                            TextInput::make('gold_rate_24kt')
-                                ->label('24KT Gold Rate (₹ / Gram)')
-                                ->numeric()
-                                ->prefix('₹')
-                                ->required()
-                                ->placeholder('e.g. 7600')
-                                ->helperText('Benchmark 24K (999) pure gold rate per gram.'),
-
+                        Grid::make(['default' => 1, 'sm' => 2, 'lg' => 4])->schema([
                             TextInput::make('gold_rate_22kt')
                                 ->label('22KT Gold Rate (₹ / Gram)')
                                 ->numeric()
@@ -96,9 +86,7 @@ class GoldRatesSettings extends Page implements HasForms
                                 ->required()
                                 ->placeholder('e.g. 5700')
                                 ->helperText('Standard 18K (750) fine diamond jewellery rate per gram.'),
-                        ]),
 
-                        Grid::make(2)->schema([
                             TextInput::make('gold_rate_14kt')
                                 ->label('14KT Gold Rate (₹ / Gram)')
                                 ->numeric()
@@ -214,7 +202,6 @@ class GoldRatesSettings extends Page implements HasForms
     {
         $data = $this->form->getState();
 
-        SiteSetting::set('gold_rate_24kt', $data['gold_rate_24kt'] ?? '7600');
         SiteSetting::set('gold_rate_22kt', $data['gold_rate_22kt'] ?? '6966');
         SiteSetting::set('gold_rate_18kt', $data['gold_rate_18kt'] ?? '5700');
         SiteSetting::set('gold_rate_14kt', $data['gold_rate_14kt'] ?? '4433');

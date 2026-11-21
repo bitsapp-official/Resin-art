@@ -172,7 +172,7 @@ class BullionPricingAndDynamicGoldTest extends TestCase
         $response = $this->actingAs($admin, 'admin')->get('/admin/gold-rates-settings');
         $response->assertStatus(200);
         $response->assertSee('Daily Gold & Bullion Rates');
-        $response->assertSee('24KT Gold Rate');
+        $response->assertSee('22KT Gold Rate');
         $response->assertSee('22KT Gold Rate');
         $response->assertSee('18KT Gold Rate');
         $response->assertSee('14KT Gold Rate');

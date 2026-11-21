@@ -40,12 +40,12 @@ class BullionPricingService
      */
     public static function getRates(): array
     {
-        $rate24kt = (float) SiteSetting::get('gold_rate_24kt', 7600);
-        $rate22kt = (float) SiteSetting::get('gold_rate_22kt', round($rate24kt * (22 / 24), 2));
-        $rate18kt = (float) SiteSetting::get('gold_rate_18kt', round($rate24kt * (18 / 24), 2));
-        $rate14kt = (float) SiteSetting::get('gold_rate_14kt', round($rate24kt * (14 / 24), 2));
-        $rate10kt = (float) SiteSetting::get('gold_rate_10kt', round($rate24kt * (10 / 24), 2));
+        $rate22kt = (float) SiteSetting::get('gold_rate_22kt', 6966.0);
+        $rate18kt = (float) SiteSetting::get('gold_rate_18kt', 5700.0);
+        $rate14kt = (float) SiteSetting::get('gold_rate_14kt', 4433.0);
+        $rate10kt = (float) SiteSetting::get('gold_rate_10kt', 3167.0);
         $rateSilver925 = (float) SiteSetting::get('silver_rate_925', 95.0);
+        $rate24kt = (float) (SiteSetting::get('gold_rate_24kt') ?: round($rate22kt * (24 / 22), 2));
 
         $rateDiamondVvs1 = (float) SiteSetting::get('diamond_rate_vvs1', 110000.0);
         $rateDiamondVvs2 = (float) SiteSetting::get('diamond_rate_vvs2', 90000.0);
@@ -110,11 +110,8 @@ class BullionPricingService
         if (str_contains($p, 'silver') || str_contains($p, '925')) {
             return (float) ($rates['rate_silver_925'] ?? 95.0);
         }
-        if (str_contains($p, '24k')) {
-            return (float) ($rates['rate_24kt'] ?? 7600.0);
-        }
         if (str_contains($p, '22k')) {
-            return (float) ($rates['rate_22kt'] ?? round(($rates['rate_24kt'] ?? 7600.0) * (22 / 24), 2));
+            return (float) ($rates['rate_22kt'] ?? 6966.0);
         }
         if (str_contains($p, '18k')) {
             return (float) ($rates['rate_18kt'] ?? round(($rates['rate_24kt'] ?? 7600.0) * (18 / 24), 2));
