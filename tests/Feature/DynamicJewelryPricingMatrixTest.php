@@ -668,7 +668,7 @@ class DynamicJewelryPricingMatrixTest extends TestCase
                 'gold_weight_grams' => 4.0,
                 'making_charge' => 800.0,
                 'diamond_value' => 10000.0,
-                'gold_purities' => ['10KT Gold', '14KT Gold', '18KT Gold', '22KT Gold', '24KT Gold', '925 Silver'],
+                'gold_purities' => ['10KT Gold', '14KT Gold', '18KT Gold', '22KT Gold', '925 Silver'],
             ],
         ]);
 

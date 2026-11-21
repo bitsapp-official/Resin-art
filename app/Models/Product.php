@@ -503,7 +503,7 @@ class Product extends Model
         $attrs = $this->jewellery_attributes;
         if (array_key_exists('gold_purities', $attrs)) {
             $purities = is_array($attrs['gold_purities']) ? array_values(array_filter($attrs['gold_purities'])) : [];
-            $canonicalOrder = ['10KT Gold', '14KT Gold', '18KT Gold', '22KT Gold', '24KT Gold', '925 Silver', '92.5 Silver', '9.5 Silver'];
+            $canonicalOrder = ['10KT Gold', '14KT Gold', '18KT Gold', '22KT Gold', '925 Silver', '92.5 Silver', '9.5 Silver'];
             usort($purities, function ($a, $b) use ($canonicalOrder) {
                 $posA = array_search($a, $canonicalOrder);
                 $posB = array_search($b, $canonicalOrder);

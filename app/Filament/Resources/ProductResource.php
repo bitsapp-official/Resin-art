@@ -345,10 +345,9 @@ class ProductResource extends Resource
                                 '14KT Gold'   => '14KT Gold',
                                 '18KT Gold'   => '18KT Gold',
                                 '22KT Gold'   => '22KT Gold',
-                                '24KT Gold'   => '24KT Gold',
                                 '925 Silver'  => '925 Silver',
                             ])
-                            ->columns(['default' => 2, 'sm' => 3, 'lg' => 6])
+                            ->columns(['default' => 2, 'sm' => 3, 'lg' => 5])
                             ->live()
                             ->afterStateUpdated(fn ($state, Forms\Set $set, Forms\Get $get) => self::syncAllPricesAndPreviews($get, $set))
                             ->default(['14KT Gold', '18KT Gold', '22KT Gold'])
@@ -359,7 +358,7 @@ class ProductResource extends Resource
                             'default' => 1,
                             'sm'      => 2,
                             'md'      => 3,
-                            'lg'      => 6,
+                            'lg'      => 5,
                         ])
                             ->schema([
                                 Forms\Components\TextInput::make('attributes.preview_10k')
@@ -557,56 +556,6 @@ class ProductResource extends Resource
                                         $clarities = self::resolveDiamondClarities($get);
                                         $firstClarity = !empty($clarities) ? $clarities[0] : 'VVS1';
                                         $c = \App\Services\BullionPricingService::calculateFinalPrice($w, $m, $d, '22KT Gold', null, null, $w, $p, $carat > 0 ? $carat : null, $firstClarity);
-                                        $claritySuffix = $d > 0 ? " ({$firstClarity})" : '';
-                                        return 'Cost: ₹' . number_format($c['cost_with_gst']) . ' + Profit: ₹' . number_format($c['profit_amount']) . ($p > 0 ? " ({$p}%)" : '') . $claritySuffix;
-                                    })
-                                    ->columnSpan(1),
-
-                                Forms\Components\TextInput::make('attributes.preview_24k')
-                                    ->label('24KT Sell Price (₹)')
-                                    ->prefix('₹')
-                                    ->disabled()
-                                    ->dehydrated(false)
-                                    ->placeholder('0')
-                                    ->visible(function (Forms\Get $get) {
-                                        $purities = (array) ($get('attributes.gold_purities') ?? ['14KT Gold', '18KT Gold', '22KT Gold']);
-                                        return in_array('24KT Gold', $purities, true);
-                                    })
-                                    ->afterStateHydrated(function (Forms\Components\TextInput $component, Forms\Get $get) {
-                                        $w = (float) ($get('attributes.gold_weight_grams') ?? 0);
-                                        if ($w > 0) {
-                                            $m = self::resolveMakingCharge($get);
-                                            $d = self::resolveDiamondValue($get);
-                                            $p = self::resolveProfitMargin($get);
-                                            $carat = self::resolveDiamondCarat($get);
-                                            $clarities = self::resolveDiamondClarities($get);
-                                            $firstClarity = !empty($clarities) ? $clarities[0] : 'VVS1';
-                                            $c = \App\Services\BullionPricingService::calculateFinalPrice($w, $m, $d, '24KT Gold', null, null, $w, $p, $carat > 0 ? $carat : null, $firstClarity);
-                                            $component->state(number_format($c['final_price']));
-                                        }
-                                    })
-                                    ->formatStateUsing(function ($state, Forms\Get $get) {
-                                        $w = (float) ($get('attributes.gold_weight_grams') ?? 0);
-                                        if ($w <= 0) return '';
-                                        $m = self::resolveMakingCharge($get);
-                                        $d = self::resolveDiamondValue($get);
-                                        $p = self::resolveProfitMargin($get);
-                                        $carat = self::resolveDiamondCarat($get);
-                                        $clarities = self::resolveDiamondClarities($get);
-                                        $firstClarity = !empty($clarities) ? $clarities[0] : 'VVS1';
-                                        $c = \App\Services\BullionPricingService::calculateFinalPrice($w, $m, $d, '24KT Gold', null, null, $w, $p, $carat > 0 ? $carat : null, $firstClarity);
-                                        return number_format($c['final_price']);
-                                    })
-                                    ->helperText(function (Forms\Get $get) {
-                                        $w = (float) ($get('attributes.gold_weight_grams') ?? 0);
-                                        if ($w <= 0) return null;
-                                        $m = self::resolveMakingCharge($get);
-                                        $d = self::resolveDiamondValue($get);
-                                        $p = self::resolveProfitMargin($get);
-                                        $carat = self::resolveDiamondCarat($get);
-                                        $clarities = self::resolveDiamondClarities($get);
-                                        $firstClarity = !empty($clarities) ? $clarities[0] : 'VVS1';
-                                        $c = \App\Services\BullionPricingService::calculateFinalPrice($w, $m, $d, '24KT Gold', null, null, $w, $p, $carat > 0 ? $carat : null, $firstClarity);
                                         $claritySuffix = $d > 0 ? " ({$firstClarity})" : '';
                                         return 'Cost: ₹' . number_format($c['cost_with_gst']) . ' + Profit: ₹' . number_format($c['profit_amount']) . ($p > 0 ? " ({$p}%)" : '') . $claritySuffix;
                                     })
@@ -1168,8 +1117,6 @@ class ProductResource extends Resource
             $set('mrp_18k', null);
             $set('price_22k', null);
             $set('mrp_22k', null);
-            $set('price_24k', null);
-            $set('mrp_24k', null);
             $set('price_silver', null);
             $set('mrp_silver', null);
             $set('price', null);
@@ -1193,7 +1140,6 @@ class ProductResource extends Resource
         $c14  = \App\Services\BullionPricingService::calculateFinalPrice($weight, $making, $diamond, '14KT Gold', null, null, $weight, $profit);
         $c18  = \App\Services\BullionPricingService::calculateFinalPrice($weight, $making, $diamond, '18KT Gold', null, null, $weight, $profit);
         $c22  = \App\Services\BullionPricingService::calculateFinalPrice($weight, $making, $diamond, '22KT Gold', null, null, $weight, $profit);
-        $c24  = \App\Services\BullionPricingService::calculateFinalPrice($weight, $making, $diamond, '24KT Gold', null, null, $weight, $profit);
         $cSil = \App\Services\BullionPricingService::calculateFinalPrice($weight, $making, $diamond, '925 Silver', null, null, $weight, $profit);
 
         $set('price_10k',    $c10['final_price']);
@@ -1207,9 +1153,6 @@ class ProductResource extends Resource
 
         $set('price_22k',    $c22['final_price']);
         $set('mrp_22k',      $commonCut > 0 ? $commonCut : $c22['mrp_price']);
-
-        $set('price_24k',    $c24['final_price']);
-        $set('mrp_24k',      $commonCut > 0 ? $commonCut : $c24['mrp_price']);
 
         $set('price_silver', $cSil['final_price']);
         $set('mrp_silver',   $commonCut > 0 ? $commonCut : $cSil['mrp_price']);
@@ -1238,21 +1181,18 @@ class ProductResource extends Resource
             $c14  = \App\Services\BullionPricingService::calculateFinalPrice($w, $m, $d, '14KT Gold', null, null, $w, $p, $carat > 0 ? $carat : null, $firstClarity);
             $c18  = \App\Services\BullionPricingService::calculateFinalPrice($w, $m, $d, '18KT Gold', null, null, $w, $p, $carat > 0 ? $carat : null, $firstClarity);
             $c22  = \App\Services\BullionPricingService::calculateFinalPrice($w, $m, $d, '22KT Gold', null, null, $w, $p, $carat > 0 ? $carat : null, $firstClarity);
-            $c24  = \App\Services\BullionPricingService::calculateFinalPrice($w, $m, $d, '24KT Gold', null, null, $w, $p, $carat > 0 ? $carat : null, $firstClarity);
             $cSil = \App\Services\BullionPricingService::calculateFinalPrice($w, $m, $d, '925 Silver', null, null, $w, $p, $carat > 0 ? $carat : null, $firstClarity);
 
             $set('attributes.preview_10k', number_format($c10['final_price']));
             $set('attributes.preview_14k', number_format($c14['final_price']));
             $set('attributes.preview_18k', number_format($c18['final_price']));
             $set('attributes.preview_22k', number_format($c22['final_price']));
-            $set('attributes.preview_24k', number_format($c24['final_price']));
             $set('attributes.preview_silver', number_format($cSil['final_price']));
         } else {
             $set('attributes.preview_10k', '');
             $set('attributes.preview_14k', '');
             $set('attributes.preview_18k', '');
             $set('attributes.preview_22k', '');
-            $set('attributes.preview_24k', '');
             $set('attributes.preview_silver', '');
         }
     }
@@ -1292,14 +1232,12 @@ class ProductResource extends Resource
                 $c14  = \App\Services\BullionPricingService::calculateFinalPrice($weight, $making, $diamond, '14KT Gold', null, null, $weight, $profit, $carat > 0 ? $carat : null, $firstClarity);
                 $c18  = \App\Services\BullionPricingService::calculateFinalPrice($weight, $making, $diamond, '18KT Gold', null, null, $weight, $profit, $carat > 0 ? $carat : null, $firstClarity);
                 $c22  = \App\Services\BullionPricingService::calculateFinalPrice($weight, $making, $diamond, '22KT Gold', null, null, $weight, $profit, $carat > 0 ? $carat : null, $firstClarity);
-                $c24  = \App\Services\BullionPricingService::calculateFinalPrice($weight, $making, $diamond, '24KT Gold', null, null, $weight, $profit, $carat > 0 ? $carat : null, $firstClarity);
                 $cSil = \App\Services\BullionPricingService::calculateFinalPrice($weight, $making, $diamond, '925 Silver', null, null, $weight, $profit, $carat > 0 ? $carat : null, $firstClarity);
 
                 $variants[$index]['price_10k']    = $c10['final_price'];
                 $variants[$index]['price_14k']    = $c14['final_price'];
                 $variants[$index]['price_18k']    = $c18['final_price'];
                 $variants[$index]['price_22k']    = $c22['final_price'];
-                $variants[$index]['price_24k']    = $c24['final_price'];
                 $variants[$index]['price_silver'] = $cSil['final_price'];
                 $variants[$index]['price']        = $c18['final_price'];
 
@@ -1307,7 +1245,6 @@ class ProductResource extends Resource
                 $variants[$index]['mrp_14k']    = $commonCut > 0 ? $commonCut : ($variants[$index]['mrp_14k'] ?? $c14['mrp_price']);
                 $variants[$index]['mrp_18k']    = $commonCut > 0 ? $commonCut : ($variants[$index]['mrp_18k'] ?? $c18['mrp_price']);
                 $variants[$index]['mrp_22k']    = $commonCut > 0 ? $commonCut : ($variants[$index]['mrp_22k'] ?? $c22['mrp_price']);
-                $variants[$index]['mrp_24k']    = $commonCut > 0 ? $commonCut : ($variants[$index]['mrp_24k'] ?? $c24['mrp_price']);
                 $variants[$index]['mrp_silver'] = $commonCut > 0 ? $commonCut : ($variants[$index]['mrp_silver'] ?? $cSil['mrp_price']);
                 $variants[$index]['mrp']        = $commonCut > 0 ? $commonCut : ($variants[$index]['mrp'] ?? $c18['mrp_price']);
 

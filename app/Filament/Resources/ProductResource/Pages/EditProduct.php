@@ -35,7 +35,7 @@ class EditProduct extends EditRecord
 
     protected function mutateFormDataBeforeSave(array $data): array
     {
-        $canonicalPurities = ['10KT Gold', '14KT Gold', '18KT Gold', '22KT Gold', '24KT Gold', '925 Silver', '92.5 Silver', '9.5 Silver'];
+        $canonicalPurities = ['10KT Gold', '14KT Gold', '18KT Gold', '22KT Gold', '925 Silver', '92.5 Silver', '9.5 Silver'];
         $purities = array_values(array_filter((array) ($data['attributes']['gold_purities'] ?? [])));
 
         if (!empty($purities)) {

@@ -11,7 +11,7 @@ class BullionPricingService
     /**
      * Standard gold & bullion purities handled in fine jewellery.
      */
-    public const PURITIES = ['10KT Gold', '14KT Gold', '18KT Gold', '22KT Gold', '24KT Gold', '925 Silver'];
+    public const PURITIES = ['10KT Gold', '14KT Gold', '18KT Gold', '22KT Gold', '925 Silver'];
 
     /**
      * Certified Natural Diamond Clarities supported across fine jewellery collections.
@@ -433,14 +433,12 @@ class BullionPricingService
                     $c14 = self::calculateFinalPrice($vWeight, $makingCharge, $diamondValue, '14KT Gold', null, $rates['rate_24kt'], $vWeight, $profitMargin);
                     $c18 = self::calculateFinalPrice($vWeight, $makingCharge, $diamondValue, '18KT Gold', null, $rates['rate_24kt'], $vWeight, $profitMargin);
                     $c22 = self::calculateFinalPrice($vWeight, $makingCharge, $diamondValue, '22KT Gold', null, $rates['rate_24kt'], $vWeight, $profitMargin);
-                    $c24 = self::calculateFinalPrice($vWeight, $makingCharge, $diamondValue, '24KT Gold', null, $rates['rate_24kt'], $vWeight, $profitMargin);
                     $cSil = self::calculateFinalPrice($vWeight, $makingCharge, $diamondValue, '925 Silver', null, $rates['rate_24kt'], $vWeight, $profitMargin);
 
                     $attributes['size_variants'][$idx]['price_10k']    = $c10['final_price'];
                     $attributes['size_variants'][$idx]['price_14k']    = $c14['final_price'];
                     $attributes['size_variants'][$idx]['price_18k']    = $c18['final_price'];
                     $attributes['size_variants'][$idx]['price_22k']    = $c22['final_price'];
-                    $attributes['size_variants'][$idx]['price_24k']    = $c24['final_price'];
                     $attributes['size_variants'][$idx]['price_silver'] = $cSil['final_price'];
                     $attributes['size_variants'][$idx]['price']        = $c18['final_price'];
 
@@ -449,7 +447,6 @@ class BullionPricingService
                     $attributes['size_variants'][$idx]['mrp_14k']    = !empty($v['mrp_14k']) ? (float) $v['mrp_14k'] : null;
                     $attributes['size_variants'][$idx]['mrp_18k']    = !empty($v['mrp_18k']) ? (float) $v['mrp_18k'] : null;
                     $attributes['size_variants'][$idx]['mrp_22k']    = !empty($v['mrp_22k']) ? (float) $v['mrp_22k'] : null;
-                    $attributes['size_variants'][$idx]['mrp_24k']    = !empty($v['mrp_24k']) ? (float) $v['mrp_24k'] : null;
                     $attributes['size_variants'][$idx]['mrp_silver'] = !empty($v['mrp_silver']) ? (float) $v['mrp_silver'] : null;
                     $attributes['size_variants'][$idx]['mrp']        = !empty($v['mrp_18k']) ? (float) $v['mrp_18k'] : null;
                 }
@@ -463,7 +460,7 @@ class BullionPricingService
         $attributes['gold_rates_synced_at'] = now()->toDateTimeString();
 
         // Update default base price from first canonical purity
-        $canonical = ['10KT Gold', '14KT Gold', '18KT Gold', '22KT Gold', '24KT Gold', '925 Silver', '92.5 Silver', '9.5 Silver'];
+        $canonical = ['10KT Gold', '14KT Gold', '18KT Gold', '22KT Gold', '925 Silver', '92.5 Silver', '9.5 Silver'];
         $firstPurity = null;
         foreach ($canonical as $c) {
             if (in_array($c, $selectedPurities, true)) {
