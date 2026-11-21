@@ -21,7 +21,6 @@ class DynamicJewelryPricingMatrixTest extends TestCase
     {
         parent::setUp();
 
-        SiteSetting::set('gold_rate_24kt', '7600');
         SiteSetting::set('gold_rate_22kt', '6966.67');
         SiteSetting::set('gold_rate_18kt', '5700');
         SiteSetting::set('gold_rate_14kt', '4433.33');
@@ -70,8 +69,7 @@ class DynamicJewelryPricingMatrixTest extends TestCase
             makingChargePerGram: 800.0,
             diamondStoneValue: 20000.0,
             purity: '18KT Gold',
-            size: 'Size 14',
-            live24kRate: 7600.0
+            size: 'Size 14'
         );
 
         $this->assertEquals(4.0, $calc['final_gold_weight']);
@@ -177,9 +175,6 @@ class DynamicJewelryPricingMatrixTest extends TestCase
 
     public function test_full_lifecycle_gold_rate_change_and_size_switching_with_cart_security(): void
     {
-        // 1. Initial 24K rate: 7600
-        SiteSetting::set('gold_rate_24kt', '7600');
-
         $product = Product::create([
             'name' => 'Imperial Solitaire Diamond Ring',
             'slug' => 'imperial-solitaire-diamond-ring',
@@ -203,7 +198,7 @@ class DynamicJewelryPricingMatrixTest extends TestCase
             ],
         ]);
 
-        // 2. Initial checks under Rate 7600 (18KT Rate = 5700)
+        // 2. Initial checks under Rate 5700 (18KT Rate = 5700)
         // Size 10 (3.5g): (3.5*5700 + 3.5*700 + 15000) * 1.03 = 37400 * 1.03 = 38522
         $calc10_initial = BullionPricingService::calculateFinalPrice(4.0, 700, 15000, '18KT Gold', 'Size 10', null, 3.50);
         $this->assertEquals(38522.0, $calc10_initial['final_price']);
@@ -212,10 +207,9 @@ class DynamicJewelryPricingMatrixTest extends TestCase
         $calc14_initial = BullionPricingService::calculateFinalPrice(4.0, 700, 15000, '18KT Gold', 'Size 14', null, 4.50);
         $this->assertEquals(45114.0, $calc14_initial['final_price']);
 
-        // 3. Now change 24K Gold Rate to 8000!
-        SiteSetting::set('gold_rate_24kt', '8000');
-        SiteSetting::set('gold_rate_18kt', '6000'); // 8000 * 18/24
-        SiteSetting::set('gold_rate_22kt', '7333.33'); // 8000 * 22/24
+        // 3. Now change 18K Gold Rate to 6000!
+        SiteSetting::set('gold_rate_18kt', '6000');
+        SiteSetting::set('gold_rate_22kt', '7333.33');
 
         // Size 10 (3.5g) under Rate 8000 (18KT Rate = 6000):
         // (3.5*6000 + 3.5*700 + 15000) * 1.03 = (21000 + 2450 + 15000) * 1.03 = 38450 * 1.03 = 39604
@@ -579,7 +573,6 @@ class DynamicJewelryPricingMatrixTest extends TestCase
             diamondStoneValue: 20000.0,
             purity: '18KT Gold',
             size: 'Size 14',
-            live24kRate: 7600.0,
             explicitWeightGrams: 4.0,
             profitMarginPercent: 5.0
         );
@@ -650,7 +643,6 @@ class DynamicJewelryPricingMatrixTest extends TestCase
 
     public function test_10kt_gold_and_silver_cart_addition_and_purity_resolution(): void
     {
-        SiteSetting::set('gold_rate_24kt', '7600');
         SiteSetting::set('gold_rate_10kt', '3166.67');
         SiteSetting::set('silver_rate_925', '95');
 

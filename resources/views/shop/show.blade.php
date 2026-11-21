@@ -455,7 +455,6 @@
                 selectedClarity: config.selectedClarity || 'VVS1',
                 diamondRates: config.diamondRates || {},
                 profitMarginPercent: Number(config.profitMarginPercent) || 0,
-                rate24kt: Number(config.rate24kt) || 7600,
                 bullionRates: config.bullionRates || {},
                 commonCutPrice: Number(config.commonCutPrice) || 0,
                 regularPrice: Number(config.regularPrice) || 0,
@@ -477,7 +476,6 @@
                     if (p.includes('10k')) return 0.885;
                     if (p.includes('14k')) return 1.000;
                     if (p.includes('22k')) return 1.365;
-                    if (p.includes('24k')) return 1.485;
                     return 1.185; // 18KT benchmark
                 },
 
@@ -499,19 +497,16 @@
                     if (p.includes('silver') || p.includes('925')) {
                         return rates.rate_silver_925 ? Number(rates.rate_silver_925) : 95;
                     }
-                    if (p.includes('24k')) {
-                        return rates.rate_24kt ? Number(rates.rate_24kt) : (this.rate24kt || 7600);
-                    }
                     if (p.includes('22k')) {
-                        return rates.rate_22kt ? Number(rates.rate_22kt) : Math.round((this.rate24kt || 7600) * (22 / 24) * 100) / 100;
+                        return rates.rate_22kt ? Number(rates.rate_22kt) : 6966;
                     }
                     if (p.includes('14k')) {
-                        return rates.rate_14kt ? Number(rates.rate_14kt) : Math.round((this.rate24kt || 7600) * (14 / 24) * 100) / 100;
+                        return rates.rate_14kt ? Number(rates.rate_14kt) : 4433;
                     }
                     if (p.includes('10k')) {
-                        return rates.rate_10kt ? Number(rates.rate_10kt) : Math.round((this.rate24kt || 7600) * (10 / 24) * 100) / 100;
+                        return rates.rate_10kt ? Number(rates.rate_10kt) : 3167;
                     }
-                    return rates.rate_18kt ? Number(rates.rate_18kt) : Math.round((this.rate24kt || 7600) * (18 / 24) * 100) / 100;
+                    return rates.rate_18kt ? Number(rates.rate_18kt) : 5700;
                 },
 
                 get priceBreakdown() {
@@ -767,7 +762,6 @@
                 vs2: {{ (float) (\App\Services\BullionPricingService::getRates()['diamond_rate_vs2'] ?? 60000) }},
             },
             profitMarginPercent: {{ (float) ($product->jewellery_attributes['profit_margin_percent'] ?? 0) }},
-            rate24kt: {{ (float) \App\Services\BullionPricingService::getRates()['rate_24kt'] }},
             bullionRates: @js(\App\Services\BullionPricingService::getRates()),
             sizeLabel: @js($product->size_label),
             selectedSize: @js(request('size') ?: (!empty($product->attributes['size_variants']) ? ($product->attributes['size_variants'][0]['size'] ?? '') : (!empty($product->attributes['sizes']) ? $product->attributes['sizes'][0] : ''))),

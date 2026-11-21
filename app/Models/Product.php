@@ -262,9 +262,6 @@ class Product extends Model
         if (str_contains($p, '22k')) {
             return 1.365;
         }
-        if (str_contains($p, '24k')) {
-            return 1.485;
-        }
         // Default to 18KT benchmark
         return 1.185;
     }
@@ -342,9 +339,6 @@ class Product extends Model
             if ($firstVariant) {
                 if ((str_contains($pLower, 'silver') || str_contains($pLower, '925')) && !empty($firstVariant['price_silver']) && (float) $firstVariant['price_silver'] > 0) {
                     return (float) $firstVariant['price_silver'];
-                }
-                if (str_contains($pLower, '24') && !empty($firstVariant['price_24k']) && (float) $firstVariant['price_24k'] > 0) {
-                    return (float) $firstVariant['price_24k'];
                 }
                 if (str_contains($pLower, '22') && !empty($firstVariant['price_22k']) && (float) $firstVariant['price_22k'] > 0) {
                     return (float) $firstVariant['price_22k'];
@@ -432,9 +426,6 @@ class Product extends Model
             if ($firstVariant) {
                 if ((str_contains($pLower, 'silver') || str_contains($pLower, '925')) && !empty($firstVariant['mrp_silver']) && (float) $firstVariant['mrp_silver'] > 0) {
                     return (float) $firstVariant['mrp_silver'];
-                }
-                if (str_contains($pLower, '24') && !empty($firstVariant['mrp_24k']) && (float) $firstVariant['mrp_24k'] > 0) {
-                    return (float) $firstVariant['mrp_24k'];
                 }
                 if (str_contains($pLower, '22') && !empty($firstVariant['mrp_22k']) && (float) $firstVariant['mrp_22k'] > 0) {
                     return (float) $firstVariant['mrp_22k'];

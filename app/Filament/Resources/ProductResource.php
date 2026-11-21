@@ -364,7 +364,8 @@ class ProductResource extends Resource
                                 Forms\Components\TextInput::make('attributes.preview_10k')
                                     ->label('10KT Sell Price (₹)')
                                     ->prefix('₹')
-                                    ->disabled()
+                                    ->readOnly()
+                                    ->extraAttributes(['class' => '[&_.fi-input-wrp-addon]:!bg-transparent'])
                                     ->dehydrated(false)
                                     ->placeholder('0')
                                     ->visible(function (Forms\Get $get) {
@@ -414,7 +415,8 @@ class ProductResource extends Resource
                                 Forms\Components\TextInput::make('attributes.preview_14k')
                                     ->label('14KT Sell Price (₹)')
                                     ->prefix('₹')
-                                    ->disabled()
+                                    ->readOnly()
+                                    ->extraAttributes(['class' => '[&_.fi-input-wrp-addon]:!bg-transparent'])
                                     ->dehydrated(false)
                                     ->placeholder('0')
                                     ->visible(function (Forms\Get $get) {
@@ -464,7 +466,8 @@ class ProductResource extends Resource
                                 Forms\Components\TextInput::make('attributes.preview_18k')
                                     ->label('18KT Sell Price (₹)')
                                     ->prefix('₹')
-                                    ->disabled()
+                                    ->readOnly()
+                                    ->extraAttributes(['class' => '[&_.fi-input-wrp-addon]:!bg-transparent'])
                                     ->dehydrated(false)
                                     ->placeholder('0')
                                     ->visible(function (Forms\Get $get) {
@@ -514,7 +517,8 @@ class ProductResource extends Resource
                                 Forms\Components\TextInput::make('attributes.preview_22k')
                                     ->label('22KT Sell Price (₹)')
                                     ->prefix('₹')
-                                    ->disabled()
+                                    ->readOnly()
+                                    ->extraAttributes(['class' => '[&_.fi-input-wrp-addon]:!bg-transparent'])
                                     ->dehydrated(false)
                                     ->placeholder('0')
                                     ->visible(function (Forms\Get $get) {
@@ -564,7 +568,8 @@ class ProductResource extends Resource
                                 Forms\Components\TextInput::make('attributes.preview_silver')
                                     ->label('925 Silver Sell Price (₹)')
                                     ->prefix('₹')
-                                    ->disabled()
+                                    ->readOnly()
+                                    ->extraAttributes(['class' => '[&_.fi-input-wrp-addon]:!bg-transparent'])
                                     ->dehydrated(false)
                                     ->placeholder('0')
                                     ->visible(function (Forms\Get $get) {

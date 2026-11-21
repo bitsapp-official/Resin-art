@@ -18,7 +18,6 @@ class BullionPricingAndDynamicGoldTest extends TestCase
         parent::setUp();
 
         // Seed basic benchmark gold & silver rates
-        SiteSetting::set('gold_rate_24kt', '7600');
         SiteSetting::set('gold_rate_22kt', '6966');
         SiteSetting::set('gold_rate_18kt', '5700');
         SiteSetting::set('gold_rate_14kt', '4433');
@@ -32,7 +31,6 @@ class BullionPricingAndDynamicGoldTest extends TestCase
     {
         $rates = BullionPricingService::getRates();
 
-        $this->assertEquals(7600.0, $rates['rate_24kt']);
         $this->assertEquals(6966.0, $rates['rate_22kt']);
         $this->assertEquals(5700.0, $rates['rate_18kt']);
         $this->assertEquals(4433.0, $rates['rate_14kt']);
@@ -136,8 +134,7 @@ class BullionPricingAndDynamicGoldTest extends TestCase
             ],
         ]);
 
-        // Gold rate jumps: 24KT to 8000, 18KT to 6000
-        SiteSetting::set('gold_rate_24kt', '8000');
+        // Gold rate jumps: 18KT to 6000
         SiteSetting::set('gold_rate_18kt', '6000');
         SiteSetting::set('gold_rate_14kt', '4667');
         SiteSetting::set('gold_rate_22kt', '7333');
@@ -172,7 +169,6 @@ class BullionPricingAndDynamicGoldTest extends TestCase
         $response = $this->actingAs($admin, 'admin')->get('/admin/gold-rates-settings');
         $response->assertStatus(200);
         $response->assertSee('Daily Gold & Bullion Rates');
-        $response->assertSee('22KT Gold Rate');
         $response->assertSee('22KT Gold Rate');
         $response->assertSee('18KT Gold Rate');
         $response->assertSee('14KT Gold Rate');
@@ -243,7 +239,6 @@ class BullionPricingAndDynamicGoldTest extends TestCase
 
     public function test_cart_addition_and_authoritative_diamond_clarity_price_resolution(): void
     {
-        SiteSetting::set('gold_rate_24kt', '7600');
         SiteSetting::set('gold_rate_18kt', '5700');
         SiteSetting::set('diamond_rate_vvs1', '100000');
         SiteSetting::set('diamond_rate_vs2', '60000');
