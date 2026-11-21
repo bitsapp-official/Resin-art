@@ -113,7 +113,7 @@ class ShopController extends Controller
             });
         }
 
-        // Gold & Metal Purity Filter (10KT, 14KT, 18KT, 22KT, 24KT, 92.5 Silver)
+        // Gold & Metal Purity Filter (10KT, 14KT, 18KT, 22KT, 925 Silver)
         if ($request->filled('purity')) {
             $rawPurity = $request->input('purity');
             $purityMap = [
@@ -136,11 +136,7 @@ class ShopController extends Controller
                 'silver'      => '925 Silver',
                 'Silver'      => '925 Silver',
                 '925'         => '925 Silver',
-                '9.5'         => '925 Silver',
-                '92.5'        => '925 Silver',
                 '925 Silver'  => '925 Silver',
-                '92.5 Silver' => '925 Silver',
-                '9.5 Silver'  => '925 Silver',
             ];
             $resolvedPurity = $purityMap[$rawPurity] ?? $rawPurity;
             $shortPurity = str_replace([' Gold', ' Silver'], '', $resolvedPurity);
@@ -148,8 +144,6 @@ class ShopController extends Controller
             $query->where(function ($q) use ($resolvedPurity, $shortPurity) {
                 $q->whereJsonContains('attributes->gold_purities', $resolvedPurity)
                   ->orWhereJsonContains('attributes->gold_purities', '925 Silver')
-                  ->orWhereJsonContains('attributes->gold_purities', '92.5 Silver')
-                  ->orWhereJsonContains('attributes->gold_purities', '9.5 Silver')
                   ->orWhere('name', 'like', "%{$shortPurity}%")
                   ->orWhere('description', 'like', "%{$shortPurity}%");
             });

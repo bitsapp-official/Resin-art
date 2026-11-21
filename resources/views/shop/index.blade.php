@@ -78,7 +78,7 @@
                         <option value="14KT Gold" {{ in_array(request('purity'), ['14KT Gold', '14KT', '14kt', '14k']) ? 'selected' : '' }}>14KT Gold</option>
                         <option value="18KT Gold" {{ in_array(request('purity'), ['18KT Gold', '18KT', '18kt', '18k']) ? 'selected' : '' }}>18KT Gold</option>
                         <option value="22KT Gold" {{ in_array(request('purity'), ['22KT Gold', '22KT', '22kt', '22k']) ? 'selected' : '' }}>22KT Gold</option>
-                        <option value="925 Silver" {{ in_array(request('purity'), ['925 Silver', '92.5 Silver', '9.5 Silver', 'silver', 'Silver']) ? 'selected' : '' }}>925 Silver</option>
+                        <option value="925 Silver" {{ in_array(request('purity'), ['925 Silver', 'silver', 'Silver', '925']) ? 'selected' : '' }}>925 Silver</option>
                     </select>
                 </div>
 

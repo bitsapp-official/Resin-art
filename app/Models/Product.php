@@ -250,7 +250,7 @@ class Product extends Model
         }
 
         $p = strtolower(trim($purity));
-        if (str_contains($p, 'silver') || str_contains($p, '925') || str_contains($p, '92.5') || str_contains($p, '9.5')) {
+        if (str_contains($p, 'silver') || str_contains($p, '925')) {
             return 1.000;
         }
         if (str_contains($p, '10k')) {
@@ -340,7 +340,7 @@ class Product extends Model
             $pLower = strtolower($firstPurity);
             $firstVariant = reset($attrs['size_variants']);
             if ($firstVariant) {
-                if ((str_contains($pLower, 'silver') || str_contains($pLower, '925') || str_contains($pLower, '92.5') || str_contains($pLower, '9.5')) && !empty($firstVariant['price_silver']) && (float) $firstVariant['price_silver'] > 0) {
+                if ((str_contains($pLower, 'silver') || str_contains($pLower, '925')) && !empty($firstVariant['price_silver']) && (float) $firstVariant['price_silver'] > 0) {
                     return (float) $firstVariant['price_silver'];
                 }
                 if (str_contains($pLower, '24') && !empty($firstVariant['price_24k']) && (float) $firstVariant['price_24k'] > 0) {
@@ -430,7 +430,7 @@ class Product extends Model
             $pLower = strtolower($firstPurity);
             $firstVariant = reset($attrs['size_variants']);
             if ($firstVariant) {
-                if ((str_contains($pLower, 'silver') || str_contains($pLower, '925') || str_contains($pLower, '92.5') || str_contains($pLower, '9.5')) && !empty($firstVariant['mrp_silver']) && (float) $firstVariant['mrp_silver'] > 0) {
+                if ((str_contains($pLower, 'silver') || str_contains($pLower, '925')) && !empty($firstVariant['mrp_silver']) && (float) $firstVariant['mrp_silver'] > 0) {
                     return (float) $firstVariant['mrp_silver'];
                 }
                 if (str_contains($pLower, '24') && !empty($firstVariant['mrp_24k']) && (float) $firstVariant['mrp_24k'] > 0) {
@@ -503,7 +503,7 @@ class Product extends Model
         $attrs = $this->jewellery_attributes;
         if (array_key_exists('gold_purities', $attrs)) {
             $purities = is_array($attrs['gold_purities']) ? array_values(array_filter($attrs['gold_purities'])) : [];
-            $canonicalOrder = ['10KT Gold', '14KT Gold', '18KT Gold', '22KT Gold', '925 Silver', '92.5 Silver', '9.5 Silver'];
+            $canonicalOrder = ['10KT Gold', '14KT Gold', '18KT Gold', '22KT Gold', '925 Silver'];
             usort($purities, function ($a, $b) use ($canonicalOrder) {
                 $posA = array_search($a, $canonicalOrder);
                 $posB = array_search($b, $canonicalOrder);

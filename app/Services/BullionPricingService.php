@@ -107,7 +107,7 @@ class BullionPricingService
         $rates = $rates ?? self::getRates();
         $p = strtolower(trim($purity));
 
-        if (str_contains($p, 'silver') || str_contains($p, '925') || str_contains($p, '92.5') || str_contains($p, '9.5')) {
+        if (str_contains($p, 'silver') || str_contains($p, '925')) {
             return (float) ($rates['rate_silver_925'] ?? 95.0);
         }
         if (str_contains($p, '24k')) {
@@ -145,7 +145,7 @@ class BullionPricingService
         }
 
         $p = strtolower(trim($purity));
-        if (str_contains($p, 'silver') || str_contains($p, '925') || str_contains($p, '92.5') || str_contains($p, '9.5')) {
+        if (str_contains($p, 'silver') || str_contains($p, '925')) {
             return 1.000;
         }
         if (str_contains($p, '10k')) {
@@ -194,7 +194,7 @@ class BullionPricingService
         $base24kt = (float) ($rates['rate_24kt'] ?: 7600.0);
         $p = strtolower(trim($purity));
 
-        if (str_contains($p, 'silver') || str_contains($p, '925') || str_contains($p, '92.5') || str_contains($p, '9.5')) {
+        if (str_contains($p, 'silver') || str_contains($p, '925')) {
             return (float) ($rates['rate_silver_925'] ?? 95.0);
         }
 
@@ -460,7 +460,7 @@ class BullionPricingService
         $attributes['gold_rates_synced_at'] = now()->toDateTimeString();
 
         // Update default base price from first canonical purity
-        $canonical = ['10KT Gold', '14KT Gold', '18KT Gold', '22KT Gold', '925 Silver', '92.5 Silver', '9.5 Silver'];
+        $canonical = ['10KT Gold', '14KT Gold', '18KT Gold', '22KT Gold', '925 Silver'];
         $firstPurity = null;
         foreach ($canonical as $c) {
             if (in_array($c, $selectedPurities, true)) {
@@ -549,7 +549,7 @@ class BullionPricingService
                 $sizeVariants = (array) ($product->attributes['size_variants'] ?? []);
                 foreach ($sizeVariants as $variant) {
                     if (($variant['size'] ?? '') === $selectedSize) {
-                        if ((str_contains($pLower, 'silver') || str_contains($pLower, '925') || str_contains($pLower, '92.5') || str_contains($pLower, '9.5')) && !empty($variant['price_silver'])) {
+                        if ((str_contains($pLower, 'silver') || str_contains($pLower, '925')) && !empty($variant['price_silver'])) {
                             return (float) $variant['price_silver'];
                         }
                         if (str_contains($pLower, '24') && !empty($variant['price_24k'])) {
@@ -614,7 +614,7 @@ class BullionPricingService
             $pLower = strtolower($selectedPurity ?? '');
             foreach ($sizeVariants as $variant) {
                 if (($variant['size'] ?? '') === $selectedSize) {
-                    if ((str_contains($pLower, 'silver') || str_contains($pLower, '925') || str_contains($pLower, '92.5') || str_contains($pLower, '9.5')) && !empty($variant['price_silver'])) {
+                    if ((str_contains($pLower, 'silver') || str_contains($pLower, '925')) && !empty($variant['price_silver'])) {
                         $price = (float) $variant['price_silver'];
                     } elseif (str_contains($pLower, '24') && !empty($variant['price_24k'])) {
                         $price = (float) $variant['price_24k'];
@@ -646,7 +646,7 @@ class BullionPricingService
                 }
             } else {
                 $p = strtolower($selectedPurity);
-                if (str_contains($p, 'silver') || str_contains($p, '925') || str_contains($p, '92.5') || str_contains($p, '9.5')) {
+                if (str_contains($p, 'silver') || str_contains($p, '925')) {
                     $price = round(($price * 0.15) / 100) * 100;
                 } elseif (str_contains($p, '10k')) {
                     $price = round(($price * 0.65) / 100) * 100;
@@ -683,7 +683,7 @@ class BullionPricingService
             $pLower = strtolower($selectedPurity ?? '');
             foreach ($sizeVariants as $variant) {
                 if (($variant['size'] ?? '') === $selectedSize) {
-                    if ((str_contains($pLower, 'silver') || str_contains($pLower, '925') || str_contains($pLower, '92.5') || str_contains($pLower, '9.5')) && !empty($variant['mrp_silver'])) {
+                    if ((str_contains($pLower, 'silver') || str_contains($pLower, '925')) && !empty($variant['mrp_silver'])) {
                         return (float) $variant['mrp_silver'];
                     }
                     if (str_contains($pLower, '24') && !empty($variant['mrp_24k'])) {

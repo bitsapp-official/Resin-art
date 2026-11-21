@@ -473,7 +473,7 @@
                 getDensityMultiplier(purity) {
                     if (!purity) return 1.185;
                     const p = purity.toLowerCase().trim();
-                    if (p.includes('silver') || p.includes('925') || p.includes('92.5') || p.includes('9.5')) return 1.000;
+                    if (p.includes('silver') || p.includes('925')) return 1.000;
                     if (p.includes('10k')) return 0.885;
                     if (p.includes('14k')) return 1.000;
                     if (p.includes('22k')) return 1.365;
@@ -496,7 +496,7 @@
                 getKaratGoldRate(purity) {
                     const rates = this.bullionRates || {};
                     const p = (purity || '').toLowerCase().trim();
-                    if (p.includes('silver') || p.includes('925') || p.includes('92.5') || p.includes('9.5')) {
+                    if (p.includes('silver') || p.includes('925')) {
                         return rates.rate_silver_925 ? Number(rates.rate_silver_925) : 95;
                     }
                     if (p.includes('24k')) {
@@ -1253,7 +1253,7 @@
                 <template x-if="goldPurities && goldPurities.length > 1">
                     <div class="space-y-2">
                         <p class="text-[10px] uppercase tracking-[0.2em] font-semibold text-[#1C1917]">
-                            <span x-text="(selectedPurity && (selectedPurity.toLowerCase().includes('silver') || selectedPurity.includes('925') || selectedPurity.includes('92.5') || selectedPurity.includes('9.5'))) ? 'METAL PURITY' : 'GOLD PURITY'"></span> <span class="font-normal text-[#8E877D] tracking-normal ml-1" x-text="selectedPurity ? '· ' + selectedPurity : ''"></span>
+                            <span x-text="(selectedPurity && (selectedPurity.toLowerCase().includes('silver') || selectedPurity.includes('925'))) ? 'METAL PURITY' : 'GOLD PURITY'"></span> <span class="font-normal text-[#8E877D] tracking-normal ml-1" x-text="selectedPurity ? '· ' + selectedPurity : ''"></span>
                         </p>
                         <div class="flex items-center gap-2 flex-wrap">
                             <template x-for="purity in goldPurities" :key="purity">
@@ -1268,7 +1268,7 @@
                 </template>
                 <template x-if="goldPurities && goldPurities.length === 1">
                     <p class="text-[10px] uppercase tracking-[0.2em] font-semibold text-[#8E877D]">
-                        <span x-text="(goldPurities[0] && (goldPurities[0].toLowerCase().includes('silver') || goldPurities[0].includes('925') || goldPurities[0].includes('92.5') || goldPurities[0].includes('9.5'))) ? 'METAL PURITY' : 'GOLD PURITY'"></span> · <span class="text-[#1C1917]" x-text="goldPurities[0]"></span>
+                        <span x-text="(goldPurities[0] && (goldPurities[0].toLowerCase().includes('silver') || goldPurities[0].includes('925'))) ? 'METAL PURITY' : 'GOLD PURITY'"></span> · <span class="text-[#1C1917]" x-text="goldPurities[0]"></span>
                     </p>
                 </template>
 

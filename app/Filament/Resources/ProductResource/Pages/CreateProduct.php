@@ -23,7 +23,7 @@ class CreateProduct extends CreateRecord
 
     protected function mutateFormDataBeforeCreate(array $data): array
     {
-        $canonicalPurities = ['10KT Gold', '14KT Gold', '18KT Gold', '22KT Gold', '925 Silver', '92.5 Silver', '9.5 Silver'];
+        $canonicalPurities = ['10KT Gold', '14KT Gold', '18KT Gold', '22KT Gold', '925 Silver'];
         $purities = array_values(array_filter((array) ($data['attributes']['gold_purities'] ?? [])));
 
         if (!empty($purities)) {

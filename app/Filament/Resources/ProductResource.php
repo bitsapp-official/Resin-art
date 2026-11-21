@@ -569,7 +569,7 @@ class ProductResource extends Resource
                                     ->placeholder('0')
                                     ->visible(function (Forms\Get $get) {
                                         $purities = (array) ($get('attributes.gold_purities') ?? ['14KT Gold', '18KT Gold', '22KT Gold']);
-                                        return in_array('925 Silver', $purities, true) || in_array('92.5 Silver', $purities, true) || in_array('9.5 Silver', $purities, true);
+                                        return in_array('925 Silver', $purities, true);
                                     })
                                     ->afterStateHydrated(function (Forms\Components\TextInput $component, Forms\Get $get) {
                                         $w = (float) ($get('attributes.gold_weight_grams') ?? 0);
