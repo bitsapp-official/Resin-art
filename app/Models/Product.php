@@ -601,7 +601,26 @@ class Product extends Model
                 return (float) $m[1];
             }
         }
+        if (!empty($attrs['diamond_carat_options']) && is_array($attrs['diamond_carat_options'])) {
+            $first = reset($attrs['diamond_carat_options']);
+            if (preg_match('/([\d\.]+)/', (string) $first, $m)) {
+                return (float) $m[1];
+            }
+        }
         return 0.0;
+    }
+
+    public function getDiamondCaratOptionsAttribute(): array
+    {
+        $attrs = $this->jewellery_attributes;
+        if (!empty($attrs['diamond_carat_options']) && is_array($attrs['diamond_carat_options'])) {
+            return array_values(array_filter($attrs['diamond_carat_options']));
+        }
+        if ($this->diamond_carat_weight > 0) {
+            $wt = $this->diamond_carat_weight;
+            return [(rtrim(rtrim(number_format($wt, 2, '.', ''), '0'), '.') ?: '0') . ' ct'];
+        }
+        return [];
     }
 
     public function getDiamondClaritiesAttribute(): array

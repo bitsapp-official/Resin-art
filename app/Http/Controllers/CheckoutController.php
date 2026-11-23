@@ -302,7 +302,7 @@ class CheckoutController extends Controller
                         'gold_purity'     => $authItem['options']['gold_purity'] ?? null,
                         'metal_color'     => $authItem['options']['metal_color'] ?? null,
                         'size'            => $authItem['options']['size'] ?? null,
-                        'diamond_carat'   => $authItem['options']['diamond_carat'] ?? ($prod->diamond_carat_weight > 0 ? $prod->diamond_carat_weight . ' ct' : $prod->diamond_carat),
+                        'diamond_carat'   => $authItem['options']['diamond_carat'] ?? (!empty($prod->diamond_carat_options) ? $prod->diamond_carat_options[0] : ($prod->diamond_carat_weight > 0 ? $prod->diamond_carat_weight . ' ct' : $prod->diamond_carat)),
                         'diamond_clarity' => $authItem['options']['diamond_clarity'] ?? ($authItem['options']['clarity'] ?? ($prod->diamond_clarities[0] ?? null)),
                         'diamond_color'   => $authItem['options']['diamond_color'] ?? $prod->diamond_color,
                     ],

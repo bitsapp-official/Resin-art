@@ -248,11 +248,12 @@
                     setTimeout(() => this.updateThumbScrollState(), 200);
                     setTimeout(() => this.updateThumbScrollState(), 600);
 
-                    // Dynamically synchronize browser URL whenever color, purity, size, or clarity is switched
+                    // Dynamically synchronize browser URL whenever color, purity, size, clarity, or diamond size is switched
                     this.$watch('selectedColor', () => this.syncUrlWithState());
                     this.$watch('selectedPurity', () => this.syncUrlWithState());
                     this.$watch('selectedSize', () => this.syncUrlWithState());
                     this.$watch('selectedClarity', () => this.syncUrlWithState());
+                    this.$watch('selectedCaratOption', () => this.syncUrlWithState());
 
                     // Check URL query parameters on initial page load
                     try {
@@ -261,6 +262,7 @@
                         const qPurity = urlParams.get('purity');
                         const qSize = urlParams.get('size');
                         const qClarity = urlParams.get('clarity');
+                        const qCarat = urlParams.get('carat');
                         if (qColor) {
                             const foundColor = (this.metalColors || []).find(c => c.toLowerCase().trim() === qColor.toLowerCase().trim());
                             if (foundColor) this.selectedColor = foundColor;
@@ -276,6 +278,10 @@
                         if (qClarity) {
                             const foundClarity = (this.diamondClarities || []).find(c => (c || '').toLowerCase().trim() === qClarity.toLowerCase().trim());
                             if (foundClarity) this.selectedClarity = foundClarity;
+                        }
+                        if (qCarat) {
+                            const foundCarat = (this.diamondCaratOptions || []).find(c => (c || '').toLowerCase().trim() === qCarat.toLowerCase().trim());
+                            if (foundCarat) this.selectedCaratOption = foundCarat;
                         }
                     } catch(e) {}
 
@@ -301,7 +307,12 @@
                         } else {
                             url.searchParams.delete('size');
                         }
-                        if (this.selectedClarity && this.diamondCarat > 0) {
+                        if (this.selectedCaratOption && (this.diamondCaratOptions || []).length > 1) {
+                            url.searchParams.set('carat', this.selectedCaratOption);
+                        } else {
+                            url.searchParams.delete('carat');
+                        }
+                        if (this.selectedClarity && this.activeDiamondCarat > 0) {
                             url.searchParams.set('clarity', this.selectedClarity);
                         } else {
                             url.searchParams.delete('clarity');
@@ -451,6 +462,8 @@
                 makingChargePerGram: Number(config.makingChargePerGram) || 0,
                 diamondStoneValue: Number(config.diamondStoneValue) || 0,
                 diamondCarat: Number(config.diamondCarat) || 0,
+                diamondCaratOptions: config.diamondCaratOptions || [],
+                selectedCaratOption: config.selectedCaratOption || (config.diamondCaratOptions && config.diamondCaratOptions.length > 0 ? config.diamondCaratOptions[0] : (config.diamondCarat > 0 ? config.diamondCarat + ' ct' : '')),
                 diamondClarities: config.diamondClarities || [],
                 selectedClarity: config.selectedClarity || 'VVS1',
                 diamondRates: config.diamondRates || {},
@@ -458,6 +471,14 @@
                 bullionRates: config.bullionRates || {},
                 commonCutPrice: Number(config.commonCutPrice) || 0,
                 regularPrice: Number(config.regularPrice) || 0,
+
+                get activeDiamondCarat() {
+                    if (this.selectedCaratOption) {
+                        const m = String(this.selectedCaratOption).match(/([\d\.]+)/);
+                        if (m) return parseFloat(m[1]);
+                    }
+                    return this.diamondCarat || 0;
+                },
 
                 getDiamondRate(clarity) {
                     const c = (clarity || this.selectedClarity || 'VVS1').toUpperCase().trim();
@@ -521,9 +542,10 @@
                         const goldVal = Math.round(finalWeight * karatRate * 100) / 100;
                         const makingVal = Math.round(finalWeight * this.makingChargePerGram * 100) / 100;
                         let stoneVal = Math.round(this.diamondStoneValue * 100) / 100;
-                        if (this.diamondCarat > 0) {
+                        const currentCarat = this.activeDiamondCarat;
+                        if (currentCarat > 0) {
                             const stoneRate = this.getDiamondRate(this.selectedClarity);
-                            stoneVal = Math.round(this.diamondCarat * stoneRate * 100) / 100;
+                            stoneVal = Math.round(currentCarat * stoneRate * 100) / 100;
                         }
                         const subtotal = Math.round((goldVal + makingVal + stoneVal) * 100) / 100;
                         const gst = Math.round(subtotal * 0.03 * 100) / 100;
@@ -632,7 +654,7 @@
                     let msg = `Hello, I would like to order / inquire about this piece:\n\n` +
                               `• Product: ${this.productTitle}\n` +
                               (this.productSku ? `• SKU: ${this.productSku}\n` : '') +
-                              (this.diamondCarat > 0 ? `• Diamond: ${this.diamondCarat} ct (${this.selectedClarity || 'VVS1'})\n` : '') +
+                              (this.activeDiamondCarat > 0 ? `• Diamond: ${this.selectedCaratOption || (this.activeDiamondCarat + ' ct')} (${this.selectedClarity || 'VVS1'})\n` : '') +
                               (this.selectedColor ? `• Metal Color: ${this.selectedColor}\n` : '') +
                               (this.selectedPurity ? `• Purity: ${this.selectedPurity}\n` : '') +
                               (this.selectedSize ? `• ${this.sizeLabel}: ${this.selectedSize}\n` : '') +
@@ -753,6 +775,8 @@
             makingChargePerGram: {{ (float) $product->making_charge_per_gram }},
             diamondStoneValue: {{ (float) $product->diamond_stone_value }},
             diamondCarat: {{ (float) $product->diamond_carat_weight }},
+            diamondCaratOptions: @js($product->diamond_carat_options),
+            selectedCaratOption: @js(request('carat') ?: (!empty($product->diamond_carat_options) ? $product->diamond_carat_options[0] : ($product->diamond_carat_weight > 0 ? $product->diamond_carat_weight . ' ct' : ''))),
             diamondClarities: @js($product->diamond_clarities),
             selectedClarity: @js(request('clarity') ?: (!empty($product->diamond_clarities) ? $product->diamond_clarities[0] : 'VVS1')),
             diamondRates: {
@@ -1222,14 +1246,35 @@
                 </div>
 
 
-                {{-- 0. Diamond Clarity Selector (Dynamic Luxury Interface) --}}
-                <template x-if="diamondCarat > 0 && diamondClarities && diamondClarities.length > 0">
+                {{-- 0. Diamond Size / Carat Selector (Dynamic Luxury Interface: 1.00 ct to 5.00 ct) --}}
+                <template x-if="diamondCaratOptions && diamondCaratOptions.length > 1">
+                    <div class="space-y-2">
+                        <div class="flex items-center justify-between">
+                            <p class="text-[10px] uppercase tracking-[0.2em] font-semibold text-[#1C1917]">
+                                DIAMOND SIZE <span class="font-normal text-[#8E877D] tracking-normal ml-1" x-text="selectedCaratOption ? '· ' + selectedCaratOption : ''"></span>
+                            </p>
+                            <span class="text-[10px] uppercase tracking-[0.16em] text-[#8E877D] font-medium" x-text="selectedCaratOption ? (selectedCaratOption + ' SOLITAIRE') : 'SOLITAIRE'"></span>
+                        </div>
+                        <div class="flex items-center gap-2 flex-wrap">
+                            <template x-for="cOpt in diamondCaratOptions" :key="cOpt">
+                                <button type="button" @click="selectedCaratOption = cOpt; if (typeof syncUrlWithState === 'function') syncUrlWithState();"
+                                        :class="selectedCaratOption === cOpt ? 'bg-[#1C1917] text-white border-[#1C1917] shadow-xs' : 'bg-transparent text-[#1C1917] border-[#EBE6DD] hover:border-[#1C1917]'"
+                                        class="px-4 sm:px-5 py-2 rounded-full border text-[9px] sm:text-[9.5px] uppercase tracking-[0.18em] sm:tracking-[0.2em] font-medium transition-all duration-200 cursor-pointer"
+                                        x-text="cOpt">
+                                </button>
+                            </template>
+                        </div>
+                    </div>
+                </template>
+
+                {{-- 0.5 Diamond Clarity Selector (Dynamic Luxury Interface) --}}
+                <template x-if="activeDiamondCarat > 0 && diamondClarities && diamondClarities.length > 0">
                     <div class="space-y-2">
                         <div class="flex items-center justify-between">
                             <p class="text-[10px] uppercase tracking-[0.2em] font-semibold text-[#1C1917]">
                                 DIAMOND CLARITY <span class="font-normal text-[#8E877D] tracking-normal ml-1" x-text="selectedClarity ? '· ' + selectedClarity : ''"></span>
                             </p>
-                            <span class="text-[10px] uppercase tracking-[0.16em] text-[#8E877D] font-medium" x-text="diamondCarat + ' CT NATURAL DIAMOND'"></span>
+                            <span class="text-[10px] uppercase tracking-[0.16em] text-[#8E877D] font-medium" x-text="activeDiamondCarat + ' CT NATURAL DIAMOND'"></span>
                         </div>
                         <div class="flex items-center gap-2 flex-wrap">
                             <template x-for="clarity in diamondClarities" :key="clarity">
@@ -1391,11 +1436,11 @@
                             <input type="hidden" name="product_id" value="{{ $product->id }}">
                             <input type="hidden" name="options[gold_purity]" :value="selectedPurity">
                             <input type="hidden" name="options[metal_color]" :value="selectedColor">
-                            <template x-if="diamondCarat > 0 && selectedClarity">
+                            <template x-if="activeDiamondCarat > 0 && selectedClarity">
                                 <input type="hidden" name="options[diamond_clarity]" :value="selectedClarity">
                             </template>
-                            <template x-if="diamondCarat > 0">
-                                <input type="hidden" name="options[diamond_carat]" :value="diamondCarat + ' ct'">
+                            <template x-if="activeDiamondCarat > 0">
+                                <input type="hidden" name="options[diamond_carat]" :value="selectedCaratOption || (activeDiamondCarat + ' ct')">
                             </template>
                             <template x-if="selectedSize">
                                 <input type="hidden" name="options[size]" :value="selectedSize">
@@ -1450,11 +1495,11 @@
                             <input type="hidden" name="quantity" :value="qty">
                             <input type="hidden" name="options[gold_purity]" :value="selectedPurity">
                             <input type="hidden" name="options[metal_color]" :value="selectedColor">
-                            <template x-if="diamondCarat > 0 && selectedClarity">
+                            <template x-if="activeDiamondCarat > 0 && selectedClarity">
                                 <input type="hidden" name="options[diamond_clarity]" :value="selectedClarity">
                             </template>
-                            <template x-if="diamondCarat > 0">
-                                <input type="hidden" name="options[diamond_carat]" :value="diamondCarat + ' ct'">
+                            <template x-if="activeDiamondCarat > 0">
+                                <input type="hidden" name="options[diamond_carat]" :value="selectedCaratOption || (activeDiamondCarat + ' ct')">
                             </template>
                             <template x-if="selectedSize">
                                 <input type="hidden" name="options[size]" :value="selectedSize">
@@ -1697,11 +1742,12 @@
                                         ];
                                     }
 
-                                    if ($product->diamond_carat_weight > 0) {
+                                    if ($product->diamond_carat_weight > 0 || !empty($product->diamond_carat_options)) {
                                         $allSpecs[] = [
                                             'label' => 'Diamond Weight',
-                                            'is_alpine' => false,
-                                            'static_value' => $product->diamond_carat_weight . ' ct approx',
+                                            'is_alpine' => true,
+                                            'alpine_text' => "selectedCaratOption ? (selectedCaratOption + ' approx') : (activeDiamondCarat > 0 ? activeDiamondCarat + ' ct approx' : '')",
+                                            'static_value' => (!empty($product->diamond_carat_options) ? $product->diamond_carat_options[0] : ($product->diamond_carat_weight . ' ct')) . ' approx',
                                         ];
                                     } elseif (!empty($product->diamond_carat)) {
                                         $allSpecs[] = [

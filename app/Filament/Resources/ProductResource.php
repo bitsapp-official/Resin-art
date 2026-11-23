@@ -321,6 +321,33 @@ class ProductResource extends Resource
                                     ->columnSpan(['default' => 1, 'sm' => 1]),
                             ]),
 
+                        // 1.5 Diamond Size / Carat Options (Dynamic Customer Selection e.g. 1.00 ct to 5.00 ct)
+                        Forms\Components\TagsInput::make('attributes.diamond_carat_options')
+                            ->label('Available Diamond Sizes / Carat Weights for Customer')
+                            ->placeholder('e.g. 1.00 ct, 1.20 ct, 1.50 ct, 2.00 ct, 2.50 ct, 3.00 ct, 4.00 ct, 5.00 ct')
+                            ->suggestions([
+                                '1.00 ct',
+                                '1.20 ct',
+                                '1.50 ct',
+                                '2.00 ct',
+                                '2.50 ct',
+                                '3.00 ct',
+                                '4.00 ct',
+                                '5.00 ct',
+                            ])
+                            ->helperText('Configure diamond carat sizes customers can select. You can add, change, or remove any custom carat weight (e.g. 1.00 ct to 5.00 ct). Price recalculates dynamically based on selected carat weight × daily clarity rate.')
+                            ->live()
+                            ->afterStateUpdated(function ($state, Forms\Set $set, Forms\Get $get) {
+                                if (!empty($state) && is_array($state)) {
+                                    $first = reset($state);
+                                    if (preg_match('/([\d\.]+)/', (string) $first, $m)) {
+                                        $set('attributes.diamond_carat', (float) $m[1]);
+                                    }
+                                }
+                                self::syncAllPricesAndPreviews($get, $set);
+                            })
+                            ->columnSpanFull(),
+
                         // 2. Diamond Clarity Selection (VVS1, VVS2, VS1, VS2)
                         Forms\Components\CheckboxList::make('attributes.diamond_clarities')
                             ->label('Available Natural Diamond Clarities for Customer')
@@ -893,6 +920,19 @@ class ProductResource extends Resource
 
                 Tables\Columns\TextColumn::make('attributes.diamond_carat')
                     ->label('Diamond')
+                    ->getStateUsing(function ($record) {
+                        $opts = $record->diamond_carat_options;
+                        if (!empty($opts) && count($opts) > 1) {
+                            return count($opts) . ' Sizes (' . $opts[0] . ' - ' . end($opts) . ')';
+                        }
+                        if (!empty($opts)) {
+                            return $opts[0];
+                        }
+                        if ($record->diamond_carat_weight > 0) {
+                            return $record->diamond_carat_weight . ' ct';
+                        }
+                        return null;
+                    })
                     ->badge()
                     ->color('info')
                     ->placeholder('—')
@@ -1023,6 +1063,18 @@ class ProductResource extends Resource
         return $making;
     }
 
+    public static function resolveDiamondCaratOptions(Forms\Get $get): array
+    {
+        $val = $get('attributes.diamond_carat_options')
+            ?? $get('../../diamond_carat_options')
+            ?? $get('../../../attributes.diamond_carat_options')
+            ?? $get('../../attributes.diamond_carat_options')
+            ?? $get('data.attributes.diamond_carat_options', isAbsolute: true)
+            ?? $get('attributes.diamond_carat_options', isAbsolute: true);
+
+        return is_array($val) ? array_values(array_filter($val)) : [];
+    }
+
     public static function resolveDiamondCarat(Forms\Get $get): float
     {
         $val = $get('attributes.diamond_carat')
@@ -1032,10 +1084,19 @@ class ProductResource extends Resource
             ?? $get('data.attributes.diamond_carat', isAbsolute: true)
             ?? $get('attributes.diamond_carat', isAbsolute: true);
 
-        if (is_numeric($val)) return (float) $val;
+        if (is_numeric($val) && (float) $val > 0) return (float) $val;
         if (!empty($val) && preg_match('/([\d\.]+)/', (string) $val, $m)) {
             return (float) $m[1];
         }
+
+        $options = self::resolveDiamondCaratOptions($get);
+        if (!empty($options)) {
+            $first = reset($options);
+            if (preg_match('/([\d\.]+)/', (string) $first, $m)) {
+                return (float) $m[1];
+            }
+        }
+
         return 0.0;
     }
 

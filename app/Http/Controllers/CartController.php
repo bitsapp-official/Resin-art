@@ -50,9 +50,11 @@ class CartController extends Controller
         $options = $request->options ?? [];
 
         // Auto-complete dynamic diamond and gold attributes if not explicitly passed
-        if ($product->diamond_carat_weight > 0) {
+        if ($product->diamond_carat_weight > 0 || !empty($product->diamond_carat_options)) {
             if (empty($options['diamond_carat'])) {
-                $options['diamond_carat'] = $product->diamond_carat_weight . ' ct';
+                $options['diamond_carat'] = !empty($product->diamond_carat_options)
+                    ? $product->diamond_carat_options[0]
+                    : ($product->diamond_carat_weight . ' ct');
             }
             if (empty($options['diamond_clarity']) && empty($options['clarity'])) {
                 $clarities = $product->diamond_clarities;
@@ -160,9 +162,11 @@ class CartController extends Controller
         $options  = $request->options ?? [];
 
         // Auto-complete dynamic diamond and gold attributes if not explicitly passed
-        if ($product->diamond_carat_weight > 0) {
+        if ($product->diamond_carat_weight > 0 || !empty($product->diamond_carat_options)) {
             if (empty($options['diamond_carat'])) {
-                $options['diamond_carat'] = $product->diamond_carat_weight . ' ct';
+                $options['diamond_carat'] = !empty($product->diamond_carat_options)
+                    ? $product->diamond_carat_options[0]
+                    : ($product->diamond_carat_weight . ' ct');
             }
             if (empty($options['diamond_clarity']) && empty($options['clarity'])) {
                 $clarities = $product->diamond_clarities;

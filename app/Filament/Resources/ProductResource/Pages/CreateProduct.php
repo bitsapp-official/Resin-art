@@ -53,10 +53,16 @@ class CreateProduct extends CreateRecord
 
             $caratVal = $data['attributes']['diamond_carat'] ?? 0;
             $caratNum = 0.0;
-            if (is_numeric($caratVal)) {
+            if (is_numeric($caratVal) && (float) $caratVal > 0) {
                 $caratNum = (float) $caratVal;
             } elseif (!empty($caratVal) && preg_match('/([\d\.]+)/', (string) $caratVal, $m)) {
                 $caratNum = (float) $m[1];
+            } elseif (!empty($data['attributes']['diamond_carat_options']) && is_array($data['attributes']['diamond_carat_options'])) {
+                $first = reset($data['attributes']['diamond_carat_options']);
+                if (preg_match('/([\d\.]+)/', (string) $first, $m)) {
+                    $caratNum = (float) $m[1];
+                    $data['attributes']['diamond_carat'] = $caratNum;
+                }
             }
 
             $clarities = (array) ($data['attributes']['diamond_clarities'] ?? ['VVS1', 'VVS2', 'VS1', 'VS2']);

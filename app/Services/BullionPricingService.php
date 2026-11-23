@@ -479,7 +479,15 @@ class BullionPricingService
         $selectedSize = $options['size'] ?? null;
         $selectedPurity = $options['gold_purity'] ?? null;
         $selectedClarity = $options['diamond_clarity'] ?? ($options['clarity'] ?? null);
+        $selectedCaratOption = $options['diamond_carat'] ?? ($options['carat'] ?? null);
         $diamondCarat = $product->diamond_carat_weight;
+        if (!empty($selectedCaratOption)) {
+            if (is_numeric($selectedCaratOption) && (float) $selectedCaratOption > 0) {
+                $diamondCarat = (float) $selectedCaratOption;
+            } elseif (preg_match('/([\d\.]+)/', (string) $selectedCaratOption, $m)) {
+                $diamondCarat = (float) $m[1];
+            }
+        }
 
         $isDynamic = ($product->base_gold_weight > 0
             && ($product->attributes['pricing_mode'] ?? '') === 'dynamic'

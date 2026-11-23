@@ -698,6 +698,107 @@ class DynamicJewelryPricingMatrixTest extends TestCase
             'price' => 13987.00,
         ]);
     }
+
+    public function test_configurable_diamond_carat_options_scale_pricing_and_cart_addition(): void
+    {
+        SiteSetting::set('diamond_rate_vvs1', '100000');
+        SiteSetting::set('diamond_rate_vs1', '70000');
+        SiteSetting::set('gold_rate_18kt', '5700');
+
+        $product = Product::create([
+            'name' => 'Aura Grand Solitaire Diamond Ring',
+            'slug' => 'aura-grand-solitaire-diamond-ring',
+            'sku' => 'AURA-SOL-MULTI-CT',
+            'description' => 'Configurable diamond solitaire ring from 1.00 ct to 5.00 ct',
+            'price' => 250000,
+            'status' => 'published',
+            'inventory_type' => 'READY_TO_SHIP',
+            'stock' => 10,
+            'attributes' => [
+                'pricing_mode' => 'dynamic',
+                'gold_weight_grams' => 4.0,
+                'making_charge' => 750.0,
+                'profit_margin_percent' => 5.0,
+                'diamond_carat' => 1.0,
+                'diamond_carat_options' => ['1.00 ct', '1.50 ct', '2.00 ct', '2.50 ct', '3.00 ct', '4.00 ct', '5.00 ct'],
+                'diamond_clarities' => ['VVS1', 'VS1'],
+                'gold_purities' => ['18KT Gold'],
+                'metal_colors' => ['Yellow Gold', 'White Gold', 'Rose Gold'],
+            ],
+        ]);
+
+        $this->assertCount(7, $product->diamond_carat_options);
+        $this->assertEquals(['1.00 ct', '1.50 ct', '2.00 ct', '2.50 ct', '3.00 ct', '4.00 ct', '5.00 ct'], $product->diamond_carat_options);
+
+        // 1. Verify 1.00 ct pricing:
+        // Gold: 4.0 * 5700 = 22800
+        // Making: 4.0 * 750 = 3000
+        // Diamond 1.00 ct @ 100,000 = 100,000
+        // Subtotal = 125,800
+        // GST (3%) = 3774
+        // Cost with GST = 129,574
+        // Profit 5% = 6478.70
+        // Final Price = Round(129574 + 6478.70) = 136,053
+        $price1ct = BullionPricingService::resolveItemPrice($product, [
+            'gold_purity' => '18KT Gold',
+            'diamond_clarity' => 'VVS1',
+            'diamond_carat' => '1.00 ct',
+        ]);
+        $this->assertEquals(136053.0, $price1ct);
+
+        // 2. Verify 2.00 ct pricing:
+        // Diamond 2.00 ct @ 100,000 = 200,000
+        // Subtotal = 22800 + 3000 + 200,000 = 225,800
+        // GST (3%) = 6774
+        // Cost with GST = 232,574
+        // Profit 5% = 11,628.70
+        // Final Price = Round(232574 + 11628.70) = 244,203
+        $price2ct = BullionPricingService::resolveItemPrice($product, [
+            'gold_purity' => '18KT Gold',
+            'diamond_clarity' => 'VVS1',
+            'diamond_carat' => '2.00 ct',
+        ]);
+        $this->assertEquals(244203.0, $price2ct);
+
+        // 3. Verify 5.00 ct pricing:
+        // Diamond 5.00 ct @ 100,000 = 500,000
+        // Subtotal = 22800 + 3000 + 500,000 = 525,800
+        // GST (3%) = 15,774
+        // Cost with GST = 541,574
+        // Profit 5% = 27,078.70
+        // Final Price = Round(541574 + 27078.70) = 568,653
+        $price5ct = BullionPricingService::resolveItemPrice($product, [
+            'gold_purity' => '18KT Gold',
+            'diamond_clarity' => 'VVS1',
+            'diamond_carat' => '5.00 ct',
+        ]);
+        $this->assertEquals(568653.0, $price5ct);
+
+        // 4. Cart addition with selected 2.00 ct option
+        $response = $this->post(route('cart.add'), [
+            'product_id' => $product->id,
+            'quantity' => 1,
+            'options' => [
+                'gold_purity' => '18KT Gold',
+                'metal_color' => 'Yellow Gold',
+                'diamond_clarity' => 'VVS1',
+                'diamond_carat' => '2.00 ct',
+            ],
+        ]);
+        $response->assertRedirect();
+
+        $cartItem = CartItem::where('product_id', $product->id)->first();
+        $this->assertNotNull($cartItem);
+        $this->assertEquals(244203.0, (float) $cartItem->price);
+        $this->assertEquals('2.00 ct', $cartItem->options['diamond_carat']);
+        $this->assertEquals('VVS1', $cartItem->options['diamond_clarity']);
+
+        // 5. Storefront view renders Diamond Size Carat Options
+        $viewResponse = $this->get(route('shop.show', ['slug' => $product->slug, 'carat' => '2.00 ct']));
+        $viewResponse->assertStatus(200);
+        $viewResponse->assertSee('DIAMOND SIZE');
+        $viewResponse->assertSee('5.00 ct');
+    }
 }
 
 
