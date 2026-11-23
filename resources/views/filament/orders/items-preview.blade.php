@@ -305,7 +305,7 @@
                     $color = $options['metal_color'] ?? ($options['color'] ?? ($item->product_snapshot['metal_color'] ?? null));
                     $purity = $options['gold_purity'] ?? ($options['purity'] ?? ($item->product_snapshot['gold_purity'] ?? null));
                     $size = $options['size'] ?? ($item->product_snapshot['size'] ?? null);
-                    $diamondCarat = $options['diamond_carat'] ?? ($item->product_snapshot['diamond_carat'] ?? ($item->product?->diamond_carat_weight > 0 ? $item->product->diamond_carat_weight . ' ct' : ($item->product?->diamond_carat ?? null)));
+                    $diamondCarat = $options['diamond_carat'] ?? ($options['carat'] ?? ($item->product_snapshot['diamond_carat'] ?? (!empty($item->product?->diamond_carat_options) ? $item->product->diamond_carat_options[0] : ($item->product?->diamond_carat_weight > 0 ? $item->product->diamond_carat_weight . ' ct' : ($item->product?->diamond_carat ?? null)))));
                     $diamondClarity = $options['diamond_clarity'] ?? ($options['clarity'] ?? ($item->product_snapshot['diamond_clarity'] ?? null));
                     if (!$diamondClarity && $diamondCarat && $item->product) {
                         $pClars = $item->product->diamond_clarities;
@@ -324,6 +324,7 @@
                     if ($color) $queryParams['color'] = $color;
                     if ($purity) $queryParams['purity'] = $purity;
                     if ($size) $queryParams['size'] = $size;
+                    if ($diamondCarat) $queryParams['carat'] = $diamondCarat;
                     if ($diamondClarity) $queryParams['clarity'] = $diamondClarity;
                     $productSlug = $item->product?->slug ?? ($item->product_snapshot['slug'] ?? null);
                     $productUrl = null;
@@ -402,9 +403,9 @@
                                     @endif
 
                                     @if($diamondCarat)
-                                        <div class="order-spec-chip">
-                                            <span class="order-spec-label">Carat:</span>
-                                            <span class="order-spec-val">{{ $diamondCarat }}</span>
+                                        <div class="order-spec-chip" style="background: rgba(173, 149, 117, 0.12); border-color: rgba(173, 149, 117, 0.35);">
+                                            <span class="order-spec-label" style="color: #AD9575;">Diamond Size:</span>
+                                            <span class="order-spec-val" style="color: #92754A; font-weight: 700;">{{ $diamondCarat }}</span>
                                         </div>
                                     @endif
 
@@ -427,7 +428,7 @@
                                 @if($productUrl)
                                     <div style="margin-top: 6px;">
                                         <a href="{{ $productUrl }}" target="_blank" style="display: inline-flex; align-items: center; gap: 4px; font-size: 11px; color: #AD9575; text-decoration: underline; font-weight: 600;">
-                                            <span>View in Store ({{ $color ? $color : '' }}{{ $color && $purity ? ' · ' : '' }}{{ $purity ? $purity : '' }}{{ ($color || $purity) && $diamondClarity ? ' · ' . $diamondClarity : '' }}{{ ($color || $purity || $diamondClarity) && $size ? ' · ' : '' }}{{ $size ?: '' }})</span> &rarr;
+                                            <span>View in Store ({{ $color ? $color : '' }}{{ $color && $purity ? ' · ' : '' }}{{ $purity ? $purity : '' }}{{ ($color || $purity) && $diamondCarat ? ' · ' . $diamondCarat : '' }}{{ ($color || $purity || $diamondCarat) && $diamondClarity ? ' · ' . $diamondClarity : '' }}{{ ($color || $purity || $diamondCarat || $diamondClarity) && $size ? ' · ' : '' }}{{ $size ?: '' }})</span> &rarr;
                                         </a>
                                     </div>
                                 @endif

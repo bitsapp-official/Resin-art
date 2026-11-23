@@ -601,12 +601,14 @@
                                     $purity = $options['gold_purity'] ?? ($options['purity'] ?? null);
                                     $size = $options['size'] ?? null;
                                     $clarity = $options['diamond_clarity'] ?? ($options['clarity'] ?? null);
+                                    $carat = $options['diamond_carat'] ?? ($options['carat'] ?? null);
                                     
                                     $productSlug = $item->product?->slug;
                                     $queryParams = [];
                                     if ($color) $queryParams['color'] = $color;
                                     if ($purity) $queryParams['purity'] = $purity;
                                     if ($size) $queryParams['size'] = $size;
+                                    if ($carat) $queryParams['carat'] = $carat;
                                     if ($clarity) $queryParams['clarity'] = $clarity;
                                     
                                     $productUrl = null;
@@ -650,8 +652,8 @@
                                                 @endif
                                             </h4>
 
-                                            {{-- Variant Badges: Tone, Purity, Size, Diamond Clarity --}}
-                                            @if($color || $purity || $size || $clarity)
+                                            {{-- Variant Badges: Tone, Purity, Size, Diamond Carat, Diamond Clarity --}}
+                                            @if($color || $purity || $size || $carat || $clarity)
                                                 <div class="flex items-center gap-1.5 flex-wrap pt-1">
                                                     @if($color)
                                                         <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium bg-[#FAF6F0] text-[#A87432] border border-[#EBE3D7]">
@@ -666,6 +668,11 @@
                                                     @if($size)
                                                         <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium bg-[#F5F3FF] text-[#7C3AED] border border-[#EDE9FE]">
                                                             {{ $size }}
+                                                        </span>
+                                                    @endif
+                                                    @if($carat)
+                                                        <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium bg-[#FAF6F0] text-[#78716C] border border-[#EBE3D7]">
+                                                            {{ $carat }}
                                                         </span>
                                                     @endif
                                                     @if($clarity)

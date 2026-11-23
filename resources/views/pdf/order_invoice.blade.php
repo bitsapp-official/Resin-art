@@ -456,8 +456,8 @@
                                 $c = $item->product_snapshot['diamond_clarity'] ?? ($item->product?->diamond_clarities[0] ?? null);
                                 if ($c) $opts['diamond_clarity'] = $c;
                             }
-                            if (empty($opts['diamond_carat'])) {
-                                $cWeight = $item->product_snapshot['diamond_carat'] ?? ($item->product?->diamond_carat_weight > 0 ? $item->product->diamond_carat_weight . ' ct' : ($item->product?->diamond_carat ?? null));
+                            if (empty($opts['diamond_carat']) && empty($opts['carat'])) {
+                                $cWeight = $item->product_snapshot['diamond_carat'] ?? (!empty($item->product?->diamond_carat_options) ? $item->product->diamond_carat_options[0] : ($item->product?->diamond_carat_weight > 0 ? $item->product->diamond_carat_weight . ' ct' : ($item->product?->diamond_carat ?? null)));
                                 if ($cWeight) $opts['diamond_carat'] = $cWeight;
                             }
                             if (empty($opts['diamond_color'])) {
@@ -470,12 +470,13 @@
                                 @foreach($opts as $k => $v)
                                     @php
                                         $displayKey = match(strtolower($k)) {
-                                            'gold_purity'     => 'Purity',
-                                            'metal_color'     => 'Tone',
+                                            'gold_purity'     => 'Gold Purity',
+                                            'metal_color'     => 'Metal Tone',
                                             'size'            => 'Size',
+                                            'diamond_carat'   => 'Diamond Size',
+                                            'carat'           => 'Diamond Size',
                                             'diamond_clarity' => 'Diamond Clarity',
                                             'clarity'         => 'Diamond Clarity',
-                                            'diamond_carat'   => 'Diamond Carat',
                                             'diamond_color'   => 'Diamond Color',
                                             default           => ucfirst(str_replace('_', ' ', $k))
                                         };

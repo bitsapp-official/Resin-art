@@ -275,9 +275,9 @@
                                 $color = $options['metal_color'] ?? ($options['color'] ?? null);
                                 $purity = $options['gold_purity'] ?? ($options['purity'] ?? null);
                                 $size = $options['size'] ?? null;
-                                $carat = $options['diamond_carat'] ?? ($options['carat'] ?? ($item->product_snapshot['attributes']['diamond_carat'] ?? ($item->product?->getCustomAttribute('diamond_carat') ?? null)));
-                                $clarity = $options['diamond_clarity'] ?? ($options['clarity'] ?? ($item->product_snapshot['attributes']['diamond_clarity'] ?? ($item->product?->getCustomAttribute('diamond_clarity') ?? null)));
-                                $diamondColor = $options['diamond_color'] ?? ($item->product_snapshot['attributes']['diamond_color'] ?? ($item->product?->getCustomAttribute('diamond_color') ?? null));
+                                $carat = $options['diamond_carat'] ?? ($options['carat'] ?? ($item->product_snapshot['diamond_carat'] ?? ($item->product_snapshot['attributes']['diamond_carat'] ?? ($item->product?->diamond_carat ?? null))));
+                                $clarity = $options['diamond_clarity'] ?? ($options['clarity'] ?? ($item->product_snapshot['diamond_clarity'] ?? ($item->product_snapshot['attributes']['diamond_clarity'] ?? ($item->product?->diamond_clarities[0] ?? null))));
+                                $diamondColor = $options['diamond_color'] ?? ($item->product_snapshot['diamond_color'] ?? ($item->product_snapshot['attributes']['diamond_color'] ?? ($item->product?->diamond_color ?? null)));
 
                                 $itemImg = $item->primary_image_url;
                                 
@@ -287,6 +287,7 @@
                                 if ($color) $queryParams['color'] = $color;
                                 if ($purity) $queryParams['purity'] = $purity;
                                 if ($size) $queryParams['size'] = $size;
+                                if ($carat) $queryParams['carat'] = $carat;
                                 if ($clarity) $queryParams['clarity'] = $clarity;
                                 
                                 $productUrl = null;

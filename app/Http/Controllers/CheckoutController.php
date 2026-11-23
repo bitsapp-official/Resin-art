@@ -281,6 +281,15 @@ class CheckoutController extends Controller
                     : \App\Services\CurrencyService::convert($authItem['unit_price'], $activeCurrency);
                 $itemLineTotal = round($itemPrice * $authItem['quantity'], 2);
 
+                $selectedCarat = $authItem['options']['diamond_carat'] ?? ($authItem['options']['carat'] ?? (!empty($prod->diamond_carat_options) ? $prod->diamond_carat_options[0] : ($prod->diamond_carat_weight > 0 ? $prod->diamond_carat_weight . ' ct' : $prod->diamond_carat)));
+                $selectedClarity = $authItem['options']['diamond_clarity'] ?? ($authItem['options']['clarity'] ?? ($prod->diamond_clarities[0] ?? null));
+                if (!empty($selectedCarat)) {
+                    $authItem['options']['diamond_carat'] = $selectedCarat;
+                }
+                if (!empty($selectedClarity)) {
+                    $authItem['options']['diamond_clarity'] = $selectedClarity;
+                }
+
                 OrderItem::create([
                     'order_id'         => $order->id,
                     'product_id'       => $prod->id,
@@ -302,8 +311,8 @@ class CheckoutController extends Controller
                         'gold_purity'     => $authItem['options']['gold_purity'] ?? null,
                         'metal_color'     => $authItem['options']['metal_color'] ?? null,
                         'size'            => $authItem['options']['size'] ?? null,
-                        'diamond_carat'   => $authItem['options']['diamond_carat'] ?? (!empty($prod->diamond_carat_options) ? $prod->diamond_carat_options[0] : ($prod->diamond_carat_weight > 0 ? $prod->diamond_carat_weight . ' ct' : $prod->diamond_carat)),
-                        'diamond_clarity' => $authItem['options']['diamond_clarity'] ?? ($authItem['options']['clarity'] ?? ($prod->diamond_clarities[0] ?? null)),
+                        'diamond_carat'   => $selectedCarat,
+                        'diamond_clarity' => $selectedClarity,
                         'diamond_color'   => $authItem['options']['diamond_color'] ?? $prod->diamond_color,
                     ],
                 ]);

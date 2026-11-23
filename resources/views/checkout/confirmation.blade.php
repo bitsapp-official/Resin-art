@@ -86,13 +86,15 @@
                         $color = $options['metal_color'] ?? ($options['color'] ?? null);
                         $purity = $options['gold_purity'] ?? ($options['purity'] ?? null);
                         $size = $options['size'] ?? null;
-                        $clarity = $options['diamond_clarity'] ?? ($options['clarity'] ?? null);
+                        $clarity = $options['diamond_clarity'] ?? ($options['clarity'] ?? ($item->product_snapshot['diamond_clarity'] ?? null));
+                        $carat = $options['diamond_carat'] ?? ($options['carat'] ?? ($item->product_snapshot['diamond_carat'] ?? null));
 
                         $productSlug = $item->product?->slug ?? ($item->product_snapshot['slug'] ?? null);
                         $queryParams = [];
                         if ($color) $queryParams['color'] = $color;
                         if ($purity) $queryParams['purity'] = $purity;
                         if ($size) $queryParams['size'] = $size;
+                        if ($carat) $queryParams['carat'] = $carat;
                         if ($clarity) $queryParams['clarity'] = $clarity;
 
                         $productUrl = null;
@@ -123,8 +125,8 @@
                                 @if($size)
                                     <span class="text-[9px] uppercase tracking-wider bg-[#F5F2EB] text-[#1C1917] px-2 py-0.5 rounded border border-[#E6E1D7] font-medium">{{ $size }}</span>
                                 @endif
-                                @if(!empty($options['diamond_carat']))
-                                    <span class="text-[9px] uppercase tracking-wider bg-[#F5F2EB] text-[#1C1917] px-2 py-0.5 rounded border border-[#E6E1D7] font-medium">{{ $options['diamond_carat'] }}</span>
+                                @if($carat)
+                                    <span class="text-[9px] uppercase tracking-wider bg-[#F5F2EB] text-[#1C1917] px-2 py-0.5 rounded border border-[#E6E1D7] font-medium">{{ $carat }}</span>
                                 @endif
                                 @if($clarity)
                                     <span class="text-[9px] uppercase tracking-wider bg-[#EFE8DC] text-[#7A6038] px-2 py-0.5 rounded border border-[#D5C2A5] font-semibold">💎 {{ $clarity }}</span>
