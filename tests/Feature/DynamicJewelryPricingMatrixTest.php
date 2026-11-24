@@ -799,6 +799,75 @@ class DynamicJewelryPricingMatrixTest extends TestCase
         $viewResponse->assertSee('DIAMOND SIZE');
         $viewResponse->assertSee('5.00 ct');
     }
+
+    public function test_moissanite_clarity_option_calculates_correct_pricing_and_renders_in_specifications(): void
+    {
+        $user = User::factory()->create();
+        $this->actingAs($user);
+
+        SiteSetting::set('gold_rate_18kt', '5700');
+        SiteSetting::set('gold_default_making_per_gram', '750');
+        SiteSetting::set('diamond_rate_moissanite', '3500');
+
+        $product = Product::create([
+            'name' => 'Forever Solitaire Lab Grown Diamond Ring',
+            'slug' => 'forever-solitaire-lab-grown-diamond-ring',
+            'sku' => 'MOISS-TEST-01',
+            'price' => 85000,
+            'status' => 'published',
+            'inventory_type' => 'READY_TO_SHIP',
+            'stock' => 10,
+            'attributes' => [
+                'pricing_mode' => 'dynamic',
+                'making_charge' => 750,
+                'making_charge_type' => 'per_gram',
+                'gold_weight_grams' => 4.0,
+                'diamond_carat_weight' => 2.00,
+                'diamond_carat_options' => ['1.00 ct', '2.00 ct', '3.00 ct'],
+                'diamond_clarities' => ['VVS1', 'VS2', 'Moissanite'],
+                'gold_purities' => ['14KT Gold', '18KT Gold', '925 Silver'],
+                'metal_colors' => ['Yellow Gold', 'White Gold'],
+                'profit_margin_percent' => 5,
+            ],
+        ]);
+
+        // Gold 18KT = 4.0 * 5700 = 22,800
+        // Making = 4.0 * 750 = 3,000
+        // Moissanite 2.00 ct = 2.00 * 3500 = 7,000
+        // Subtotal = 32,800
+        // GST (3%) = 984 -> 33,784
+        // Profit (5%) = 1689.20 -> Final Price = 35,473
+        $priceMoiss = BullionPricingService::resolveItemPrice($product, [
+            'gold_purity' => '18KT Gold',
+            'diamond_clarity' => 'Moissanite',
+            'diamond_carat' => '2.00 ct',
+        ]);
+        $this->assertEquals(35473.0, $priceMoiss);
+
+        // Cart addition with Moissanite
+        $response = $this->post(route('cart.add'), [
+            'product_id' => $product->id,
+            'quantity' => 1,
+            'options' => [
+                'gold_purity' => '18KT Gold',
+                'metal_color' => 'Yellow Gold',
+                'diamond_clarity' => 'Moissanite',
+                'diamond_carat' => '2.00 ct',
+            ],
+        ]);
+        $response->assertRedirect();
+
+        $cartItem = CartItem::where('product_id', $product->id)->first();
+        $this->assertNotNull($cartItem);
+        $this->assertEquals(35473.0, (float) $cartItem->price);
+        $this->assertEquals('Moissanite', $cartItem->options['diamond_clarity']);
+
+        // Storefront view renders specifications with Moissanite logic
+        $viewResponse = $this->get(route('shop.show', ['slug' => $product->slug, 'clarity' => 'Moissanite']));
+        $viewResponse->assertStatus(200);
+        $viewResponse->assertSee('Moissanite');
+        $viewResponse->assertSee('GRA Moissanite Authenticity Report');
+    }
 }
 
 

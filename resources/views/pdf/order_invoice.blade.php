@@ -475,8 +475,7 @@
                                             'size'            => 'Size',
                                             'diamond_carat'   => 'Diamond Size',
                                             'carat'           => 'Diamond Size',
-                                            'diamond_clarity' => 'Diamond Clarity',
-                                            'clarity'         => 'Diamond Clarity',
+                                            'diamond_clarity', 'clarity' => str_contains(strtolower((string)$v), 'moissanite') ? 'Center Stone' : 'Diamond Clarity',
                                             'diamond_color'   => 'Diamond Color',
                                             default           => ucfirst(str_replace('_', ' ', $k))
                                         };

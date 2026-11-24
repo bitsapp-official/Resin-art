@@ -49,6 +49,7 @@ class BullionPricingService
         $rateDiamondVvs2 = (float) SiteSetting::get('diamond_rate_vvs2', 90000.0);
         $rateDiamondVs1  = (float) SiteSetting::get('diamond_rate_vs1', 75000.0);
         $rateDiamondVs2  = (float) SiteSetting::get('diamond_rate_vs2', 60000.0);
+        $rateDiamondMoissanite = (float) SiteSetting::get('diamond_rate_moissanite', 3500.0);
 
         $makingPerGram = (float) SiteSetting::get('gold_default_making_per_gram', 650);
         $gstRate = (float) SiteSetting::get('gold_gst_rate', 3.0);
@@ -56,30 +57,34 @@ class BullionPricingService
         $updatedAt = (string) SiteSetting::get('gold_rates_updated_at', now()->toDateTimeString());
 
         return [
-            'rate_22kt'           => $rate22kt,
-            'rate_18kt'           => $rate18kt,
-            'rate_14kt'           => $rate14kt,
-            'rate_10kt'           => $rate10kt,
-            'rate_silver_925'     => $rateSilver925,
-            'diamond_rate_vvs1'   => $rateDiamondVvs1,
-            'diamond_rate_vvs2'   => $rateDiamondVvs2,
-            'diamond_rate_vs1'    => $rateDiamondVs1,
-            'diamond_rate_vs2'    => $rateDiamondVs2,
-            'making_per_gram'     => $makingPerGram,
-            'gst_rate'            => $gstRate,
-            'mrp_markup_percent'  => $mrpMarkupPercent,
-            'updated_at'          => $updatedAt,
+            'rate_22kt'                => $rate22kt,
+            'rate_18kt'                => $rate18kt,
+            'rate_14kt'                => $rate14kt,
+            'rate_10kt'                => $rate10kt,
+            'rate_silver_925'          => $rateSilver925,
+            'diamond_rate_vvs1'        => $rateDiamondVvs1,
+            'diamond_rate_vvs2'        => $rateDiamondVvs2,
+            'diamond_rate_vs1'         => $rateDiamondVs1,
+            'diamond_rate_vs2'         => $rateDiamondVs2,
+            'diamond_rate_moissanite'  => $rateDiamondMoissanite,
+            'making_per_gram'          => $makingPerGram,
+            'gst_rate'                 => $gstRate,
+            'mrp_markup_percent'       => $mrpMarkupPercent,
+            'updated_at'               => $updatedAt,
         ];
     }
 
     /**
-     * Return rate per carat for a specific Diamond Clarity (VVS1, VVS2, VS1, VS2).
+     * Return rate per carat for a specific Diamond Clarity (VVS1, VVS2, VS1, VS2, Moissanite).
      */
     public static function getDiamondRateForClarity(string $clarity, ?array $rates = null): float
     {
         $rates = $rates ?? self::getRates();
         $c = strtoupper(trim($clarity));
 
+        if (str_contains($c, 'MOISSANITE')) {
+            return (float) ($rates['diamond_rate_moissanite'] ?? 3500.0);
+        }
         if (str_contains($c, 'VVS1')) {
             return (float) ($rates['diamond_rate_vvs1'] ?? 110000.0);
         }

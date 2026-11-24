@@ -348,20 +348,21 @@ class ProductResource extends Resource
                             })
                             ->columnSpanFull(),
 
-                        // 2. Diamond Clarity Selection (VVS1, VVS2, VS1, VS2)
+                        // 2. Diamond Clarity Selection (VVS1, VVS2, VS1, VS2, Moissanite)
                         Forms\Components\CheckboxList::make('attributes.diamond_clarities')
-                            ->label('Available Natural Diamond Clarities for Customer')
+                            ->label('Available Diamond & Stone Options for Customer')
                             ->options([
-                                'VVS1' => 'VVS1 (Premium)',
-                                'VVS2' => 'VVS2 (Superior)',
-                                'VS1'  => 'VS1 (Very Slightly Included 1)',
-                                'VS2'  => 'VS2 (Very Slightly Included 2)',
+                                'VVS1'       => 'VVS1 (Premium Diamond)',
+                                'VVS2'       => 'VVS2 (Superior Diamond)',
+                                'VS1'        => 'VS1 (Diamond)',
+                                'VS2'        => 'VS2 (Diamond)',
+                                'Moissanite' => 'Moissanite (VVS1 D-Colorless)',
                             ])
-                            ->columns(['default' => 2, 'sm' => 4])
+                            ->columns(['default' => 2, 'sm' => 3, 'lg' => 5])
                             ->live()
                             ->afterStateUpdated(fn ($state, Forms\Set $set, Forms\Get $get) => self::syncAllPricesAndPreviews($get, $set))
                             ->default(['VVS1', 'VVS2', 'VS1', 'VS2'])
-                            ->helperText('Select which diamond clarities customers can choose. Customer price recalculates dynamically as Carat Weight × Daily Clarity Rate.')
+                            ->helperText('Select which diamond & stone options customers can choose. Customer price recalculates dynamically as Carat Weight × Daily Stone Rate.')
                             ->columnSpanFull(),
 
                         // 2. Gold & Metal Purities Checkboxes

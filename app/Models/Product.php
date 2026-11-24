@@ -635,6 +635,21 @@ class Product extends Model
         return [];
     }
 
+    /**
+     * Safe fallback accessor for custom/dynamic jewellery attributes.
+     */
+    public function getCustomAttribute(string $key, mixed $default = null): mixed
+    {
+        $attrs = $this->jewellery_attributes;
+        if (isset($attrs[$key])) {
+            return $attrs[$key];
+        }
+        if (isset($this->attributes[$key])) {
+            return $this->attributes[$key];
+        }
+        return $this->{$key} ?? $default;
+    }
+
     public function getDiamondColorClarityAttribute(): ?string
     {
         return $this->jewellery_attributes['diamond_color']

@@ -41,6 +41,7 @@ class GoldRatesSettings extends Page implements HasForms
     public ?string $diamond_rate_vvs2 = null;
     public ?string $diamond_rate_vs1 = null;
     public ?string $diamond_rate_vs2 = null;
+    public ?string $diamond_rate_moissanite = null;
     public ?string $gold_gst_rate = null;
     public ?string $gold_rates_updated_at = null;
 
@@ -58,6 +59,7 @@ class GoldRatesSettings extends Page implements HasForms
             'diamond_rate_vvs2'        => (string) ($rates['diamond_rate_vvs2'] ?? '90000'),
             'diamond_rate_vs1'         => (string) ($rates['diamond_rate_vs1'] ?? '75000'),
             'diamond_rate_vs2'         => (string) ($rates['diamond_rate_vs2'] ?? '60000'),
+            'diamond_rate_moissanite'  => (string) ($rates['diamond_rate_moissanite'] ?? '3500'),
             'gold_gst_rate'            => (string) ($rates['gst_rate'] ?? '3'),
             'gold_rates_updated_at'    => $rates['updated_at'],
         ]);
@@ -154,6 +156,15 @@ class GoldRatesSettings extends Page implements HasForms
                                 ->required()
                                 ->placeholder('e.g. 60000')
                                 ->helperText('Standard VS2 clarity natural certified diamond benchmark rate per carat.'),
+
+                            TextInput::make('diamond_rate_moissanite')
+                                ->label('Moissanite Rate (₹ / Carat)')
+                                ->numeric()
+                                ->prefix('₹')
+                                ->required()
+                                ->default('3500')
+                                ->placeholder('e.g. 3500')
+                                ->helperText('Benchmark rate per carat for certified premium Moissanite stones.'),
                         ]),
                     ]),
 
@@ -211,6 +222,7 @@ class GoldRatesSettings extends Page implements HasForms
         SiteSetting::set('diamond_rate_vvs2', $data['diamond_rate_vvs2'] ?? '90000');
         SiteSetting::set('diamond_rate_vs1', $data['diamond_rate_vs1'] ?? '75000');
         SiteSetting::set('diamond_rate_vs2', $data['diamond_rate_vs2'] ?? '60000');
+        SiteSetting::set('diamond_rate_moissanite', $data['diamond_rate_moissanite'] ?? '3500');
         SiteSetting::set('gold_gst_rate', $data['gold_gst_rate'] ?? '3');
         SiteSetting::set('gold_rates_updated_at', now()->toDateTimeString());
 

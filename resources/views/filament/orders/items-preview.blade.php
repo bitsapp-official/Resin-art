@@ -411,7 +411,7 @@
 
                                     @if($diamondClarity)
                                         <div class="order-spec-chip" style="background: rgba(173, 149, 117, 0.12); border-color: rgba(173, 149, 117, 0.35);">
-                                            <span class="order-spec-label" style="color: #AD9575;">Clarity:</span>
+                                            <span class="order-spec-label" style="color: #AD9575;">{{ str_contains(strtolower($diamondClarity), 'moissanite') ? 'Center Stone:' : 'Clarity:' }}</span>
                                             <span class="order-spec-val" style="color: #92754A; font-weight: 700;">{{ $diamondClarity }}</span>
                                         </div>
                                     @endif

@@ -483,6 +483,7 @@
                 getDiamondRate(clarity) {
                     const c = (clarity || this.selectedClarity || 'VVS1').toUpperCase().trim();
                     const rates = this.diamondRates || {};
+                    if (c.includes('MOISSANITE')) return rates.moissanite ? Number(rates.moissanite) : 3500;
                     if (c.includes('VVS1')) return rates.vvs1 ? Number(rates.vvs1) : 110000;
                     if (c.includes('VVS2')) return rates.vvs2 ? Number(rates.vvs2) : 90000;
                     if (c.includes('VS1')) return rates.vs1 ? Number(rates.vs1) : 75000;
@@ -784,6 +785,7 @@
                 vvs2: {{ (float) (\App\Services\BullionPricingService::getRates()['diamond_rate_vvs2'] ?? 90000) }},
                 vs1: {{ (float) (\App\Services\BullionPricingService::getRates()['diamond_rate_vs1'] ?? 75000) }},
                 vs2: {{ (float) (\App\Services\BullionPricingService::getRates()['diamond_rate_vs2'] ?? 60000) }},
+                moissanite: {{ (float) (\App\Services\BullionPricingService::getRates()['diamond_rate_moissanite'] ?? 3500) }},
             },
             profitMarginPercent: {{ (float) ($product->jewellery_attributes['profit_margin_percent'] ?? 0) }},
             bullionRates: @js(\App\Services\BullionPricingService::getRates()),
@@ -1258,7 +1260,7 @@
                         <div class="flex items-center gap-2 flex-wrap">
                             <template x-for="cOpt in diamondCaratOptions" :key="cOpt">
                                 <button type="button" @click="selectedCaratOption = cOpt; if (typeof syncUrlWithState === 'function') syncUrlWithState();"
-                                        :class="selectedCaratOption === cOpt ? 'bg-[#1C1917] text-white border-[#1C1917] shadow-xs' : 'bg-white text-[#1C1917] border-[#9E9586] hover:border-[#1C1917]'"
+                                        :class="selectedCaratOption === cOpt ? 'bg-[#1C1917] text-white border-[#1C1917] shadow-xs' : 'bg-transparent text-[#1C1917] border-[#D8D2C7] hover:border-[#1C1917] hover:bg-white/50'"
                                         class="px-4 sm:px-5 py-2 rounded-full border text-[9px] sm:text-[9.5px] uppercase tracking-[0.18em] sm:tracking-[0.2em] font-medium transition-all duration-200 cursor-pointer"
                                         x-text="cOpt">
                                 </button>
@@ -1272,13 +1274,13 @@
                     <div class="space-y-2">
                         <div class="flex items-center justify-between">
                             <p class="text-[10px] uppercase tracking-[0.2em] font-semibold text-[#1C1917]">
-                                DIAMOND CLARITY <span class="font-normal text-[#8E877D] tracking-normal ml-1" x-text="selectedClarity ? '· ' + selectedClarity : ''"></span>
+                                <span x-text="selectedClarity && selectedClarity.toLowerCase().includes('moissanite') ? 'STONE / CLARITY' : 'DIAMOND CLARITY'"></span><span class="font-normal text-[#8E877D] tracking-normal ml-1" x-text="selectedClarity ? '· ' + selectedClarity : ''"></span>
                             </p>
                         </div>
                         <div class="flex items-center gap-2 flex-wrap">
                             <template x-for="clarity in diamondClarities" :key="clarity">
                                 <button type="button" @click="selectedClarity = clarity; if (typeof syncUrlWithState === 'function') syncUrlWithState();"
-                                        :class="selectedClarity === clarity ? 'bg-[#1C1917] text-white border-[#1C1917] shadow-xs' : 'bg-white text-[#1C1917] border-[#9E9586] hover:border-[#1C1917]'"
+                                        :class="selectedClarity === clarity ? 'bg-[#1C1917] text-white border-[#1C1917] shadow-xs' : 'bg-transparent text-[#1C1917] border-[#D8D2C7] hover:border-[#1C1917] hover:bg-white/50'"
                                         class="px-4 sm:px-5 py-2 rounded-full border text-[9px] sm:text-[9.5px] uppercase tracking-[0.18em] sm:tracking-[0.2em] font-medium transition-all duration-200 cursor-pointer"
                                         x-text="clarity">
                                 </button>
@@ -1296,7 +1298,7 @@
                         <div class="flex items-center gap-2 flex-wrap">
                             <template x-for="purity in goldPurities" :key="purity">
                                 <button type="button" @click="selectedPurity = purity; if (typeof syncUrlWithState === 'function') syncUrlWithState();"
-                                        :class="selectedPurity === purity ? 'bg-[#1C1917] text-white border-[#1C1917] shadow-xs' : 'bg-white text-[#1C1917] border-[#9E9586] hover:border-[#1C1917]'"
+                                        :class="selectedPurity === purity ? 'bg-[#1C1917] text-white border-[#1C1917] shadow-xs' : 'bg-transparent text-[#1C1917] border-[#D8D2C7] hover:border-[#1C1917] hover:bg-white/50'"
                                         class="px-4 sm:px-5 py-2 rounded-full border text-[9px] sm:text-[9.5px] uppercase tracking-[0.18em] sm:tracking-[0.2em] font-medium transition-all duration-200 cursor-pointer"
                                         x-text="purity">
                                 </button>
@@ -1324,7 +1326,7 @@
                             <template x-for="v in displaySizes" :key="v.size">
                                 <button type="button" 
                                         @click="selectedSize = v.size; if (typeof syncUrlWithState === 'function') syncUrlWithState();"
-                                        :class="selectedSize === v.size ? 'bg-[#1C1917] text-white border-[#1C1917] shadow-xs' : 'bg-white text-[#1C1917] border-[#9E9586] hover:border-[#1C1917]'"
+                                        :class="selectedSize === v.size ? 'bg-[#1C1917] text-white border-[#1C1917] shadow-xs' : 'bg-transparent text-[#1C1917] border-[#D8D2C7] hover:border-[#1C1917] hover:bg-white/50'"
                                         class="px-3.5 sm:px-4 py-1.5 sm:py-2 rounded-full border text-[9.5px] uppercase tracking-[0.16em] sm:tracking-[0.18em] font-medium transition-all duration-150 cursor-pointer"
                                         x-text="v.size">
                                 </button>
@@ -1334,7 +1336,7 @@
                             <template x-if="sizeVariants.length > 5">
                                 <button type="button" 
                                         @click="sizeModalOpen = true"
-                                        class="px-3.5 py-1.5 sm:py-2 rounded-full border border-dashed border-[#9E9586] bg-white text-[#1C1917] hover:border-[#1C1917] hover:bg-[#FAF8F5] text-[9.5px] uppercase tracking-[0.16em] font-medium transition-all duration-150 cursor-pointer flex items-center gap-1">
+                                        class="px-3.5 py-1.5 sm:py-2 rounded-full border border-dashed border-[#D8D2C7] bg-transparent text-[#1C1917] hover:border-[#1C1917] hover:bg-white/50 text-[9.5px] uppercase tracking-[0.16em] font-medium transition-all duration-150 cursor-pointer flex items-center gap-1">
                                     <span x-text="'+ ' + (sizeVariants.length - 5) + ' More'"></span>
                                     <svg class="w-2.5 h-2.5 ml-0.5 text-[#8E877D]" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
                                 </button>
@@ -1384,7 +1386,7 @@
                                         <template x-for="v in sizeVariants" :key="v.size">
                                             <button type="button" 
                                                     @click="selectedSize = v.size; if (typeof syncUrlWithState === 'function') syncUrlWithState(); sizeModalOpen = false;"
-                                                    :class="selectedSize === v.size ? 'bg-[#1C1917] text-white border-[#1C1917]' : 'bg-white text-[#1C1917] border-[#9E9586] hover:border-[#1C1917] hover:bg-[#FAF8F5]'"
+                                                    :class="selectedSize === v.size ? 'bg-[#1C1917] text-white border-[#1C1917]' : 'bg-[#FAF8F5] text-[#1C1917] border-[#DFD9CE] hover:border-[#1C1917] hover:bg-white'"
                                                     class="py-2 px-2 rounded-xl border text-[11px] font-medium tracking-wide text-center transition-all cursor-pointer truncate"
                                                     x-text="v.size">
                                             </button>
@@ -1413,7 +1415,7 @@
                                 <button type="button" @click="selectColor(color)"
                                         :title="color"
                                         class="w-7 h-7 rounded-full border-2 transition-all p-0.5 relative cursor-pointer focus:outline-none"
-                                        :class="selectedColor === color ? 'border-[#1C1917] ring-2 ring-[#1C1917]/25 scale-110' : 'border-[#9E9586] hover:border-[#1C1917]'">
+                                        :class="selectedColor === color ? 'border-[#1C1917] ring-2 ring-[#1C1917]/25 scale-110' : 'border-[#DFD9CE] hover:border-[#8E877D]'">
                                     <span class="block w-full h-full rounded-full shadow-inner border border-black/10" :style="getColorStyle(color)"></span>
                                 </button>
                             </template>
@@ -1657,12 +1659,12 @@
         <div class="pt-8 sm:pt-12 mb-16 sm:mb-20" x-data="{ activeTab: 'description' }">
             <div class="flex items-center gap-2.5 sm:gap-3 flex-wrap pb-2 sm:pb-4 mb-6 sm:mb-8">
                 <button type="button" @click="activeTab = 'description'"
-                        :class="activeTab === 'description' ? 'bg-[#1C1917] text-white border-[#1C1917]' : 'bg-white text-[#78716C] border-[#9E9586] hover:border-[#1C1917] hover:text-[#1C1917]'"
+                        :class="activeTab === 'description' ? 'bg-[#1C1917] text-white border-[#1C1917]' : 'bg-transparent text-[#78716C] border-[#DFD9CE] hover:border-[#1C1917] hover:text-[#1C1917]'"
                         class="px-4 sm:px-5 py-2 sm:py-2.5 rounded-full border text-[9px] sm:text-[9.5px] uppercase tracking-[0.18em] sm:tracking-[0.2em] font-medium transition-all duration-300 cursor-pointer shadow-2xs">
                     PRODUCT DETAILS
                 </button>
                 <button type="button" @click="activeTab = 'shipping'"
-                        :class="activeTab === 'shipping' ? 'bg-[#1C1917] text-white border-[#1C1917]' : 'bg-white text-[#78716C] border-[#9E9586] hover:border-[#1C1917] hover:text-[#1C1917]'"
+                        :class="activeTab === 'shipping' ? 'bg-[#1C1917] text-white border-[#1C1917]' : 'bg-transparent text-[#78716C] border-[#DFD9CE] hover:border-[#1C1917] hover:text-[#1C1917]'"
                         class="px-4 sm:px-5 py-2 sm:py-2.5 rounded-full border text-[9px] sm:text-[9.5px] uppercase tracking-[0.18em] sm:tracking-[0.2em] font-medium transition-all duration-300 cursor-pointer shadow-2xs">
                     SHIPPING &amp; POLICY
                 </button>
@@ -1742,15 +1744,16 @@
                                     }
 
                                     if ($product->diamond_carat_weight > 0 || !empty($product->diamond_carat_options)) {
+                                        $firstCarat = !empty($product->diamond_carat_options) ? $product->diamond_carat_options[0] : ($product->diamond_carat_weight . ' ct');
                                         $allSpecs[] = [
-                                            'label' => 'Diamond Weight',
+                                            'label' => 'Diamond / Stone Weight',
                                             'is_alpine' => true,
-                                            'alpine_text' => "selectedCaratOption ? (selectedCaratOption + ' approx') : (activeDiamondCarat > 0 ? activeDiamondCarat + ' ct approx' : '')",
-                                            'static_value' => (!empty($product->diamond_carat_options) ? $product->diamond_carat_options[0] : ($product->diamond_carat_weight . ' ct')) . ' approx',
+                                            'alpine_text' => "selectedCaratOption ? selectedCaratOption : (activeDiamondCarat > 0 ? activeDiamondCarat + ' ct' : '')",
+                                            'static_value' => $firstCarat,
                                         ];
                                     } elseif (!empty($product->diamond_carat)) {
                                         $allSpecs[] = [
-                                            'label' => 'Diamond Weight',
+                                            'label' => 'Diamond / Stone Weight',
                                             'is_alpine' => false,
                                             'static_value' => $product->diamond_carat,
                                         ];
@@ -1766,14 +1769,14 @@
 
                                     if (!empty($product->diamond_clarities) && count($product->diamond_clarities) > 0) {
                                         $allSpecs[] = [
-                                            'label' => 'Diamond Clarity',
+                                            'label' => 'Center Stone / Clarity',
                                             'is_alpine' => true,
-                                            'alpine_text' => "selectedClarity ? (selectedClarity + ' (Natural Certified)') : 'VVS1 (Natural Certified)'",
-                                            'static_value' => ($product->diamond_clarities[0] ?? 'VVS1') . ' (Natural Certified)',
+                                            'alpine_text' => "selectedClarity && selectedClarity.toLowerCase().includes('moissanite') ? 'Moissanite (VVS1 D-Colorless)' : (selectedClarity ? (selectedClarity + ' (Certified Diamond)') : 'VVS1 (Certified Diamond)')",
+                                            'static_value' => ($product->diamond_clarities[0] ?? 'VVS1') . ' (Certified)',
                                         ];
                                     } elseif (!empty($product->diamond_color_clarity) && empty($product->diamond_color)) {
                                         $allSpecs[] = [
-                                            'label' => 'Diamond Clarity',
+                                            'label' => 'Center Stone / Clarity',
                                             'is_alpine' => false,
                                             'static_value' => $product->diamond_color_clarity,
                                         ];
@@ -1787,13 +1790,13 @@
                                         ];
                                     }
 
-                                    if (!empty($product->certification)) {
-                                        $allSpecs[] = [
-                                            'label' => 'Certification',
-                                            'is_alpine' => false,
-                                            'static_value' => $product->certification,
-                                        ];
-                                    }
+                                    $defaultCert = !empty($product->certification) ? $product->certification : 'SGL / IGI Certified Authenticity';
+                                    $allSpecs[] = [
+                                        'label' => 'Certification',
+                                        'is_alpine' => true,
+                                        'alpine_text' => "selectedClarity && selectedClarity.toLowerCase().includes('moissanite') ? 'GRA Moissanite Authenticity Report Included' : " . json_encode($defaultCert),
+                                        'static_value' => $defaultCert,
+                                    ];
 
                                     if (!empty($product->sku)) {
                                         $allSpecs[] = [
