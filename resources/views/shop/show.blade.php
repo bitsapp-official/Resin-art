@@ -1258,7 +1258,7 @@
                         <div class="flex items-center gap-2 flex-wrap">
                             <template x-for="cOpt in diamondCaratOptions" :key="cOpt">
                                 <button type="button" @click="selectedCaratOption = cOpt; if (typeof syncUrlWithState === 'function') syncUrlWithState();"
-                                        :class="selectedCaratOption === cOpt ? 'bg-[#1C1917] text-white border-[#1C1917] shadow-xs' : 'bg-transparent text-[#1C1917] border-[#EBE6DD] hover:border-[#1C1917]'"
+                                        :class="selectedCaratOption === cOpt ? 'bg-[#1C1917] text-white border-[#1C1917] shadow-xs' : 'bg-white text-[#1C1917] border-[#8E877D] hover:border-[#1C1917] shadow-2xs'"
                                         class="px-4 sm:px-5 py-2 rounded-full border text-[9px] sm:text-[9.5px] uppercase tracking-[0.18em] sm:tracking-[0.2em] font-medium transition-all duration-200 cursor-pointer"
                                         x-text="cOpt">
                                 </button>
@@ -1274,12 +1274,11 @@
                             <p class="text-[10px] uppercase tracking-[0.2em] font-semibold text-[#1C1917]">
                                 DIAMOND CLARITY <span class="font-normal text-[#8E877D] tracking-normal ml-1" x-text="selectedClarity ? '· ' + selectedClarity : ''"></span>
                             </p>
-                            <span class="text-[10px] uppercase tracking-[0.16em] text-[#8E877D] font-medium" x-text="activeDiamondCarat + ' CT NATURAL DIAMOND'"></span>
                         </div>
                         <div class="flex items-center gap-2 flex-wrap">
                             <template x-for="clarity in diamondClarities" :key="clarity">
                                 <button type="button" @click="selectedClarity = clarity; if (typeof syncUrlWithState === 'function') syncUrlWithState();"
-                                        :class="selectedClarity === clarity ? 'bg-[#1C1917] text-white border-[#1C1917] shadow-xs' : 'bg-transparent text-[#1C1917] border-[#EBE6DD] hover:border-[#1C1917]'"
+                                        :class="selectedClarity === clarity ? 'bg-[#1C1917] text-white border-[#1C1917] shadow-xs' : 'bg-white text-[#1C1917] border-[#8E877D] hover:border-[#1C1917] shadow-2xs'"
                                         class="px-4 sm:px-5 py-2 rounded-full border text-[9px] sm:text-[9.5px] uppercase tracking-[0.18em] sm:tracking-[0.2em] font-medium transition-all duration-200 cursor-pointer"
                                         x-text="clarity">
                                 </button>
@@ -1297,7 +1296,7 @@
                         <div class="flex items-center gap-2 flex-wrap">
                             <template x-for="purity in goldPurities" :key="purity">
                                 <button type="button" @click="selectedPurity = purity; if (typeof syncUrlWithState === 'function') syncUrlWithState();"
-                                        :class="selectedPurity === purity ? 'bg-[#1C1917] text-white border-[#1C1917]' : 'bg-transparent text-[#1C1917] border-[#EBE6DD] hover:border-[#1C1917]'"
+                                        :class="selectedPurity === purity ? 'bg-[#1C1917] text-white border-[#1C1917] shadow-xs' : 'bg-white text-[#1C1917] border-[#8E877D] hover:border-[#1C1917] shadow-2xs'"
                                         class="px-4 sm:px-5 py-2 rounded-full border text-[9px] sm:text-[9.5px] uppercase tracking-[0.18em] sm:tracking-[0.2em] font-medium transition-all duration-200 cursor-pointer"
                                         x-text="purity">
                                 </button>
@@ -1325,7 +1324,7 @@
                             <template x-for="v in displaySizes" :key="v.size">
                                 <button type="button" 
                                         @click="selectedSize = v.size; if (typeof syncUrlWithState === 'function') syncUrlWithState();"
-                                        :class="selectedSize === v.size ? 'bg-[#1C1917] text-white border-[#1C1917] shadow-xs' : 'bg-transparent text-[#1C1917] border-[#EBE6DD] hover:border-[#1C1917]'"
+                                        :class="selectedSize === v.size ? 'bg-[#1C1917] text-white border-[#1C1917] shadow-xs' : 'bg-white text-[#1C1917] border-[#8E877D] hover:border-[#1C1917] shadow-2xs'"
                                         class="px-3.5 sm:px-4 py-1.5 sm:py-2 rounded-full border text-[9.5px] uppercase tracking-[0.16em] sm:tracking-[0.18em] font-medium transition-all duration-150 cursor-pointer"
                                         x-text="v.size">
                                 </button>
@@ -1335,7 +1334,7 @@
                             <template x-if="sizeVariants.length > 5">
                                 <button type="button" 
                                         @click="sizeModalOpen = true"
-                                        class="px-3.5 py-1.5 sm:py-2 rounded-full border border-dashed border-[#1C1917]/40 text-[#1C1917] hover:border-[#1C1917] hover:bg-[#FAF8F5] text-[9.5px] uppercase tracking-[0.16em] font-medium transition-all duration-150 cursor-pointer flex items-center gap-1">
+                                        class="px-3.5 py-1.5 sm:py-2 rounded-full border border-dashed border-[#8E877D] bg-white text-[#1C1917] hover:border-[#1C1917] hover:bg-[#FAF8F5] text-[9.5px] uppercase tracking-[0.16em] font-medium transition-all duration-150 cursor-pointer flex items-center gap-1 shadow-2xs">
                                     <span x-text="'+ ' + (sizeVariants.length - 5) + ' More'"></span>
                                     <svg class="w-2.5 h-2.5 ml-0.5 text-[#8E877D]" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
                                 </button>
@@ -1385,7 +1384,7 @@
                                         <template x-for="v in sizeVariants" :key="v.size">
                                             <button type="button" 
                                                     @click="selectedSize = v.size; if (typeof syncUrlWithState === 'function') syncUrlWithState(); sizeModalOpen = false;"
-                                                    :class="selectedSize === v.size ? 'bg-[#1C1917] text-white border-[#1C1917]' : 'bg-[#FAF8F5] text-[#1C1917] border-[#E8E2D7] hover:border-[#1C1917] hover:bg-white'"
+                                                    :class="selectedSize === v.size ? 'bg-[#1C1917] text-white border-[#1C1917] shadow-xs' : 'bg-white text-[#1C1917] border-[#8E877D] hover:border-[#1C1917] hover:bg-[#FAF8F5] shadow-2xs'"
                                                     class="py-2 px-2 rounded-xl border text-[11px] font-medium tracking-wide text-center transition-all cursor-pointer truncate"
                                                     x-text="v.size">
                                             </button>
@@ -1414,7 +1413,7 @@
                                 <button type="button" @click="selectColor(color)"
                                         :title="color"
                                         class="w-7 h-7 rounded-full border-2 transition-all p-0.5 relative cursor-pointer focus:outline-none"
-                                        :class="selectedColor === color ? 'border-[#1C1917] ring-2 ring-[#1C1917]/25 scale-110' : 'border-[#DFD9CE] hover:border-[#8E877D]'">
+                                        :class="selectedColor === color ? 'border-[#1C1917] ring-2 ring-[#1C1917]/25 scale-110' : 'border-[#8E877D] hover:border-[#1C1917]'">
                                     <span class="block w-full h-full rounded-full shadow-inner border border-black/10" :style="getColorStyle(color)"></span>
                                 </button>
                             </template>
