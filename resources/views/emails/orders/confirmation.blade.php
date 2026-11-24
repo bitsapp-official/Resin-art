@@ -76,8 +76,8 @@
                                         $purity = $options['gold_purity'] ?? ($options['purity'] ?? null);
                                         $size = $options['size'] ?? null;
                                         $carat = $options['diamond_carat'] ?? ($options['carat'] ?? ($item->product_snapshot['diamond_carat'] ?? ($item->product_snapshot['attributes']['diamond_carat'] ?? ($item->product?->diamond_carat ?? null))));
-                                        $clarity = $options['diamond_clarity'] ?? ($options['clarity'] ?? ($item->product_snapshot['diamond_clarity'] ?? ($item->product_snapshot['attributes']['diamond_clarity'] ?? ($item->product?->diamond_clarities[0] ?? null))));
-                                        $diamondColor = $options['diamond_color'] ?? ($item->product_snapshot['diamond_color'] ?? ($item->product_snapshot['attributes']['diamond_color'] ?? ($item->product?->diamond_color ?? null)));
+                                        $clarity = $options['diamond_clarity'] ?? ($options['clarity'] ?? ($item->product_snapshot['diamond_clarity'] ?? ($item->product_snapshot['attributes']['diamond_clarity'] ?? ($item->product?->diamond_clarity ?? null))));
+                                        $diamondColor = $options['diamond_color'] ?? ($item->product_snapshot['attributes']['diamond_color'] ?? ($item->product?->diamond_color ?? null));
                                     @endphp
                                     @if($color || $purity || $size || $carat || $clarity || $diamondColor)
                                         <div style="font-size: 11px; color: #7B746B; margin-top: 4px; line-height: 1.5;">
