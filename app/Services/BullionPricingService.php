@@ -102,6 +102,30 @@ class BullionPricingService
     }
 
     /**
+     * Calculate strike-through MRP from a selling price using per-product Cut Price %,
+     * falling back to legacy fixed common_cut_price or default markup when unset.
+     */
+    public static function calculateStrikeMrp(float $sellingPrice, array $attributes = [], ?float $fallbackMrp = null): float
+    {
+        $cutPercent = max(0.0, (float) ($attributes['cut_price_percent'] ?? 0));
+        if ($cutPercent > 0) {
+            return (float) round($sellingPrice * (1 + ($cutPercent / 100)));
+        }
+
+        if (!empty($attributes['common_cut_price']) && (float) $attributes['common_cut_price'] > 0) {
+            return (float) $attributes['common_cut_price'];
+        }
+
+        if ($fallbackMrp !== null && $fallbackMrp > 0) {
+            return (float) $fallbackMrp;
+        }
+
+        $rates = self::getRates();
+        $markupPercent = (float) ($rates['mrp_markup_percent'] ?? 20.0);
+        return (float) round($sellingPrice * (1 + ($markupPercent / 100)));
+    }
+
+    /**
      * Return rate per gram for a specific Karat or Silver purity.
      */
     public static function getRateForPurity(string $purity, ?array $rates = null): float
@@ -372,7 +396,7 @@ class BullionPricingService
             );
 
             $purityPrices[$purity] = $calc['selling_price'];
-            $purityMrp[$purity] = $calc['mrp_price'];
+            $purityMrp[$purity] = self::calculateStrikeMrp($calc['selling_price'], $attributes, $calc['mrp_price']);
         }
 
         // Recalculate each size variant multi-purity matrix using exact bullion formula
@@ -423,9 +447,9 @@ class BullionPricingService
 
         if ($firstPurity && isset($purityPrices[$firstPurity])) {
             $sellingPrice = (float) $purityPrices[$firstPurity];
-            $mrp = isset($purityMrp[$firstPurity]) ? (float) $purityMrp[$firstPurity] : null;
+            $mrp = self::calculateStrikeMrp($sellingPrice, $attributes, isset($purityMrp[$firstPurity]) ? (float) $purityMrp[$firstPurity] : null);
 
-            if ($mrp !== null && $mrp > $sellingPrice) {
+            if ($mrp > $sellingPrice) {
                 $product->price = $mrp;
                 $product->sale_price = $sellingPrice;
             } else {
@@ -629,6 +653,16 @@ class BullionPricingService
         $selectedSize = $options['size'] ?? null;
         $selectedPurity = $options['gold_purity'] ?? null;
         $sellingPrice = self::resolveItemPrice($product, $options);
+        $attrs = $product->jewellery_attributes;
+
+        $cutPercent = max(0.0, (float) ($attrs['cut_price_percent'] ?? 0));
+        if ($cutPercent > 0) {
+            return (float) round($sellingPrice * (1 + ($cutPercent / 100)));
+        }
+
+        if (!empty($attrs['common_cut_price']) && (float) $attrs['common_cut_price'] > 0) {
+            return (float) $attrs['common_cut_price'];
+        }
 
         if (!empty($selectedSize)) {
             $sizeVariants = (array) ($product->attributes['size_variants'] ?? []);

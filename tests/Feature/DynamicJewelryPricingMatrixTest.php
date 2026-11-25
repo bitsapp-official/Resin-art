@@ -868,6 +868,74 @@ class DynamicJewelryPricingMatrixTest extends TestCase
         $viewResponse->assertSee('Moissanite');
         $viewResponse->assertSee('GRA Moissanite Authenticity Report');
     }
+
+    public function test_percentage_cut_price_scales_mrp_across_diamond_carats_and_purities(): void
+    {
+        SiteSetting::set('gold_rate_18kt', '5700');
+        SiteSetting::set('gold_rate_14kt', '4433');
+        SiteSetting::set('gold_default_making_per_gram', '750');
+        SiteSetting::set('diamond_rate_vvs1', '100000');
+
+        // Product with 25% Strike Cut Price Markup
+        $product = Product::create([
+            'name' => 'Percentage Cut MRP Solitaire Ring',
+            'slug' => 'percentage-cut-mrp-solitaire-ring',
+            'sku' => 'PCT-CUT-01',
+            'price' => 100000,
+            'status' => 'published',
+            'inventory_type' => 'MADE_TO_ORDER',
+            'stock' => 0,
+            'attributes' => [
+                'pricing_mode' => 'dynamic',
+                'making_charge' => 750,
+                'making_charge_type' => 'per_gram',
+                'gold_weight_grams' => 4.0,
+                'diamond_carat_weight' => 1.00,
+                'diamond_carat_options' => ['1.00 ct', '5.00 ct'],
+                'diamond_clarities' => ['VVS1', 'VS1'],
+                'gold_purities' => ['14KT Gold', '18KT Gold'],
+                'profit_margin_percent' => 5,
+                'cut_price_percent' => 25,
+            ],
+        ]);
+
+        // 1. At 1.00 ct (18KT Gold, VVS1)
+        $price1ct = BullionPricingService::resolveItemPrice($product, [
+            'gold_purity' => '18KT Gold',
+            'diamond_clarity' => 'VVS1',
+            'diamond_carat' => '1.00 ct',
+        ]);
+        $mrp1ct = BullionPricingService::resolveItemMrp($product, [
+            'gold_purity' => '18KT Gold',
+            'diamond_clarity' => 'VVS1',
+            'diamond_carat' => '1.00 ct',
+        ]);
+        $this->assertEquals((float) round($price1ct * 1.25), $mrp1ct);
+        $this->assertGreaterThan($price1ct, $mrp1ct);
+
+        // 2. At 5.00 ct (18KT Gold, VVS1) — selling price jumps way above 1ct MRP, cut MRP MUST scale by +25%
+        $price5ct = BullionPricingService::resolveItemPrice($product, [
+            'gold_purity' => '18KT Gold',
+            'diamond_clarity' => 'VVS1',
+            'diamond_carat' => '5.00 ct',
+        ]);
+        $mrp5ct = BullionPricingService::resolveItemMrp($product, [
+            'gold_purity' => '18KT Gold',
+            'diamond_clarity' => 'VVS1',
+            'diamond_carat' => '5.00 ct',
+        ]);
+        $this->assertEquals(568653.0, $price5ct);
+        $this->assertEquals((float) round(568653.0 * 1.25), $mrp5ct);
+        $this->assertGreaterThan($price5ct, $mrp5ct);
+
+        // 3. Product effective_mrp matches +25% of base effective_price (first purity 14KT Gold)
+        $this->assertEquals((float) round($product->effective_price * 1.25), $product->effective_mrp);
+
+        // 4. Storefront passes cutPricePercent: 25 to Alpine dynamic engine
+        $response = $this->get(route('shop.show', $product->slug));
+        $response->assertStatus(200);
+        $response->assertSee('cutPricePercent: 25', false);
+    }
 }
 
 

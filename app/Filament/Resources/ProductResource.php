@@ -303,21 +303,27 @@ class ProductResource extends Resource
                                     ->afterStateUpdated(fn ($state, Forms\Set $set, Forms\Get $get) => self::syncAllPricesAndPreviews($get, $set))
                                     ->columnSpan(['default' => 1, 'sm' => 1]),
 
-                                Forms\Components\TextInput::make('attributes.common_cut_price')
-                                    ->label('Cut Price (₹ Strike MRP)')
+                                Forms\Components\TextInput::make('attributes.cut_price_percent')
+                                    ->label('Cut Price (% Strike MRP)')
                                     ->numeric()
                                     ->step('any')
-                                    ->extraInputAttributes(['class' => '[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none', 'inputmode' => 'numeric'])
-                                    ->prefix('₹')
-                                    ->placeholder('e.g. 85000')
-                                    ->helperText('Single strike-through cut price across all sizes.')
-                                    ->live(onBlur: true)
-                                    ->afterStateUpdated(function ($state, Forms\Set $set, Forms\Get $get) {
-                                        if (!empty($state)) {
-                                            self::applyCommonCutPriceToAllVariants((float) $state, $set, $get);
+                                    ->minValue(0)
+                                    ->extraInputAttributes(['class' => '[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none', 'inputmode' => 'decimal'])
+                                    ->suffix('%')
+                                    ->placeholder('e.g. 20')
+                                    ->helperText(function (Forms\Get $get, ?\App\Models\Product $record) {
+                                        $pct = self::resolveCutPricePercent($get);
+                                        if ($pct > 0) {
+                                            return "✓ +{$pct}% strike MRP applied dynamically across all diamond sizes & purities.";
                                         }
-                                        self::syncAllPricesAndPreviews($get, $set);
+                                        $legacyCut = (float) ($record?->jewellery_attributes['common_cut_price'] ?? 0);
+                                        if ($legacyCut > 0) {
+                                            return 'Legacy fixed cut price ₹' . number_format($legacyCut) . ' is active. Enter a % above (e.g. 20) to auto-scale across all carats & purities.';
+                                        }
+                                        return 'Percentage added on selling price to display strike-through MRP across all diamond sizes & purities.';
                                     })
+                                    ->live(onBlur: true)
+                                    ->afterStateUpdated(fn ($state, Forms\Set $set, Forms\Get $get) => self::syncAllPricesAndPreviews($get, $set))
                                     ->columnSpan(['default' => 1, 'sm' => 1]),
                             ]),
 
@@ -425,19 +431,7 @@ class ProductResource extends Resource
                                         $c = \App\Services\BullionPricingService::calculateFinalPrice($w, $m, $d, '10KT Gold', null, null, $w, $p, $carat > 0 ? $carat : null, $firstClarity);
                                         return number_format($c['final_price']);
                                     })
-                                    ->helperText(function (Forms\Get $get) {
-                                        $w = (float) ($get('attributes.gold_weight_grams') ?? 0);
-                                        if ($w <= 0) return null;
-                                        $m = self::resolveMakingCharge($get);
-                                        $d = self::resolveDiamondValue($get);
-                                        $p = self::resolveProfitMargin($get);
-                                        $carat = self::resolveDiamondCarat($get);
-                                        $clarities = self::resolveDiamondClarities($get);
-                                        $firstClarity = !empty($clarities) ? $clarities[0] : 'VVS1';
-                                        $c = \App\Services\BullionPricingService::calculateFinalPrice($w, $m, $d, '10KT Gold', null, null, $w, $p, $carat > 0 ? $carat : null, $firstClarity);
-                                        $claritySuffix = $d > 0 ? " ({$firstClarity})" : '';
-                                        return 'Cost: ₹' . number_format($c['cost_with_gst']) . ' + Profit: ₹' . number_format($c['profit_amount']) . ($p > 0 ? " ({$p}%)" : '') . $claritySuffix;
-                                    })
+                                    ->helperText(fn (Forms\Get $get) => self::buildPurityPreviewHelperText($get, '10KT Gold'))
                                     ->columnSpan(1),
 
                                 Forms\Components\TextInput::make('attributes.preview_14k')
@@ -476,19 +470,7 @@ class ProductResource extends Resource
                                         $c = \App\Services\BullionPricingService::calculateFinalPrice($w, $m, $d, '14KT Gold', null, null, $w, $p, $carat > 0 ? $carat : null, $firstClarity);
                                         return number_format($c['final_price']);
                                     })
-                                    ->helperText(function (Forms\Get $get) {
-                                        $w = (float) ($get('attributes.gold_weight_grams') ?? 0);
-                                        if ($w <= 0) return null;
-                                        $m = self::resolveMakingCharge($get);
-                                        $d = self::resolveDiamondValue($get);
-                                        $p = self::resolveProfitMargin($get);
-                                        $carat = self::resolveDiamondCarat($get);
-                                        $clarities = self::resolveDiamondClarities($get);
-                                        $firstClarity = !empty($clarities) ? $clarities[0] : 'VVS1';
-                                        $c = \App\Services\BullionPricingService::calculateFinalPrice($w, $m, $d, '14KT Gold', null, null, $w, $p, $carat > 0 ? $carat : null, $firstClarity);
-                                        $claritySuffix = $d > 0 ? " ({$firstClarity})" : '';
-                                        return 'Cost: ₹' . number_format($c['cost_with_gst']) . ' + Profit: ₹' . number_format($c['profit_amount']) . ($p > 0 ? " ({$p}%)" : '') . $claritySuffix;
-                                    })
+                                    ->helperText(fn (Forms\Get $get) => self::buildPurityPreviewHelperText($get, '14KT Gold'))
                                     ->columnSpan(1),
 
                                 Forms\Components\TextInput::make('attributes.preview_18k')
@@ -527,19 +509,7 @@ class ProductResource extends Resource
                                         $c = \App\Services\BullionPricingService::calculateFinalPrice($w, $m, $d, '18KT Gold', null, null, $w, $p, $carat > 0 ? $carat : null, $firstClarity);
                                         return number_format($c['final_price']);
                                     })
-                                    ->helperText(function (Forms\Get $get) {
-                                        $w = (float) ($get('attributes.gold_weight_grams') ?? 0);
-                                        if ($w <= 0) return null;
-                                        $m = self::resolveMakingCharge($get);
-                                        $d = self::resolveDiamondValue($get);
-                                        $p = self::resolveProfitMargin($get);
-                                        $carat = self::resolveDiamondCarat($get);
-                                        $clarities = self::resolveDiamondClarities($get);
-                                        $firstClarity = !empty($clarities) ? $clarities[0] : 'VVS1';
-                                        $c = \App\Services\BullionPricingService::calculateFinalPrice($w, $m, $d, '18KT Gold', null, null, $w, $p, $carat > 0 ? $carat : null, $firstClarity);
-                                        $claritySuffix = $d > 0 ? " ({$firstClarity})" : '';
-                                        return 'Cost: ₹' . number_format($c['cost_with_gst']) . ' + Profit: ₹' . number_format($c['profit_amount']) . ($p > 0 ? " ({$p}%)" : '') . $claritySuffix;
-                                    })
+                                    ->helperText(fn (Forms\Get $get) => self::buildPurityPreviewHelperText($get, '18KT Gold'))
                                     ->columnSpan(1),
 
                                 Forms\Components\TextInput::make('attributes.preview_22k')
@@ -578,19 +548,7 @@ class ProductResource extends Resource
                                         $c = \App\Services\BullionPricingService::calculateFinalPrice($w, $m, $d, '22KT Gold', null, null, $w, $p, $carat > 0 ? $carat : null, $firstClarity);
                                         return number_format($c['final_price']);
                                     })
-                                    ->helperText(function (Forms\Get $get) {
-                                        $w = (float) ($get('attributes.gold_weight_grams') ?? 0);
-                                        if ($w <= 0) return null;
-                                        $m = self::resolveMakingCharge($get);
-                                        $d = self::resolveDiamondValue($get);
-                                        $p = self::resolveProfitMargin($get);
-                                        $carat = self::resolveDiamondCarat($get);
-                                        $clarities = self::resolveDiamondClarities($get);
-                                        $firstClarity = !empty($clarities) ? $clarities[0] : 'VVS1';
-                                        $c = \App\Services\BullionPricingService::calculateFinalPrice($w, $m, $d, '22KT Gold', null, null, $w, $p, $carat > 0 ? $carat : null, $firstClarity);
-                                        $claritySuffix = $d > 0 ? " ({$firstClarity})" : '';
-                                        return 'Cost: ₹' . number_format($c['cost_with_gst']) . ' + Profit: ₹' . number_format($c['profit_amount']) . ($p > 0 ? " ({$p}%)" : '') . $claritySuffix;
-                                    })
+                                    ->helperText(fn (Forms\Get $get) => self::buildPurityPreviewHelperText($get, '22KT Gold'))
                                     ->columnSpan(1),
 
                                 Forms\Components\TextInput::make('attributes.preview_silver')
@@ -629,19 +587,7 @@ class ProductResource extends Resource
                                         $c = \App\Services\BullionPricingService::calculateFinalPrice($w, $m, $d, '925 Silver', null, null, $w, $p, $carat > 0 ? $carat : null, $firstClarity);
                                         return number_format($c['final_price']);
                                     })
-                                    ->helperText(function (Forms\Get $get) {
-                                        $w = (float) ($get('attributes.gold_weight_grams') ?? 0);
-                                        if ($w <= 0) return null;
-                                        $m = self::resolveMakingCharge($get);
-                                        $d = self::resolveDiamondValue($get);
-                                        $p = self::resolveProfitMargin($get);
-                                        $carat = self::resolveDiamondCarat($get);
-                                        $clarities = self::resolveDiamondClarities($get);
-                                        $firstClarity = !empty($clarities) ? $clarities[0] : 'VVS1';
-                                        $c = \App\Services\BullionPricingService::calculateFinalPrice($w, $m, $d, '925 Silver', null, null, $w, $p, $carat > 0 ? $carat : null, $firstClarity);
-                                        $claritySuffix = $d > 0 ? " ({$firstClarity})" : '';
-                                        return 'Cost: ₹' . number_format($c['cost_with_gst']) . ' + Profit: ₹' . number_format($c['profit_amount']) . ($p > 0 ? " ({$p}%)" : '') . $claritySuffix;
-                                    })
+                                    ->helperText(fn (Forms\Get $get) => self::buildPurityPreviewHelperText($get, '925 Silver'))
                                     ->columnSpan(1),
                             ]),
 
@@ -1145,6 +1091,44 @@ class ProductResource extends Resource
         return (float) ($val ?: 0);
     }
 
+    public static function resolveCutPricePercent(Forms\Get $get): float
+    {
+        $val = $get('attributes.cut_price_percent')
+            ?? $get('../../cut_price_percent')
+            ?? $get('../../../attributes.cut_price_percent')
+            ?? $get('../../attributes.cut_price_percent')
+            ?? $get('data.attributes.cut_price_percent', isAbsolute: true)
+            ?? $get('attributes.cut_price_percent', isAbsolute: true);
+
+        return max(0.0, (float) ($val ?: 0));
+    }
+
+    public static function buildPurityPreviewHelperText(Forms\Get $get, string $purity): ?string
+    {
+        $w = (float) ($get('attributes.gold_weight_grams') ?? 0);
+        if ($w <= 0) {
+            return null;
+        }
+        $m = self::resolveMakingCharge($get);
+        $d = self::resolveDiamondValue($get);
+        $p = self::resolveProfitMargin($get);
+        $cutPct = self::resolveCutPricePercent($get);
+        $carat = self::resolveDiamondCarat($get);
+        $clarities = self::resolveDiamondClarities($get);
+        $firstClarity = !empty($clarities) ? $clarities[0] : 'VVS1';
+
+        $c = \App\Services\BullionPricingService::calculateFinalPrice(
+            $w, $m, $d, $purity, null, null, $w, $p, $carat > 0 ? $carat : null, $firstClarity
+        );
+        $claritySuffix = $d > 0 ? " ({$firstClarity})" : '';
+        $text = 'Cost: ₹' . number_format($c['cost_with_gst']) . ' + Profit: ₹' . number_format($c['profit_amount']) . ($p > 0 ? " ({$p}%)" : '') . $claritySuffix;
+        if ($cutPct > 0) {
+            $cutMrp = round($c['final_price'] * (1 + ($cutPct / 100)));
+            $text .= ' · Cut MRP: ₹' . number_format($cutMrp) . " (+{$cutPct}%)";
+        }
+        return $text;
+    }
+
     public static function resolveSizeVariants(Forms\Get $get): array
     {
         return (array) (
@@ -1194,6 +1178,7 @@ class ProductResource extends Resource
         $making = self::resolveMakingCharge($get);
         $diamond = self::resolveDiamondValue($get);
         $profit = self::resolveProfitMargin($get);
+        $cutPct = self::resolveCutPricePercent($get);
 
         $commonCut = (float) (
             $get('../../attributes.common_cut_price')
@@ -1202,6 +1187,7 @@ class ProductResource extends Resource
             ?? $get('data.attributes.common_cut_price', isAbsolute: true)
             ?? 0
         );
+        $mrpAttrs = ['cut_price_percent' => $cutPct, 'common_cut_price' => $cutPct > 0 ? null : $commonCut];
 
         $c10  = \App\Services\BullionPricingService::calculateFinalPrice($weight, $making, $diamond, '10KT Gold', null, null, $weight, $profit);
         $c14  = \App\Services\BullionPricingService::calculateFinalPrice($weight, $making, $diamond, '14KT Gold', null, null, $weight, $profit);
@@ -1210,22 +1196,22 @@ class ProductResource extends Resource
         $cSil = \App\Services\BullionPricingService::calculateFinalPrice($weight, $making, $diamond, '925 Silver', null, null, $weight, $profit);
 
         $set('price_10k',    $c10['final_price']);
-        $set('mrp_10k',      $commonCut > 0 ? $commonCut : $c10['mrp_price']);
+        $set('mrp_10k',      \App\Services\BullionPricingService::calculateStrikeMrp($c10['final_price'], $mrpAttrs, $c10['mrp_price']));
 
         $set('price_14k',    $c14['final_price']);
-        $set('mrp_14k',      $commonCut > 0 ? $commonCut : $c14['mrp_price']);
+        $set('mrp_14k',      \App\Services\BullionPricingService::calculateStrikeMrp($c14['final_price'], $mrpAttrs, $c14['mrp_price']));
 
         $set('price_18k',    $c18['final_price']);
-        $set('mrp_18k',      $commonCut > 0 ? $commonCut : $c18['mrp_price']);
+        $set('mrp_18k',      \App\Services\BullionPricingService::calculateStrikeMrp($c18['final_price'], $mrpAttrs, $c18['mrp_price']));
 
         $set('price_22k',    $c22['final_price']);
-        $set('mrp_22k',      $commonCut > 0 ? $commonCut : $c22['mrp_price']);
+        $set('mrp_22k',      \App\Services\BullionPricingService::calculateStrikeMrp($c22['final_price'], $mrpAttrs, $c22['mrp_price']));
 
         $set('price_silver', $cSil['final_price']);
-        $set('mrp_silver',   $commonCut > 0 ? $commonCut : $cSil['mrp_price']);
+        $set('mrp_silver',   \App\Services\BullionPricingService::calculateStrikeMrp($cSil['final_price'], $mrpAttrs, $cSil['mrp_price']));
 
         $set('price',        $c18['final_price']);
-        $set('mrp',          $commonCut > 0 ? $commonCut : $c18['mrp_price']);
+        $set('mrp',          \App\Services\BullionPricingService::calculateStrikeMrp($c18['final_price'], $mrpAttrs, $c18['mrp_price']));
     }
 
     public static function syncPricePreviews(Forms\Get $get, Forms\Set $set): void
@@ -1280,6 +1266,7 @@ class ProductResource extends Resource
         $making = self::resolveMakingCharge($get);
         $diamond = self::resolveDiamondValue($get);
         $profit = self::resolveProfitMargin($get);
+        $cutPct = self::resolveCutPricePercent($get);
         $carat = self::resolveDiamondCarat($get);
         $clarities = self::resolveDiamondClarities($get);
         $firstClarity = !empty($clarities) ? $clarities[0] : 'VVS1';
@@ -1290,6 +1277,7 @@ class ProductResource extends Resource
             ?? $get('data.attributes.common_cut_price', isAbsolute: true)
             ?? 0
         );
+        $mrpAttrs = ['cut_price_percent' => $cutPct, 'common_cut_price' => $cutPct > 0 ? null : $commonCut];
 
         $updated = false;
         foreach ($variants as $index => $variant) {
@@ -1308,12 +1296,12 @@ class ProductResource extends Resource
                 $variants[$index]['price_silver'] = $cSil['final_price'];
                 $variants[$index]['price']        = $c18['final_price'];
 
-                $variants[$index]['mrp_10k']    = $commonCut > 0 ? $commonCut : ($variants[$index]['mrp_10k'] ?? $c10['mrp_price']);
-                $variants[$index]['mrp_14k']    = $commonCut > 0 ? $commonCut : ($variants[$index]['mrp_14k'] ?? $c14['mrp_price']);
-                $variants[$index]['mrp_18k']    = $commonCut > 0 ? $commonCut : ($variants[$index]['mrp_18k'] ?? $c18['mrp_price']);
-                $variants[$index]['mrp_22k']    = $commonCut > 0 ? $commonCut : ($variants[$index]['mrp_22k'] ?? $c22['mrp_price']);
-                $variants[$index]['mrp_silver'] = $commonCut > 0 ? $commonCut : ($variants[$index]['mrp_silver'] ?? $cSil['mrp_price']);
-                $variants[$index]['mrp']        = $commonCut > 0 ? $commonCut : ($variants[$index]['mrp'] ?? $c18['mrp_price']);
+                $variants[$index]['mrp_10k']    = \App\Services\BullionPricingService::calculateStrikeMrp($c10['final_price'], $mrpAttrs, $variants[$index]['mrp_10k'] ?? $c10['mrp_price']);
+                $variants[$index]['mrp_14k']    = \App\Services\BullionPricingService::calculateStrikeMrp($c14['final_price'], $mrpAttrs, $variants[$index]['mrp_14k'] ?? $c14['mrp_price']);
+                $variants[$index]['mrp_18k']    = \App\Services\BullionPricingService::calculateStrikeMrp($c18['final_price'], $mrpAttrs, $variants[$index]['mrp_18k'] ?? $c18['mrp_price']);
+                $variants[$index]['mrp_22k']    = \App\Services\BullionPricingService::calculateStrikeMrp($c22['final_price'], $mrpAttrs, $variants[$index]['mrp_22k'] ?? $c22['mrp_price']);
+                $variants[$index]['mrp_silver'] = \App\Services\BullionPricingService::calculateStrikeMrp($cSil['final_price'], $mrpAttrs, $variants[$index]['mrp_silver'] ?? $cSil['mrp_price']);
+                $variants[$index]['mrp']        = \App\Services\BullionPricingService::calculateStrikeMrp($c18['final_price'], $mrpAttrs, $variants[$index]['mrp'] ?? $c18['mrp_price']);
 
                 $updated = true;
             }

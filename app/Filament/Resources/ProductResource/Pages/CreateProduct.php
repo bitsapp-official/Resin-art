@@ -49,6 +49,10 @@ class CreateProduct extends CreateRecord
                 $making = (float) ($rates['making_per_gram'] ?: 750);
             }
             $profit = (float) ($data['attributes']['profit_margin_percent'] ?? 0);
+            $cutPercent = max(0.0, (float) ($data['attributes']['cut_price_percent'] ?? 0));
+            if ($cutPercent > 0) {
+                $data['attributes']['common_cut_price'] = null;
+            }
             $commonCut = (float) ($data['attributes']['common_cut_price'] ?? 0);
 
             $caratVal = $data['attributes']['diamond_carat'] ?? 0;
@@ -106,7 +110,7 @@ class CreateProduct extends CreateRecord
                         $firstClarity
                     );
                     $data['attributes']['purity_prices'][$p] = $calc['final_price'];
-                    $data['attributes']['purity_mrp'][$p] = ($commonCut > 0) ? $commonCut : $calc['mrp_price'];
+                    $data['attributes']['purity_mrp'][$p] = \App\Services\BullionPricingService::calculateStrikeMrp($calc['final_price'], $data['attributes'], $calc['mrp_price']);
                 }
 
                 $data['attributes']['gold_weight'] = "{$weight} gms approx";
@@ -120,9 +124,10 @@ class CreateProduct extends CreateRecord
             $sellingPrice = isset($purityPrices[$firstPurity]) && is_numeric($purityPrices[$firstPurity])
                 ? (float) $purityPrices[$firstPurity]
                 : null;
-            $mrp = ($commonCut > 0)
-                ? $commonCut
-                : (isset($purityMrp[$firstPurity]) && is_numeric($purityMrp[$firstPurity]) ? (float) $purityMrp[$firstPurity] : null);
+            $fallbackMrp = isset($purityMrp[$firstPurity]) && is_numeric($purityMrp[$firstPurity]) ? (float) $purityMrp[$firstPurity] : null;
+            $mrp = $sellingPrice !== null
+                ? \App\Services\BullionPricingService::calculateStrikeMrp($sellingPrice, $data['attributes'], $fallbackMrp)
+                : ($commonCut > 0 ? $commonCut : $fallbackMrp);
 
             if ($sellingPrice !== null) {
                 if ($mrp !== null && $mrp > $sellingPrice) {

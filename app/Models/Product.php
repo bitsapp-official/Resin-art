@@ -375,6 +375,11 @@ class Product extends Model
     public function getEffectiveMrpAttribute(): ?float
     {
         $attrs = $this->jewellery_attributes;
+        $cutPercent = max(0.0, (float) ($attrs['cut_price_percent'] ?? 0));
+        if ($cutPercent > 0) {
+            return (float) round($this->effective_price * (1 + ($cutPercent / 100)));
+        }
+
         if (!empty($attrs['common_cut_price']) && (float) $attrs['common_cut_price'] > 0) {
             return (float) $attrs['common_cut_price'];
         }

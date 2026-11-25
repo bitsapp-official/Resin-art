@@ -470,6 +470,7 @@
                 profitMarginPercent: Number(config.profitMarginPercent) || 0,
                 bullionRates: config.bullionRates || {},
                 commonCutPrice: Number(config.commonCutPrice) || 0,
+                cutPricePercent: Number(config.cutPricePercent) || 0,
                 regularPrice: Number(config.regularPrice) || 0,
 
                 get activeDiamondCarat() {
@@ -556,7 +557,9 @@
                         const finalPrice = Math.round(costWithGst + profitVal);
 
                         let mrp = null;
-                        if (this.commonCutPrice && Number(this.commonCutPrice) > 0) {
+                        if (this.cutPricePercent && Number(this.cutPricePercent) > 0) {
+                            mrp = Math.round(finalPrice * (1 + (Number(this.cutPricePercent) / 100)));
+                        } else if (this.commonCutPrice && Number(this.commonCutPrice) > 0) {
                             mrp = Number(this.commonCutPrice);
                         } else if (this.regularPrice && Number(this.regularPrice) > finalPrice) {
                             mrp = Number(this.regularPrice);
@@ -588,7 +591,9 @@
                     }
 
                     let mrp = null;
-                    if (this.commonCutPrice && Number(this.commonCutPrice) > 0) {
+                    if (this.cutPricePercent && Number(this.cutPricePercent) > 0) {
+                        mrp = Math.round(base * (1 + (Number(this.cutPricePercent) / 100)));
+                    } else if (this.commonCutPrice && Number(this.commonCutPrice) > 0) {
                         mrp = Number(this.commonCutPrice);
                     } else if (this.purityMrp && this.selectedPurity && this.purityMrp[this.selectedPurity] !== undefined && this.purityMrp[this.selectedPurity] !== null && this.purityMrp[this.selectedPurity] !== '') {
                         const mVal = Number(this.purityMrp[this.selectedPurity]);
@@ -771,6 +776,7 @@
             basePrice: {{ (float) $product->effective_price }},
             regularPrice: {{ (float) $product->price }},
             commonCutPrice: {{ (float) ($product->jewellery_attributes['common_cut_price'] ?? 0) }},
+            cutPricePercent: {{ (float) ($product->jewellery_attributes['cut_price_percent'] ?? 0) }},
             pricingMode: @js($product->attributes['pricing_mode'] ?? 'manual'),
             baseGoldWeight: {{ (float) $product->base_gold_weight }},
             makingChargePerGram: {{ (float) $product->making_charge_per_gram }},
@@ -1231,7 +1237,7 @@
                                 <span x-text="formatPrice(currentPrice)">{{ currency_format($product->effective_price) }}</span>
                             </span>
                             <template x-if="currentMrp && currentMrp > currentPrice">
-                                <s class="text-sm sm:text-base text-[#8E877D] font-light font-sans tracking-tight"><span x-text="formatPrice(currentMrp)">{{ currency_format($product->price) }}</span></s>
+                                <s class="text-sm sm:text-base text-[#8E877D] font-light font-sans tracking-tight"><span x-text="formatPrice(currentMrp)">{{ currency_format($product->effective_mrp ?: $product->price) }}</span></s>
                             </template>
                             <span class="text-[11px] text-[#8E877D] font-light tracking-wide">(Inclusive of all taxes)</span>
                         </div>
