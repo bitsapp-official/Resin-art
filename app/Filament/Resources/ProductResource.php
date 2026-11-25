@@ -205,12 +205,12 @@ class ProductResource extends Resource
                             Forms\Components\FileUpload::make('video_path')
                                 ->label('Product Showcase Video (Upload MP4 / WebM)')
                                 ->acceptedFileTypes(['video/mp4', 'video/webm', 'video/quicktime'])
-                                ->maxSize(15360)
+                                ->maxSize(20480)
                                 ->disk('public')
                                 ->directory('products/videos')
                                 ->openable()
                                 ->downloadable()
-                                ->helperText('Upload craft or showcase video (Max 15 MB). Recommended: compressed 1080p MP4 for fast mobile playback. Takes priority over external URL.')
+                                ->helperText('Upload craft or showcase video (Max 20 MB). Recommended: compressed 1080p MP4 for fast mobile playback. Takes priority over external URL.')
                                 ->columnSpanFull(),
 
                             Forms\Components\TextInput::make('video_url')
