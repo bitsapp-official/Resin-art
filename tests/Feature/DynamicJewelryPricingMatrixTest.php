@@ -936,6 +936,32 @@ class DynamicJewelryPricingMatrixTest extends TestCase
         $response->assertStatus(200);
         $response->assertSee('cutPricePercent: 25', false);
     }
+
+    public function test_admin_diamond_carat_preset_action_populates_standard_carats_and_syncs_previews(): void
+    {
+        $admin = User::factory()->create([
+            'email' => 'admin-preset@solitairefinejewels.com',
+            'is_admin' => true,
+        ]);
+
+        $this->actingAs($admin, 'admin');
+
+        \Livewire\Livewire::test(\App\Filament\Resources\ProductResource\Pages\CreateProduct::class)
+            ->assertSee('+ Quick Preset: Diamond Carats (1, 1.5, 2, 2.5, 3, 4, 5 ct)')
+            ->set('data.attributes.gold_weight_grams', 4.0)
+            ->set('data.attributes.making_charge', 750)
+            ->callFormComponentAction('loadStandardDiamondCaratsAction', 'loadStandardDiamondCarats')
+            ->assertSet('data.attributes.diamond_carat_options', [
+                '1.00 ct',
+                '1.50 ct',
+                '2.00 ct',
+                '2.50 ct',
+                '3.00 ct',
+                '4.00 ct',
+                '5.00 ct',
+            ])
+            ->assertSet('data.attributes.diamond_carat', 1.0);
+    }
 }
 
 

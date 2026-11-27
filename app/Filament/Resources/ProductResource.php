@@ -328,6 +328,32 @@ class ProductResource extends Resource
                             ]),
 
                         // 1.5 Diamond Size / Carat Options (Dynamic Customer Selection e.g. 1.00 ct to 5.00 ct)
+                        Forms\Components\Actions::make([
+                            Forms\Components\Actions\Action::make('loadStandardDiamondCarats')
+                                ->label('+ Quick Preset: Diamond Carats (1, 1.5, 2, 2.5, 3, 4, 5 ct)')
+                                ->color('gray')
+                                ->icon('heroicon-m-sparkles')
+                                ->action(function (Forms\Set $set, Forms\Get $get) {
+                                    $presetCarats = [
+                                        '1.00 ct',
+                                        '1.50 ct',
+                                        '2.00 ct',
+                                        '2.50 ct',
+                                        '3.00 ct',
+                                        '4.00 ct',
+                                        '5.00 ct',
+                                    ];
+                                    $set('attributes.diamond_carat_options', $presetCarats);
+
+                                    $currentCarat = (float) ($get('attributes.diamond_carat') ?? 0);
+                                    if ($currentCarat <= 0) {
+                                        $set('attributes.diamond_carat', 1.0);
+                                    }
+
+                                    self::syncAllPricesAndPreviews($get, $set);
+                                }),
+                        ])->columnSpanFull(),
+
                         Forms\Components\TagsInput::make('attributes.diamond_carat_options')
                             ->label('Available Diamond Sizes / Carat Weights for Customer')
                             ->placeholder('e.g. 1.00 ct, 1.20 ct, 1.50 ct, 2.00 ct, 2.50 ct, 3.00 ct, 4.00 ct, 5.00 ct')
